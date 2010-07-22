@@ -1,0 +1,750 @@
+-- Standard awesome library
+require("awful")
+-- Theme handling library
+require("beautiful")
+-- Notification library
+require("naughty")
+require("shifty")
+require("wicked")
+dofile("/home/lepagee/.config/awesome/functions.lua")
+-- {{{ Variable definitions
+-- Themes define colours, icons, and wallpapers
+-- The default is a dark theme
+theme_path = "/home/lepagee/.config/awesome/default/theme.lua"
+-- Uncommment this for a lighter theme
+-- theme_path = "/usr/share/awesome/themes/sky/theme"
+
+-- Actually load theme
+beautiful.init(theme_path)
+
+-- This is used later as the default terminal and editor to run.
+--terminal = "aterm -tr +sb -tint gray -fade 50 +bl -tinttype true +si -cr red -pr green"
+terminal = 'urxvt  -tr +sb -tint gray -fade 50 +bl +si -cr red -pr green -iconic -bg black -fg white -fn "xft:DejaVu Sans Mono:pixelsize=13"'
+editor = os.getenv("EDITOR") or "nano"
+editor_cmd = terminal .. " -e " .. editor
+
+-- Default modkey.
+-- Usually, Mod4 is the key with a logo between Control and Alt.
+-- If you do not like this or do not have such a key,
+-- I suggest you to remap Mod4 to another key using xmodmap or other tools.
+-- However, you can use another modifier like Mod1, but it may interact with others.
+modkey = "Mod4"
+
+-- Table of layouts to cover with awful.layout.inc, order matters.
+layouts =
+{
+    awful.layout.suit.tile,
+    awful.layout.suit.tile.left,
+    awful.layout.suit.tile.bottom,
+    awful.layout.suit.tile.top,
+    awful.layout.suit.fair,
+    awful.layout.suit.fair.horizontal,
+    awful.layout.suit.max,
+    awful.layout.suit.max.fullscreen,
+    awful.layout.suit.magnifier,
+    awful.layout.suit.floating
+}
+-- }}}
+
+-- {{{ Shifty configuration
+
+-- tag settings
+shifty.config.tags ={ 
+    ["Term"] =       {  init = true, 
+			position = 1, 
+			exclusive = true, 
+			icon = "/home/lepagee/icons/term.png",
+			max_clients = 5,
+			layout = awful.layout.suit.tile },
+		  
+    ["Internet"] =   {  init = true, 
+			position = 2, 
+			exclusive = true, 
+			icon = "/home/lepagee/icons/net.png",
+			layout = awful.layout.suit.max },
+			
+    ["Files"] =      {  init = true, 
+			position = 3, 
+			exclusive = true, 
+			icon = "/home/lepagee/icons/folder.png",
+			max_clients = 4,
+			layout = awful.layout.suit.tile },
+			
+    ["Develop"] =    {  init = true, 
+			position = 4, 
+			exclusive = true, 
+			icon = "/home/lepagee/icons/bug.png",
+			layout = awful.layout.suit.max },
+		      
+    ["Edit"] =       {  init = true, 
+			position = 5, 
+			exclusive = true, 
+			icon = "/home/lepagee/icons/editor.png",
+			max_clients = 5,
+			layout = awful.layout.suit.tile.bottom },
+			
+    ["Media"] =      {  init = true, 
+			position = 6, 
+			exclusive = true, 
+			icon = "/home/lepagee/icons/media.png",
+			layout = awful.layout.suit.max },
+			
+    ["Doc"] =        {  init = true, 
+			position = 7, 
+			exclusive = true, 
+			icon = "/home/lepagee/icons/info.png",
+			layout = awful.layout.suit.magnifier },
+    ["Imaging"] =    {  init = false, 
+			position = 10, 
+			exclusive = true,
+			icon = "/home/lepagee/icons/image.png",
+			layout = awful.layout.suit.max },
+			
+    ["Picture"] =    {  init = false, 
+			position = 10, 
+			exclusive = true,
+			icon = "/home/lepagee/icons/image.png",
+			layout = awful.layout.suit.max },
+			
+    ["Video"] =      {  init = false, 
+			position = 10, 
+			exclusive = true,
+			icon = "/home/lepagee/icons/video.png",
+			layout = awful.layout.suit.max },
+    ["Movie"] =      {  init = false, 
+			position = 12, 
+			exclusive = true,
+			icon = "/home/lepagee/icons/video.png",
+			layout = awful.layout.suit.max },
+    ["3D"] =         {  init = false, 
+			position = 10, 
+			exclusive = true,
+			icon = "/home/lepagee/icons/3d.png",
+			layout = awful.layout.suit.max.fullscreen },
+			
+    ["Music"] =      {  init = false, 
+			position = 10, 
+			exclusive = true,
+			icon = "/home/lepagee/icons/media.png",
+			layout = awful.layout.suit.max },
+			
+    ["Down"] =       {  init = false, 
+			position = 10, 
+			exclusive = true,
+			icon = "/home/lepagee/icons/download.png",
+			layout = awful.layout.suit.max },
+			
+    ["Office"] =     {  init = false, 
+			position = 10, 
+			exclusive = true,
+			icon = "/home/lepagee/icons/office.png",
+			layout = awful.layout.suit.max },
+			
+    ["RSS"] =     {  init = false, 
+			position = 10, 
+			exclusive = true,
+			icon = "/home/lepagee/icons/rss.png",
+			layout = awful.layout.suit.max },
+    ["Chat"] =       {  init = false, 
+			position = 10, 
+			exclusive = true,
+			icon = "/home/lepagee/icons/chat.png",
+			layout = awful.layout.suit.tile },
+    ["Burning"] =       {  init = false, 
+			position = 10, 
+			exclusive = true,
+			icon = "/home/lepagee/icons/burn.png",
+			layout = awful.layout.suit.tile },
+    ["Mail"] =       {  init = false, 
+			position = 10, 
+			exclusive = true,
+			icon = "/home/lepagee/icons/mail2.png",
+			layout = awful.layout.suit.max },
+			
+    ["IRC"] =        {  init = false, 
+			position = 10, 
+			exclusive = true,
+			icon = "/home/lepagee/icons/irc.png",
+			layout = awful.layout.suit.fair },
+    ["Test"] =       {  init = false, 
+			position = 99, 
+			exclusive = false,
+			icon = "/home/lepagee/Icon/tools.png",
+			layout = awful.layout.suit.max },
+    ["Config"] =       {  init = false, 
+			position = 10, 
+			exclusive = false,
+			icon = "/home/lepagee/Icon/tools.png",
+			layout = awful.layout.suit.max },
+    ["Gimp"] =       {  init = false, 
+			position = 10, 
+			exclusive = false,
+			icon = "/home/lepagee/icons/image.png",
+			layout = awful.layout.tile,
+			nmaster = 1,
+			incncol = 10,
+			ncol = 2,
+			mwfact = 0.00},
+			
+
+}
+
+
+-- client settings
+-- order here matters, early rules will be applied first
+shifty.config.apps = {
+{match = { "xterm", "urxvt", "aterm"} , honorsizehints = false, slave = false, tag = "Term" } ,
+{match = { "Opera", "Firefox", "ReKonq", "Dillo", "Arora", } , tag = "Internet" } ,
+{match = { "Thunar", "Konqueror", "Dolphin", "emelfm2", "Nautilus", "Ark", "XArchiver"} , tag = "Files" } ,
+{match = { "Kate", "KDevelop", "Codeblocks", "Code::Blocks", "DDD"} , tag = "Develop" } ,
+{match = { "KWrite", "GVim", "Emacs", "Code::Blocks", "DDD"} , tag = "Edit" } ,
+{match = { "Xine", "xine Panel", "xine*", "MPlayer", "GMPlayer", "XMMS"} , tag = "Media" } ,
+{match = { "VLC"} , tag = "Movie" } , --For fullscreen with controls
+{match = { "Inkscape", "KolourPaint", "Krita", "Karbon", "Karbon14"} , tag = "Imaging" } ,
+{match = { "Digikam", "F-Spot", "GPicView", "ShowPhoto", "KPhotoAlbum"} , tag = "Picture" } ,
+{match = { "KDenLive", "Cinelerra", "AVIDeMux", "Kino"} , honorsizehints = true, tag = "Video" } ,
+{match = { "Blender", "Maya", "K-3D", "KPovModeler"} , tag = "3D" } ,
+{match = { "Amarok", "SongBird"} , tag = "Music" } ,
+{match = { "Assistant", "Okular", "Evince", "EPDFviewer", "xpdf"} , tag = "Doc" } ,
+{match = { "Transmission", "KGet"} , tag = "Down" } ,
+{match = { "OOWriter","OOCalc","OOMath","OOImpress","OOBase","SQLitebrowser","Silverun","Workbench","KWord","KSpread" 
+	    ,"KPres","Basket","openoffice.org","openoffice.org 3.1", "OpenOffice.*" },tag = "Office" } ,
+{match = { "Pidgin", "Kopete"} , tag = "Chat" } ,
+{match = { "Konversation", "Botch"} , tag = "IRC" } ,
+{match = { "MPlayer","pinentry","ksnapshot","pinentry","gtksu","xine","feh","kmix","kcalc","xcalc"},float= true},
+{match = { "Konversation","Opera"} , float = false } ,
+{match = { "ksnapshot","pinentry","gtksu","kcalc","xcalc","feh","About KDE" }, intrusive = true, } ,
+{match = { "Kimberlite", "Kling", "Krong"} , tag = "Test" } ,
+{match = { "Systemsettings", "Kcontrol", "gconf-editor"} , tag = "Config" } ,
+{match = { "k3b"} , tag = "Burning" } ,
+{match = { "Thunderbird","kmail","evolution"} , tag = "Mail" } ,
+{match = { "rssStock"} , tag = "RSS" , honorsizehints = false } ,
+{match = { "pcmanfm","Moving", "^Moving$" }, slave = true } ,
+{match = { "gimp" }, honorsizehints = false, tag = "Gimp" } ,
+{match = { "^Conky$" },  intrusive = true,  geometry = {64,39,nil,nil}, sticky=true },
+{match = {"gimp-image-window" }, slave = true, geometry = {0,0,200,800},struts = { right=200 }},
+{match = {"gimp-dock","Tool Options" }, slave = true, geometry = {nil,0,0,0} },
+{match = {"gimp-toolbox","gimp.toolbox","ToolBox" }, slave = false, geometry = {0,0,0,0} },
+{match = { "" }, buttons = {
+		    button({ }, 1, function (c) client.focus = c; c:raise() end),
+		    button({ modkey }, 1, function (c) awful.mouse.client.move() end),
+		    button({ modkey }, 3, awful.mouse.client.resize ), }, },
+}
+
+-- tag defaults
+shifty.config.defaults = {
+  layout = awful.layout.suit.tile,
+  ncol = 1,
+  mwfact = 0.60,
+  floatBars=true,
+}
+
+shifty.init()
+-- }}}
+
+-- {{{ Wibox
+-- Create a textbox widget
+mytextbox = widget({ type = "textbox", align = "right" })
+-- Set the default text in textbox
+mytextbox.text = "<b><small>salut</small></b>"
+
+-- Create a laucher widget and a main menu
+myawesomemenu = {
+   { "manual", terminal .. " -e man awesome", },
+   { "edit config", editor_cmd .. " " .. awful.util.getdir("config") .. "/rc.lua" },
+   { "restart", awesome.restart },
+   { "quit", awesome.quit }
+}
+
+dofile("/home/lepagee/.config/awesome/menu.lua")
+
+mymainmenu = awful.menu.new({ items = { { "awesome", myawesomemenu, image("/home/lepagee/icons/info.png") },
+                                        { "open terminal", terminal }
+                                      },
+                            })
+			    
+
+mymainmenu2 = awful.menu.new({ items = {{ "Home", "dolphin $HOME",image("/home/lepagee/icons/home.png") },
+					{ "KDE-devel", "dolphin /home/kde-devel",image("/home/lepagee/icons/kde.png") },
+					{ "Image", "dolphin /mnt/smbsda1/My\ Pictures/",image("/home/lepagee/icons/image.png") },
+					{ "Video", "dolphin /mnt/smbsdb3/movie/to_burn/",image("/home/lepagee/icons/video.png") },
+					{ "Music", "dolphin /mnt/smbsda1/music/",image("/home/lepagee/icons/media.png") },
+					{ "Backup", "dolphin /mnt/smbsda1/backup/",image("/home/lepagee/icons/backup.png") },
+					{ "Notes", "dolphin /home/lepagee/Notes/",image("/home/lepagee/icons/editor.png") },
+                                      },
+                            })
+			    
+local aFile = io.popen("/home/lepagee/Scripts/awesomeTopExec.sh")
+local count = 0
+local commandArray = {}
+while true do
+    local line = aFile:read("*line")
+    if line == nil then break end
+    commandArray[count] = {line,line}
+    count = count + 1
+end
+aFile:close()
+mymainmenu3 = awful.menu.new({ items = commandArray})
+
+
+			    
+mylauncher2 = awful.widget.launcher({ image = image("/home/lepagee/icons/home2.png"),
+                                     menu = mymainmenu2 })
+			    
+mylauncher3 = awful.widget.launcher({ image = image("/home/lepagee/icons/star2.png"),
+                           menu = mymainmenu3   })
+				     
+mylauncher = awful.widget.launcher({ image = image(beautiful.awesome_icon),
+                                     menu = main_menu })
+				     
+launcherPix       = widget({ type = "imagebox", align = "left" })
+launcherPix.image = image("/home/lepagee/Icon/gearA.png")
+
+desktopPix       = widget({ type = "imagebox", align = "left" })
+desktopPix.image = image("/home/lepagee/icons/desk.png")
+
+-- Create a systray
+mysystray = widget({ type = "systray", align = "right" })
+
+invisibleWidget = widget({
+      type = 'textbox',
+          name = 'cpuwidget',
+	   align = "right"
+        })
+invisibleWidget.width = 27
+
+local rssStack = {}
+local newsStackSize = 0
+local currentNews = 0
+local skipReadCounter = 6
+
+function readRss()
+  local f = io.open('/tmp/newRssEntry.txt')
+  while true do
+    text2 = f:read("*line")
+    if not text2 then break end
+    rssStack[newsStackSize] = text2
+    newsStackSize = newsStackSize + 1
+  end
+  f:close()
+  f = io.open('/tmp/newRssEntry.txt',"w")
+  f:write("")
+  f:close()
+  --currentNews = 0
+end
+
+function displayRss() 
+  if skipReadCounter > 5 then
+    readRss()
+    skipReadCounter =0
+  end
+  if currentNews < newsStackSize then
+    naughty.notify({
+       text = "<u><b>" .. rssStack[currentNews] .. "</b></u>\n" .. rssStack[currentNews+1] .. "\n\n",
+       timeout = 9, hover_timeout = 20,
+       width = 210, screen = mouse.screen
+    })
+    currentNews = currentNews +2
+  end
+  skipReadCounter = skipReadCounter +1 
+end
+
+ 
+wicked.register(invisibleWidget, displayRss,'$1%',6)
+
+-- Create a wibox for each screen and add it
+
+mywibox = {}
+mypromptbox = {}
+mylayoutbox = {}
+mytaglist = {}
+mytaglist.buttons = awful.util.table.join(
+                    awful.button({ }, 1, function (tag) 
+					    awful.tag.viewonly(tag) 
+					    if isPlayingMovie == true then
+					      if musicBarVisibility == false then
+						volumepixmap.visible = true
+						volumewidget.visible = true
+						mywibox3.visible = false
+					      end
+					      enableAmarokCtrl(true)
+					    end
+					    isPlayingMovie = false
+					    if tag == shifty.getpos(3) then
+					      run_or_raise("dolphin", { class = "Dolphin" })
+					    elseif tag == shifty.getpos(2) then
+					      run_or_raise("firefox", { class = "Firefox" })
+					    elseif tag == shifty.getpos(4) then
+					      run_or_raise("kate4", { class = "Kate4" })
+					    elseif tag == shifty.getpos(10) then
+					    elseif tag == shifty.getpos(1) then
+					    elseif tag == shifty.getpos(5) then
+					    elseif tag == shifty.getpos(6) then
+					    elseif tag == shifty.getpos(7) then
+					    elseif tag == shifty.getpos(12) then
+					      enableAmarokCtrl(false)
+					      musicBarVisibility = mywibox3.visible
+					      volumepixmap.visible = false
+					      volumewidget.visible = false
+					      mywibox3.visible = true
+					      isPlayingMovie = true
+					    end    
+					 end),
+                    awful.button({ modkey }, 1, awful.client.movetotag),
+                    awful.button({ }, 3, function (tag) tag.selected = not tag.selected end),
+                    awful.button({ modkey }, 3, awful.client.toggletag),
+                    awful.button({ }, 4, awful.tag.viewnext),
+                    awful.button({ }, 5, awful.tag.viewprev)
+                    )
+mytasklist = {}
+mytasklist.buttons = awful.util.table.join(
+                     awful.button({ }, 1, function (c)
+                                              if not c:isvisible() then
+                                                  awful.tag.viewonly(c:tags()[1])
+                                              end
+                                              client.focus = c
+                                              c:raise()
+                                          end),
+                     awful.button({ }, 3, function ()
+                                              if instance then
+                                                  instance:hide()
+                                                  instance = nil
+                                              else
+                                                  instance = awful.menu.clients({ width=250 })
+                                              end
+                                          end),
+                     awful.button({ }, 4, function ()
+                                              awful.client.focus.byidx(1)
+                                              if client.focus then client.focus:raise() end
+                                          end),
+                     awful.button({ }, 5, function ()
+                                              awful.client.focus.byidx(-1)
+                                              if client.focus then client.focus:raise() end
+                                          end))
+
+for s = 1, screen.count() do
+    -- Create a promptbox for each screen
+    mypromptbox[s] = widget({ type = "textbox", align = "left" })
+    -- Create an imagebox widget which will contains an icon indicating which layout we're using.
+    -- We need one layoutbox per screen.
+    mylayoutbox[s] = widget({ type = "imagebox", align = "right" })
+    mylayoutbox[s]:buttons(awful.util.table.join(
+                           awful.button({ }, 1, function () awful.layout.inc(layouts, 1) end),
+                           awful.button({ }, 3, function () awful.layout.inc(layouts, -1) end),
+                           awful.button({ }, 4, function () awful.layout.inc(layouts, 1) end),
+                           awful.button({ }, 5, function () awful.layout.inc(layouts, -1) end)))
+    -- Create a taglist widget
+    mytaglist[s] = awful.widget.taglist.new(s, awful.widget.taglist.label.all, mytaglist.buttons)
+
+    -- Create a tasklist widget
+    mytasklist[s] = awful.widget.tasklist.new(function(c)
+                                                  return awful.widget.tasklist.label.currenttags(c, s)
+                                              end, mytasklist.buttons)
+
+    -- Create the wibox
+    mywibox[s] = wibox({ position = "top", fg = beautiful.fg_normal, bg = beautiful.bg_normal })
+    
+    dofile("/home/lepagee/.config/awesome/topWidget.lua")
+    
+    -- Add widgets to the wibox - order matters
+    mywibox[s].widgets = { mytaglist[s],
+			   spacer3,
+			   cpulogo,
+			   cpuwidget,
+			   cpugraphwidget,
+			   spacer2,
+			   ramlogo,
+			   memwidget,
+			   membarwidget,
+			   spacer1,
+			   downlogo,
+			   netDownWidget,
+			   uplogo,
+			   netUpWidget,
+			   spacer4,
+			   volumepixmap,
+			   volumewidget,
+                           mytextbox}
+    mywibox[s].screen = s
+    
+    keyboardSwitcher = widget({ type = "imagebox", align = "right" })
+    
+    function setupKb()
+      keyboardPipe = io.open('/tmp/kbMap',"r")
+      return keyboardPipe:read()
+    end
+    if setupKb() ==  "us" then
+      keyboardSwitcher.image = image("/home/lepagee/Icon/us_flag.png")
+    else
+      keyboardSwitcher.image = image("/home/lepagee/Icon/canada_flag.png")
+    end
+    
+    keyboardSwitcher:buttons({
+      button({ }, 1, function()
+	  if setupKb() ==  "us" then
+	    keyboardSwitcher.text = "ca"
+	    local aFile = io.open('/tmp/kbMap',"w")
+	    aFile:write("ca")
+	    aFile:close() 
+	    awful.util.spawn("setxkbmap ca") 
+	    keyboardSwitcher.image = image("/home/lepagee/Icon/canada_flag.png")
+	  else
+	    keyboardSwitcher.text = "us"
+	    local aFile = io.open('/tmp/kbMap',"w")
+	    aFile:write("us")
+	    aFile:close() 
+	    awful.util.spawn("setxkbmap us")
+	    keyboardSwitcher.image = image("/home/lepagee/Icon/us_flag.png")
+	  end
+      end)
+    })
+    
+    spacer77 = widget({ type = "textbox", align = "right" })
+    spacer77.text = "| "
+    
+    spacer76 = widget({ type = "textbox", align = "left" })
+    spacer76.text = "|"
+    
+    mywibox2 = wibox({ position = "bottom", fg = beautiful.fg_normal, bg = beautiful.bg_normal })
+    mywibox2.widgets = {  mylauncher,
+			  mylauncher2,
+			  mylauncher3,
+			  desktopPix,
+			  launcherPix,
+			  mypromptbox[s],
+			  spacer76,
+			  mytasklist[s],
+			  spacer77,
+			  mylayoutbox[s],
+			  keyboardSwitcher,
+			  s == 1 and mysystray or nil  }
+    mywibox2.screen = 1
+    
+    local isPlayingMovie = false
+    local musicBarVisibility = false
+    dofile("/home/lepagee/.config/awesome/musicBar.lua")
+
+    dofile("/home/lepagee/.config/awesome/hardware.lua")
+    
+    dofile("/home/lepagee/.config/awesome/launchbar.lua")
+    
+    launcherPix:buttons({
+      button({ }, 1, function()
+	  if lauchBar.visible ==  false then
+	    lauchBar.visible = true
+	  else
+	    lauchBar.visible = false
+	  end
+      end)
+    })
+    
+    desktopPix:buttons({
+      button({ }, 1, function()
+	  awful.tag.viewonly(nil)
+      end)
+    })
+    
+end
+shifty.taglist = mytaglist
+-- }}}
+
+-- {{{ Mouse bindings
+root.buttons(awful.util.table.join(
+    awful.button({ }, 3, function () mymainmenu:toggle() end),
+    awful.button({ }, 4, awful.tag.viewnext),
+    awful.button({ }, 5, awful.tag.viewprev)
+))
+-- }}}
+
+-- {{{ Key bindings
+globalkeys = awful.util.table.join(
+    awful.key({ modkey,           }, "Left",   awful.tag.viewprev       ),
+    awful.key({ modkey,           }, "Right",  awful.tag.viewnext       ),
+    awful.key({ modkey,           }, "Escape", awful.tag.history.restore),
+
+    awful.key({ modkey,           }, "j",
+        function ()
+            awful.client.focus.byidx( 1)
+            if client.focus then client.focus:raise() end
+        end),
+    awful.key({ modkey,           }, "k",
+        function ()
+            awful.client.focus.byidx(-1)
+            if client.focus then client.focus:raise() end
+        end),
+    awful.key({ modkey,           }, "w", function () mymainmenu:show(true)        end),
+
+    -- Layout manipulation
+    awful.key({ modkey, "Shift"   }, "j", function () awful.client.swap.byidx(  1) end),
+    awful.key({ modkey, "Shift"   }, "k", function () awful.client.swap.byidx( -1) end),
+    awful.key({ modkey, "Control" }, "j", function () awful.screen.focus( 1)       end),
+    awful.key({ modkey, "Control" }, "k", function () awful.screen.focus(-1)       end),
+    awful.key({ modkey,           }, "u", awful.client.urgent.jumpto),
+    awful.key({ modkey,           }, "Tab",
+        function ()
+            awful.client.focus.history.previous()
+            if client.focus then
+                client.focus:raise()
+            end
+        end),
+
+    -- Standard program
+    awful.key({ modkey,           }, "Return", function () awful.util.spawn(terminal) end),
+    awful.key({ "Control",        }, "Escape", function () awful.util.spawn("xkill") end),
+    awful.key({ modkey,	    	  }, "x", function () mywibox4.visible = not mywibox4.visible end),
+    awful.key({ modkey,           }, "z", function () awful.util.spawn("dolphin")  end),
+    awful.key({ modkey, "Control" }, "r", awesome.restart),
+    awful.key({ modkey, "Shift"   }, "q", awesome.quit),
+
+    awful.key({ modkey,           }, "l",     function () awful.tag.incmwfact( 0.05)    end),
+    awful.key({ modkey,           }, "h",     function () awful.tag.incmwfact(-0.05)    end),
+    awful.key({ modkey, "Shift"   }, "h",     function () awful.tag.incnmaster( 1)      end),
+    awful.key({ modkey, "Shift"   }, "l",     function () awful.tag.incnmaster(-1)      end),
+    awful.key({ modkey, "Control" }, "h",     function () awful.tag.incncol( 1)         end),
+    awful.key({ modkey, "Control" }, "l",     function () awful.tag.incncol(-1)         end),
+    awful.key({ modkey,           }, "space", function () awful.layout.inc(layouts,  1) end),
+    awful.key({ modkey, "Shift"   }, "space", function () awful.layout.inc(layouts, -1) end),
+
+    -- Prompt
+    awful.key({ modkey }, "F2",
+              function ()
+                  awful.prompt.run({ prompt = "Run: " },
+                  mypromptbox[mouse.screen],
+                  awful.util.spawn, awful.completion.shell,
+                  awful.util.getdir("cache") .. "/history")
+              end),
+
+    awful.key({ modkey }, "F4",
+              function ()
+                  awful.prompt.run({ prompt = "Run Lua code: " },
+                  mypromptbox[mouse.screen],
+                  awful.util.eval, nil,
+                  awful.util.getdir("cache") .. "/history_eval")
+              end)
+)
+
+
+-- {{{ bindings / global / shifty.getpos
+for i=1, ( shifty.config.maxtags or 9 ) do
+  
+  globalkeys = awful.util.table.join(globalkeys, awful.key({ modkey }, i,
+  function ()
+    local t = awful.tag.viewonly(shifty.getpos(i))
+  end))
+  globalkeys = awful.util.table.join(globalkeys, awful.key({ modkey, "Control" }, i,
+  function ()
+    local t = shifty.getpos(i)
+    t.selected = not t.selected
+  end))
+  globalkeys = awful.util.table.join(globalkeys, awful.key({ modkey, "Control", "Shift" }, i,
+  function ()
+    if client.focus then
+      awful.client.toggletag(shifty.getpos(i))
+    end
+  end))
+  -- move clients to other tags
+  globalkeys = awful.util.table.join(globalkeys, awful.key({ modkey, "Shift" }, i,
+    function ()
+      if client.focus then
+        local t = shifty.getpos(i)
+        awful.client.movetotag(t)
+        awful.tag.viewonly(t)
+	if isPlayingMovie == true then
+	  if musicBarVisibility == false then
+	    volumepixmap.visible = true
+	    volumewidget.visible = true
+	    mywibox3.visible = false
+	  end
+	  enableAmarokCtrl(true)
+	end
+	isPlayingMovie = false
+      end
+    end))
+end
+-- }}}
+
+
+-- Client awful tagging: this is useful to tag some clients and then do stuff like move to tag on them
+clientkeys = awful.util.table.join(
+    awful.key({ modkey,           }, "f",      function (c) c.fullscreen = not c.fullscreen  end),
+    awful.key({ modkey, "Shift"   }, "c",      function (c) c:kill()                         end),
+    awful.key({ modkey, "Control" }, "space",  awful.client.floating.toggle                     ),
+    awful.key({ modkey, "Control" }, "Return", function (c) c:swap(awful.client.getmaster()) end),
+    awful.key({ modkey,           }, "o",      awful.client.movetoscreen                        ),
+    awful.key({ modkey, "Shift"   }, "r",      function (c) c:redraw()                       end),
+    awful.key({ modkey }, "t", awful.client.togglemarked),
+    awful.key({ modkey,}, "m",
+        function (c)
+            c.maximized_horizontal = not c.maximized_horizontal
+            c.maximized_vertical   = not c.maximized_vertical
+        end)
+)
+
+
+-- Set keys
+root.keys(globalkeys)
+shifty.config.globalkeys = globalkeys
+shifty.config.clientkeys = clientkeys
+-- }}}
+
+-- {{{ Hooks
+-- Hook function to execute when focusing a client.
+awful.hooks.focus.register(function (c)
+    if not awful.client.ismarked(c) then
+      if (c.class == "Firefox" or c.class == "Kate4" or c.class == "Kwrite" or c.class == "VLC") then
+        c.border_color = "#0A1535"
+      else
+        c.border_color = beautiful.border_focus
+      end
+    end
+end)
+
+-- Hook function to execute when unfocusing a client.
+awful.hooks.unfocus.register(function (c)
+    if not awful.client.ismarked(c) then
+        c.border_color = beautiful.border_normal
+    end
+end)
+
+-- Hook function to execute when marking a client
+awful.hooks.marked.register(function (c)
+    c.border_color = beautiful.border_marked
+end)
+
+-- Hook function to execute when unmarking a client.
+awful.hooks.unmarked.register(function (c)
+    c.border_color = beautiful.border_focus
+end)
+
+-- Hook function to execute when the mouse enters a client.
+awful.hooks.mouse_enter.register(function (c)
+    -- Sloppy focus, but disabled for magnifier layout
+    if awful.layout.get(c.screen) ~= awful.layout.suit.magnifier
+        and awful.client.focus.filter(c) then
+        client.focus = c
+    end
+end)
+
+-- Hook function to execute when arranging the screen.
+-- (tag switch, new client, etc)
+awful.hooks.arrange.register(function (screen)
+    local layout = awful.layout.getname(awful.layout.get(screen))
+    if layout and beautiful["layout_" ..layout] then
+        mylayoutbox[screen].image = image(beautiful["layout_" .. layout])
+    else
+        mylayoutbox[screen].image = nil
+    end
+
+    -- Give focus to the latest client in history if no window has focus
+    -- or if the current window is a desktop or a dock one.
+    if not client.focus then
+        local c = awful.client.focus.history.get(screen, 0)
+        if c then client.focus = c end
+    end
+end)
+
+-- Hook called every minute
+awful.hooks.timer.register(60, function ()
+    mytextbox.text = os.date(" %a %b %d, %H:%M ")
+end)
+-- }}}
