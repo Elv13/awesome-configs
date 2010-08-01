@@ -1,27 +1,6 @@
-function amixer_volume_int(format)
-   local f = io.popen('amixer sget Master | tail -n1 |cut -f 6 -d " " | grep -o -e "[0-9]*"')
-   local l = f:read()
-   f:close()
-   local toReturn
-   if l == "" then
-    toReturn = 0
-   else
-    toReturn = tonumber(l)
-   end
-   return {toReturn}
-end
 
-function getHour(input) 
-  local toReturn
-  if input < 0 then
-    toReturn = 24 + input
-  elseif input > 24 then
-    toReturn = input - 24
-  else
-    toReturn = input
-  end
-  return toReturn
-end
+
+
     
 
 function amixer_volume(format)

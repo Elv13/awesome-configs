@@ -23,8 +23,8 @@ vicious.cache(vicious.widgets.cpu)
 beautiful.init(awful.util.getdir("config") .. "/default/theme.lua")
 
 -- This is used later as the default terminal and editor to run.
--- terminal = 'urxvt  -tr +sb -tint gray -fade 50 +bl +si -cr red -pr green -iconic -bg black -fg white -fn "xft:DejaVu Sans Mono:pixelsize=13"'
-terminal = 'aterm -tr +sb -tint gray -fade 50 +bl -tinttype true +si -cr red -pr green'
+terminal = 'urxvt  -tr +sb -tint gray -fade 50 +bl +si -cr red -pr green -iconic -bg black -fg white -fn "xft:DejaVu Sans Mono:pixelsize=13"'
+-- terminal = 'aterm -tr +sb -tint gray -fade 50 +bl -tinttype true +si -cr red -pr green'
 editor = os.getenv("EDITOR") or "nano"
 editor_cmd = 'kwrite'
 
@@ -73,20 +73,20 @@ shifty.config.tags ={
     ["Term"] =       {  init = true, 
 			position = 1, 
 			exclusive = true, 
-			icon = "/home/lepagee/icons/term.png",
+			icon = "/home/lepagee/Icon/tags/term.png",
 			max_clients = 5,
 			screen = {1, 2},
 			layout = awful.layout.suit.fair },
     ["Internet"] =   {  init = true, 
 			position = 2, 
 			exclusive = true, 
-			icon = "/home/lepagee/icons/net.png",
+			icon = "/home/lepagee/Icon/tags/net.png",
 			layout = awful.layout.suit.max },
 			
     ["Files"] =      {  init = true, 
 			position = 3, 
 			exclusive = true, 
-			icon = "/home/lepagee/icons/folder.png",
+			icon = "/home/lepagee/Icon/tags/folder.png",
 			max_clients = 5,
 			layout = awful.layout.suit.tile },
 			
@@ -94,104 +94,104 @@ shifty.config.tags ={
 			position = 4, 
 			exclusive = true, 
 			screen = {1,2},
-			icon = "/home/lepagee/icons/bug.png",
+			icon = "/home/lepagee/Icon/tags/bug.png",
 			layout = awful.layout.suit.max },
 		      
     ["Edit"] =       {  init = true, 
 			position = 5, 
 			exclusive = true, 
 			screen = {1,2},
-			icon = "/home/lepagee/icons/editor.png",
+			icon = "/home/lepagee/Icon/tags/editor.png",
 			max_clients = 5,
 			layout = awful.layout.suit.tile.bottom },
 			
     ["Media"] =      {  init = true, 
 			position = 6, 
 			exclusive = true, 
-			icon = "/home/lepagee/icons/media.png",
+			icon = "/home/lepagee/Icon/tags/media.png",
 			layout = awful.layout.suit.max },
 			
     ["Doc"] =        {  init = true, 
 			position = 7, 
 			exclusive = true, 
-			icon = "/home/lepagee/icons/info.png",
+			icon = "/home/lepagee/Icon/tags/info.png",
 			screen = 2,
 			layout = awful.layout.suit.magnifier },
     ["Imaging"] =    {  init = false, 
 			position = 10, 
 			exclusive = true,
-			icon = "/home/lepagee/icons/image.png",
+			icon = "/home/lepagee/Icon/tags/image.png",
 			layout = awful.layout.suit.max },
 			
     ["Picture"] =    {  init = false, 
 			position = 10, 
 			exclusive = true,
-			icon = "/home/lepagee/icons/image.png",
+			icon = "/home/lepagee/Icon/tags/image.png",
 			layout = awful.layout.suit.max },
 			
     ["Video"] =      {  init = false, 
 			position = 10, 
 			exclusive = true,
-			icon = "/home/lepagee/icons/video.png",
+			icon = "/home/lepagee/Icon/tags/video.png",
 			layout = awful.layout.suit.max },
     ["Movie"] =      {  init = false, 
 			position = 12, 
 			exclusive = true,
-			icon = "/home/lepagee/icons/video.png",
+			icon = "/home/lepagee/Icon/tags/video.png",
 			layout = awful.layout.suit.max },
     ["3D"] =         {  init = false, 
 			position = 10, 
 			exclusive = true,
-			icon = "/home/lepagee/icons/3d.png",
+			icon = "/home/lepagee/Icon/tags/3d.png",
 			layout = awful.layout.suit.max.fullscreen },
 			
     ["Music"] =      {  init = false, 
 			position = 10, 
 			exclusive = true,
 			screen = 2,
-			icon = "/home/lepagee/icons/media.png",
+			icon = "/home/lepagee/Icon/tags/media.png",
 			layout = awful.layout.suit.max },
 			
     ["Down"] =       {  init = false, 
 			position = 10, 
 			exclusive = true,
-			icon = "/home/lepagee/icons/download.png",
+			icon = "/home/lepagee/Icon/tags/download.png",
 			layout = awful.layout.suit.max },
 			
     ["Office"] =     {  init = false, 
 			position = 10, 
 			exclusive = true,
-			icon = "/home/lepagee/icons/office.png",
+			icon = "/home/lepagee/Icon/tags/office.png",
 			layout = awful.layout.suit.max },
 			
     ["RSS"] =        {  init = false, 
 			position = 10, 
 			exclusive = true,
-			icon = "/home/lepagee/icons/rss.png",
+			icon = "/home/lepagee/Icon/tags/rss.png",
 			layout = awful.layout.suit.max },
     ["Chat"] =       {  init = false, 
 			position = 10, 
 			exclusive = true,
 			screen = 2,
-			icon = "/home/lepagee/icons/chat.png",
+			icon = "/home/lepagee/Icon/tags/chat.png",
 			layout = awful.layout.suit.tile },
     ["Burning"] =       {  init = false, 
 			position = 10, 
 			exclusive = true,
-			icon = "/home/lepagee/icons/burn.png",
+			icon = "/home/lepagee/Icon/tags/burn.png",
 			layout = awful.layout.suit.tile },
     ["Mail"] =       {  init = false, 
 			position = 10, 
 			exclusive = true,
 			screen = 2,
-			icon = "/home/lepagee/icons/mail2.png",
+			icon = "/home/lepagee/Icon/tags/mail2.png",
 			layout = awful.layout.suit.max },
 			
     ["IRC"] =        {  init = false, 
 			position = 10, 
 			exclusive = true,
 			screen = 2,
-			icon = "/home/lepagee/icons/irc.png",
+			icon = "/home/lepagee/Icon/tags/irc.png",
 			layout = awful.layout.suit.fair },
     ["Test"] =       {  init = false, 
 			position = 99, 
@@ -204,10 +204,17 @@ shifty.config.tags ={
 			exclusive = false,
 			icon = "/home/lepagee/Icon/tools.png",
 			layout = awful.layout.suit.max },
+    ["Game"] =       {  init = false, 
+			screen = 2,
+			position = 10, 
+			exclusive = false,
+			icon = "/home/lepagee/Icon/tags/game.png",
+			layout = awful.layout.suit.max,
+			honorsizehints = false, }
     ["Gimp"] =       {  init = false, 
 			position = 10, 
 			exclusive = false,
-			icon = "/home/lepagee/icons/image.png",
+			icon = "/home/lepagee/Icon/tags/image.png",
 			layout = awful.layout.tile,
 			nmaster = 1,
 			incncol = 10,
@@ -231,7 +238,7 @@ shifty.config.apps = {
 {match = { "Digikam", "F-Spot", "GPicView", "ShowPhoto", "KPhotoAlbum"} , tag = "Picture" } ,
 {match = { "KDenLive", "Cinelerra", "AVIDeMux", "Kino"} , honorsizehints = true, tag = "Video" } ,
 {match = { "Blender", "Maya", "K-3D", "KPovModeler"} , tag = "3D" } ,
-{match = { "Amarok", "SongBird"} , tag = "Music" } ,
+{match = { "Amarok", "SongBird","last.fm"} , tag = "Music" } ,
 {match = { "Assistant", "Okular", "Evince", "EPDFviewer", "xpdf", "Xpdf"} , tag = "Doc" } ,
 {match = { "Transmission", "KGet"} , tag = "Down" } ,
 {match = { "OOWriter","OOCalc","OOMath","OOImpress","OOBase","SQLitebrowser","Silverun","Workbench","KWord","KSpread" 
@@ -244,6 +251,7 @@ shifty.config.apps = {
 {match = { "Kimberlite", "Kling", "Krong"} , tag = "Test" } ,
 {match = { "Systemsettings", "Kcontrol", "gconf-editor"} , tag = "Config" } ,
 {match = { "k3b"} , tag = "Burning" } ,
+{match = { "sauer_client"} , tag = "game" } ,
 {match = { "Thunderbird","kmail","evolution"} , tag = "Mail" } ,
 {match = { "rssStock"} , tag = "RSS" , honorsizehints = false } ,
 {match = { "pcmanfm","Moving", "^Moving$", "Extracting", "^Extracting$","Deleting","^Deleting$","Copying", "^Copying$" }, slave = true } ,
@@ -295,13 +303,13 @@ dofile(awful.util.getdir("config") .. "/menu.lua")
 
 --table.insert(main_menu.data.items,{ items = {"test","cmd"} })
 
-mymainmenu2 = awful.menu.new({ items = {{ "Home", "dolphin $HOME",image("/home/lepagee/icons/home.png") },
-					{ "KDE-devel", "dolphin /home/kde-devel",image("/home/lepagee/icons/kde.png") },
-					{ "Image", "dolphin /mnt/smbsda1/My\ Pictures/",image("/home/lepagee/icons/image.png") },
-					{ "Video", "dolphin /mnt/smbsdb3/movie/to_burn/",image("/home/lepagee/icons/video.png") },
-					{ "Music", "dolphin /mnt/smbsda1/music/",image("/home/lepagee/icons/media.png") },
-					{ "Backup", "dolphin /mnt/smbsda1/backup/",image("/home/lepagee/icons/backup.png") },
-					{ "Notes", "dolphin /home/lepagee/Notes/",image("/home/lepagee/icons/editor.png") },
+mymainmenu2 = awful.menu.new({ items = {{ "Home", "dolphin $HOME",image("/home/lepagee/Icon/tags/home.png") },
+					{ "KDE-devel", "dolphin /home/kde-devel",image("/home/lepagee/Icon/tags/kde.png") },
+					{ "Image", "dolphin /mnt/smbsda1/My\ Pictures/",image("/home/lepagee/Icon/tags/image.png") },
+					{ "Video", "dolphin /mnt/smbsdb3/movie/to_burn/",image("/home/lepagee/Icon/tags/video.png") },
+					{ "Music", "dolphin /mnt/smbsda1/music/",image("/home/lepagee/Icon/tags/media.png") },
+					{ "Backup", "dolphin /mnt/smbsda1/backup/",image("/home/lepagee/Icon/tags/backup.png") },
+					{ "Notes", "dolphin /home/lepagee/Notes/",image("/home/lepagee/Icon/tags/editor.png") },
                                       },
                             })
 			    
@@ -317,13 +325,13 @@ end
 aFile:close()
 mymainmenu3 = awful.menu.new({ items = commandArray})
 
-mylauncher2 = awful.widget.launcher({ image = image("/home/lepagee/icons/home2.png"),
+mylauncher2 = awful.widget.launcher({ image = image("/home/lepagee/Icon/tags/home2.png"),
                                      menu = mymainmenu2 })
 mylauncher2text = widget({ type = "textbox" })
 mylauncher2text.text = " Places  "
 
 			    
-mylauncher3 = awful.widget.launcher({ image = image("/home/lepagee/icons/star2.png"),
+mylauncher3 = awful.widget.launcher({ image = image("/home/lepagee/Icon/tags/star2.png"),
                            menu = mymainmenu3   })
 mylauncher3text = widget({ type = "textbox" })
 mylauncher3text.text = " Recent |"
@@ -348,7 +356,7 @@ delTag = {} --widget({ type = "imagebox", align = "left" })
 
 -- {{{ Wibox
 -- Create a textclock widget
-mytextclock = awful.widget.textclock({ align = "right" })
+
 
 -- Create a systray
 mysystray = widget({ type = "systray" })
@@ -571,21 +579,31 @@ for s = 1, screen.count() do
 			    mytextclock,
 			    kgetwidget,
 			    kgetpixmap,
-			    volumewidget,
-			    volumepixmap,
+			    soundWidget["wid"],
+			    soundWidget["pix"],
 			    spacer4,
-			    netUpWidget,
-			    uplogo,
-			    netDownWidget,
-			    downlogo,
+			    --netUpWidget,
+			    --uplogo,
+			    --netDownWidget,
+			    --downlogo,
+			    netinfo["up_text"],
+			    netinfo["up_logo"],
+			    netinfo["down_text"],
+			    netinfo["down_logo"],
 			    spacer1,
-			    membarwidget,
-			    memwidget,
-			    ramlogo,
+			    --membarwidget,
+			    --memwidget,
+			    --ramlogo,
+			    meminfo["bar"],
+			    meminfo["text"],
+			    meminfo["logo"],
 			    spacer2,
-			    cpugraphwidget,
-			    cpuwidget,
-			    cpulogo,
+			    --cpugraphwidget,
+			    --cpuwidget,
+			    --cpulogo,
+			    cpuinfo["graph"],
+			    cpuinfo["text"],
+			    cpuinfo["logo"],
 			    spacer3,
 			    layout = awful.widget.layout.horizontal.rightleft
 			  }

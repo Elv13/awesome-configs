@@ -86,7 +86,7 @@ end
 function enableTitleBar(value)
   if tag.selected() ~= nil then
     for i, client in ipairs(tag.selected():clients()) do
-      if value == true then
+      if value == true or awful.client.floating.get(client) == true then
 	titlebar.add(client)
       else
 	titlebar.remove(client)
