@@ -78,7 +78,7 @@ theme.titlebar_maximized_button_normal_active = "/home/lepagee/Icon/titlebar/max
 theme.titlebar_maximized_button_focus_active = "/home/lepagee/Icon/titlebar/maximized_focus_active.png"
 
 -- You can use your own command to set your wallpaper
-theme.wallpaper_cmd = { "awsetbg /home/lepagee/bg/final/bin_ascii_ds.png" }
+theme.wallpaper_cmd = { "feh /home/lepagee/bg/final/bin_ascii_ds.png" }
 
 -- You can use your own layout icons like this:
 theme.layout_fairh = "/home/lepagee/Icon/layouts/fairh.png"
@@ -94,18 +94,18 @@ theme.layout_tiletop = "/home/lepagee/Icon/layouts/tiletop.png"
 theme.layout_spiral = "/home/lepagee/Icon/layouts/spiral.png"
 theme.layout_spiraldwindle = "/home/lepagee/Icon/layouts/spiral_d.png"
 
-theme.layout_fairh_s = "/home/lepagee/Icon/layouts/fairh.png"
-theme.layout_fairv_s = "/home/lepagee/Icon/layouts/fairv.png"
-theme.layout_floating_s = "/home/lepagee/Icon/layouts/floating.png"
-theme.layout_magnifier_s = "/home/lepagee/Icon/layouts/magnifier.png"
-theme.layout_max_s = "/home/lepagee/Icon/layouts/max.png"
-theme.layout_fullscreen_s = "/home/lepagee/Icon/layouts/fullscreen.png"
-theme.layout_tilebottom_s = "/home/lepagee/Icon/layouts/tilebottom.png"
-theme.layout_tileleft_s = "/home/lepagee/Icon/layouts/tileleft.png"
-theme.layout_tile_s = "/home/lepagee/Icon/layouts/tile.png"
-theme.layout_tiletop_s = "/home/lepagee/Icon/layouts/tiletop.png"
-theme.layout_spiral_s = "/home/lepagee/Icon/layouts/spiral.png"
-theme.layout_spiraldwindle_s = "/home/lepagee/Icon/layouts/spiral_d.png"
+theme.layout_fairh_s = "/home/lepagee/Icon/layouts_small/fairh.png"
+theme.layout_fairv_s = "/home/lepagee/Icon/layouts_small/fairv.png"
+theme.layout_floating_s = "/home/lepagee/Icon/layouts_small/floating.png"
+theme.layout_magnifier_s = "/home/lepagee/Icon/layouts_small/magnifier.png"
+theme.layout_max_s = "/home/lepagee/Icon/layouts_small/max.png"
+theme.layout_fullscreen_s = "/home/lepagee/Icon/layouts_small/fullscreen.png"
+theme.layout_tilebottom_s = "/home/lepagee/Icon/layouts_small/tilebottom.png"
+theme.layout_tileleft_s = "/home/lepagee/Icon/layouts_small/tileleft.png"
+theme.layout_tile_s = "/home/lepagee/Icon/layouts_small/tile.png"
+theme.layout_tiletop_s = "/home/lepagee/Icon/layouts_small/tiletop.png"
+theme.layout_spiral_s = "/home/lepagee/Icon/layouts_small/spiral.png"
+theme.layout_spiraldwindle_s = "/home/lepagee/Icon/layouts_small/spiral_d.png"
 
 theme.awesome_icon = "/home/lepagee/Icon/awesome.png"
 

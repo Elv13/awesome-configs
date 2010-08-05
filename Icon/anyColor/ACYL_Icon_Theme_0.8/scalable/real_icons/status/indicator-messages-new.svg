@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   version="1.0"
+   width="48"
+   height="48"
+   id="svg2"
+   inkscape:version="0.47pre4 r22446"
+   sodipodi:docname="indicator-messages-new.svg">
+    
+  
+  
+  
+  
+  <filter>
+    </filter>
+  <linearGradient
+     id="linearGradient4321">
+    <stop
+       style="stop-color:#1577D3;stop-opacity:1.0;"
+       offset="0"
+       id="stop1" />
+    <stop
+       style="stop-color:#1577D3;stop-opacity:1.0;"
+       offset="1"
+       id="stop2" />
+  </linearGradient>
+  <linearGradient
+     inkscape:collect="always"
+     xlink:href="#linearGradient4321"
+     id="linearGradient1234"
+     x1="0%"
+     y1="50%"
+     x2="100%"
+     y2="50%" />
+<defs
+     id="defs4">
+  </defs>
+  <path
+     style="fill:url(#linearGradient1234);fill-opacity:1;fill-rule:evenodd;stroke:none;filter:url(#filter1111)"
+     id="path6061"
+     d="M 3.8405229,7.9658429 21.32549,25.45081 38.810458,7.9658429 l -34.9699351,0 z M 2,9.8063659 2,31.89264 13.043137,20.849503 2,9.8063659 z m 38.65098,0 -11.043137,11.0431371 1.840523,1.840523 9.202614,0 0,-12.8836601 z M 14.88366,22.690026 3.8405229,33.733163 l 24.6457521,0 -1.783007,-2.070588 4.745098,0 0,-5.291503 -3.681046,-3.681046 -6.44183,6.44183 -6.44183,-6.44183 z m 19.095425,3.796078 0,7.333334 -3.853595,0 7.966013,9.202614 L 46,33.819438 l -3.796078,0 0,-7.333334 -8.224837,0 z" />
+</svg>
