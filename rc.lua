@@ -210,7 +210,7 @@ shifty.config.tags ={
 			exclusive = false,
 			icon = "/home/lepagee/Icon/tags/game.png",
 			layout = awful.layout.suit.max,
-			honorsizehints = false, }
+			},
     ["Gimp"] =       {  init = false, 
 			position = 10, 
 			exclusive = false,
@@ -227,7 +227,7 @@ shifty.config.tags ={
 -- client settings
 -- order here matters, early rules will be applied first
 shifty.config.apps = {
-{match = { "xterm", "urxvt", "aterm"} , honorsizehints = false, slave = false, tag = "Term" } ,
+{match = { "xterm", "urxvt", "aterm","sauer_client"} , honorsizehints = false, slave = false, tag = "Term" } ,
 {match = { "Opera", "Firefox", "ReKonq", "Dillo", "Arora","Chromium" } , tag = "Internet" } ,
 {match = { "Thunar", "Konqueror", "Dolphin", "emelfm2", "Nautilus", "Ark", "XArchiver"} , tag = "Files" } ,
 {match = { "Kate", "KDevelop", "Codeblocks", "Code::Blocks", "DDD"} , tag = "Develop" } ,
@@ -251,7 +251,7 @@ shifty.config.apps = {
 {match = { "Kimberlite", "Kling", "Krong"} , tag = "Test" } ,
 {match = { "Systemsettings", "Kcontrol", "gconf-editor"} , tag = "Config" } ,
 {match = { "k3b"} , tag = "Burning" } ,
-{match = { "sauer_client"} , tag = "game" } ,
+{match = { "sauer_client", "Cube 2: Sauerbraten","Cube 2$"} , tag = "Game" } ,
 {match = { "Thunderbird","kmail","evolution"} , tag = "Mail" } ,
 {match = { "rssStock"} , tag = "RSS" , honorsizehints = false } ,
 {match = { "pcmanfm","Moving", "^Moving$", "Extracting", "^Extracting$","Deleting","^Deleting$","Copying", "^Copying$" }, slave = true } ,

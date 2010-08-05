@@ -5,6 +5,7 @@ local io = io
 local os = os
 local string = string
 local button = require("awful.button")
+local beautiful = require("beautiful")
 local tag = require("awful.tag")
 local util = require("awful.util")
 local shifty = require("shifty")
@@ -89,9 +90,8 @@ local function createDrawer()
   dateInfo = dateInfo .. "\n\n<b><u>Japan:</u></b>"
   dateInfo = dateInfo .. "\n<b>  <span size=\"x-large\">?</span> JST: </b><i>" ..  getHour(os.date('%H') + 13) .. ":" .. os.date('%M').. ":" .. os.date('%S') .. "</i>\n"
 
-  local weatherInfo = ""
-  f = io.open('/tmp/weather.txt',"r")
-  weatherInfo = weatherInfo .. "\n" .. f:read("*all")
+  f = io.open('/tmp/weather2.txt',"r")
+  local weatherInfo = f:read("*all")
   f:close()
   
   weatherInfo = string.gsub(weatherInfo, "@cloud", "☁")
@@ -122,12 +122,42 @@ local function createDrawer()
   margins.margins[testImage3] = {left = 10, right = 25, top = 10}
   
   vicious.register(timeInfo,  testFunc, '$1',1)
+  
+  local calendarHeader = capi.widget({type = "textbox"})
+  calendarHeader.text = " <span color='".. beautiful.bg_normal .."'><b><tt>CALENDAR</tt></b></span> "
+  calendarHeader.bg = beautiful.fg_normal
+  calendarHeader.width = 147
+  calendarHeader.height = 21
+  
+  local internationalHeader = capi.widget({type = "textbox"})
+  internationalHeader.text = " <span color='".. beautiful.bg_normal .."'><b><tt>INTERNATIONAL</tt></b></span> "
+  internationalHeader.bg = beautiful.fg_normal
+  internationalHeader.width = 147
+  
+  local satelliteHeader = capi.widget({type = "textbox"})
+  satelliteHeader.text = " <span color='".. beautiful.bg_normal .."'><b><tt>SATELLITE</tt></b></span> "
+  satelliteHeader.bg = beautiful.fg_normal
+  satelliteHeader.width = 147
+  
+  local forecastHeader = capi.widget({type = "textbox"})
+  forecastHeader.text = " <span color='".. beautiful.bg_normal .."'><b><tt>FORCAST</tt></b></span> "
+  forecastHeader.bg = beautiful.fg_normal
+  forecastHeader.width = 147
+  
+  local spacer96 = capi.widget({type = "textbox"})
+  spacer96.text = "\n\n"
+  spacer96.width = 147
 
   data.wibox.widgets = {
+      calendarHeader,
       calInfo,
+      internationalHeader,
       timeInfo,
+      satelliteHeader,
       testImage2,
       testImage3,
+      spacer96,
+      forecastHeader,
       weatherInfo2,
       layout = margins.vertical.topbottom
   }
@@ -141,7 +171,7 @@ function new(screen, args)
   data.wibox.ontop = true
   data.wibox.visible = false
   createDrawer() 
-  data.wibox:geometry({ width = 147, height = 915, x = capi.screen[capi.screen.count()].geometry.width-147, y = 24})
+  data.wibox:geometry({ width = 147, height = 994, x = capi.screen[capi.screen.count()].geometry.width*2 -  147, y = 20})
   
   mytextclock = textclock({ align = "right" })
 

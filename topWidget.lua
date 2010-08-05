@@ -229,7 +229,7 @@ spacer4.text = "|"
 --THE CLOCK WAS HERE
 mytextclock = dateinfo()
 
-meminfo = memInfo(2)
+meminfo = memInfo(screen.count())
 
 cpuinfo = cpuInfo()
 
