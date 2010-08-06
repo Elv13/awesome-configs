@@ -34,12 +34,19 @@ function new(screen, args)
   local afunction = loadstring(text3)
   local myMenu = afunction()
 
-  local mylauncher = widget2.launcher({ image = capi.image(beautiful.awesome_icon),
-                                     menu = myMenu })
   local mylaunchertext = capi.widget({ type = "textbox" })
-  mylaunchertext.text = " Apps  "
+  mylaunchertext.text = "      Apps  "
+  mylaunchertext.bg_image = capi.image(beautiful.awesome_icon)
+  mylaunchertext.bg_align = "left"
+  mylaunchertext.bg_resize = false
   
-  return {menu = mylauncher, text = mylaunchertext}
+  mylaunchertext:buttons( util.table.join(
+    button({ }, 1, function()
+      myMenu:toggle()
+  end)
+  ))
+  
+  return mylaunchertext
 end
 
 

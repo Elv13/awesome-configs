@@ -244,12 +244,9 @@ for s = 1, screen.count() do
   mywibox2 = awful.wibox({ position = "bottom", screen = s })
   
   if screen.count() == 1 then
-    mywibox2.widgets = {  applicationMenu["menu"],
-			  applicationMenu["text"],
-			  placesMenu["menu"],
-			  placesMenu["text"],
-			  recentMenu["menu"],
-			  recentMenu["text"],
+    mywibox2.widgets = {  applicationMenu,
+			  placesMenu,
+			  recentMenu,
 			  desktopPix,
 			  launcherPix,
 			  mypromptbox[s],
@@ -266,12 +263,9 @@ for s = 1, screen.count() do
 			  layout = awful.widget.layout.horizontal.leftright,
 			}  
   elseif s == 1 then
-    mywibox2.widgets = {  applicationMenu["menu"],
-			  applicationMenu["text"],
-			  placesMenu["menu"],
-			  placesMenu["text"],
-			  recentMenu["menu"],
-			  recentMenu["text"],
+    mywibox2.widgets = {  applicationMenu,
+			  placesMenu,
+			  recentMenu,
 			  desktopPix,
 			  launcherPix,
 			  mypromptbox[s],

@@ -40,13 +40,20 @@ function new(screen, args)
   aFile:close()
   mymainmenu3 = menu.new({ items = commandArray})
 
-  mylauncher3 = widget2.launcher({ image = capi.image(util.getdir("config") .. "/Icon/tags/star2.png"),
-			    menu = mymainmenu3   })
 
   mylauncher3text = capi.widget({ type = "textbox" })
-  mylauncher3text.text = " Recent |"
+  mylauncher3text.text = "       Recent |"
+  mylauncher3text.bg_image = capi.image(util.getdir("config") .. "/Icon/tags/star2.png")
+  mylauncher3text.bg_align = "left"
+  mylauncher3text.bg_resize = true
   
-  return {menu = mylauncher3, text = mylauncher3text}
+  mylauncher3text:buttons( util.table.join(
+    button({ }, 1, function()
+      mymainmenu3:toggle()
+  end)
+  ))
+  
+  return mylauncher3text
 end
 
 

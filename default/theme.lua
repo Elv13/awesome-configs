@@ -107,7 +107,7 @@ theme.layout_tiletop_s = awful.util.getdir("config") .. "/Icon/layouts_small/til
 theme.layout_spiral_s = awful.util.getdir("config") .. "/Icon/layouts_small/spiral.png"
 theme.layout_spiraldwindle_s = awful.util.getdir("config") .. "/Icon/layouts_small/spiral_d.png"
 
-theme.awesome_icon = awful.util.getdir("config") .. "/Icon/awesome.png"
+theme.awesome_icon = awful.util.getdir("config") .. "/Icon/awesome2.png"
 
 return theme
 -- vim: filetype=lua:expandtab:shiftwidth=4:tabstop=8:softtabstop=4:encoding=utf-8:textwidth=80

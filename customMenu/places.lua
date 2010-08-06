@@ -38,12 +38,19 @@ function new(screen, args)
                                      },
                            })
 
-
-  local mylauncher2 = widget2.launcher({ image = capi.image(util.getdir("config") .. "/Icon/tags/home2.png"), menu = data })
   local mylauncher2text = capi.widget({ type = "textbox" })
-  mylauncher2text.text = " Places  "
+  mylauncher2text.text = "      Places  "
+  mylauncher2text.bg_image = capi.image(util.getdir("config") .. "/Icon/tags/home2.png")
+  mylauncher2text.bg_align = "left"
+  mylauncher2text.bg_resize = true
   
-  return {menu = mylauncher2, text = mylauncher2text}
+  mylauncher2text:buttons( util.table.join(
+    button({ }, 1, function()
+      data:toggle()
+  end)
+  ))
+  
+  return mylauncher2text
 end
 
 
