@@ -1,8 +1,4 @@
-require("soundInfo")
-require("dateInfo")
-require("memInfo")
-require("cpuInfo")
-require("netInfo")
+
 
 --Download
 
@@ -202,10 +198,4 @@ spacer1.text = "  |"
 spacer4 = widget({ type = "textbox", align = "right" })
 spacer4.text = "|"
 
-mytextclock = dateinfo()
 
-meminfo = memInfo(screen.count())
-
-cpuinfo = cpuInfo()
-
-netinfo = netInfo()

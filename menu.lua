@@ -1,3 +1,6 @@
+util = require("awful.util")
+menu = require("awful.menu")
+
 sub_Audio_809 = { 
    { "Audacity Sound Editor Sound Editor", "audacity" },
    { "Sound Mixer KMix", "kmix -caption '%c' %i", "/usr/share/icons/OxygenRefit2-black-version2/22x22/actions/kmix-PCM-defoult.png" },
@@ -568,24 +571,24 @@ sub_Office_16140 = {
  }
 
 
-main_menu = awful.menu.new({ items= {  
-   { "AudioVideo", main_AudioVideo_4846, awful.util.getdir("config") .. "/Icon/tags/video.png" },
-   { "ConsoleOnly", main_ConsoleOnly_6046, awful.util.getdir("config") .. "/Icon/tags/term.png" },
-   { "Core", main_Core_17779, awful.util.getdir("config") .. "/Icon/tags/other.png" },
-   { "Development", main_Development_18158, awful.util.getdir("config") .. "/Icon/tags/bug.png" },
-   { "Education", main_Education_28616, awful.util.getdir("config") .. "/Icon/tags/desk.png" },
-   { "Game", main_Game_31846, awful.util.getdir("config") .. "/Icon/tags/game.png" },
-   { "Graphics", main_Graphics_16416, awful.util.getdir("config") .. "/Icon/tags/image.png" },
-   { "Graphics|XSane - Scanning|xsane|xsane", main_Graphics_XSane___Scanning_xsane_xsane_22151, awful.util.getdir("config") .. "/Icon/tags/image.png" },
-   { "Multimedia", main_Multimedia_32386, awful.util.getdir("config") .. "/Icon/tags/media.png" },
-   { "Network", main_Network_25645, awful.util.getdir("config") .. "/Icon/tags/net.png" },
-   { "Network", main_Network_27981, awful.util.getdir("config") .. "/Icon/tags/net.png" },
-   { "Office", main_Office_14823, awful.util.getdir("config") .. "/Icon/tags/office.png" },
-   { "PackageManager", main_PackageManager_22440, awful.util.getdir("config") .. "/Icon/tags/3d.png" },
-   { "Settings", main_Settings_31940, awful.util.getdir("config") .. "/Icon/tools.png" },
-   { "System", main_System_26979, awful.util.getdir("config") .. "/Icon/tools.png" },
-   { "Utility", main_Utility_19410, awful.util.getdir("config") .. "/Icon/tools.png" },
-   { "Viewer", main_Viewer_13034, awful.util.getdir("config") .. "/Icon/tags/info.png" }, } 
+main_menu = menu.new({ items= {  
+   { "AudioVideo", main_AudioVideo_4846, util.getdir("config") .. "/Icon/tags/video.png" },
+   { "ConsoleOnly", main_ConsoleOnly_6046, util.getdir("config") .. "/Icon/tags/term.png" },
+   { "Core", main_Core_17779, util.getdir("config") .. "/Icon/tags/other.png" },
+   { "Development", main_Development_18158, util.getdir("config") .. "/Icon/tags/bug.png" },
+   { "Education", main_Education_28616, util.getdir("config") .. "/Icon/tags/desk.png" },
+   { "Game", main_Game_31846, util.getdir("config") .. "/Icon/tags/game.png" },
+   { "Graphics", main_Graphics_16416, util.getdir("config") .. "/Icon/tags/image.png" },
+   { "Graphics|XSane - Scanning|xsane|xsane", main_Graphics_XSane___Scanning_xsane_xsane_22151, util.getdir("config") .. "/Icon/tags/image.png" },
+   { "Multimedia", main_Multimedia_32386, util.getdir("config") .. "/Icon/tags/media.png" },
+   { "Network", main_Network_25645, util.getdir("config") .. "/Icon/tags/net.png" },
+   { "Network", main_Network_27981, util.getdir("config") .. "/Icon/tags/net.png" },
+   { "Office", main_Office_14823, util.getdir("config") .. "/Icon/tags/office.png" },
+   { "PackageManager", main_PackageManager_22440, util.getdir("config") .. "/Icon/tags/3d.png" },
+   { "Settings", main_Settings_31940, util.getdir("config") .. "/Icon/tools.png" },
+   { "System", main_System_26979, util.getdir("config") .. "/Icon/tools.png" },
+   { "Utility", main_Utility_19410, util.getdir("config") .. "/Icon/tools.png" },
+   { "Viewer", main_Viewer_13034, util.getdir("config") .. "/Icon/tags/info.png" }, } 
  })
 
-
+return main_menu

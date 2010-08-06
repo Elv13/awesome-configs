@@ -5,6 +5,18 @@ require("shifty")
 require("vicious")
 require("layoutmenu")
 require("tagmover")
+require("customMenu.recent")
+require("customMenu.application")
+require("customMenu.places")
+require("keyboardSwitcher")
+require("customButton.launcher")
+require("customButton.showDesktop")
+require("soundInfo")
+require("dateInfo")
+require("memInfo")
+require("cpuInfo")
+require("netInfo")
+
 dofile(awful.util.getdir("config") .. "/functions.lua")
 dofile(awful.util.getdir("config") .. "/desktop.lua")
 
@@ -23,6 +35,7 @@ modkey = "Mod4"
 
 dofile(awful.util.getdir("config") .. "/baseRule.lua")
 
+-- Shifty config
 shifty.config.defaults = {
   layout = awful.layout.suit.tile,
   ncol = 1,
@@ -32,73 +45,44 @@ shifty.config.defaults = {
 
 shifty.modkey = modkey
 
-myawesomemenu = {
-   { "manual", terminal .. " -e man awesome" },
-   { "edit config", editor_cmd .. " " .. awful.util.getdir("config") .. "/rc.lua" },
-   { "restart", awesome.restart },
-   { "quit", awesome.quit }
-}
+-- Create the application menu
+applicationMenu = customMenu.application()
 
-mymainmenu = awful.menu({ items = { { "awesome", myawesomemenu, beautiful.awesome_icon },
-                                    { "open terminal", terminal }
-                                  }
-                        })
+-- Create the place menu TODO use the KDE list instead of the hardcoded one
+placesMenu = customMenu.places()
 
-				     
-dofile(awful.util.getdir("config") .. "/menu.lua")   
+-- Create the recent menu
+recentMenu = customMenu.recent()
 
-mymainmenu2 = awful.menu.new({ items = {{ "Home", "dolphin $HOME",image(awful.util.getdir("config") .. "/Icon/tags/home.png") },
-					{ "KDE-devel", "dolphin /home/kde-devel",image(awful.util.getdir("config") .. "/Icon/tags/kde.png") },
-					{ "Image", "dolphin /mnt/smbsda1/My\ Pictures/",image(awful.util.getdir("config") .. "/Icon/tags/image.png") },
-					{ "Video", "dolphin /mnt/smbsdb3/movie/to_burn/",image(awful.util.getdir("config") .. "/Icon/tags/video.png") },
-					{ "Music", "dolphin /mnt/smbsda1/music/",image(awful.util.getdir("config") .. "/Icon/tags/media.png") },
-					{ "Backup", "dolphin /mnt/smbsda1/backup/",image(awful.util.getdir("config") .. "/Icon/tags/backup.png") },
-					{ "Notes", "dolphin /home/lepagee/Notes/",image(awful.util.getdir("config") .. "/Icon/tags/editor.png") },
-                                      },
-                            })
-			    
-local aFile = io.popen("/home/lepagee/Scripts/awesomeTopExec.sh")
-local count = 0
-local commandArray = {}
-while true do
-    local line = aFile:read("*line")
-    if line == nil then break end
-    commandArray[count] = {line,line}
-    count = count + 1
-end
-aFile:close()
-mymainmenu3 = awful.menu.new({ items = commandArray})
+-- Call the laucher wibox
+launcherPix = customButton.launcher()
 
-mylauncher2 = awful.widget.launcher({ image = image(awful.util.getdir("config") .. "/Icon/tags/home2.png"),
-                                     menu = mymainmenu2 })
-mylauncher2text = widget({ type = "textbox" })
-mylauncher2text.text = " Places  "
+-- Create the "Show Desktop" icon
+desktopPix = customButton.showDesktop()
 
-			    
-mylauncher3 = awful.widget.launcher({ image = image(awful.util.getdir("config") .. "/Icon/tags/star2.png"),
-                           menu = mymainmenu3   })
-mylauncher3text = widget({ type = "textbox" })
-mylauncher3text.text = " Recent |"
-				     
-mylauncher = awful.widget.launcher({ image = image(beautiful.awesome_icon),
-                                     menu = main_menu })
-mylaunchertext = widget({ type = "textbox" })
-mylaunchertext.text = " Apps  "
+-- Create the clock
+mytextclock = dateinfo()
 
-launcherPix       = widget({ type = "imagebox", align = "left" })
-launcherPix.image = image(awful.util.getdir("config") .. "/Icon/gearA2.png")
+-- Create the memory manager
+meminfo = memInfo(screen.count())
 
-desktopPix       = widget({ type = "imagebox", align = "left" })
-desktopPix.image = image(awful.util.getdir("config") .. "/Icon/tags/desk2.png")
+-- Create the cpu manager
+cpuinfo = cpuInfo()
 
+-- Create the net manager
+netinfo = netInfo()
+
+-- Create the keyboard layout switcher, feel free to add your contry and push it to master
+keyboardSwitcherWidget = keyboardSwitcher()
+
+-- Create the addTag icon
 addTag = widget({ type = "imagebox", align = "left" })
 addTag.image = image(awful.util.getdir("config") .. "/Icon/tags/cross2.png")
 
-delTag = {}
 -- Create a systray
 mysystray = widget({ type = "systray" })
 
--- Create a wibox for each screen and add it
+-- Some widget for every screens
 mywibox = {}
 mypromptbox = {}
 mylayoutbox = {}
@@ -106,6 +90,10 @@ mylayoutmenu = {}
 mytaglist = {}
 movetagL= {}
 movetagR= {}
+mytasklist = {}
+delTag = {}
+
+--Hacking and buggy, a rewrite is in my TODO list
 mytaglist.buttons = awful.util.table.join(
                     awful.button({ }, 1, function (tag) 
 					    awful.tag.viewonly(tag) 
@@ -148,8 +136,8 @@ mytaglist.buttons = awful.util.table.join(
                     )
 
 
-		    
-mytasklist = {}
+
+--Tasklist button
 mytasklist.buttons = awful.util.table.join(
                      awful.button({ }, 1, function (c)
                                               if not c:isvisible() then
@@ -175,43 +163,10 @@ mytasklist.buttons = awful.util.table.join(
                                               if client.focus then client.focus:raise() end
                                           end))
 					  
-function setupKb()
-  local keyboardPipe = io.open('/tmp/kbMap',"r")
-  --local keyboardPipe = io.popen('sleep 1 && setxkbmap -v 10 -display :0 | grep "layout:" | grep -e "[a-zA-Z0-9_]*" -o | tail -n1');
-  local text = keyboardPipe:read("*all")
-  keyboardPipe:close()
-  return text
-end
 
+--Load the top widgets (deprecated)
 dofile(awful.util.getdir("config") .. "/topWidget.lua")
 
-keyboardSwitcher = widget({ type = "imagebox"})
-
-if setupKb() ==  "us" then
-  keyboardSwitcher.image = image(awful.util.getdir("config") .. "/Icon/us_flag.png")
-else
-  keyboardSwitcher.image = image(awful.util.getdir("config") .. "/Icon/canada_flag.png")
-end
-
-keyboardSwitcher:buttons( awful.util.table.join(
-  awful.button({ }, 1, function()
-      if setupKb() ==  "us" then
-	keyboardSwitcher.text = "ca"
-	local aFile = io.open('/tmp/kbMap',"w")
-	aFile:write("ca")
-	aFile:close() 
-	awful.util.spawn("setxkbmap ca") 
-	keyboardSwitcher.image = image(awful.util.getdir("config") .. "/Icon/canada_flag.png")
-      else
-	keyboardSwitcher.text = "us"
-	local aFile = io.open('/tmp/kbMap',"w")
-	aFile:write("us")
-	aFile:close() 
-	awful.util.spawn("setxkbmap us")
-	keyboardSwitcher.image = image(awful.util.getdir("config") .. "/Icon/us_flag.png")
-      end
-  end)
-))
 
 spacer77 = widget({ type = "textbox" })
 spacer77.text = "| "
@@ -219,6 +174,8 @@ spacer77.text = "| "
 spacer76 = widget({ type = "textbox", align = "left" })
 spacer76.text = "| "
 
+
+--Add icons on the desktop. They have to be the size of those bellow to work fine, but it's not nice, so I don't use it anymore
 -- setupRectLauncher(1, {awful.util.getdir("config") .. "/Icon/rectangles90/run.png"}) 
 -- setupRectLauncher(1, {awful.util.getdir("config") .. "/Icon/rectangles90/update_local_system.png"}) 
 -- setupRectLauncher(1, {awful.util.getdir("config") .. "/Icon/rectangles90/clear_temp_file.png"}) 
@@ -261,6 +218,7 @@ spacer76.text = "| "
 loadRectLauncher(2)
     
 
+-- The widget array with different possible screens configuration TODO create some kind of screen widget rule system, this long array suck
 for s = 1, screen.count() do
   
   
@@ -359,12 +317,12 @@ for s = 1, screen.count() do
     mywibox2 = awful.wibox({ position = "bottom", screen = s })
     
     if screen.count() == 1 then
-      mywibox2.widgets = {  mylauncher,
-			    mylaunchertext,
-			    mylauncher2,
-			    mylauncher2text,
-			    mylauncher3,
-			    mylauncher3text,
+      mywibox2.widgets = {  applicationMenu["menu"],
+			    applicationMenu["text"],
+			    placesMenu["menu"],
+			    placesMenu["text"],
+			    recentMenu["menu"],
+			    recentMenu["text"],
 			    desktopPix,
 			    launcherPix,
 			    mypromptbox[s],
@@ -372,7 +330,7 @@ for s = 1, screen.count() do
 			    {
 			      movetagL[s],
 			      movetagR[s],
-			      keyboardSwitcher,
+			      keyboardSwitcherWidget,
 			      mylayoutbox[s],
 			      spacer77,
 			      mytasklist[s],
@@ -382,12 +340,12 @@ for s = 1, screen.count() do
 			    layout = awful.widget.layout.horizontal.leftright,
 			  }  
     elseif s == 1 then
-      mywibox2.widgets = {  mylauncher,
-			    mylaunchertext,
-			    mylauncher2,
-			    mylauncher2text,
-			    mylauncher3,
-			    mylauncher3text,
+      mywibox2.widgets = {  applicationMenu["menu"],
+			    applicationMenu["text"],
+			    placesMenu["menu"],
+			    placesMenu["text"],
+			    recentMenu["menu"],
+			    recentMenu["text"],
 			    desktopPix,
 			    launcherPix,
 			    mypromptbox[s],
@@ -407,7 +365,7 @@ for s = 1, screen.count() do
 			    mypromptbox[s],
 			    spacer76,
 			    {  mysystray,
-			      keyboardSwitcher,
+			      keyboardSwitcherWidget,
 			      mylayoutbox[s],
 			      movetagL[s],
 			      movetagR[s],
@@ -442,21 +400,6 @@ dofile(awful.util.getdir("config") .. "/hardware.lua")
 
 dofile(awful.util.getdir("config") .. "/launchbar.lua")
 
-launcherPix:buttons( awful.util.table.join(
-  awful.button({ }, 1, function()
-      if lauchBar.visible ==  false then
-	lauchBar.visible = true
-      else
-	lauchBar.visible = false
-      end
-  end)
-))
-
-desktopPix:buttons( awful.util.table.join(
-  awful.button({ }, 1, function()
-      awful.tag.viewnone()
-  end)
-))
 
 addTag:buttons( awful.util.table.join(
  awful.button({ }, 1, function()
@@ -470,9 +413,6 @@ shifty.taglist = mytaglist
 
 loadMonitor(screen.count() * screen[1].geometry.width - 415) --BUG support only identical screens
 
--- }}}
-
--- {{{ Mouse bindings
 root.buttons(awful.util.table.join(
     awful.button({ }, 1, function () 
       if instance then
@@ -492,18 +432,10 @@ root.buttons(awful.util.table.join(
     awful.button({ }, 4, awful.tag.viewnext),
     awful.button({ }, 5, awful.tag.viewprev)
 ))
--- }}}
 
 dofile(awful.util.getdir("config") .. "/keyBinding.lua")
 
--- }}}
 
--- {{{ Rules
-
--- }}}
-
--- {{{ Signals
--- Signal function to execute when a new client appears.
 client.add_signal("manage", function (c, startup)
     -- Add a titlebar
     -- awful.titlebar.add(c, { modkey = modkey })
