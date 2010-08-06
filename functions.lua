@@ -179,5 +179,13 @@ function addTitleBar(screen)
   end
 end
 
+function toggleSensorBar()
+    if mywibox4.visible ==  false then
+      mywibox4.visible = true
+    else
+      mywibox4.visible = false
+    end
+end
+
 
 -- }}}
