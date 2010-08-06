@@ -46,11 +46,11 @@ local function createDrawer()
   mainText.text = text2
 	      
   local uploadImg = capi.widget({ type = "imagebox"})
-  uploadImg.image = capi.image("/home/lepagee/Icon/arrowUp.png")
+  uploadImg.image = capi.image(util.getdir("config") .. "/Icon/arrowUp.png")
   uploadImg.resize = false
   
   local downloadImg = capi.widget({ type = "imagebox"})
-  downloadImg.image = capi.image("/home/lepagee/Icon/arrowDown.png")
+  downloadImg.image = capi.image(util.getdir("config") .. "/Icon/arrowDown.png")
   downloadImg.resize = false
   
   local netUsageUp = capi.widget({ type = "textbox" })
@@ -121,7 +121,7 @@ function new(screen, args)
   data.wibox:geometry({ width = 240, height = height, x = capi.screen[capi.screen.count()].geometry.width - 240, y = 24})
 
   downlogo       = capi.widget({ type = "imagebox", align = "right" })
-  downlogo.image = capi.image("/home/lepagee/Icon/arrowDown.png")
+  downlogo.image = capi.image(util.getdir("config") .. "/Icon/arrowDown.png")
 
   downlogo:add_signal("mouse::enter", function ()
       data.wibox.visible = true
@@ -150,7 +150,7 @@ function new(screen, args)
   end)
 
   uplogo       = capi.widget({ type = "imagebox", align = "right" })
-  uplogo.image = capi.image("/home/lepagee/Icon/arrowUp.png")
+  uplogo.image = capi.image(util.getdir("config") .. "/Icon/arrowUp.png")
 
   uplogo:add_signal("mouse::enter", function ()
       data.wibox.visible = true

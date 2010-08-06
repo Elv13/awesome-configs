@@ -7,7 +7,7 @@ require("netInfo")
 --Download
 
 kgetpixmap       = widget({ type = "imagebox", align = "right" })
-kgetpixmap.image = image("/home/lepagee/icons/download.png")
+kgetpixmap.image = image(awful.util.getdir("config") .. "/Icon/tags/download.png")
 
 kgetwidget = widget({
     type = 'textbox',
@@ -161,7 +161,7 @@ vicious.register(kgetwidget, currentDownload, 'KGet: $1 | ',5)
 
 
 kgetwidget:add_signal("mouse::enter", function ()
-    downloadInfo()
+    --downloadInfo()  --Disabled while porting to a module
 end)
 
 kgetwidget:add_signal("mouse::leave", function ()
@@ -169,29 +169,20 @@ kgetwidget:add_signal("mouse::leave", function ()
 end)
 
 kgetpixmap:add_signal("mouse::enter", function ()
-    downloadInfo()
+    --downloadInfo()  --Disabled while porting to a module
 end)
 
 kgetpixmap:add_signal("mouse::leave", function ()
    naughty.destroy(kgetInfo)
 end)
 
---Sound
 
---SOUND WAS HERE
 soundWidget = soundInfo()
 
 local screenWidth = 1280
 
 spacer3 = widget({ type = "textbox", align = "right" })
 spacer3.text = "| "
---spacer3.x = screenWidth - 400
-
---CPU
-
-
-
-
 
 function toggleSensorBar()
     if mywibox4.visible ==  false then
@@ -201,32 +192,16 @@ function toggleSensorBar()
     end
 end
 
-
---CPU was here
-
 spacer2 = widget({ type = "textbox", align = "right" })
 spacer2.text = "  |"
 
---RAM
---Mem was here
 spacer1 = widget({ type = "textbox", align = "right" })
 spacer1.text = "  |"
 
---NET
-
-  
-  
---   vicious.register(netUpGraph, vicious.widgets.net, '${eth0 up_kb}',1)
---   vicious.register(netDownGraph, vicious.widgets.net, '${eth0 down_kb}',1)
-  
---NEt was here
 
 spacer4 = widget({ type = "textbox", align = "right" })
 spacer4.text = "|"
 
---The clock
-
---THE CLOCK WAS HERE
 mytextclock = dateinfo()
 
 meminfo = memInfo(screen.count())

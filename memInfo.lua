@@ -149,7 +149,7 @@ function createDrawer()
       aMem.border_color = beautiful.bg_normal
        
       testImage2       = capi.widget({ type = "imagebox"})
-      testImage2.image = capi.image("/home/lepagee/Icon/kill.png")
+      testImage2.image = capi.image(util.getdir("config") .. "/Icon/kill.png")
        
       local aLine = {aMem, aProcess, {testImage2, layout = widget2.layout.horizontal.rightleft}, layout = widget2.layout.horizontal.leftright}
       table.insert(widgetTable, aLine)
@@ -175,7 +175,7 @@ function new(s, args)
   data.wibox:geometry({ width = 212, height = height, y = 20, x = capi.screen[capi.screen.count()].geometry.width*2 -  212})
 
   ramlogo       = capi.widget({ type = "imagebox", align = "right" })
-  ramlogo.image = capi.image("/home/lepagee/Icon/cpu.png")
+  ramlogo.image = capi.image(util.getdir("config") .. "/Icon/cpu.png")
   ramlogo:buttons( util.table.join(
     button({ }, 1, function()
       toggleSensorBar()

@@ -52,7 +52,7 @@ function displayInfo(anApps, name)
 end
 
 inkscape       = widget({ type = "imagebox", align = "left" })
-inkscape.image = image("/home/lepagee/Icon/inkscape.png")
+inkscape.image = image(awful.util.getdir("config") .. "/Icon/inkscape.png")
 displayInfo(inkscape,"inkscape")
 inkscape:buttons(awful.util.table.join(
    awful.button({ }, 1, function()
@@ -64,7 +64,7 @@ inkscape:buttons(awful.util.table.join(
 ))
 
 konqueror       = widget({ type = "imagebox", align = "left" })
-konqueror.image = image("/home/lepagee/Icon/konquror.png")
+konqueror.image = image(awful.util.getdir("config") .. "/Icon/konquror.png")
 displayInfo(konqueror,"konqueror")
 konqueror:buttons(awful.util.table.join(
    awful.button({ }, 1, function()
@@ -76,7 +76,7 @@ konqueror:buttons(awful.util.table.join(
 ))
 
 blender       = widget({ type = "imagebox", align = "left" })
-blender.image = image("/home/lepagee/Icon/blender.png")
+blender.image = image(awful.util.getdir("config") .. "/Icon/blender.png")
 displayInfo(blender,"blender")
 blender:buttons(awful.util.table.join(
    awful.button({ }, 1, function()
@@ -88,7 +88,7 @@ blender:buttons(awful.util.table.join(
 ))
 
 cinelerra       = widget({ type = "imagebox", align = "left" })
-cinelerra.image = image("/home/lepagee/Icon/cinelerra.png")
+cinelerra.image = image(awful.util.getdir("config") .. "/Icon/cinelerra.png")
 displayInfo(cinelerra,"cinelerra")
 cinelerra:buttons(awful.util.table.join(
    awful.button({ }, 1, function()
@@ -100,7 +100,7 @@ cinelerra:buttons(awful.util.table.join(
 ))
 
 codeblocks       = widget({ type = "imagebox", align = "left" })
-codeblocks.image = image("/home/lepagee/Icon/code-blocks.png")
+codeblocks.image = image(awful.util.getdir("config") .. "/Icon/code-blocks.png")
 displayInfo(codeblocks,"codeblocks")
 codeblocks:buttons(awful.util.table.join(
    awful.button({ }, 1, function()
@@ -112,7 +112,7 @@ codeblocks:buttons(awful.util.table.join(
 ))
 
 kdevelop       = widget({ type = "imagebox", align = "left" })
-kdevelop.image = image("/home/lepagee/Icon/kdevelop.png")
+kdevelop.image = image(awful.util.getdir("config") .. "/Icon/kdevelop.png")
 displayInfo(kdevelop,"kdevelop")
 kdevelop:buttons(awful.util.table.join(
    awful.button({ }, 1, function()
@@ -124,7 +124,7 @@ kdevelop:buttons(awful.util.table.join(
 ))
 
 gimp       = widget({ type = "imagebox", align = "left" })
-gimp.image = image("/home/lepagee/Icon/gimp.png")
+gimp.image = image(awful.util.getdir("config") .. "/Icon/gimp.png")
 displayInfo(gimp,"gimp")
 gimp:buttons(awful.util.table.join(
    awful.button({ }, 1, function()
@@ -136,7 +136,7 @@ gimp:buttons(awful.util.table.join(
 ))
 
 oowrite       = widget({ type = "imagebox", align = "left" })
-oowrite.image = image("/home/lepagee/Icon/oowriter2.png")
+oowrite.image = image(awful.util.getdir("config") .. "/Icon/oowriter2.png")
 displayInfo(oowrite,"writer")
 oowrite:buttons(awful.util.table.join(
    awful.button({ }, 1, function()
@@ -148,7 +148,7 @@ oowrite:buttons(awful.util.table.join(
 ))
 
 oocalc       = widget({ type = "imagebox", align = "left" })
-oocalc.image = image("/home/lepagee/Icon/oocalc2.png")
+oocalc.image = image(awful.util.getdir("config") .. "/Icon/oocalc2.png")
 displayInfo(oocalc,"calc")
 oocalc:buttons(awful.util.table.join(
    awful.button({ }, 1, function()
@@ -160,7 +160,7 @@ oocalc:buttons(awful.util.table.join(
 ))
 
 ooimpress       = widget({ type = "imagebox", align = "left" })
-ooimpress.image = image("/home/lepagee/Icon/oopres2.png")
+ooimpress.image = image(awful.util.getdir("config") .. "/Icon/oopres2.png")
 displayInfo(ooimpress,"impress")
 ooimpress:buttons(awful.util.table.join(
    awful.button({ }, 1, function()
@@ -172,7 +172,7 @@ ooimpress:buttons(awful.util.table.join(
 ))
 
 oomath       = widget({ type = "imagebox", align = "left" })
-oomath.image = image("/home/lepagee/Icon/ooformula2.png")
+oomath.image = image(awful.util.getdir("config") .. "/Icon/ooformula2.png")
 displayInfo(oomath,"math")
 oomath:buttons(awful.util.table.join(
    awful.button({ }, 1, function()
@@ -184,7 +184,7 @@ oomath:buttons(awful.util.table.join(
 ))
 
 oobase       = widget({ type = "imagebox", align = "left" })
-oobase.image = image("/home/lepagee/Icon/oobase2.png")
+oobase.image = image(awful.util.getdir("config") .. "/Icon/oobase2.png")
 displayInfo(oobase,"base")
 oobase:buttons(awful.util.table.join(
    awful.button({ }, 1, function()
@@ -196,7 +196,7 @@ oobase:buttons(awful.util.table.join(
 ))
 
 vlc       = widget({ type = "imagebox", align = "left" })
-vlc.image = image("/home/lepagee/Icon/vlc.png")
+vlc.image = image(awful.util.getdir("config") .. "/Icon/vlc.png")
 displayInfo(vlc,"vlc")
 vlc:buttons(awful.util.table.join(
    awful.button({ }, 1, function()
@@ -208,7 +208,7 @@ vlc:buttons(awful.util.table.join(
 ))
 
 vmware       = widget({ type = "imagebox", align = "left" })
-vmware.image = image("/home/lepagee/Icon/windows.png")
+vmware.image = image(awful.util.getdir("config") .. "/Icon/windows.png")
 vmware:buttons(awful.util.table.join(
    awful.button({ }, 1, function()
       executeApps(1, "Internet" , "inkscape", "Inkscape") --Broken
@@ -219,7 +219,7 @@ vmware:buttons(awful.util.table.join(
 ))
 
 amarok       = widget({ type = "imagebox", align = "left" })
-amarok.image = image("/home/lepagee/Icon/amarok.png")
+amarok.image = image(awful.util.getdir("config") .. "/Icon/amarok.png")
 displayInfo(amarok,"amarok")
 amarok:buttons(awful.util.table.join(
    awful.button({ }, 1, function()
@@ -231,7 +231,7 @@ amarok:buttons(awful.util.table.join(
 ))
 
 term       = widget({ type = "imagebox", align = "left" })
-term.image = image("/home/lepagee/Icon/term.png")
+term.image = image(awful.util.getdir("config") .. "/Icon/term.png")
 term:buttons(awful.util.table.join(
    awful.button({ }, 1, function()
       executeAppsNew(1, "Term" , terminal)
@@ -242,7 +242,7 @@ term:buttons(awful.util.table.join(
 ))
 
 kolourpaint       = widget({ type = "imagebox", align = "left" })
-kolourpaint.image = image("/home/lepagee/Icon/kolourpaint.png")
+kolourpaint.image = image(awful.util.getdir("config") .. "/Icon/kolourpaint.png")
 displayInfo(kolourpaint,"kolourpaint")
 kolourpaint:buttons(awful.util.table.join(
    awful.button({ }, 1, function()
@@ -254,7 +254,7 @@ kolourpaint:buttons(awful.util.table.join(
 ))
 
 thunar       = widget({ type = "imagebox", align = "left" })
-thunar.image = image("/home/lepagee/Icon/Thunar.png")
+thunar.image = image(awful.util.getdir("config") .. "/Icon/Thunar.png")
 displayInfo(thunar,"thunar")
 thunar:buttons(awful.util.table.join(
    awful.button({ }, 1, function()
@@ -266,7 +266,7 @@ thunar:buttons(awful.util.table.join(
 ))
 
 digikam       = widget({ type = "imagebox", align = "left" })
-digikam.image = image("/home/lepagee/Icon/digikam.png")
+digikam.image = image(awful.util.getdir("config") .. "/Icon/digikam.png")
 displayInfo(digikam,"digikam")
 digikam:buttons(awful.util.table.join(
    awful.button({ }, 1, function()
@@ -278,7 +278,7 @@ digikam:buttons(awful.util.table.join(
 ))
 
 kcalc       = widget({ type = "imagebox", align = "left" })
-kcalc.image = image("/home/lepagee/Icon/calc.png")
+kcalc.image = image(awful.util.getdir("config") .. "/Icon/calc.png")
 displayInfo(kcalc,"kcalc")
 kcalc:buttons(awful.util.table.join(
    awful.button({ }, 1, function()
@@ -290,7 +290,7 @@ kcalc:buttons(awful.util.table.join(
 ))
 
 transmission       = widget({ type = "imagebox", align = "left" })
-transmission.image = image("/home/lepagee/Icon/transmission.png")
+transmission.image = image(awful.util.getdir("config") .. "/Icon/transmission.png")
 displayInfo(transmission,"transmission")
 transmission:buttons(awful.util.table.join(
    awful.button({ }, 1, function()
@@ -302,7 +302,7 @@ transmission:buttons(awful.util.table.join(
 ))
 
 kdenlive       = widget({ type = "imagebox", align = "left" })
-kdenlive.image = image("/home/lepagee/Icon/kdenlive.png")
+kdenlive.image = image(awful.util.getdir("config") .. "/Icon/kdenlive.png")
 displayInfo(kdenlive,"kdenlive")
 kdenlive:buttons(awful.util.table.join(
    awful.button({ }, 1, function()
@@ -314,7 +314,7 @@ kdenlive:buttons(awful.util.table.join(
 ))
 
 kino       = widget({ type = "imagebox", align = "left" })
-kino.image = image("/home/lepagee/Icon/kino.png")
+kino.image = image(awful.util.getdir("config") .. "/Icon/kino.png")
 --displayInfo(kino,"kino")
 kino:buttons(awful.util.table.join(
    awful.button({ }, 1, function()
@@ -326,7 +326,7 @@ kino:buttons(awful.util.table.join(
 ))
 
 konversation       = widget({ type = "imagebox", align = "left" })
-konversation.image = image("/home/lepagee/Icon/konversation.png")
+konversation.image = image(awful.util.getdir("config") .. "/Icon/konversation.png")
 displayInfo(konversation,"konversation")
 konversation:buttons(awful.util.table.join(
    awful.button({ }, 1, function()
@@ -338,7 +338,7 @@ konversation:buttons(awful.util.table.join(
 ))
 
 -- konversation2       = widget({ type = "imagebox", align = "left" })
--- konversation2.image = image("/home/lepagee/Icon/konversation.png")
+-- konversation2.image = image(awful.util.getdir("config") .. "/Icon/konversation.png")
 -- konversation2.mouse_enter = function () appsInfo("konversation") end
 -- konversation2.mouse_leave = function () naughty.destroy(appInfo[3]) end
 -- konversation2:buttons({
@@ -348,7 +348,7 @@ konversation:buttons(awful.util.table.join(
 -- })
 
 -- firefox       = widget({ type = "imagebox", align = "left" })
--- firefox.image = image("/home/lepagee/Icon/firefox.png")
+-- firefox.image = image(awful.util.getdir("config") .. "/Icon/firefox.png")
 -- firefox.mouse_enter = function () appsInfo("mozilla-firefox-3.5") end
 -- firefox.mouse_leave = function () naughty.destroy(appInfo[3]) end
 -- firefox:buttons({
@@ -358,14 +358,14 @@ konversation:buttons(awful.util.table.join(
 -- })
 
 -- thunderbird       = widget({ type = "imagebox", align = "left" })
--- thunderbird.image = image("/home/lepagee/Icon/thunderbird.png")
+-- thunderbird.image = image(awful.util.getdir("config") .. "/Icon/thunderbird.png")
 -- thunderbird.mouse_enter = function () appsInfo("mozilla-thunderbird") end
 -- thunderbird.mouse_leave = function () naughty.destroy(appInfo[3]) end
 -- thunderbird:buttons({
 --    button({ }, 1, function()
 --       executeApps(1, "" , "thunderbird")
 --    end)
--- })
+-- -- })
 
 lauchBar.widgets = {  --firefox,
 		      --thunderbird,

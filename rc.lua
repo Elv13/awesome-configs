@@ -1,11 +1,7 @@
--- Standard awesome library
 require("awful")
---require("awful.autofocus")
---require("awful.rules")
 require("beautiful")
 require("naughty")
 require("shifty")
---require("wicked")
 require("vicious")
 require("layoutmenu")
 require("tagmover")
@@ -17,12 +13,7 @@ vicious.cache(vicious.widgets.fs)
 vicious.cache(vicious.widgets.dio)
 vicious.cache(vicious.widgets.cpu)
 
-
--- {{{ Variable definitions
--- Themes define colours, icons, and wallpapers
 beautiful.init(awful.util.getdir("config") .. "/default/theme.lua")
-
--- This is used later as the default terminal and editor to run.
 terminal = 'urxvt  -tr +sb -tint gray -fade 50 +bl +si -cr red -pr green -iconic -bg black -fg white -fn "xft:DejaVu Sans Mono:pixelsize=13"'
 -- terminal = 'aterm -tr +sb -tint gray -fade 50 +bl -tinttype true +si -cr red -pr green'
 editor = os.getenv("EDITOR") or "kwrite" or "nano"
@@ -32,7 +23,6 @@ modkey = "Mod4"
 
 dofile(awful.util.getdir("config") .. "/baseRule.lua")
 
--- tag defaults
 shifty.config.defaults = {
   layout = awful.layout.suit.tile,
   ncol = 1,
@@ -42,10 +32,6 @@ shifty.config.defaults = {
 
 shifty.modkey = modkey
 
-
-
--- {{{ Menu
--- Create a laucher widget and a main menu
 myawesomemenu = {
    { "manual", terminal .. " -e man awesome" },
    { "edit config", editor_cmd .. " " .. awful.util.getdir("config") .. "/rc.lua" },
@@ -61,17 +47,13 @@ mymainmenu = awful.menu({ items = { { "awesome", myawesomemenu, beautiful.awesom
 				     
 dofile(awful.util.getdir("config") .. "/menu.lua")   
 
---main_menu = awful.menu.new({ items })
-
---table.insert(main_menu.data.items,{ items = {"test","cmd"} })
-
-mymainmenu2 = awful.menu.new({ items = {{ "Home", "dolphin $HOME",image("/home/lepagee/Icon/tags/home.png") },
-					{ "KDE-devel", "dolphin /home/kde-devel",image("/home/lepagee/Icon/tags/kde.png") },
-					{ "Image", "dolphin /mnt/smbsda1/My\ Pictures/",image("/home/lepagee/Icon/tags/image.png") },
-					{ "Video", "dolphin /mnt/smbsdb3/movie/to_burn/",image("/home/lepagee/Icon/tags/video.png") },
-					{ "Music", "dolphin /mnt/smbsda1/music/",image("/home/lepagee/Icon/tags/media.png") },
-					{ "Backup", "dolphin /mnt/smbsda1/backup/",image("/home/lepagee/Icon/tags/backup.png") },
-					{ "Notes", "dolphin /home/lepagee/Notes/",image("/home/lepagee/Icon/tags/editor.png") },
+mymainmenu2 = awful.menu.new({ items = {{ "Home", "dolphin $HOME",image(awful.util.getdir("config") .. "/Icon/tags/home.png") },
+					{ "KDE-devel", "dolphin /home/kde-devel",image(awful.util.getdir("config") .. "/Icon/tags/kde.png") },
+					{ "Image", "dolphin /mnt/smbsda1/My\ Pictures/",image(awful.util.getdir("config") .. "/Icon/tags/image.png") },
+					{ "Video", "dolphin /mnt/smbsdb3/movie/to_burn/",image(awful.util.getdir("config") .. "/Icon/tags/video.png") },
+					{ "Music", "dolphin /mnt/smbsda1/music/",image(awful.util.getdir("config") .. "/Icon/tags/media.png") },
+					{ "Backup", "dolphin /mnt/smbsda1/backup/",image(awful.util.getdir("config") .. "/Icon/tags/backup.png") },
+					{ "Notes", "dolphin /home/lepagee/Notes/",image(awful.util.getdir("config") .. "/Icon/tags/editor.png") },
                                       },
                             })
 			    
@@ -87,13 +69,13 @@ end
 aFile:close()
 mymainmenu3 = awful.menu.new({ items = commandArray})
 
-mylauncher2 = awful.widget.launcher({ image = image("/home/lepagee/Icon/tags/home2.png"),
+mylauncher2 = awful.widget.launcher({ image = image(awful.util.getdir("config") .. "/Icon/tags/home2.png"),
                                      menu = mymainmenu2 })
 mylauncher2text = widget({ type = "textbox" })
 mylauncher2text.text = " Places  "
 
 			    
-mylauncher3 = awful.widget.launcher({ image = image("/home/lepagee/Icon/tags/star2.png"),
+mylauncher3 = awful.widget.launcher({ image = image(awful.util.getdir("config") .. "/Icon/tags/star2.png"),
                            menu = mymainmenu3   })
 mylauncher3text = widget({ type = "textbox" })
 mylauncher3text.text = " Recent |"
@@ -104,22 +86,15 @@ mylaunchertext = widget({ type = "textbox" })
 mylaunchertext.text = " Apps  "
 
 launcherPix       = widget({ type = "imagebox", align = "left" })
-launcherPix.image = image("/home/lepagee/Icon/gearA2.png")
+launcherPix.image = image(awful.util.getdir("config") .. "/Icon/gearA2.png")
 
 desktopPix       = widget({ type = "imagebox", align = "left" })
-desktopPix.image = image("/home/lepagee/Icon/tags/desk2.png")
+desktopPix.image = image(awful.util.getdir("config") .. "/Icon/tags/desk2.png")
 
 addTag = widget({ type = "imagebox", align = "left" })
-addTag.image = image("/home/lepagee/Icon/tags/cross2.png")
+addTag.image = image(awful.util.getdir("config") .. "/Icon/tags/cross2.png")
 
-delTag = {} --widget({ type = "imagebox", align = "left" })
---delTag.image = image("/home/lepagee/Icon/tags/minus.png")
-
-
--- {{{ Wibox
--- Create a textclock widget
-
-
+delTag = {}
 -- Create a systray
 mysystray = widget({ type = "systray" })
 
@@ -213,9 +188,9 @@ dofile(awful.util.getdir("config") .. "/topWidget.lua")
 keyboardSwitcher = widget({ type = "imagebox"})
 
 if setupKb() ==  "us" then
-  keyboardSwitcher.image = image("/home/lepagee/Icon/us_flag.png")
+  keyboardSwitcher.image = image(awful.util.getdir("config") .. "/Icon/us_flag.png")
 else
-  keyboardSwitcher.image = image("/home/lepagee/Icon/canada_flag.png")
+  keyboardSwitcher.image = image(awful.util.getdir("config") .. "/Icon/canada_flag.png")
 end
 
 keyboardSwitcher:buttons( awful.util.table.join(
@@ -226,14 +201,14 @@ keyboardSwitcher:buttons( awful.util.table.join(
 	aFile:write("ca")
 	aFile:close() 
 	awful.util.spawn("setxkbmap ca") 
-	keyboardSwitcher.image = image("/home/lepagee/Icon/canada_flag.png")
+	keyboardSwitcher.image = image(awful.util.getdir("config") .. "/Icon/canada_flag.png")
       else
 	keyboardSwitcher.text = "us"
 	local aFile = io.open('/tmp/kbMap',"w")
 	aFile:write("us")
 	aFile:close() 
 	awful.util.spawn("setxkbmap us")
-	keyboardSwitcher.image = image("/home/lepagee/Icon/us_flag.png")
+	keyboardSwitcher.image = image(awful.util.getdir("config") .. "/Icon/us_flag.png")
       end
   end)
 ))
@@ -244,43 +219,43 @@ spacer77.text = "| "
 spacer76 = widget({ type = "textbox", align = "left" })
 spacer76.text = "| "
 
--- setupRectLauncher(1, {"/home/lepagee/Icon/rectangles90/run.png"}) 
--- setupRectLauncher(1, {"/home/lepagee/Icon/rectangles90/update_local_system.png"}) 
--- setupRectLauncher(1, {"/home/lepagee/Icon/rectangles90/clear_temp_file.png"}) 
--- setupRectLauncher(1, {"/home/lepagee/Icon/rectangles90/free_space.png"}) 
--- setupRectLauncher(1, {"/home/lepagee/Icon/rectangles90/compile_svn.png"}) 
--- setupRectLauncher(1, {"/home/lepagee/Icon/rectangles90/local_admin.png"}) 
+-- setupRectLauncher(1, {awful.util.getdir("config") .. "/Icon/rectangles90/run.png"}) 
+-- setupRectLauncher(1, {awful.util.getdir("config") .. "/Icon/rectangles90/update_local_system.png"}) 
+-- setupRectLauncher(1, {awful.util.getdir("config") .. "/Icon/rectangles90/clear_temp_file.png"}) 
+-- setupRectLauncher(1, {awful.util.getdir("config") .. "/Icon/rectangles90/free_space.png"}) 
+-- setupRectLauncher(1, {awful.util.getdir("config") .. "/Icon/rectangles90/compile_svn.png"}) 
+-- setupRectLauncher(1, {awful.util.getdir("config") .. "/Icon/rectangles90/local_admin.png"}) 
 -- 
--- setupRectLauncher(2, {"/home/lepagee/Icon/rectangles90/update_server3.png"}) 
--- setupRectLauncher(2, {"/home/lepagee/Icon/rectangles90/update_server2.png"}) 
--- setupRectLauncher(2, {"/home/lepagee/Icon/rectangles90/update_server1.png"}) 
--- setupRectLauncher(2, {"/home/lepagee/Icon/rectangles90/restart_server3.png"}) 
--- setupRectLauncher(2, {"/home/lepagee/Icon/rectangles90/restart_server2.png"}) 
--- setupRectLauncher(2, {"/home/lepagee/Icon/rectangles90/restart_server1.png"}) 
--- setupRectLauncher(2, {"/home/lepagee/Icon/rectangles90/block_all_intrusion.png"}) 
--- setupRectLauncher(2, {"/home/lepagee/Icon/rectangles90/lock_network.png"}) 
--- setupRectLauncher(2, {"/home/lepagee/Icon/rectangles90/prevent_ssh.png"}) 
--- setupRectLauncher(2, {"/home/lepagee/Icon/rectangles90/allow_vcn.png"}) 
--- setupRectLauncher(2, {"/home/lepagee/Icon/rectangles90/net_admin.png"}) 
+-- setupRectLauncher(2, {awful.util.getdir("config") .. "/Icon/rectangles90/update_server3.png"}) 
+-- setupRectLauncher(2, {awful.util.getdir("config") .. "/Icon/rectangles90/update_server2.png"}) 
+-- setupRectLauncher(2, {awful.util.getdir("config") .. "/Icon/rectangles90/update_server1.png"}) 
+-- setupRectLauncher(2, {awful.util.getdir("config") .. "/Icon/rectangles90/restart_server3.png"}) 
+-- setupRectLauncher(2, {awful.util.getdir("config") .. "/Icon/rectangles90/restart_server2.png"}) 
+-- setupRectLauncher(2, {awful.util.getdir("config") .. "/Icon/rectangles90/restart_server1.png"}) 
+-- setupRectLauncher(2, {awful.util.getdir("config") .. "/Icon/rectangles90/block_all_intrusion.png"}) 
+-- setupRectLauncher(2, {awful.util.getdir("config") .. "/Icon/rectangles90/lock_network.png"}) 
+-- setupRectLauncher(2, {awful.util.getdir("config") .. "/Icon/rectangles90/prevent_ssh.png"}) 
+-- setupRectLauncher(2, {awful.util.getdir("config") .. "/Icon/rectangles90/allow_vcn.png"}) 
+-- setupRectLauncher(2, {awful.util.getdir("config") .. "/Icon/rectangles90/net_admin.png"}) 
 -- 
--- setupRectLauncher(3, {"/home/lepagee/Icon/rectangles90/backup_virtual_machine.png"})
--- setupRectLauncher(3, {"/home/lepagee/Icon/rectangles90/backup_dev_files.png"})
--- setupRectLauncher(3, {"/home/lepagee/Icon/rectangles90/backup_database.png"})
--- setupRectLauncher(3, {"/home/lepagee/Icon/rectangles90/restore_backup.png"})
--- setupRectLauncher(3, {"/home/lepagee/Icon/rectangles90/backup_drive.png"})
--- setupRectLauncher(3, {"/home/lepagee/Icon/rectangles90/backup.png"})
+-- setupRectLauncher(3, {awful.util.getdir("config") .. "/Icon/rectangles90/backup_virtual_machine.png"})
+-- setupRectLauncher(3, {awful.util.getdir("config") .. "/Icon/rectangles90/backup_dev_files.png"})
+-- setupRectLauncher(3, {awful.util.getdir("config") .. "/Icon/rectangles90/backup_database.png"})
+-- setupRectLauncher(3, {awful.util.getdir("config") .. "/Icon/rectangles90/restore_backup.png"})
+-- setupRectLauncher(3, {awful.util.getdir("config") .. "/Icon/rectangles90/backup_drive.png"})
+-- setupRectLauncher(3, {awful.util.getdir("config") .. "/Icon/rectangles90/backup.png"})
 -- 
--- setupRectLauncher(4, {"/home/lepagee/Icon/rectangles90/fetch_pictures.png"})
--- setupRectLauncher(4, {"/home/lepagee/Icon/rectangles90/xkill.png"})
--- setupRectLauncher(4, {"/home/lepagee/Icon/rectangles90/mount_iso_image.png"})
--- setupRectLauncher(4, {"/home/lepagee/Icon/rectangles90/mount_img_image.png"})
--- setupRectLauncher(4, {"/home/lepagee/Icon/rectangles90/rip_cd.png"})
--- setupRectLauncher(4, {"/home/lepagee/Icon/rectangles90/remount_read_only.png"})
--- setupRectLauncher(4, {"/home/lepagee/Icon/rectangles90/mount_sdd1.png"})
--- setupRectLauncher(4, {"/home/lepagee/Icon/rectangles90/mount_sdc1.png"})
--- setupRectLauncher(4, {"/home/lepagee/Icon/rectangles90/mount_sdb1.png"})
--- setupRectLauncher(4, {"/home/lepagee/Icon/rectangles90/eject_cd.png"})
--- setupRectLauncher(4, {"/home/lepagee/Icon/rectangles90/local_admin.png"})
+-- setupRectLauncher(4, {awful.util.getdir("config") .. "/Icon/rectangles90/fetch_pictures.png"})
+-- setupRectLauncher(4, {awful.util.getdir("config") .. "/Icon/rectangles90/xkill.png"})
+-- setupRectLauncher(4, {awful.util.getdir("config") .. "/Icon/rectangles90/mount_iso_image.png"})
+-- setupRectLauncher(4, {awful.util.getdir("config") .. "/Icon/rectangles90/mount_img_image.png"})
+-- setupRectLauncher(4, {awful.util.getdir("config") .. "/Icon/rectangles90/rip_cd.png"})
+-- setupRectLauncher(4, {awful.util.getdir("config") .. "/Icon/rectangles90/remount_read_only.png"})
+-- setupRectLauncher(4, {awful.util.getdir("config") .. "/Icon/rectangles90/mount_sdd1.png"})
+-- setupRectLauncher(4, {awful.util.getdir("config") .. "/Icon/rectangles90/mount_sdc1.png"})
+-- setupRectLauncher(4, {awful.util.getdir("config") .. "/Icon/rectangles90/mount_sdb1.png"})
+-- setupRectLauncher(4, {awful.util.getdir("config") .. "/Icon/rectangles90/eject_cd.png"})
+-- setupRectLauncher(4, {awful.util.getdir("config") .. "/Icon/rectangles90/local_admin.png"})
 
   
 loadRectLauncher(2)
@@ -314,12 +289,12 @@ for s = 1, screen.count() do
     -- Add widgets to the wibox - order matters
     
     delTag[s] = widget({ type = "imagebox", align = "left" })
-    delTag[s].image = image("/home/lepagee/Icon/tags/minus2.png")
+    delTag[s].image = image(awful.util.getdir("config") .. "/Icon/tags/minus2.png")
     delTag[s].visible = false
     
-    movetagL[s] = tagmover(s,{ direction = "left", icon = "/home/lepagee/Icon/tags/screen_left.png" })
+    movetagL[s] = tagmover(s,{ direction = "left", icon = awful.util.getdir("config") .. "/Icon/tags/screen_left.png" })
     
-    movetagR[s] = tagmover(s,{ direction = "right", icon = "/home/lepagee/Icon/tags/screen_right.png" })
+    movetagR[s] = tagmover(s,{ direction = "right", icon = awful.util.getdir("config") .. "/Icon/tags/screen_right.png" })
     
     delTag[s]:buttons( awful.util.table.join(
       awful.button({ }, 1, function()
@@ -380,18 +355,6 @@ for s = 1, screen.count() do
 	  add_device(line, "hdd")
       end 
     end
-    
-    
-    
-    --add_device("/mnt/sda1", "hdd")
-    
-    --add_device("/mnt/smbsda1", "net")
-    
-    --add_device("/mnt/smbsdb3", "net")
-    
-
-
-    
 
     mywibox2 = awful.wibox({ position = "bottom", screen = s })
     
@@ -469,19 +432,15 @@ for s = 1, screen.count() do
 			    layout = awful.widget.layout.horizontal.leftright,
 			  }
      end
-    --awful.wibox.attach(mywibox2,"bottom")
 
 end
 
 local isPlayingMovie = false
 local musicBarVisibility = false
---dofile(awful.util.getdir("config") .. "/musicBar.lua")
 
 dofile(awful.util.getdir("config") .. "/hardware.lua")
 
 dofile(awful.util.getdir("config") .. "/launchbar.lua")
-
---awful.wibox.attach(mywibox4,"bottom")
 
 launcherPix:buttons( awful.util.table.join(
   awful.button({ }, 1, function()

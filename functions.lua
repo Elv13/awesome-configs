@@ -9,31 +9,31 @@ function amixer_volume(format)
    f:close()
    if l+0 == 0 then
     if volumepixmap == not nil then
-      volumepixmap.image = image("/home/lepagee/Icon/volm.png")
+      volumepixmap.image = image(awful.util.getdir("config") .. "/Icon/volm.png")
     end
     if volumepixmap2 == not nil then
-      volumepixmap2.image = image("/home/lepagee/icons/volm.png")
+      volumepixmap2.image = image(awful.util.getdir("config") .. "/Icon/volm.png")
     end
    elseif l+0 < 15 then
    if volumepixmap == not nil then
-      volumepixmap.image = image("/home/lepagee/Icon/vol1.png")
+      volumepixmap.image = image(awful.util.getdir("config") .. "/Icon/vol1.png")
     end
     if volumepixmap2 == not nil then
-      volumepixmap2.image = image("/home/lepagee/Icon/vol1.png")
+      volumepixmap2.image = image(awful.util.getdir("config") .. "/Icon/vol1.png")
     end
    elseif l+0 < 35 then
    if volumepixmap == not nil then
-      volumepixmap.image = image("/home/lepagee/Icon/vol2.png")
+      volumepixmap.image = image(awful.util.getdir("config") .. "/Icon/vol2.png")
     end
     if volumepixmap2 == not nil then
-      volumepixmap2.image = image("/home/lepagee/Icon/vol2.png")
+      volumepixmap2.image = image(awful.util.getdir("config") .. "/Icon/vol2.png")
     end
    else
     if volumepixmap == not nil then
-      volumepixmap.image = image("/home/lepagee/Icon/vol3.png")
+      volumepixmap.image = image(awful.util.getdir("config") .. "/Icon/vol3.png")
     end
     if volumepixmap2 == not nil then
-      volumepixmap2.image = image("/home/lepagee/icons/vol3.png")
+      volumepixmap2.image = image(awful.util.getdir("config") .. "/Icon/vol3.png")
     end
    end
    return {l}
@@ -144,7 +144,6 @@ end
 
 function getFan1()
   local keyboardPipe = io.open('/sys/devices/platform/w83627ehf.656/fan1_input',"r")
-  --local keyboardPipe = io.popen('sleep 1 && setxkbmap -v 10 -display :0 | grep "layout:" | grep -e "[a-zA-Z0-9_]*" -o | tail -n1');
   local text = keyboardPipe:read("*all")
   keyboardPipe:close()
   return { tonumber(text) }
@@ -152,7 +151,6 @@ end
 
 function getTemp1()
   local keyboardPipe = io.open('/sys/devices/platform/w83627ehf.656/temp1_input',"r")
-  --local keyboardPipe = io.popen('sleep 1 && setxkbmap -v 10 -display :0 | grep "layout:" | grep -e "[a-zA-Z0-9_]*" -o | tail -n1');
   local text = keyboardPipe:read("*all")
   keyboardPipe:close()
   return { tonumber(text)/1000 }

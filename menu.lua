@@ -569,23 +569,23 @@ sub_Office_16140 = {
 
 
 main_menu = awful.menu.new({ items= {  
-   { "AudioVideo", main_AudioVideo_4846, "/home/lepagee/icons/video.png" },
-   { "ConsoleOnly", main_ConsoleOnly_6046, "/home/lepagee/icons/term.png" },
-   { "Core", main_Core_17779, "/home/lepagee/icons/other.png" },
-   { "Development", main_Development_18158, "/home/lepagee/icons/bug.png" },
-   { "Education", main_Education_28616, "/home/lepagee/icons/desk.png" },
-   { "Game", main_Game_31846, "/home/lepagee/icons/game.png" },
-   { "Graphics", main_Graphics_16416, "/home/lepagee/icons/image.png" },
-   { "Graphics|XSane - Scanning|xsane|xsane", main_Graphics_XSane___Scanning_xsane_xsane_22151, "/home/lepagee/icons/image.png" },
-   { "Multimedia", main_Multimedia_32386, "/home/lepagee/icons/media.png" },
-   { "Network", main_Network_25645, "/home/lepagee/icons/net.png" },
-   { "Network", main_Network_27981, "/home/lepagee/icons/net.png" },
-   { "Office", main_Office_14823, "/home/lepagee/icons/office.png" },
-   { "PackageManager", main_PackageManager_22440, "/home/lepagee/icons/3d.png" },
-   { "Settings", main_Settings_31940, "/home/lepagee/Icon/tools.png" },
-   { "System", main_System_26979, "/home/lepagee/Icon/tools.png" },
-   { "Utility", main_Utility_19410, "/home/lepagee/Icon/tools.png" },
-   { "Viewer", main_Viewer_13034, "/home/lepagee/icons/info.png" }, } 
+   { "AudioVideo", main_AudioVideo_4846, awful.util.getdir("config") .. "/Icon/tags/video.png" },
+   { "ConsoleOnly", main_ConsoleOnly_6046, awful.util.getdir("config") .. "/Icon/tags/term.png" },
+   { "Core", main_Core_17779, awful.util.getdir("config") .. "/Icon/tags/other.png" },
+   { "Development", main_Development_18158, awful.util.getdir("config") .. "/Icon/tags/bug.png" },
+   { "Education", main_Education_28616, awful.util.getdir("config") .. "/Icon/tags/desk.png" },
+   { "Game", main_Game_31846, awful.util.getdir("config") .. "/Icon/tags/game.png" },
+   { "Graphics", main_Graphics_16416, awful.util.getdir("config") .. "/Icon/tags/image.png" },
+   { "Graphics|XSane - Scanning|xsane|xsane", main_Graphics_XSane___Scanning_xsane_xsane_22151, awful.util.getdir("config") .. "/Icon/tags/image.png" },
+   { "Multimedia", main_Multimedia_32386, awful.util.getdir("config") .. "/Icon/tags/media.png" },
+   { "Network", main_Network_25645, awful.util.getdir("config") .. "/Icon/tags/net.png" },
+   { "Network", main_Network_27981, awful.util.getdir("config") .. "/Icon/tags/net.png" },
+   { "Office", main_Office_14823, awful.util.getdir("config") .. "/Icon/tags/office.png" },
+   { "PackageManager", main_PackageManager_22440, awful.util.getdir("config") .. "/Icon/tags/3d.png" },
+   { "Settings", main_Settings_31940, awful.util.getdir("config") .. "/Icon/tools.png" },
+   { "System", main_System_26979, awful.util.getdir("config") .. "/Icon/tools.png" },
+   { "Utility", main_Utility_19410, awful.util.getdir("config") .. "/Icon/tools.png" },
+   { "Viewer", main_Viewer_13034, awful.util.getdir("config") .. "/Icon/tags/info.png" }, } 
  })
 
 

@@ -244,7 +244,7 @@ voltage = widget({
 voltage.text ="| <b>Voltage: </b>"
 
 volt12Icn       = widget({ type = "imagebox", align = "right" })
-volt12Icn.image = image("/home/lepagee/Icon/volt.png")
+volt12Icn.image = image(awful.util.getdir("config") .. "/Icon/volt.png")
 
 volt12Lbl = widget({
     type = 'textbox',
@@ -261,7 +261,7 @@ volt12Val = widget({
 volt12Val.text ="<small><i>11.2v</i></small> "
 
 volt5Icn       = widget({ type = "imagebox", align = "right" })
-volt5Icn.image = image("/home/lepagee/Icon/volt.png")
+volt5Icn.image = image(awful.util.getdir("config") .. "/Icon/volt.png")
 
 volt5Lbl = widget({
     type = 'textbox',
@@ -278,7 +278,7 @@ volt5Val = widget({
 volt5Val.text ="<small><i>5.3v</i></small> "
 
 volt33Icn       = widget({ type = "imagebox", align = "right" })
-volt33Icn.image = image("/home/lepagee/Icon/volt.png")
+volt33Icn.image = image(awful.util.getdir("config") .. "/Icon/volt.png")
 
 volt33Lbl = widget({
     type = 'textbox',

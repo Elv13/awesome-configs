@@ -31,11 +31,11 @@ function add_device(args)
   local iconTest = widget({ type = "imagebox"})
   
   if devType == "hdd" then
-    iconTest.image = image("/home/lepagee/Icon/hdd.png")
+    iconTest.image = image(awful.util.getdir("config") .. "/Icon/hdd.png")
   elseif devType == "net" then
-    iconTest.image = image("/home/lepagee/Icon/hddn.png")
+    iconTest.image = image(awful.util.getdir("config") .. "/Icon/hddn.png")
   elseif devType == "home" then
-    iconTest.image = image("/home/lepagee/Icon/home.png")
+    iconTest.image = image(awful.util.getdir("config") .. "/Icon/home.png")
   end
   
   iconTest:buttons( awful.util.table.join(
@@ -46,14 +46,14 @@ function add_device(args)
   
   
   local iconTest1 = widget({ type = "imagebox"})
-  iconTest1.image = image("/home/lepagee/icons/eject.png")
+  iconTest1.image = image(awful.util.getdir("config") .. "/Icon/tags/eject.png")
   
   iconTest1:add_signal("mouse::enter", function ()
-    iconTest1.image = image("/home/lepagee/icons/eject_over.png")
+    iconTest1.image = image(awful.util.getdir("config") .. "/Icon/tags/eject_over.png")
   end)
 
   iconTest1:add_signal("mouse::leave", function ()
-    iconTest1.image = image("/home/lepagee/icons/eject.png")
+    iconTest1.image = image(awful.util.getdir("config") .. "/Icon/tags/eject.png")
   end)
   
   local volSpacer = widget({ type = "textbox" })
@@ -127,9 +127,6 @@ end
 
 
 function setupRectLauncher(column, arg) 
---   if arg[image] == nil then
---     arg[image] = "/home/lepagee/Icon/rectangles90/compile_svn.png"
---   end
   
   if rectLauncherWdg[column] == nil then
     rectLauncherWdg[column] = { layout = awful.widget.layout.horizontal.leftright }
@@ -139,8 +136,6 @@ function setupRectLauncher(column, arg)
   newLauncher.image = image(arg[1])
   
   table.insert(rectLauncherWdg[column], newLauncher)
-  --rectLauncherWdg[column][#rectLauncherWdg+1] = newLauncher
-  --table.insert(rectLauncherWdg[column], layout = awful.widget.layout.vertical.flex)
   
 end
 
@@ -206,10 +201,10 @@ function loadMonitor(xPos)
   netWdg.text = "  <b><u>Networking:</u></b>"
   
   local uploadImg = widget({ type = "imagebox"})
-  uploadImg.image = image("/home/lepagee/Icon/arrowUp.png")
+  uploadImg.image = image(awful.util.getdir("config") .. "/Icon/arrowUp.png")
   
   local downloadImg = widget({ type = "imagebox"})
-  downloadImg.image = image("/home/lepagee/Icon/arrowDown.png")
+  downloadImg.image = image(awful.util.getdir("config") .. "/Icon/arrowDown.png")
   
   local netUsageUp = widget({ type = "textbox" })
   netUsageUp.text = "Upload: 10kbs"
