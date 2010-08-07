@@ -17,7 +17,7 @@ local capi = { image = image,
                mouse = mouse,
 	       tag = tag}
 
-module("netInfo")
+module("drawer.netInfo")
 
 local data = {}
 

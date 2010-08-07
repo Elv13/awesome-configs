@@ -22,7 +22,7 @@ local capi = { image = image,
                mouse = mouse,
 	       tag = tag}
 
-module("memInfo")
+module("drawer.memInfo")
 
 local data = {}
 

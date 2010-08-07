@@ -19,7 +19,7 @@ local capi = { image = image,
                mouse = mouse,
 	       tag = tag}
 
-module("keyboardSwitcher")
+module("widget.keyboardSwitcher")
 
 local data = {}
 

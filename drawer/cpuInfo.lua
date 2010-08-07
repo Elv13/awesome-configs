@@ -20,7 +20,7 @@ local capi = { image = image,
                mouse = mouse,
 	       tag = tag}
 
-module("cpuInfo")
+module("drawer.cpuInfo")
 
 local data = {}
 
@@ -158,7 +158,6 @@ function createDrawer()
   text3 = f:read("*all")
   text3 = text3.." return cpuStat"
   f:close()
-  print(text3)
   local afunction = loadstring(text3)
   process = afunction()
   

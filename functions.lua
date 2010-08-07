@@ -170,7 +170,7 @@ function addTitleBar(screen)
   end
   if awful.tag.selected() ~= nil then
     for i, client in ipairs(awful.tag.selected():clients()) do
-      if add_title == true then
+      if add_title == true or awful.client.floating.get(client) == true or customMenu.layoutmenu.showTitle(awful.tag.selected()) == true then
 	awful.titlebar.add(client, { modkey = modkey })
       else
 	awful.titlebar.remove(client)

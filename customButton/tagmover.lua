@@ -11,7 +11,7 @@ local capi = { image = image,
                mouse = mouse,
 	       tag = tag}
 
-module("tagmover")
+module("customButton.tagmover")
 
 local data = {}
 

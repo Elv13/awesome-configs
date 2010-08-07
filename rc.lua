@@ -3,21 +3,22 @@ require("beautiful")
 require("naughty")
 require("shifty")
 require("vicious")
-require("layoutmenu")
-require("tagmover")
+require("customMenu.layoutmenu")
 require("customMenu.recent")
 require("customMenu.application")
 require("customMenu.places")
-require("keyboardSwitcher")
 require("customButton.launcher")
 require("customButton.showDesktop")
 require("customButton.addTag")
 require("customButton.delTag")
-require("soundInfo")
-require("dateInfo")
-require("memInfo")
-require("cpuInfo")
-require("netInfo")
+require("customButton.tagmover")
+require("drawer.soundInfo")
+require("drawer.dateInfo")
+require("drawer.memInfo")
+require("drawer.cpuInfo")
+require("drawer.netInfo")
+require("widget.spacer")
+require("widget.keyboardSwitcher")
 
 dofile(awful.util.getdir("config") .. "/functions.lua")
 dofile(awful.util.getdir("config") .. "/desktop.lua")
@@ -63,22 +64,22 @@ launcherPix = customButton.launcher()
 desktopPix = customButton.showDesktop()
 
 -- Create the clock
-mytextclock = dateinfo()
+mytextclock = drawer.dateinfo()
 
 -- Create the memory manager
-meminfo = memInfo(screen.count())
+meminfo = drawer.memInfo(screen.count())
 
 -- Create the cpu manager
-cpuinfo = cpuInfo()
+cpuinfo = drawer.cpuInfo()
 
 -- Create the net manager
-netinfo = netInfo()
+netinfo = drawer.netInfo()
 
 -- Create the volume box
-soundWidget = soundInfo()
+soundWidget = drawer.soundInfo()
 
 -- Create the keyboard layout switcher, feel free to add your contry and push it to master
-keyboardSwitcherWidget = keyboardSwitcher()
+keyboardSwitcherWidget = widget.keyboardSwitcher()
 
 -- Create the addTag icon
 addTag = customButton.addTag()
@@ -96,7 +97,7 @@ movetagR= {}
 mytasklist = {}
 delTag = {}
 
---Hacking and buggy, a rewrite is in my TODO list
+--TagList buttons
 mytaglist.buttons = awful.util.table.join(
                     awful.button({ }, 1, function (tag) awful.tag.viewonly(tag) end),
                     awful.button({ modkey }, 1, awful.client.movetotag),
@@ -134,23 +135,11 @@ mytasklist.buttons = awful.util.table.join(
                                               if client.focus then client.focus:raise() end
                                           end))
 
-spacer77 = widget({ type = "textbox" })
-spacer77.text = "| "
+spacer3 = widget.spacer({text = "| "})
 
-spacer76 = widget({ type = "textbox", align = "left" })
-spacer76.text = "| "
+spacer2 = widget.spacer({text = "  |"})
 
-spacer3 = widget({ type = "textbox", align = "right" })
-spacer3.text = "| "
-
-spacer2 = widget({ type = "textbox", align = "right" })
-spacer2.text = "  |"
-
-spacer1 = widget({ type = "textbox", align = "right" })
-spacer1.text = "  |"
-
-spacer4 = widget({ type = "textbox", align = "right" })
-spacer4.text = "|"
+spacer4 = widget.spacer({text = "|"})
 
 --Add icons on the desktop. They have to be the size of those bellow to work fine, but it's not nice, so I don't use it anymore
 -- setupRectLauncher(1, {awful.util.getdir("config") .. "/Icon/rectangles90/run.png"}) 
@@ -170,7 +159,7 @@ for s = 1, screen.count() do
   mypromptbox[s] = awful.widget.prompt({ layout = awful.widget.layout.horizontal.leftright })
 			    
   -- Create the layout menu for this screen
-  mylayoutmenu[s] = layoutmenu(s,layouts_all)
+  mylayoutmenu[s] = customMenu.layoutmenu(s,layouts_all)
   
   -- Create a taglist widget
   mytaglist[s] = awful.widget.taglist(s, awful.widget.taglist.label.all, mytaglist.buttons)
@@ -184,8 +173,8 @@ for s = 1, screen.count() do
   delTag[s] = customButton.delTag(s)
   
   -- Create the button to move a tag the next screen
-  movetagL[s] = tagmover(s,{ direction = "left", icon = awful.util.getdir("config") .. "/Icon/tags/screen_left.png" })
-  movetagR[s] = tagmover(s,{ direction = "right", icon = awful.util.getdir("config") .. "/Icon/tags/screen_right.png" })
+  movetagL[s] = customButton.tagmover(s,{ direction = "left", icon = awful.util.getdir("config") .. "/Icon/tags/screen_left.png" })
+  movetagR[s] = customButton.tagmover(s,{ direction = "right", icon = awful.util.getdir("config") .. "/Icon/tags/screen_right.png" })
   
   if s == screen.count() then
     mywibox[s].widgets = { 
@@ -208,7 +197,7 @@ for s = 1, screen.count() do
 			  netinfo["up_logo"],
 			  netinfo["down_text"],
 			  netinfo["down_logo"],
-			  spacer1,
+			  spacer2,
 			  meminfo["bar"],
 			  meminfo["text"],
 			  meminfo["logo"],
@@ -231,6 +220,7 @@ for s = 1, screen.count() do
 			  }
     end
 
+  -- Create the device list on the desktop
   if s == 1 then --Don't ask, otherwise it bug, I don't know why I can't put that out of this loop
     add_device("/dev/root,/home/lepagee")
     local deviceList = io.popen("mount | grep -e'^[/]' | awk '{print substr($1,6,3)\"/\"substr($1,6,4)\",\"$3}' | tail -n 4")
@@ -250,12 +240,12 @@ for s = 1, screen.count() do
 			  desktopPix,
 			  launcherPix,
 			  mypromptbox[s],
-			  spacer76,
+			  spacer3,
 			  {
 			    movetagL[s],
 			    movetagR[s],
 			    keyboardSwitcherWidget,
-			    spacer77,
+			    spacer3,
 			    mytasklist[s],
 			    s == 1 and mysystray or nil,
 			    layout = awful.widget.layout.horizontal.rightleft,
@@ -269,11 +259,11 @@ for s = 1, screen.count() do
 			  desktopPix,
 			  launcherPix,
 			  mypromptbox[s],
-			  spacer76,
+			  spacer3,
 			  {
 			    movetagL[s],
 			    movetagR[s],
-			    spacer77,
+			    spacer3,
 			    mytasklist[s],
 			    layout = awful.widget.layout.horizontal.rightleft,
 			  },
@@ -282,12 +272,12 @@ for s = 1, screen.count() do
   elseif screen.count() == s then
     mywibox2.widgets = {
 			  mypromptbox[s],
-			  spacer76,
+			  spacer3,
 			  {  mysystray,
 			    keyboardSwitcherWidget,
 			    movetagL[s],
 			    movetagR[s],
-			    spacer77,
+			    spacer3,
 			    mytasklist[s],
 			    layout = awful.widget.layout.horizontal.rightleft,
 			  },
@@ -296,12 +286,12 @@ for s = 1, screen.count() do
     else
     mywibox2.widgets = {
 			  mypromptbox[s],
-			  spacer76,
+			  spacer3,
 			  {
 			    movetagL[s],
 			    movetagR[s],
 			    mylayoutbox[s],
-			    spacer77,
+			    spacer3,
 			    mytasklist[s],
 			    layout = awful.widget.layout.horizontal.rightleft,
 			  },

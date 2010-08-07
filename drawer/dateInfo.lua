@@ -21,7 +21,7 @@ local capi = { image = image,
                mouse = mouse,
 	       tag = tag}
 
-module("dateinfo")
+module("drawer.dateinfo")
 
 local data = {}
 local calPopup

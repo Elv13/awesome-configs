@@ -16,7 +16,7 @@ local capi = { image = image,
                mouse = mouse,
 	       tag = tag}
 
-module("downInfo")
+module("drawer.downInfo")
 
 local data = {}
 

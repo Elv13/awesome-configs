@@ -15,7 +15,7 @@ local capi = { image = image,
                mouse = mouse,
 	       tag = tag}
 
-module("layoutmenu")
+module("customMenu.layoutmenu")
 
 local function update(w, screen)
     local layout = layout.getname(layout.get(screen))
@@ -26,12 +26,29 @@ local function update(w, screen)
     end
 end
 
+local showTitleBar = {}
+
+local function enableTitleBar(value)
+  if tag.selected() ~= nil then
+    for i, client in ipairs(tag.selected():clients()) do
+      if value == true or awful.client.floating.get(client) == true then
+	titlebar.add(client)
+      else
+	titlebar.remove(client)
+      end
+    end
+  end
+end
+
+function showTitle(aTag)
+  return showTitleBar[aTag] or false
+end
+
 function new(screen, layouts)
     local screen = screen or 1
     local w = capi.widget({ type = 'imagebox', height = 10 })
     local titleBarWidget = capi.widget({ type = 'textbox', height = 10 })
     local menu = create(screen,layouts,titleBarWidget)
-    local showTitleBar = {}
     update(w, screen)
     
     w:buttons( util.table.join(
@@ -47,7 +64,6 @@ function new(screen, layouts)
       end)
     ))
     
-    local showTitleBar = {}
     titleBarWidget:buttons( util.table.join(
       button({ }, 1, function()
 	  showTitleBar[tag.selected()] = showTitleBar[tag.selected()] or false
@@ -81,18 +97,6 @@ function new(screen, layouts)
     tag.attached_add_signal(screen, "property::layout", update_on_tag_selection)
 
     return w
-end
-
-function enableTitleBar(value)
-  if tag.selected() ~= nil then
-    for i, client in ipairs(tag.selected():clients()) do
-      if value == true or awful.client.floating.get(client) == true then
-	titlebar.add(client)
-      else
-	titlebar.remove(client)
-      end
-    end
-  end
 end
 
 

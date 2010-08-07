@@ -16,7 +16,7 @@ local capi = { image = image,
                mouse = mouse,
 	       		tag = tag}
 
-module("soundInfo")
+module("drawer.soundInfo")
 
 local data = {}
 local alsaInfo = {}
