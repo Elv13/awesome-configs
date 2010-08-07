@@ -39,39 +39,6 @@ function amixer_volume(format)
    return {l}
 end
 
---Run or raise
--- function run_or_raise(cmd, properties)
---    local clients = client.get()
---    for i, c in pairs(clients) do
---       if match(properties, c) then
---          local ctags = c:tags()
---          if table.getn(ctags) == 0 then
---             -- ctags is empty, show client on current tag
---             local curtag = awful.tag.selected()
---             --awful.client.movetotag(curtag, c)
---          else
---             -- Otherwise, pop to first tag client is visible on
---             awful.tag.viewonly(ctags[1])
---          end
---          -- And then focus the client
---          client.focus = c
---          c:raise()
---          return
---       end
---    end
---    awful.util.spawn(cmd)
--- end
--- 
--- -- Returns true if all pairs in table1 are present in table2
--- function match (table1, table2)
---    for k, v in pairs(table1) do
---       if table2[k] ~= v then
---          return false
---       end
---    end
---    return true
--- end
-
 function run_or_raise(cmd, properties)
    local clients = client.get()
    for i, c in pairs(clients) do

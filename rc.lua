@@ -32,8 +32,13 @@ vicious.cache(vicious.widgets.cpu)
 beautiful.init(awful.util.getdir("config") .. "/default/theme.lua")
 terminal = 'urxvt  -tr +sb -tint gray -fade 50 +bl +si -cr red -pr green -iconic -bg black -fg white -fn "xft:DejaVu Sans Mono:pixelsize=13"'
 -- terminal = 'aterm -tr +sb -tint gray -fade 50 +bl -tinttype true +si -cr red -pr green'
-editor = os.getenv("EDITOR") or "kwrite" or "nano"
+editor = {cmd = "kwrite", class = "Kwrite"}
 editor_cmd = 'kwrite'
+webbrowser = {cmd = "firefox", class = "Firefox"}
+ide = {cmd = "kate", class = "Kate"}
+mediaplayer = {cmd = "vlc", class = "VLC"}
+filemanager = {cmd = "dolphin", class = "Dolphin"}
+
 modkey = "Mod4"
 
 dofile(awful.util.getdir("config") .. "/baseRule.lua")
@@ -360,7 +365,7 @@ client.add_signal("manage", function (c, startup)
 end)
 
 client.add_signal("focus", function(c) 
-  if (c.class == "Firefox" or c.class == "Kate4" or c.class == "Kwrite" or c.class == "VLC") then
+  if (c.class == "Firefox" or c.class == ide.class or c.class == editor.class or c.class == mediaplayer.class) then
     c.border_color = "#0A1535"
   else
     c.border_color = beautiful.border_focus 
@@ -368,7 +373,7 @@ client.add_signal("focus", function(c)
 end)
 
 client.add_signal("unfocus", function(c) 
-  if (c.class == "Firefox" or c.class == "Kate4" or c.class == "Kwrite" or c.class == "VLC") then
+  if (c.class == webbrowser.class or c.class == ide.class or c.class == editor.class or c.class == mediaplayer.class) then
     c.border_color = "#0A1535"
   else
     c.border_color = beautiful.border_normal 
@@ -401,11 +406,11 @@ for s = 1, screen.count() do
     end
       isPlayingMovie = false
       if tag.name == "Files" then
-	run_or_raise("dolphin", { class = "Dolphin" })
+	run_or_raise(filemanager.cmd, { class = filemanager.class })
       elseif tag.name == "Internet" then
-	run_or_raise("firefox", { class = "Firefox" })
+	run_or_raise(webbrowser.cmd, { class = webbrowser.class })
       elseif tag.name == "Develop" then
-	run_or_raise("kate", { class = "Kate" })
+	run_or_raise(ide.cmd, { class = ide.class })
     elseif tag.name == "Movie" then
       enableAmarokCtrl(false)
       musicBarVisibility = mywibox3.visible
