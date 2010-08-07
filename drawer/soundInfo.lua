@@ -39,7 +39,7 @@ function amixer_volume_int(format)
 end
 
 function soundInfo() 
-  local f = io.popen('/home/lepagee/Scripts/alsaInfo.sh')
+  local f = io.popen(util.getdir("config") .. '/Scripts/alsaInfo.sh')
   local text2 = f:read("*all")
   f:close()
   alsaInfo = { month, year, 

@@ -35,8 +35,8 @@ theme.border_marked = "#91231c"
 --taglist_bg_focus = #ff0000
 
 -- Display the taglist squares
-theme.taglist_squares_sel = "/home/lepagee/.config/awesome/default/star2.png"
-theme.taglist_squares_unsel = "/home/lepagee/.config/awesome/default/star.png"
+theme.taglist_squares_sel = awful.util.getdir("config") .. "/default/star2.png"
+theme.taglist_squares_unsel = awful.util.getdir("config") .. "/default/star.png"
 
 theme.tasklist_floating_icon = awful.util.getdir("config") .. "/Icon/titlebar/floating.png"
 

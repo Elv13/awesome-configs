@@ -1,5 +1,5 @@
 IFS=`echo -en "\n\b"`
-LIST=`cat /home/lepagee/.cache/awesome/history | sort`
+LIST=`cat $HOME/.cache/awesome/history | sort`
 
 CUR_COMMAND="nobody"
 COUNT=0

@@ -156,7 +156,7 @@ end
 
 function loadMonitor(xPos)
   local aWibox = awful.wibox({ position = "free", screen = s})
-  aWibox:geometry({ width = 400, height = 255, x = xPos, y = 40})
+  aWibox:geometry({ width = 400, height = 200, x = xPos, y = 40})
   --aWibox:rounded_corners(10)
   awful.wibox.rounded_corners(aWibox,10)
   aWibox.bg = "#0A1535AA"
@@ -253,24 +253,25 @@ function loadMonitor(xPos)
   
   local strangeSpacer = widget({ type = "textbox" })
   strangeSpacer.text = " "
-  
-  local serverWdg = widget({ type = "textbox" })
-  serverWdg.text = "  <b>Server:</b>"
-  
-  local gatewaySrv = widget({ type = "textbox" })
-  gatewaySrv.text = "    <u>Gateway:</u> up <i>(uptime: 12d 20h 24m, ip: 192.168.2.1</i>)"
-  
-  local webSrv = widget({ type = "textbox" })
-  webSrv.text = "    <u>LAMP server:</u> up <i>(uptime: 12d 20h 24m, ip: 192.168.2.1</i>)"
-  
-  local fileSrv = widget({ type = "textbox" })
-  fileSrv.text = "    <u>File server:</u> up <i>(uptime: 12d 20h 24m, ip: 192.168.2.1</i>)"
-  
-  local mediaSrv = widget({ type = "textbox" })
-  mediaSrv.text = "    <u>Media server:</u> up <i>(uptime: 12d 20h 24m, ip: 192.168.2.1</i>)"
-  
-  local vmSrv = widget({ type = "textbox" })
-  vmSrv.text = "    <u>VM server:</u> up <i>(uptime: 12d 20h 24m, ip: 192.168.2.1</i>)"
+  --Fake
+--   
+--   local serverWdg = widget({ type = "textbox" })
+--   serverWdg.text = "  <b>Server:</b>"
+--   
+--   local gatewaySrv = widget({ type = "textbox" })
+--   gatewaySrv.text = "    <u>Gateway:</u> up <i>(uptime: 12d 20h 24m, ip: 192.168.2.1</i>)"
+--   
+--   local webSrv = widget({ type = "textbox" })
+--   webSrv.text = "    <u>LAMP server:</u> up <i>(uptime: 12d 20h 24m, ip: 192.168.2.1</i>)"
+--   
+--   local fileSrv = widget({ type = "textbox" })
+--   fileSrv.text = "    <u>File server:</u> up <i>(uptime: 12d 20h 24m, ip: 192.168.2.1</i>)"
+--   
+--   local mediaSrv = widget({ type = "textbox" })
+--   mediaSrv.text = "    <u>Media server:</u> up <i>(uptime: 12d 20h 24m, ip: 192.168.2.1</i>)"
+--   
+--   local vmSrv = widget({ type = "textbox" })
+--   vmSrv.text = "    <u>VM server:</u> up <i>(uptime: 12d 20h 24m, ip: 192.168.2.1</i>)"
   
   local sectionSpacer = widget({ type = "textbox" })
   sectionSpacer.text = "_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _"
@@ -358,11 +359,11 @@ function loadMonitor(xPos)
     },
     strangeSpacer,
     serverWdg,
-    gatewaySrv,
-    webSrv,
-    fileSrv,
-    mediaSrv,
-    vmSrv,
+    --gatewaySrv,
+    --webSrv,
+    --fileSrv,
+    --mediaSrv,
+    --vmSrv,
     sectionSpacer,
     diskWdg,
     {

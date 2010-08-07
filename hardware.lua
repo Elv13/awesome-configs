@@ -1,7 +1,7 @@
 mywibox4 = awful.wibox({ position = "bottom", screen = s, layout = awful.widget.layout.vertical.flex })
 
 cpuTempIcn       = widget({ type = "imagebox", align = "left" })
-cpuTempIcn.image = image("/home/lepagee/Icon/temp.png")
+cpuTempIcn.image = image(awful.util.getdir("config") .. "/Icon/temp.png")
 
 cpuTempLbl = widget({
     type = 'textbox',
@@ -37,7 +37,7 @@ cpuTempVal = widget({
 cpuTempVal.text ="50C | "
 
 gpuTempIcn       = widget({ type = "imagebox", align = "left" })
-gpuTempIcn.image = image("/home/lepagee/Icon/temp.png")
+gpuTempIcn.image = image(awful.util.getdir("config") .. "/Icon/temp.png")
 
 gpuTempLbl = widget({
     type = 'textbox',
@@ -71,7 +71,7 @@ gpuTempVal = widget({
 gpuTempVal.text ="50C | "
 
 hddTempIcn       = widget({ type = "imagebox", align = "left" })
-hddTempIcn.image = image("/home/lepagee/Icon/temp.png")
+hddTempIcn.image = image(awful.util.getdir("config") .. "/Icon/temp.png")
 
 hddTempLbl = widget({
     type = 'textbox',
@@ -107,7 +107,7 @@ hddTempVal.text ="50C | "
 vicious.register(hddTempVal, vicious.widgets.hddtemp, '${/dev/sda}°C | ', 20)
 
 ambTempIcn       = widget({ type = "imagebox", align = "left" })
-ambTempIcn.image = image("/home/lepagee/Icon/temp.png")
+ambTempIcn.image = image(awful.util.getdir("config") .. "/Icon/temp.png")
 
 ambTempLbl = widget({
     type = 'textbox',
@@ -143,7 +143,7 @@ ambTempVal.text ="50C | "
 vicious.register(ambTempVal, getTemp1, "$1°C | ", 10)
 
 cpuFanIcn       = widget({ type = "imagebox", align = "left" })
-cpuFanIcn.image = image("/home/lepagee/Icon/fan.png")
+cpuFanIcn.image = image(awful.util.getdir("config") .. "/Icon/fan.png")
 
 cpuFanLbl = widget({
     type = 'textbox',
@@ -162,7 +162,7 @@ cpuFanVal.text ="4232rpm | "
 vicious.register(cpuFanVal, getFan1, "$1rpm | ", 10)
 
 gpuFanIcn       = widget({ type = "imagebox", align = "left" })
-gpuFanIcn.image = image("/home/lepagee/Icon/fan.png")
+gpuFanIcn.image = image(awful.util.getdir("config") .. "/Icon/fan.png")
 
 gpuFanLbl = widget({
     type = 'textbox',
@@ -181,7 +181,7 @@ gpuFanVal = widget({
 gpuFanVal.text ="3242rpm | "
 
 function check_hardware(format)
-  local f = io.popen('/home/lepagee/Scripts/hardwareWatch.sh')
+  local f = io.popen(awful.util.getdir("config") .. '/Scripts/hardwareWatch.sh')
   local cpuTemp = tonumber(f:read()) or 0
   local gpuTemp = tonumber(f:read()) or 0
   local hddTemp = tonumber(f:read()) or 0
