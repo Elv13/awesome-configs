@@ -5,6 +5,7 @@ local button = require("awful.button")
 local tag = require("awful.tag")
 local util = require("awful.util")
 local shifty = require("shifty")
+local menu2 = require("customMenu.menu2")
 local capi = { image = image,
                screen = screen,
                widget = widget,
@@ -26,6 +27,8 @@ function new(screen, args)
     local icon = args.icon or nil
     local id = screen..direction
     local addOrSub = 0
+    local screenMenu = menu2()
+    
     
     if direction == "left" then
       addOrSub = -1
@@ -52,6 +55,13 @@ function new(screen, args)
       data[id].widget.visible = true
     end
     
+    for i=1,capi.screen.count() do
+      screenMenu:addItem(i,nil,function() 
+                                tag_to_screen(data[id].selected,i)
+                                screenMenu:toggle()
+                               end,nil)
+    end
+    
     data[id].screen = screen
     data[id].direction = direction
     
@@ -68,6 +78,9 @@ function new(screen, args)
 	    tag_to_screen(data[id].selected, screen2)
 	    data[id].selected = tag.selected(screen)
 	  end
+      end),
+      button({ }, 3, function()
+          screenMenu:toggle()
       end),
       button({ }, 4, function()
 	  if data[id].selected ~= nil then

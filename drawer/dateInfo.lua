@@ -53,7 +53,7 @@ local function testFunc()
   dateInfo = dateInfo .. "\n<b>  <span size=\"x-large\">⌚</span> PST: </b><i>" ..  getHour(os.date('%H') - 3) .. ":" .. os.date('%M').. ":" .. os.date('%S') .. "</i>"
   dateInfo = dateInfo .. "\n<b>  <span size=\"x-large\">⌚</span> CST: </b><i>" ..  getHour(os.date('%H') - 1) .. ":" .. os.date('%M').. ":" .. os.date('%S') .. "</i>"
   dateInfo = dateInfo .. "\n\n<b><u>Japan:</u></b>"
-  dateInfo = dateInfo .. "\n<b>  <span size=\"x-large\">?</span> JST: </b><i>" ..  getHour(os.date('%H') + 13) .. ":" .. os.date('%M').. ":" .. os.date('%S') .. "</i>\n\n"
+  dateInfo = dateInfo .. "\n<b>  <span size=\"x-large\">⌚</span> JST: </b><i>" ..  getHour(os.date('%H') + 13) .. ":" .. os.date('%M').. ":" .. os.date('%S') .. "</i>\n\n"
   return dateInfo  
 end
 
@@ -90,22 +90,26 @@ local function createDrawer()
   dateInfo = dateInfo .. "\n\n<b><u>Japan:</u></b>"
   dateInfo = dateInfo .. "\n<b>  <span size=\"x-large\">?</span> JST: </b><i>" ..  getHour(os.date('%H') + 13) .. ":" .. os.date('%M').. ":" .. os.date('%S') .. "</i>\n"
 
+  util.spawn("/bin/bash -c '"..util.getdir("config") .."/Scripts/curWeather2.sh > /tmp/weather2.txt'")
   f = io.open('/tmp/weather2.txt',"r")
-  local weatherInfo = f:read("*all")
-  f:close()
+  local weatherInfo = nil
+  if f ~= nil then
+    weatherInfo = f:read("*all")
+    f:close()
   
-  weatherInfo = string.gsub(weatherInfo, "@cloud", "☁")
-  weatherInfo = string.gsub(weatherInfo, "@sun", "✸")
-  weatherInfo = string.gsub(weatherInfo, "@moon", "☪")
-  weatherInfo = string.gsub(weatherInfo, "@rain", "☔")--☂
-  weatherInfo = string.gsub(weatherInfo, "@snow", "❄")
-  weatherInfo = string.gsub(weatherInfo, "deg", "°")
-  
+    weatherInfo = string.gsub(weatherInfo, "@cloud", "☁")
+    weatherInfo = string.gsub(weatherInfo, "@sun", "✸")
+    weatherInfo = string.gsub(weatherInfo, "@moon", "☪")
+    weatherInfo = string.gsub(weatherInfo, "@rain", "☔")--☂
+    weatherInfo = string.gsub(weatherInfo, "@snow", "❄")
+    weatherInfo = string.gsub(weatherInfo, "deg", "°")
+  end
+
   local timeInfo = capi.widget({ type = 'textbox', })
   timeInfo.text = dateInfo
   
   local weatherInfo2 = capi.widget({ type = 'textbox', })
-  weatherInfo2.text = weatherInfo
+  weatherInfo2.text = weatherInfo or "N/A"
   
   local calInfo = capi.widget({ type = 'textbox', })
   calInfo.text = someText2

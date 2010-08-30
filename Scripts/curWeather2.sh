@@ -87,36 +87,32 @@ function increment_date()
 
 CUR_DATE=`date +"%d"`
 
-while true; do {
-   WEATHER=`/home/lepagee/dev/rssstockview/rssStock http://www.weatheroffice.gc.ca/rss/city/qc-133_e.xml --list --onepass | grep -ve "[a-zA-Z ]night:"`
-   WEATHER=`echo -e "$WEATHER" | sed 's/minus /-/g' | sed 's/plus //g' | sed 's/zero/0/g'`
-   COUNT=0
-   for LINE in `echo -e "$WEATHER"`;do
-      if [ $COUNT -gt 0 ];then
-         if [ $COUNT -gt 1 ];then
-            CUR_DATE=`increment_date $CUR_DATE`
-            echo "<b><u>"`echo $LINE | cut -f1 -d":"`" </u></b>($CUR_DATE):"
-         else
-            echo "<b><u>"`echo $LINE | cut -f1 -d":"`":</u></b>"
-         fi
+WEATHER=`/home/lepagee/dev/rssstockview/rssStock http://www.weatheroffice.gc.ca/rss/city/qc-133_e.xml --list --onepass | grep -ve "[a-zA-Z ]night:"`
+WEATHER=`echo -e "$WEATHER" | sed 's/minus /-/g' | sed 's/plus //g' | sed 's/zero/0/g'`
+COUNT=0
+for LINE in `echo -e "$WEATHER"`;do
+  if [ $COUNT -gt 0 ];then
+      if [ $COUNT -gt 1 ];then
+	CUR_DATE=`increment_date $CUR_DATE`
+	echo "<b><u>"`echo $LINE | cut -f1 -d":"`" </u></b>($CUR_DATE):"
+      else
+	echo "<b><u>"`echo $LINE | cut -f1 -d":"`":</u></b>"
       fi
-      LINE=`echo $LINE | cut -f2 -d":"`
-      if [ $COUNT -eq 1 ];then
-         TYPE=`echo $LINE | cut -f1 -d","`
-         ICON=`getIcon $TYPE`
-         if [[ "$ICON" == "@sun" && `date +"%H"` -gt 7 ]];then
-            ICON="@moon"
-         elif [[ "$ICON" == "@cloud/@sun" && `date +"%H"` -gt 7 ]];then
-            ICON="@cloud/@moon"
-         fi
-         echo "      <span size=\"x-large\">$ICON</span>" `echo $LINE | cut -f2 -d","`
-      elif [ $COUNT -gt 1 ];then
-         TYPE=`echo $LINE | cut -f1 -d"."`
-         echo "      <span size=\"x-large\">"`getIcon $TYPE`"</span>" `echo $LINE | cut -f2 -d"." | cut -f3 -d" "`degC
+  fi
+  LINE=`echo $LINE | cut -f2 -d":"`
+  if [ $COUNT -eq 1 ];then
+      TYPE=`echo $LINE | cut -f1 -d","`
+      ICON=`getIcon $TYPE`
+      if [[ "$ICON" == "@sun" && `date +"%H"` -gt 7 ]];then
+	ICON="@moon"
+      elif [[ "$ICON" == "@cloud/@sun" && `date +"%H"` -gt 7 ]];then
+	ICON="@cloud/@moon"
       fi
-      let COUNT=$COUNT+1
-   done
-   }  > /tmp/weather2.txt
-   sleep 1800
+      echo "      <span size=\"x-large\">$ICON</span>" `echo $LINE | cut -f2 -d","`
+  elif [ $COUNT -gt 1 ];then
+      TYPE=`echo $LINE | cut -f1 -d"."`
+      echo "      <span size=\"x-large\">"`getIcon $TYPE`"</span>" `echo $LINE | cut -f2 -d"." | cut -f3 -d" "`degC
+  fi
+  let COUNT=$COUNT+1
 done
 #⚒☁☂☀☃✸✱✺✹

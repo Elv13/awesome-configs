@@ -56,6 +56,10 @@ function new(screen, layouts)
 	  menu:geometry({x = w:extents(screen).x or capi.mouse.coords().x, y = w:extents(screen).y or capi.mouse.coords().y})
 	  menu.visible = not menu.visible
       end),
+      button({ }, 3, function()
+          menu:geometry({x = w:extents(screen).x or capi.mouse.coords().x, y = w:extents(screen).y or capi.mouse.coords().y})
+          menu.visible = not menu.visible
+      end),
       button({ }, 4, function()
 	  layout.inc(layouts, 1)
       end),

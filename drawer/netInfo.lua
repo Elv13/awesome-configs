@@ -34,14 +34,17 @@ local function createDrawer()
   text2 =  text2 .. "\n<i><b>  v6: </b>" .. f:read() .. "</i>\n\n"
   f:close()
   f = io.open('/tmp/localNetLookup','r')
-  text2 = text2 .. "<b><u>Local Network:</u></b>\n"
-  text2 = text2 .. f:read("*all")
-  f:close()
+    text2 = text2 .. "<b><u>Local Network:</u></b>\n"
+  if f ~= nil then
+    text2 = text2 .. f:read("*all")
+    f:close()
+  end
   f = io.open('/tmp/connectedHost','r')
   text2 = text2 .. "<b><u>Open Connections:</u></b>\n"
-  text2 = text2 .. f:read("*all")
-  f:close()
-
+  if f ~= nil then
+    text2 = text2 .. f:read("*all")
+    f:close()
+  end
   local mainText = capi.widget({type = "textbox"})
   mainText.text = text2
 	      

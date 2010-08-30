@@ -7,6 +7,7 @@ require("customMenu.layoutmenu")
 require("customMenu.recent")
 require("customMenu.application")
 require("customMenu.places")
+require("customMenu.tagOption")
 require("customButton.launcher")
 require("customButton.showDesktop")
 require("customButton.addTag")
@@ -20,9 +21,6 @@ require("drawer.netInfo")
 require("widget.spacer")
 require("widget.keyboardSwitcher")
 
-dofile(awful.util.getdir("config") .. "/functions.lua")
-dofile(awful.util.getdir("config") .. "/desktop.lua")
-
 -- Cache result for probe used more than once
 vicious.cache(vicious.widgets.net)
 vicious.cache(vicious.widgets.fs)
@@ -30,7 +28,28 @@ vicious.cache(vicious.widgets.dio)
 vicious.cache(vicious.widgets.cpu)
 
 beautiful.init(awful.util.getdir("config") .. "/default/theme.lua")
-terminal = 'urxvt  -tr +sb -tint gray -fade 50 +bl +si -cr red -pr green -iconic -bg black -fg white -fn "xft:DejaVu Sans Mono:pixelsize=13"'
+
+-- Some widget for every screens
+mywibox = {}
+mypromptbox = {}
+mylayoutmenu = {}
+mytaglist = {}
+movetagL= {}
+movetagR= {}
+mytasklist = {}
+delTag = {}
+
+--Create the wiboxes
+for s = 1, screen.count() do
+  mywibox[s] = awful.wibox({ position = "top", screen = s })
+end
+
+dofile(awful.util.getdir("config") .. "/functions.lua")
+dofile(awful.util.getdir("config") .. "/desktop.lua")
+dofile(awful.util.getdir("config") .. "/hardware.lua")
+dofile(awful.util.getdir("config") .. "/musicBar.lua")
+
+terminal = 'urxvt  -tr +sb -tint gray -fade 50 +bl +si -cr red -pr green -iconic -bg black -fg white -fn "xft:DejaVu Sans Mono:pixelsize=13" -pe tabbed'
 -- terminal = 'aterm -tr +sb -tint gray -fade 50 +bl -tinttype true +si -cr red -pr green'
 editor = {cmd = "kwrite", class = "Kwrite"}
 editor_cmd = 'kwrite'
@@ -38,6 +57,7 @@ webbrowser = {cmd = "firefox", class = "Firefox"}
 ide = {cmd = "kate", class = "Kate"}
 mediaplayer = {cmd = "vlc", class = "VLC"}
 filemanager = {cmd = "dolphin", class = "Dolphin"}
+xcompmgr_path = "/home/kde-devel/kde/src/xcompmgr2/"
 
 modkey = "Mod4"
 
@@ -81,33 +101,26 @@ cpuinfo = drawer.cpuInfo()
 netinfo = drawer.netInfo()
 
 -- Create the volume box
-soundWidget = drawer.soundInfo()
+soundWidget = drawer.soundInfo(mywibox3)
 
 -- Create the keyboard layout switcher, feel free to add your contry and push it to master
 keyboardSwitcherWidget = widget.keyboardSwitcher()
 
 -- Create the addTag icon
-addTag = customButton.addTag()
+addTag = customButton.addTag(nil,{taglist = shifty.config.tags})
 
 -- Create a systray
 mysystray = widget({ type = "systray" })
 
--- Some widget for every screens
-mywibox = {}
-mypromptbox = {}
-mylayoutmenu = {}
-mytaglist = {}
-movetagL= {}
-movetagR= {}
-mytasklist = {}
-delTag = {}
+-- Create the tag right click menu [[In develpment]]
+tagMenu = customMenu.tagOption(nil)
 
 --TagList buttons
 mytaglist.buttons = awful.util.table.join(
                     awful.button({ }, 1, function (tag) awful.tag.viewonly(tag) end),
                     awful.button({ modkey }, 1, awful.client.movetotag),
                     awful.button({ }, 2, function (tag) shifty.rename(tag) end),
-                    awful.button({ }, 3, function (tag) tag.selected = not tag.selected end),
+                    awful.button({ }, 3, function (tag) tagMenu:toggle(tag)--[[tag.selected = not tag.selected]] end),
                     awful.button({ modkey }, 3, awful.client.toggletag),
                     awful.button({ }, 4, awful.tag.viewnext),
                     awful.button({ }, 5, awful.tag.viewprev)
@@ -172,7 +185,7 @@ for s = 1, screen.count() do
   -- Create a tasklist widget
   mytasklist[s] = awful.widget.tasklist(function(c) return awful.widget.tasklist.label.currenttags(c, s) end, mytasklist.buttons)
   -- Create the top
-  mywibox[s] = awful.wibox({ position = "top", screen = s })
+  --mywibox[s] = awful.wibox({ position = "top", screen = s })
   
   -- Create the delTag button
   delTag[s] = customButton.delTag(s)
@@ -308,8 +321,6 @@ end
 local isPlayingMovie = false
 local musicBarVisibility = false
 
-dofile(awful.util.getdir("config") .. "/hardware.lua")
-
 shifty.taglist = mytaglist
 
 loadMonitor(screen.count() * screen[1].geometry.width - 415) --BUG support only identical screens
@@ -422,3 +433,6 @@ for s = 1, screen.count() do
     end
   end)
 end
+
+io.popen("killall xcompmgr")
+awful.util.spawn(xcompmgr_path .."xcompmgr -fFC -I 0.05")

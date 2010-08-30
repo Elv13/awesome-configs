@@ -1,5 +1,6 @@
 local setmetatable = setmetatable
 local tonumber = tonumber
+local loadstring = loadstring
 local ipairs = ipairs
 local table = table
 local io = io
@@ -7,6 +8,7 @@ local util = require("awful.util")
 local button = require("awful.button")
 local vicious = require("vicious")
 local tag = require("awful.tag")
+local wibox = require("awful.wibox")
 local util = require("awful.util")
 local naughty = require("naughty")
 --local shifty = require("shifty")
@@ -20,6 +22,7 @@ module("drawer.soundInfo")
 
 local data = {}
 local alsaInfo = {}
+local mywibox3 = nil
 
 function update()
 
@@ -51,8 +54,7 @@ function soundInfo()
 	    }
 end
   
-function new(screen, args)
-
+function new(mywibox3)
 
   volumewidget = capi.widget({
       type = 'textbox',

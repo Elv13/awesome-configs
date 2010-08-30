@@ -1,14 +1,15 @@
-mywibox3 = awful.wibox({ position = "top", screen = s, })
+mywibox3 = awful.wibox({ position = "top", screen = s, height = 20})
+awful.wibox.set_position(mywibox3,"top",1)
 
 previouspixmap       = widget({ type = "imagebox", align = "left" })
-previouspixmap.image = image("/home/lepagee/Icon/previous.png")
+previouspixmap.image = image(awful.util.getdir("config") .. "/Icon/previous.png")
 
 previouspixmap:add_signal("mouse::enter", function ()
-    previouspixmap.image = image("/home/lepagee/Icon/previous_light.png")
+    previouspixmap.image = image(awful.util.getdir("config") .. "/Icon/previous_light.png")
 end)
 
 previouspixmap:add_signal("mouse::leave", function ()
-  previouspixmap.image = image("/home/lepagee/Icon/previous.png")
+  previouspixmap.image = image(awful.util.getdir("config") .. "/Icon/previous.png")
 end)
 
 previouspixmap:buttons(awful.util.table.join(
@@ -22,14 +23,14 @@ previouspixmap:buttons(awful.util.table.join(
 ))
 
 playpixmap       = widget({ type = "imagebox", align = "left" })
-playpixmap.image = image("/home/lepagee/Icon/play.png")
+playpixmap.image = image(awful.util.getdir("config") .. "/Icon/play.png")
 
 playpixmap:add_signal("mouse::enter", function ()
-    playpixmap.image = image("/home/lepagee/Icon/play_light.png")
+    playpixmap.image = image(awful.util.getdir("config") .. "/Icon/play_light.png")
 end)
 
 playpixmap:add_signal("mouse::leave", function ()
-   playpixmap.image = image("/home/lepagee/Icon/play.png")
+   playpixmap.image = image(awful.util.getdir("config") .. "/Icon/play.png")
 end)
 
 playpixmap:buttons(awful.util.table.join(
@@ -43,14 +44,14 @@ playpixmap:buttons(awful.util.table.join(
 ))
 
 pausepixmap       = widget({ type = "imagebox", align = "left" })
-pausepixmap.image = image("/home/lepagee/Icon/pause.png")
+pausepixmap.image = image(awful.util.getdir("config") .. "/Icon/pause.png")
 
 pausepixmap:add_signal("mouse::enter", function ()
-    pausepixmap.image = image("/home/lepagee/Icon/pause_light.png")
+    pausepixmap.image = image(awful.util.getdir("config") .. "/Icon/pause_light.png")
 end)
 
 pausepixmap:add_signal("mouse::leave", function ()
-  pausepixmap.image = image("/home/lepagee/Icon/pause.png")
+  pausepixmap.image = image(awful.util.getdir("config") .. "/Icon/pause.png")
 end)
 
 pausepixmap:buttons(awful.util.table.join(
@@ -64,14 +65,14 @@ pausepixmap:buttons(awful.util.table.join(
 ))
 
 stoppixmap       = widget({ type = "imagebox", align = "left" })
-stoppixmap.image = image("/home/lepagee/Icon/stop.png")
+stoppixmap.image = image(awful.util.getdir("config") .. "/Icon/stop.png")
 
 stoppixmap:add_signal("mouse::enter", function ()
-    stoppixmap.image = image("/home/lepagee/Icon/stop_light.png")
+    stoppixmap.image = image(awful.util.getdir("config") .. "/Icon/stop_light.png")
 end)
 
 stoppixmap:add_signal("mouse::leave", function ()
-  stoppixmap.image = image("/home/lepagee/Icon/stop.png")
+  stoppixmap.image = image(awful.util.getdir("config") .. "/Icon/stop.png")
 end)
 
 stoppixmap:buttons(awful.util.table.join(
@@ -85,14 +86,14 @@ stoppixmap:buttons(awful.util.table.join(
 ))
 
 nextpixmap       = widget({ type = "imagebox", align = "left" })
-nextpixmap.image = image("/home/lepagee/Icon/next.png")
+nextpixmap.image = image(awful.util.getdir("config") .. "/Icon/next.png")
 
 nextpixmap:add_signal("mouse::enter", function ()
-    nextpixmap.image = image("/home/lepagee/Icon/next_light.png")
+    nextpixmap.image = image(awful.util.getdir("config") .. "/Icon/next_light.png")
 end)
 
 nextpixmap:add_signal("mouse::leave", function ()
-  nextpixmap.image = image("/home/lepagee/Icon/next.png")
+  nextpixmap.image = image(awful.util.getdir("config") .. "/Icon/next.png")
 end)
 
 nextpixmap:buttons(awful.util.table.join(
@@ -127,7 +128,7 @@ end
 function artist_info(format)
   if mywibox3.visible == true then
     --if check_is_running({class = "Amarok"}) then
-      local f = io.popen('/home/lepagee/Scripts/amarokInfo2.sh artist')
+      local f = io.popen('dbus-send --type=method_call --print-reply --dest=org.kde.amarok /Player org.freedesktop.MediaPlayer.GetMetadata | grep artist --context=1 |  tail -n 1 | cut -f 2 -d \'"\'` #tail -n 1 | grep -e "\"[a-zA-Z0-9 ().,]*\"" -o | cut -f 2 -d \'"\'')
       local text2 = f:read()   
       f:close()
       return {"<b>Artist:</b> " .. text2 .. " | "}
@@ -137,7 +138,7 @@ function artist_info(format)
     --end
   end
 end
-vicious.register(artistwidget, artist_info, '$1')
+
 
 
 countwidget = widget({
@@ -162,7 +163,7 @@ function total_info(format)
     return {text2}
   end
 end
-vicious.register(countwidget, total_info, ' -$1 ',1)
+
 
 
 songtilewidget = widget({
@@ -180,7 +181,7 @@ function title_info(format)
     return {text2}
   end
 end
-vicious.register(songtilewidget, title_info, '<b>Title:</b> $1   | ')
+
 
 remainwidget = widget({
     type = 'textbox',
@@ -194,7 +195,7 @@ function elapsed_info(format)
     local f
     local text2 
     if isPlayingMovie == false then
-      f = io.popen('/home/lepagee/Scripts/amarokInfo2.sh elapsed')
+      f = io.popen('dbus-send --type=method_call --print-reply --dest=org.kde.amarok /Player org.freedesktop.MediaPlayer.PositionGet | tail -n 1 | awk \'{print $2/1000}\' | cut -f 1 -d "."')
       text2 = f:read()
     else
       f = io.popen('/home/lepagee/Scripts/vlcInfo.sh elapsed')
@@ -204,7 +205,7 @@ function elapsed_info(format)
     return {text2}
   end
 end
-vicious.register(remainwidget, elapsed_info, '$1 ',1)
+
 
 
 progression = awful.widget.progressbar()
@@ -253,11 +254,11 @@ end
 
 function toggleHeadPhone()
   if headphonecheck == true then
-    headphonecheckpix.image = image("/home/lepagee/Icon/uncheck.png")
+    headphonecheckpix.image = image(awful.util.getdir("config") .. "/Icon/uncheck.png")
     awful.util.spawn("amixer -c0 sset Front mute >/dev/null")
     headphonecheck = false
   else
-    headphonecheckpix.image = image("/home/lepagee/Icon/check.png")
+    headphonecheckpix.image = image(awful.util.getdir("config") .. "/Icon/check.png")
     awful.util.spawn("amixer -c0 sset Front unmute >/dev/null")
     headphonecheck = true
   end
@@ -265,9 +266,9 @@ end
 
 headphonecheckpix       = widget({ type = "imagebox", align = "right" })
 if headphonecheck == true then
-  headphonecheckpix.image = image("/home/lepagee/Icon/check.png")
+  headphonecheckpix.image = image(awful.util.getdir("config") .. "/Icon/check.png")
 else
-  headphonecheckpix.image = image("/home/lepagee/Icon/uncheck.png")
+  headphonecheckpix.image = image(awful.util.getdir("config") .. "/Icon/uncheck.png")
 end
 
 headphonecheckpix:buttons(awful.util.table.join(
@@ -299,11 +300,11 @@ end
 
 function toggleSpeakers()
   if speakercheck == true then
-    speakercheckpix.image = image("/home/lepagee/Icon/uncheck.png")
+    speakercheckpix.image = image(awful.util.getdir("config") .. "/Icon/uncheck.png")
     awful.util.spawn("amixer -c0 sset Surround mute >/dev/null")
     speakercheck = false
   else
-    speakercheckpix.image = image("/home/lepagee/Icon/check.png")
+    speakercheckpix.image = image(awful.util.getdir("config") .. "/Icon/check.png")
     awful.util.spawn("amixer -c0 sset Surround unmute >/dev/null")
     speakercheck = true
   end
@@ -311,9 +312,9 @@ end
 
 speakercheckpix  = widget({ type = "imagebox", align = "right" })
 if speakercheck == true then
-  speakercheckpix.image = image("/home/lepagee/Icon/check.png")
+  speakercheckpix.image = image(awful.util.getdir("config") .. "/Icon/check.png")
 else
-  speakercheckpix.image = image("/home/lepagee/Icon/uncheck.png")
+  speakercheckpix.image = image(awful.util.getdir("config") .. "/Icon/uncheck.png")
 end
 
 speakercheckpix:buttons(awful.util.table.join(
@@ -388,12 +389,12 @@ volumebarwidget:set_offset(1)
 volumebarwidget:set_margin({top=3,bottom=3})
 
 
-vicious.register(volumebarwidget, amixer_volume_int, '$1', 1, 'mem')
+
 
 
 
 volumepixmap2       = widget({ type = "imagebox", align = "right" })
-volumepixmap2.image = image("/home/lepagee/Icon/vol.png")
+volumepixmap2.image = image(awful.util.getdir("config") .. "/Icon/vol.png")
 volumepixmap2:buttons(awful.util.table.join(
     awful.button({ }, 1, function()
         mywibox3.visible = not mywibox3.visible
@@ -423,7 +424,7 @@ function percent_info(format)
     local f
     local text2
     if isPlayingMovie == false then
-      f = io.popen('/home/lepagee/Scripts/amarokInfo2.sh percent')
+      f = io.popen('echo `dbus-send --type=method_call --print-reply --dest=org.kde.amarok /Player org.freedesktop.MediaPlayer.GetMetadata | grep \'"mtime"\' --context=1 | tail -n 1 | awk \'{print $3 }\'` `dbus-send --type=method_call --print-reply --dest=org.kde.amarok /Player org.freedesktop.MediaPlayer.PositionGet | tail -n 1 | awk \'{print $2}\'` | awk \'{print $2/$1}\'')
       text2 = f:read()
     else
       f = io.popen('/home/lepagee/Scripts/vlcInfo.sh percent')
@@ -434,6 +435,18 @@ function percent_info(format)
   end
 end
 --vicious.register(progression, percent_info, '$1',1)
+mytimer = timer({ timeout = 10 })
+mytimer:add_signal("timeout", 	function() 
+				  vicious.register(artistwidget, artist_info, '$1',10)
+				  vicious.register(countwidget, total_info, ' -$1 ',10)
+				  vicious.register(songtilewidget, title_info, '<b>Title:</b> $1   | ',10)
+				  vicious.register(remainwidget, elapsed_info, '$1 ',10)
+				  vicious.register(volumebarwidget, amixer_volume_int, '$1', 1, 'mem')
+				  mytimer:stop()
+				end)
+mytimer:start()
+
+
 
     mywibox3.widgets = {  previouspixmap,
 			  pausepixmap,

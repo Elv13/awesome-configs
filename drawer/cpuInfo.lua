@@ -27,21 +27,28 @@ local data = {}
 local cpuInfo = {}
 function createDrawer() 
 
+  util.spawn("/bin/bash -c '"..util.getdir("config") .."/Scripts/cpuInfo2.sh > /tmp/cpuStatistic.lua'")
   local f = io.open('/tmp/cpuStatistic.lua','r')
-  local text3 = f:read("*all")
-  text3 = text3.." return cpuInfo"
-  f:close()
-  local afunction = loadstring(text3)
-  local cpuStat = afunction()
+  if f ~= nil then
+    local text3 = f:read("*all")
+    text3 = text3.." return cpuInfo"
+    f:close()
+    local afunction = loadstring(text3)
+    if aFunction ~= nil then
+      cpuStat = afunction() 
+      infoNotFound = nil
+    else
+      infoNotFound = "N/A"
+    end
+  else
+    infoNotFound = "N/A"
+  end
   
+  if cpuStat == nil then
+    infoNotFound = "N/A"
+  end
   
-  local f = io.open('/tmp/cpuStatus.txt','r')
-  local text2 = f:read("*all")
-  f:close()
-    local mainText = capi.widget({type = "textbox"})
-  mainText.text = text2
-  
-  cpuWidgetArray = { --[[mainText]] }
+  cpuWidgetArray = {}
   
   local infoHeader = capi.widget({type = "textbox"})
   infoHeader.text = " <span color='".. beautiful.bg_normal .."'><b><tt>INFO</tt></b></span> "
@@ -50,7 +57,7 @@ function createDrawer()
   table.insert(cpuWidgetArray, infoHeader)
   
   local cpuModel = capi.widget({type = "textbox"})
-  cpuModel.text = cpuStat["model"]
+  cpuModel.text = infoNotFound or cpuStat["model"]
   cpuModel.width = 212
   table.insert(cpuWidgetArray, {cpuModel})
   
@@ -108,40 +115,42 @@ function createDrawer()
   idleHeader.border_width = 1
   idleHeader.border_color = beautiful.bg_normal
   table.insert(cpuWidgetArray, {emptyCornerHeader,clockHeader,tempHeader,usageHeader,iowaitHeader,idleHeader, layout = widget2.layout.horizontal.leftright})
-  
-  for i=0 ,cpuStat["core"] do
-    local aCore = capi.widget({type = "textbox"})
-    aCore.text = " <span color='".. beautiful.bg_normal .."'>".."C"..i.."</span> "
-    aCore.bg = beautiful.fg_normal
-    aCore.width = 35
-    local aCoreClock = capi.widget({type = "textbox"})
-    aCoreClock.text = tonumber(cpuStat["core"..i]["speed"]) /1024 .. "Ghz"
-    aCoreClock.width = 30
-    aCoreClock.border_width = 1
-    aCoreClock.border_color = beautiful.fg_normal
-    local aCoreTemp = capi.widget({type = "textbox"})
-    aCoreTemp.text = cpuStat["core"..i]["temp"]
-    aCoreTemp.width = 40
-    aCoreTemp.border_width = 1
-    aCoreTemp.border_color = beautiful.fg_normal
-    local aCoreUsage = capi.widget({type = "textbox"})
-    aCoreUsage.text = cpuStat["core"..i]["usage"]
-    aCoreUsage.width = 37
-    aCoreUsage.border_width = 1
-    aCoreUsage.border_color = beautiful.fg_normal
-    local aCoreIoWait = capi.widget({type = "textbox"})
-    aCoreIoWait.text = cpuStat["core"..i]["iowait"]
-    aCoreIoWait.width = 35
-    aCoreIoWait.border_width = 1
-    aCoreIoWait.border_color = beautiful.fg_normal
-    local aCoreIdle = capi.widget({type = "textbox"})
-    aCoreIdle.text = cpuStat["core"..i]["idle"]
-    aCoreIdle.width = 35
-    aCoreIdle.border_width = 1
-    aCoreIdle.border_color = beautiful.fg_normal
-    aCore.border_width = 1
-    aCore.border_color = beautiful.bg_normal
-    table.insert(cpuWidgetArray, {aCore,aCoreClock,aCoreTemp,aCoreUsage,aCoreIoWait,aCoreIdle, layout = widget2.layout.horizontal.leftright})
+
+  if cpuStat ~= nil then  
+    for i=0 ,cpuStat["core"] do
+      local aCore = capi.widget({type = "textbox"})
+      aCore.text = " <span color='".. beautiful.bg_normal .."'>".."C"..i.."</span> "
+      aCore.bg = beautiful.fg_normal
+      aCore.width = 35
+      local aCoreClock = capi.widget({type = "textbox"})
+      aCoreClock.text = tonumber(cpuStat["core"..i]["speed"]) /1024 .. "Ghz"
+      aCoreClock.width = 30
+      aCoreClock.border_width = 1
+      aCoreClock.border_color = beautiful.fg_normal
+      local aCoreTemp = capi.widget({type = "textbox"})
+      aCoreTemp.text = cpuStat["core"..i]["temp"]
+      aCoreTemp.width = 40
+      aCoreTemp.border_width = 1
+      aCoreTemp.border_color = beautiful.fg_normal
+      local aCoreUsage = capi.widget({type = "textbox"})
+      aCoreUsage.text = cpuStat["core"..i]["usage"]
+      aCoreUsage.width = 37
+      aCoreUsage.border_width = 1
+      aCoreUsage.border_color = beautiful.fg_normal
+      local aCoreIoWait = capi.widget({type = "textbox"})
+      aCoreIoWait.text = cpuStat["core"..i]["iowait"]
+      aCoreIoWait.width = 35
+      aCoreIoWait.border_width = 1
+      aCoreIoWait.border_color = beautiful.fg_normal
+      local aCoreIdle = capi.widget({type = "textbox"})
+      aCoreIdle.text = cpuStat["core"..i]["idle"]
+      aCoreIdle.width = 35
+      aCoreIdle.border_width = 1
+      aCoreIdle.border_color = beautiful.fg_normal
+      aCore.border_width = 1
+      aCore.border_color = beautiful.bg_normal
+      table.insert(cpuWidgetArray, {aCore,aCoreClock,aCoreTemp,aCoreUsage,aCoreIoWait,aCoreIdle, layout = widget2.layout.horizontal.leftright})
+    end
   end
   
   local spacer1 = capi.widget({type = "textbox"})
@@ -154,13 +163,20 @@ function createDrawer()
   processHeader.width = 212
   table.insert(cpuWidgetArray, processHeader)
   
+  util.spawn("/bin/bash -c '"..util.getdir("config") .."/Scripts/topCpu3.sh > /tmp/topCpu.lua'")
   f = io.open('/tmp/topCpu.lua','r')
-  text3 = f:read("*all")
-  text3 = text3.." return cpuStat"
-  f:close()
-  local afunction = loadstring(text3)
-  process = afunction()
-  
+  if f ~= nil then
+    text3 = f:read("*all")
+    text3 = text3.." return cpuStat"
+    f:close()
+    local afunction = loadstring(text3) or nil
+    if aFunction ~= nil then
+      process = afunction()
+    else
+      process = nil
+    end
+  end
+
   if process ~= nil then
     for i = 0, #process or 0 do
       if process[i] then
@@ -248,7 +264,9 @@ function new(screen, args)
 
   cpugraphwidget:set_width(40)
   cpugraphwidget:set_height(18)
-  cpugraphwidget:set_offset(1)
+  if (widget2.graph.set_offset ~= nil) then
+    cpugraphwidget:set_offset(1)
+  end
   cpugraphwidget:set_height(14)
   cpugraphwidget:set_background_color(beautiful.bg_normal)
   cpugraphwidget:set_border_color(beautiful.fg_normal)

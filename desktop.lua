@@ -96,7 +96,9 @@ function add_device(args)
   volfill:set_vertical(true)
   volfill:set_width(10)
   volfill:set_height(50)
-  volfill:set_offset(1)
+  if (awful.widget.progressbar.set_offset ~= nil) then
+    volfill:set_offset(1)
+  end
   volfill:set_background_color(beautiful.bg_normal)
   volfill:set_border_color(beautiful.fg_normal)
   volfill:set_color(beautiful.fg_normal)
@@ -188,7 +190,10 @@ function loadMonitor(xPos)
   cpuBar:set_background_color(beautiful.bg_normal)
   cpuBar:set_border_color(beautiful.fg_normal)
   cpuBar:set_color(beautiful.fg_normal)
-  cpuBar:set_offset(1)
+  
+  if (awful.widget.graph.set_offset ~= nil) then
+    cpuBar:set_offset(1)
+  end
   
   --vicious.register(cpuBar, vicious.widgets.cpu, '$1', 1, 'cpu')
   vicious.register(cpuBar, vicious.widgets.cpu,'$1',1)
@@ -232,7 +237,9 @@ function loadMonitor(xPos)
   netUpGraph:set_background_color(beautiful.bg_normal)
   netUpGraph:set_border_color(beautiful.fg_normal)
   netUpGraph:set_color(beautiful.fg_normal)
-  netUpGraph:set_offset(1)
+  if (awful.widget.graph.set_offset ~= nil) then
+    netUpGraph:set_offset(1)
+  end
   
   vicious.register(netUpGraph, vicious.widgets.net, '${eth0 up_kb}',1)
   
@@ -247,7 +254,9 @@ function loadMonitor(xPos)
   netDownGraph:set_background_color(beautiful.bg_normal)
   netDownGraph:set_border_color(beautiful.fg_normal)
   netDownGraph:set_color(beautiful.fg_normal)
-  netDownGraph:set_offset(1)
+  if (awful.widget.graph.set_offset ~= nil) then
+    netDownGraph:set_offset(1)
+  end
   
   vicious.register(netDownGraph, vicious.widgets.net, '${eth0 down_kb}',1)
   
@@ -305,7 +314,9 @@ function loadMonitor(xPos)
   diskUpGraph:set_background_color(beautiful.bg_normal)
   diskUpGraph:set_border_color(beautiful.fg_normal)
   diskUpGraph:set_color(beautiful.fg_normal)
-  diskUpGraph:set_offset(1)
+  if (awful.widget.graph.set_offset ~= nil) then
+    diskUpGraph:set_offset(1)
+  end
   
 --  vicious.register(diskUpGraph, vicious.widgets.dio, "${read_kb}", 1, "sdb")
   
@@ -320,7 +331,9 @@ function loadMonitor(xPos)
   diskDownGraph:set_background_color(beautiful.bg_normal)
   diskDownGraph:set_border_color(beautiful.fg_normal)
   diskDownGraph:set_color(beautiful.fg_normal)
-  diskDownGraph:set_offset(1)
+  if (awful.widget.graph.set_offset ~= nil) then
+    diskDownGraph:set_offset(1)
+  end
   
 --  vicious.register(diskDownGraph, vicious.widgets.dio, "${write_kb}", 1, "sdb")
   
