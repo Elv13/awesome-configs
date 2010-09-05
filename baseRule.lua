@@ -178,7 +178,7 @@ shifty.config.tags ={
 -- order here matters, early rules will be applied first
 shifty.config.apps = {
 {match = { "xterm", "urxvt", "aterm","sauer_client"} , honorsizehints = false, slave = false, tag = "Term" } ,
-{match = { "Opera", "Firefox", "ReKonq", "Dillo", "Arora","Chromium","minefield" } , tag = "Internet" } ,
+{match = { "Opera", "Firefox", "ReKonq", "Dillo", "Arora","Chromium","minefield","Minefield" } , tag = "Internet" } ,
 {match = { "Thunar", "Konqueror", "Dolphin", "emelfm2", "Nautilus", "Ark", "XArchiver"} , tag = "Files" } ,
 {match = { "Kate", "KDevelop", "Codeblocks", "Code::Blocks", "DDD"} , tag = "Develop" } ,
 {match = { "KWrite", "GVim", "Emacs", "Code::Blocks", "DDD"} , tag = "Edit" } ,
@@ -215,6 +215,7 @@ shifty.config.apps = {
         awful.button({ }, 1, function (c) client.focus = c; c:raise() end),
         awful.button({ modkey }, 1, awful.mouse.client.move),
         awful.button({ modkey }, 3, awful.mouse.client.resize),
+        awful.button({ modkey }, 2, function (c) clientMenu:toggle(c) end),
         awful.button({ modkey }, 8, awful.mouse.client.resize)),
     titlebar = false
   },

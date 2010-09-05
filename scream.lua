@@ -43,8 +43,20 @@ end
 --position left right flex right.left left.right top bottom top.bottom bottom.top
 
 --scream.rule
-function rule(widget, wibox, args)
+function addWidget(widget, wibox, args)
 
+
+end
+
+function exec()
+
+end
+
+function addRule(rule,widget)
+
+end
+
+function addScreen(screen, alias)
 
 end
 

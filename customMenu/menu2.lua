@@ -50,7 +50,7 @@ function new(screen, args)
           i.y = self.settings.yPos+(self.settings.itemHeight*self.settings.counter)
           i.widget:geometry({ width = i.width, height = i.height, y=i.y, x=i.x})
           self.settings.counter = self.settings.counter +1
-          if i.subMenu ~= nil then
+          if type(i.subMenu) ~= "function" and i.subMenu ~= nil and i.subMenu.settings ~= nil then
             i.subMenu.settings.x = i.x+i.width
             i.subMenu.settings.y = i.y
           end
@@ -60,13 +60,13 @@ function new(screen, args)
     
     function menu:toggleSubMenu(aSubMenu,hideOld,forceValue)
       if (self.subMenu ~= nil) and (hideOld == true) then
-	self.subMenu:toggleSubMenu(nil,true,false)
-	self.subMenu:toggle(false)
-	if self["settings"].parent ~= nil and self["settings"].parent["settings"].visible == true then
-          self["settings"].parent:toggle(false)
-	end
+        self.subMenu:toggleSubMenu(nil,true,false)
+        self.subMenu:toggle(false)
+        --if self["settings"].parent ~= nil and self["settings"].parent["settings"].visible == true then
+        --  self["settings"].parent:toggle(false)
+        --end
       elseif aSubMenu ~= nil then
-	aSubMenu:toggle(forceValue or true)  
+        aSubMenu:toggle(forceValue or true)  
       end
 --       
       self.subMenu = aSubMenu
@@ -80,15 +80,23 @@ function new(screen, args)
       
       if subMenu ~= nil then
          subArrow2 = subArrow
-         subMenu["settings"].parent = self
+         if type(subMenu) ~= "function" and subMenu.settings then
+           subMenu["settings"].parent = self
+         end
       else
-	subArrow2 = nil
+        subArrow2 = nil
       end
       
       local function toggleItem(value)
          hightlight(aWibox,value)
           if value == true then
-            self:toggleSubMenu(subMenu,value,value)
+            if type(subMenu) ~= "function" then
+              self:toggleSubMenu(subMenu,value,value)
+            elseif self.subMenu == nil then --Prevent memory leak
+              local aSubMenu = subMenu()
+              aSubMenu["settings"].parent = self
+              self:toggleSubMenu(aSubMenu,value,value)
+            end
           end
       end
       
@@ -96,30 +104,30 @@ function new(screen, args)
       wdg.text = text
       
       if checked ~= nil then
-	checkbox2 = checkbox
+        checkbox2 = checkbox
       else
-	checkbox2 = nil
+        checkbox2 = nil
       end
       
       icon = capi.widget({type="imagebox"})
       if args ~= nil and args.icon ~= nil then
-	icon.image = capi.image(args.icon)
+        icon.image = capi.image(args.icon)
       else
-	icon.image = capi.image()
+        icon.image = capi.image()
       end
       
       aWibox.widgets = { {icon,wdg, {subArrow2,checkbox2, layout = widget2.layout.horizontal.rightleft}, layout = widget2.layout.horizontal.leftright}, layout = widget2.layout.vertical.flex }
       
       aWibox:buttons( util.table.join(
-	button({ }, 1, function()
-	  if aFunction ~= nil then
-	    aFunction()
-	  end
-	  self:toggle(false)
-	end),
-	button({ }, 3, function()
-	  self:toggle(false)
-	end)
+        button({ }, 1, function()
+          if aFunction ~= nil then
+            aFunction()
+          end
+          self:toggle(false)
+        end),
+        button({ }, 3, function()
+          self:toggle(false)
+        end)
       ))
       
       aWibox:add_signal("mouse::enter", function() toggleItem(true) end)

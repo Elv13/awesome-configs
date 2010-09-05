@@ -45,7 +45,7 @@ function createDrawer()
     statNotFound = "N/A"
   end
 
-  if memStat["ram"] == nil then
+  if memStat == nil or memStat["ram"] == nil then
     statNotFound = "N/A"
   end
   

@@ -8,6 +8,7 @@ require("customMenu.recent")
 require("customMenu.application")
 require("customMenu.places")
 require("customMenu.tagOption")
+require("customMenu.clientMenu")
 require("customButton.launcher")
 require("customButton.showDesktop")
 require("customButton.addTag")
@@ -61,8 +62,6 @@ xcompmgr_path = "/home/kde-devel/kde/src/xcompmgr2/"
 
 modkey = "Mod4"
 
-dofile(awful.util.getdir("config") .. "/baseRule.lua")
-
 -- Shifty config
 shifty.config.defaults = {
   layout = awful.layout.suit.tile,
@@ -106,14 +105,21 @@ soundWidget = drawer.soundInfo(mywibox3)
 -- Create the keyboard layout switcher, feel free to add your contry and push it to master
 keyboardSwitcherWidget = widget.keyboardSwitcher()
 
--- Create the addTag icon
-addTag = customButton.addTag(nil,{taglist = shifty.config.tags})
 
 -- Create a systray
 mysystray = widget({ type = "systray" })
 
 -- Create the tag right click menu [[In develpment]]
 tagMenu = customMenu.tagOption(nil)
+
+-- Create the mod4 + middle click menu on a client
+clientMenu = customMenu.clientMenu(nil)
+
+-- Shifty rules
+dofile(awful.util.getdir("config") .. "/baseRule.lua")
+
+-- Create the addTag icon (depend on shifty rule)
+addTag = customButton.addTag(nil,{taglist = shifty.config.tags})
 
 --TagList buttons
 mytaglist.buttons = awful.util.table.join(

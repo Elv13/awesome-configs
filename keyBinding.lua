@@ -165,10 +165,11 @@ for i=1, ( shifty.config.maxtags or 9 ) do
     end))
 end
 
-clientbuttons = awful.util.table.join(
-    awful.button({ }, 1, function (c) client.focus = c; c:raise() end),
-    awful.button({ modkey }, 1, awful.mouse.client.move),
-    awful.button({ modkey }, 3, awful.mouse.client.resize))
+-- clientbuttons = awful.util.table.join(
+--     awful.button({ }, 1, function (c) client.focus = c; c:raise() end),
+--     awful.button({ modkey }, 1, awful.mouse.client.move),
+--     awful.button({ modkey }, 2, clientMenu:toggle(awful.mouse.client) ),
+--     awful.button({ modkey }, 3, awful.mouse.client.resize))
 
 -- Set keys
 root.keys(globalkeys)
