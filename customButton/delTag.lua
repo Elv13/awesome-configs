@@ -49,6 +49,9 @@ function new(screen, args)
   
   tag.attached_add_signal(screen, "property::selected", toggleVisibility)
   tag.attached_add_signal(screen, "property::layout", toggleVisibility)
+  
+  data[screen]:add_signal("mouse::enter", function() data[screen].bg = beautiful.bg_highlight end)
+  data[screen]:add_signal("mouse::leave", function() data[screen].bg = beautiful.bg_normal end)
 
   return data[screen]
 end

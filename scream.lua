@@ -60,6 +60,8 @@ function addScreen(screen, alias)
 
 end
 
+function addWibox(screen, position) -- screen can be a string, alias, function or number
+
 -- =2 : last or >5 : 2 or =1 : first
 -- all
 -- {1,3,4}

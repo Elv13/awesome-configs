@@ -47,6 +47,9 @@ function new(screen, args)
   mylauncher3text.bg_align = "left"
   mylauncher3text.bg_resize = true
   
+  mylauncher3text:add_signal("mouse::enter", function() mylauncher3text.bg = beautiful.bg_highlight end)
+  mylauncher3text:add_signal("mouse::leave", function() mylauncher3text.bg = beautiful.bg_normal end)
+  
   mylauncher3text:buttons( util.table.join(
     button({ }, 1, function()
       mymainmenu3:toggle()

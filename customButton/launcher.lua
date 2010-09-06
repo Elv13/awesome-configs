@@ -428,6 +428,9 @@ lauchBar.visible = false
   local launcherPix = capi.widget({ type = "imagebox", align = "left" })
   launcherPix.image = capi.image(util.getdir("config") .. "/Icon/gearA2.png")
   
+  launcherPix:add_signal("mouse::enter", function() launcherPix.bg = beautiful.bg_highlight end)
+  launcherPix:add_signal("mouse::leave", function() launcherPix.bg = beautiful.bg_normal end)
+  
   launcherPix:buttons( util.table.join(
   button({ }, 1, function()
       if lauchBar.visible ==  false then

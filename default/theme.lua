@@ -10,6 +10,7 @@ theme.bg_normal     = "#0A1535"
 theme.bg_focus      = "#173758"
 theme.bg_urgent     = "#ff4500"
 theme.bg_minimize   = "#444444"
+theme.bg_highlight  = "#0F2153"
 
 theme.fg_normal     = "#1577D3"
 theme.fg_focus      = "#00BBD7"

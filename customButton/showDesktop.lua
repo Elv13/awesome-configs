@@ -38,6 +38,9 @@ function new(screen, args)
     end)
   ))
   
+  desktopPix:add_signal("mouse::enter", function() desktopPix.bg = beautiful.bg_highlight end)
+  desktopPix:add_signal("mouse::leave", function() desktopPix.bg = beautiful.bg_normal end)
+  
   return desktopPix
 end
 

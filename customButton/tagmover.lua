@@ -5,6 +5,7 @@ local button = require("awful.button")
 local tag = require("awful.tag")
 local util = require("awful.util")
 local shifty = require("shifty")
+local beautiful = require("beautiful")
 local menu2 = require("customMenu.menu2")
 local capi = { image = image,
                screen = screen,
@@ -65,8 +66,14 @@ function new(screen, args)
     data[id].screen = screen
     data[id].direction = direction
     
-    data[id].widget:add_signal("mouse::enter", function () data[id].selected = tag.selected() end)
-    data[id].widget:add_signal("mouse::leave", function () data[id].selected = nil end)
+    data[id].widget:add_signal("mouse::enter", function () 
+                                                  data[id].selected = tag.selected() 
+                                                  data[id].widget.bg = beautiful.bg_highlight
+                                                end)
+    data[id].widget:add_signal("mouse::leave", function () 
+                                                  data[id].selected = nil 
+                                                  data[id].widget.bg = beautiful.bg_normal
+                                                end)
     
     data[id].widget:buttons( util.table.join(
       button({ }, 1, function()

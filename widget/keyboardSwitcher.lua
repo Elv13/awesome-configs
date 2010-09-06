@@ -36,6 +36,9 @@ end
 
 function new(screen, args) 
   local keyboardSwitcher = capi.widget({ type = "imagebox"})
+  
+  keyboardSwitcher:add_signal("mouse::enter", function() keyboardSwitcher.bg = beautiful.bg_highlight end)
+  keyboardSwitcher:add_signal("mouse::leave", function() keyboardSwitcher.bg = beautiful.bg_normal end)
 
   if setupKb() ==  "us" then
     keyboardSwitcher.image = capi.image(util.getdir("config") .. "/Icon/us_flag.png")

@@ -68,6 +68,9 @@ function new(screen, layouts)
       end)
     ))
     
+    w:add_signal("mouse::enter", function() w.bg = beautiful.bg_highlight end)
+    w:add_signal("mouse::leave", function() w.bg = beautiful.bg_normal end)
+    
     titleBarWidget:buttons( util.table.join(
       button({ }, 1, function()
 	  showTitleBar[tag.selected()] = showTitleBar[tag.selected()] or false

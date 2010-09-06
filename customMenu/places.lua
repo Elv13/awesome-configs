@@ -44,6 +44,9 @@ function new(screen, args)
   mylauncher2text.bg_align = "left"
   mylauncher2text.bg_resize = true
   
+  mylauncher2text:add_signal("mouse::enter", function() mylauncher2text.bg = beautiful.bg_highlight end)
+  mylauncher2text:add_signal("mouse::leave", function() mylauncher2text.bg = beautiful.bg_normal end)
+  
   mylauncher2text:buttons( util.table.join(
     button({ }, 1, function()
       data:toggle()

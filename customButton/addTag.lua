@@ -53,6 +53,9 @@ function new(screen, args)
     end)
   ))
   
+  addTag:add_signal("mouse::enter", function() addTag.bg = beautiful.bg_highlight end)
+  addTag:add_signal("mouse::leave", function() addTag.bg = beautiful.bg_normal end)
+  
   return addTag
 end
 

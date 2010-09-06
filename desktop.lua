@@ -18,7 +18,12 @@ function add_device(args)
   end
   
   
-  mywibox19 = awful.wibox({ position = "free", screen = s})
+  local mywibox19 = awful.wibox({ position = "free", screen = s})
+  
+  mywibox19:add_signal("mouse::enter", function() mywibox19.bg = beautiful.fg_normal.."25" end)
+  mywibox19:add_signal("mouse::leave", function() mywibox19.bg = "#00000000" end)
+  
+  --awful.wibox.rounded_corners(mywibox19,1)
   
   local relY = 50 + 100 * (#devices)
   

@@ -44,7 +44,8 @@ function new(screen, args)
   mainMenu["data"]:addItem("Master",true,function()  end)
   mainMenu["data"]:addItem("Move to tag",true,function()  end)
   mainMenu["data"]:addItem("Close",true,function()  end)
-  mainMenu["data"]:addItem("Kill",true,function()  end)
+  mainMenu["data"]:addItem("Send Signal",true,function()  end)
+  mainMenu["data"]:addItem("Renice",true,function()  end)
 
  
 
