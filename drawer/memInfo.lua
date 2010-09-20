@@ -1,6 +1,7 @@
 local setmetatable = setmetatable
 local io = io
 local ipairs = ipairs
+local pairs = pairs
 local dofile = dofile
 local loadstring = loadstring
 local loadfile = loadfile
@@ -28,174 +29,218 @@ module("drawer.memInfo")
 local data = {}
 
 local memInfo = {}
+
 function createDrawer() 
   widgetTable = {  }
-
-  util.spawn("/bin/bash -c '"..util.getdir("config") .."/Scripts/memStatistics.sh > /tmp/memStatistics.lua'")
-  
-  local f = io.open('/tmp/memStatistics.lua','r')
-  if f ~= nil then
-    local text3 = f:read("*all")
-    text3 = text3.." return memStat"
-    f:close()
-    local afunction = loadstring(text3)
-    memStat = afunction()
-    statNotFound = nil
-  else
-    statNotFound = "N/A"
-  end
-
-  if memStat == nil or memStat["ram"] == nil then
-    statNotFound = "N/A"
-  end
   
   local infoHeader = capi.widget({type = "textbox"})
+  local totalRam = capi.widget({type = "textbox"})
+  local freeRam = capi.widget({type = "textbox"})
+  local usedRam = capi.widget({type = "textbox"})
+  local freeSwap = capi.widget({type = "textbox"})
+  local usedSwap = capi.widget({type = "textbox"})
+  local totalSwap = capi.widget({type = "textbox"})
+  local userHeader = capi.widget({type = "textbox"})
+  local stateHeader = capi.widget({type = "textbox"})
+  local processHeader = capi.widget({type = "textbox"})
+  
+  local totalRamLabel = capi.widget({type = "textbox"})
+  local freeRamLabel = capi.widget({type = "textbox"})
+  local usedRamLabel = capi.widget({type = "textbox"})
+  local totalSwapLabel = capi.widget({type = "textbox"})
+  local freeSwapLabel = capi.widget({type = "textbox"})
+  local usedSwapLabel = capi.widget({type = "textbox"})
+--   table.insert(widgetTable, infoHeader)
+--   table.insert(widgetTable, --[[{totalRamLabel,]]totalRam--[[, layout = widget2.layout.horizontal.leftright}]])
+--   table.insert(widgetTable, --[[{freeRamLabel,]]freeRam--[[, layout = widget2.layout.horizontal.leftright}]])
+--   table.insert(widgetTable, --[[{usedRamLabel,]]usedRam--[[, layout = widget2.layout.horizontal.leftright}]])
+--   table.insert(widgetTable, --[[{totalSwapLabel,]]totalSwap--[[, layout = widget2.layout.horizontal.leftright}]])
+--   table.insert(widgetTable, --[[{freeSwapLabel,]]freeSwap--[[, layout = widget2.layout.horizontal.leftright}]])
+--   table.insert(widgetTable, --[[{usedSwapLabel,]]usedSwap--[[, layout = widget2.layout.horizontal.leftright}]])
+--   table.insert(widgetTable, userHeader)
+  
   infoHeader.text = " <span color='".. beautiful.bg_normal .."'><b><tt>USAGE</tt></b></span> "
   infoHeader.bg = beautiful.fg_normal
   infoHeader.width = 212
-  table.insert(widgetTable, infoHeader)
   
-  local totalRam = capi.widget({type = "textbox"})
-  totalRam.text = statNotFound or memStat["ram"]["total"] 
-  local totalRamLabel = capi.widget({type = "textbox"})
-  totalRamLabel.text = "Total Ram:"
-  totalRamLabel.width = 70
-  table.insert(widgetTable, {totalRamLabel,totalRam, layout = widget2.layout.horizontal.leftright})
-  
-  local freeRam = capi.widget({type = "textbox"})
-  freeRam.text = statNotFound or memStat["ram"]["free"]
-  local freeRamLabel = capi.widget({type = "textbox"})
-  freeRamLabel.text = "Free Ram:"
-  freeRamLabel.width = 70
-  table.insert(widgetTable, {freeRamLabel,freeRam, layout = widget2.layout.horizontal.leftright})
-  
-  local usedRam = capi.widget({type = "textbox"})
-  usedRam.text = statNotFound or memStat["ram"]["used"]
-  local usedRamLabel = capi.widget({type = "textbox"})
-  usedRamLabel.text = "Used Ram:"
-  usedRamLabel.width = 70
-  table.insert(widgetTable, {usedRamLabel,usedRam, layout = widget2.layout.horizontal.leftright})
-  
-  local totalSwap = capi.widget({type = "textbox"})
-  totalSwap.text = statNotFound or memStat["swap"]["total"]
-  local totalSwapLabel = capi.widget({type = "textbox"})
-  totalSwapLabel.text = "Total Swap:"
-  totalSwapLabel.width = 70
-  table.insert(widgetTable, {totalSwapLabel,totalSwap, layout = widget2.layout.horizontal.leftright})
-  
-  local freeSwap = capi.widget({type = "textbox"})
-  freeSwap.text = statNotFound or memStat["swap"]["free"]
-  local freeSwapLabel = capi.widget({type = "textbox"})
-  freeSwapLabel.text = "Free Swap:"
-  freeSwapLabel.width = 70
-  table.insert(widgetTable, {freeSwapLabel,freeSwap, layout = widget2.layout.horizontal.leftright})
-  
-  local usedSwap = capi.widget({type = "textbox"})
-  usedSwap.text = statNotFound or memStat["swap"]["used"]
-  local usedSwapLabel = capi.widget({type = "textbox"})
-  usedSwapLabel.text = "Used Swap:"
-  usedSwapLabel.width = 70
-  table.insert(widgetTable, {usedSwapLabel,usedSwap, layout = widget2.layout.horizontal.leftright})
-  
-  local userHeader = capi.widget({type = "textbox"})
   userHeader.text = " <span color='".. beautiful.bg_normal .."'><b><tt>USERS</tt></b></span> "
   userHeader.bg = beautiful.fg_normal
   userHeader.width = 212
-  table.insert(widgetTable, userHeader)
   
-  local totalUser = 0
-  if memStat ~= nil then
-    for v, i in next, memStat["users"] do
-      local anUser = capi.widget({type = "textbox"})
-      anUser.text = i
-      local anUserLabel = capi.widget({type = "textbox"})
-      anUserLabel.text = v..":"
-      anUserLabel.width = 70
-      table.insert(widgetTable, {anUserLabel,anUser, layout = widget2.layout.horizontal.leftright})
-      totalUser = totalUser +1
-    end  
-  end
-  
-  local stateHeader = capi.widget({type = "textbox"})
   stateHeader.text = " <span color='".. beautiful.bg_normal .."'><b><tt>STATE</tt></b></span> "
   stateHeader.bg = beautiful.fg_normal
   stateHeader.width = 212
   table.insert(widgetTable, stateHeader)
   
-  
-  local totalState = 0
-  if memStat ~= nil then
-    for v, i in next, memStat["state"] do
-      local anState = capi.widget({type = "textbox"})
-      anState.text = i
-      local anStateLabel = capi.widget({type = "textbox"})
-      anStateLabel.text = v..":"
-      anStateLabel.width = 70
-      table.insert(widgetTable, {anStateLabel,anState, layout = widget2.layout.horizontal.leftright})
-      totalState = totalState +1
-    end  
-  end
-
-  util.spawn("/bin/bash -c 'while true; do "..util.getdir("config") .."/Scripts/topMem2.sh > /tmp/topMem.lua ; sleep 5 ; done'")
-
-
-  local processHeader = capi.widget({type = "textbox"})
   processHeader.text = " <span color='".. beautiful.bg_normal .."'><b><tt>PROCESS</tt></b></span> "
   processHeader.bg = beautiful.fg_normal
   processHeader.width = 212
   table.insert(widgetTable, processHeader)
+  
+  util.spawn("/bin/bash -c 'while true;do "..util.getdir("config") .."/Scripts/memStatistics.sh > /tmp/memStatistics.lua && sleep 5;done'")
+  
+  function refreshStat()
+    local f = io.open('/tmp/memStatistics.lua','r')
+    if f ~= nil then
+      local text3 = f:read("*all")
+      text3 = text3.." return memStat"
+      f:close()
+      local afunction = loadstring(text3)
+      memStat = afunction()
+      statNotFound = nil
+    else
+      statNotFound = "N/A"
+    end
+
+    if memStat == nil or memStat["ram"] == nil then
+      statNotFound = "N/A"
+    end
+    
+    
+    totalRam.text = statNotFound or memStat["ram"]["total"] 
+    totalRamLabel.text = "Total Ram:"
+    totalRamLabel.width = 70
+    
+    freeRam.text = statNotFound or memStat["ram"]["free"]
+    freeRamLabel.text = "Free Ram:"
+    freeRamLabel.width = 70
+    
+    usedRam.text = statNotFound or memStat["ram"]["used"]
+    usedRamLabel.text = "Used Ram:"
+    usedRamLabel.width = 70
+    
+    totalSwap.text = statNotFound or memStat["swap"]["total"]
+    totalSwapLabel.text = "Total Swap:"
+    totalSwapLabel.width = 70
+    
+    freeSwap.text = statNotFound or memStat["swap"]["free"]
+    freeSwapLabel.text = "Free Swap:"
+    freeSwapLabel.width = 70
+    
+    usedSwap.text = statNotFound or memStat["swap"]["used"]
+    usedSwapLabel.text = "Used Swap:"
+    usedSwapLabel.width = 70
+    
+    local newWidgets2 = {} --TODO be sure to destroy the older vestion of this array or it will cause a memory leak
+    local totalUser = 0
+    
+    table.insert(newWidgets2,userHeader)
+    
+    if memStat ~= nil then
+      for v, i in next, memStat["users"] do
+        local anUser = capi.widget({type = "textbox"})
+        anUser.text = i
+        local anUserLabel = capi.widget({type = "textbox"})
+        anUserLabel.text = v..":"
+        anUserLabel.width = 70
+        table.insert(newWidgets2, {anUserLabel,anUser, layout = widget2.layout.horizontal.leftright})
+        totalUser = totalUser +1
+      end  
+    end
+     
+    table.insert(newWidgets2,stateHeader)
+    
+    local totalState = 0
+    if memStat ~= nil then
+      for v, i in next, memStat["state"] do
+        local anState = capi.widget({type = "textbox"})
+        anState.text = i
+        local anStateLabel = capi.widget({type = "textbox"})
+        anStateLabel.text = v..":"
+        anStateLabel.width = 70
+        table.insert(newWidgets2, {anStateLabel,anState, layout = widget2.layout.horizontal.leftright})
+        totalState = totalState +1
+      end  
+    end
+    
+    return newWidgets2
+  end
+  
+  
+  
+  refreshStat()
+
+  
+  
+  
+
+  util.spawn("/bin/bash -c 'while true; do "..util.getdir("config") .."/Scripts/topMem2.sh > /tmp/topMem.lua ; sleep 5 ; done'")
+
+
   
   widgetTable["layout"] = widget2.layout.vertical.flex
  
   tableWithTop = widgetTable
   
   function generateTop(widgetTable2) 
-      f = io.open('/tmp/topMem.lua','r')
-        if f ~= nil then
-        text3 = f:read("*all")
-        text3 = text3.." return process"
-        f:close()
-        afunction = loadstring(text3)
-        process = afunction()
+    local newWidgets = {}
+    for k,v in pairs(widgetTable2) do
+      newWidgets[k] = v
+    end
+
+    f = io.open('/tmp/topMem.lua','r')
+    if f ~= nil then
+      text3 = f:read("*all")
+      text3 = text3.." return process"
+      f:close()
+      afunction = loadstring(text3)
+      if afunction == nil then
+        return { count = o, widgets = widgetTable2}
       end
+      process = afunction()
+    end
       
-      if process ~= nil and process[1] then
+    if process ~= nil and process[1] then
       for i = 0, #process or 0 do
-	  local aProcess = capi.widget({type = "textbox"})
-	  aProcess.text = " "..process[i]["name"] or "N/A"
-	  
-	  local aPid = capi.widget({type = "textbox"})
-	  aPid.text = process[i]["pid"]
-	  
-	  local aMem = capi.widget({type = "textbox"})
-	  aMem.text = process[i]["mem"]
-	  aMem.width = 53
-	  aMem.bg = "#0F2051"
-	  aMem.border_width = 1
-	  aMem.border_color = beautiful.bg_normal
-	  
-	  testImage2       = capi.widget({ type = "imagebox"})
-	  testImage2.image = capi.image(util.getdir("config") .. "/Icon/kill.png")
-	  
-	  local aLine = {aMem, aProcess, {testImage2, layout = widget2.layout.horizontal.rightleft}, layout = widget2.layout.horizontal.leftright}
-	  table.insert(widgetTable2, aLine)
-	end
+          local aProcess = capi.widget({type = "textbox"})
+          aProcess.text = " "..process[i]["name"] or "N/A"
+          
+          local aPid = capi.widget({type = "textbox"})
+          aPid.text = process[i]["pid"]
+          
+          local aMem = capi.widget({type = "textbox"})
+          aMem.text = process[i]["mem"]
+          aMem.width = 53
+          aMem.bg = "#0F2051"
+          aMem.border_width = 1
+          aMem.border_color = beautiful.bg_normal
+          
+          testImage2       = capi.widget({ type = "imagebox"})
+          testImage2.image = capi.image(util.getdir("config") .. "/Icon/kill.png")
+          
+          local aLine = {aMem, aProcess, {testImage2, layout = widget2.layout.horizontal.rightleft}, layout = widget2.layout.horizontal.leftright}
+          table.insert(newWidgets, aLine)
+        end
     else
-      return {widgets = widgetTable2, count = 0}
+      return {widgets = newWidgets, count = 0}
       end
       
-      return { widgets = widgetTable2, count  = (#process or 0)}
+      return { widgets = newWidgets, count  = (#process or 0)}
+  end
+
+  function refreshAll() 
+    local tempWdg = refreshStat()
+    table.insert(tempWdg,infoHeader)
+    table.insert(tempWdg,{totalRamLabel,totalRam, layout = widget2.layout.horizontal.leftright})
+    table.insert(tempWdg,{freeRamLabel,freeRam, layout = widget2.layout.horizontal.leftright})
+    table.insert(tempWdg,{usedRamLabel,usedRam, layout = widget2.layout.horizontal.leftright})
+    table.insert(tempWdg,{totalSwapLabel,totalSwap, layout = widget2.layout.horizontal.leftright})
+    table.insert(tempWdg,{freeSwapLabel,freeSwap, layout = widget2.layout.horizontal.leftright})
+    table.insert(tempWdg,{usedSwapLabel,usedSwap, layout = widget2.layout.horizontal.leftright})
+    table.insert(tempWdg,userHeader)
+    tempWdg["layout"] = widget2.layout.vertical.flex
+                     
+    local widgetTable4 = generateTop(tempWdg) 
+    data.wibox.widgets = widgetTable4.widgets
+    data.wibox:geometry({ width = 212, height = ((widgetTable4.count*22) or 0) + (#tempWdg*22), y = 20, x = capi.screen[capi.screen.count()].geometry.width*2 -  212})
   end
   
-  local widgetTable3 = generateTop(widgetTable)
-  widgetTable3.widgets["layout"] = widget2.layout.vertical.flex
-  data.wibox.widgets = widgetTable3.widgets
-  data.wibox:geometry({ width = 212, height = ((widgetTable3.count*22) or 0) + (8*22) + (totalUser *22) + (totalState*22), y = 20, x = capi.screen[capi.screen.count()].geometry.width*2 -  212})
-  
+  refreshAll() 
   
   process = {}
-  --mytimer = capi.timer({ timeout = 5 })
-  --mytimer:add_signal("timeout", function() generateTop() end)
+  mytimer = capi.timer({ timeout = 5 })
+  mytimer:add_signal("timeout", refreshAll)
+  mytimer:start()
 
   
   return 
