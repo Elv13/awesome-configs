@@ -47,9 +47,6 @@ function new(screen, args)
   mainMenu["data"]:addItem("Send Signal",true,function()  end)
   mainMenu["data"]:addItem("Renice",true,function()  end)
 
- 
-
-  
   return mainMenu
 end
 setmetatable(_M, { __call = function(_, ...) return new(...) end })

@@ -50,14 +50,6 @@ function createDrawer()
   local totalSwapLabel = capi.widget({type = "textbox"})
   local freeSwapLabel = capi.widget({type = "textbox"})
   local usedSwapLabel = capi.widget({type = "textbox"})
---   table.insert(widgetTable, infoHeader)
---   table.insert(widgetTable, --[[{totalRamLabel,]]totalRam--[[, layout = widget2.layout.horizontal.leftright}]])
---   table.insert(widgetTable, --[[{freeRamLabel,]]freeRam--[[, layout = widget2.layout.horizontal.leftright}]])
---   table.insert(widgetTable, --[[{usedRamLabel,]]usedRam--[[, layout = widget2.layout.horizontal.leftright}]])
---   table.insert(widgetTable, --[[{totalSwapLabel,]]totalSwap--[[, layout = widget2.layout.horizontal.leftright}]])
---   table.insert(widgetTable, --[[{freeSwapLabel,]]freeSwap--[[, layout = widget2.layout.horizontal.leftright}]])
---   table.insert(widgetTable, --[[{usedSwapLabel,]]usedSwap--[[, layout = widget2.layout.horizontal.leftright}]])
---   table.insert(widgetTable, userHeader)
   
   infoHeader.text = " <span color='".. beautiful.bg_normal .."'><b><tt>USAGE</tt></b></span> "
   infoHeader.bg = beautiful.fg_normal
@@ -78,6 +70,7 @@ function createDrawer()
   table.insert(widgetTable, processHeader)
   
   util.spawn("/bin/bash -c 'while true;do "..util.getdir("config") .."/Scripts/memStatistics.sh > /tmp/memStatistics.lua && sleep 5;done'")
+  util.spawn("/bin/bash -c 'while true; do "..util.getdir("config") .."/Scripts/topMem2.sh > /tmp/topMem.lua;sleep 5;done'")
   
   function refreshStat()
     local f = io.open('/tmp/memStatistics.lua','r')
@@ -126,7 +119,7 @@ function createDrawer()
     
     table.insert(newWidgets2,userHeader)
     
-    if memStat ~= nil then
+    if memStat ~= nil and memStat["users"] then
       for v, i in next, memStat["users"] do
         local anUser = capi.widget({type = "textbox"})
         anUser.text = i
@@ -156,18 +149,9 @@ function createDrawer()
     return newWidgets2
   end
   
-  
-  
   refreshStat()
 
-  
-  
-  
 
-  util.spawn("/bin/bash -c 'while true; do "..util.getdir("config") .."/Scripts/topMem2.sh > /tmp/topMem.lua ; sleep 5 ; done'")
-
-
-  
   widgetTable["layout"] = widget2.layout.vertical.flex
  
   tableWithTop = widgetTable
@@ -192,6 +176,7 @@ function createDrawer()
       
     if process ~= nil and process[1] then
       for i = 0, #process or 0 do
+        if process[i]["name"] ~= nil then
           local aProcess = capi.widget({type = "textbox"})
           aProcess.text = " "..process[i]["name"] or "N/A"
           
@@ -211,6 +196,7 @@ function createDrawer()
           local aLine = {aMem, aProcess, {testImage2, layout = widget2.layout.horizontal.rightleft}, layout = widget2.layout.horizontal.leftright}
           table.insert(newWidgets, aLine)
         end
+      end
     else
       return {widgets = newWidgets, count = 0}
       end
@@ -232,7 +218,7 @@ function createDrawer()
                      
     local widgetTable4 = generateTop(tempWdg) 
     data.wibox.widgets = widgetTable4.widgets
-    data.wibox:geometry({ width = 212, height = ((widgetTable4.count*22) or 0) + (#tempWdg*22), y = 20, x = capi.screen[capi.screen.count()].geometry.width*2 -  212})
+    data.wibox:geometry({ width = 212, height = (((widgetTable4.count or 0)*22) or 0) + (#tempWdg*22), y = 20, x = capi.screen[capi.mouse.screen].geometry.width*2 -  212})
   end
   
   refreshAll() 
@@ -241,7 +227,6 @@ function createDrawer()
   mytimer = capi.timer({ timeout = 5 })
   mytimer:add_signal("timeout", refreshAll)
   mytimer:start()
-
   
   return 
 end
@@ -266,7 +251,7 @@ function new(s, args)
   
   ramlogo:add_signal("mouse::enter", function ()
       data.wibox.visible = true
-      data.wibox:geometry({y = 20, x = capi.screen[capi.screen.count()].geometry.width*2 - (ramlogo:extents().x or 212)})
+      data.wibox:geometry({y = 20, x = capi.screen[capi.mouse.screen].geometry.width*2 - (ramlogo:extents().x or 212)})
   end)
 
   ramlogo:add_signal("mouse::leave", function ()
@@ -288,7 +273,7 @@ function new(s, args)
   vicious.register(memwidget, vicious.widgets.mem, '$1%')
   
   memwidget:add_signal("mouse::enter", function ()
-      data.wibox.visible = true
+    data.wibox.visible = true
   end)
 
   memwidget:add_signal("mouse::leave", function ()

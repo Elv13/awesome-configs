@@ -161,7 +161,14 @@ function loadRectLauncher(s2)
   end
 end
 
-function loadMonitor(xPos)
+function loadMonitor(screen2)
+
+  local xPos = 0
+  for s = 1, screen2 or screen.count() do
+    xPos = xPos + screen[s].geometry.width
+  end
+  xPos = xPos - 415
+
   local aWibox = awful.wibox({ position = "free", screen = s})
   aWibox:geometry({ width = 400, height = 200, x = xPos, y = 40})
   --aWibox:rounded_corners(10)

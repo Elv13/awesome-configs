@@ -200,7 +200,7 @@ for s = 1, screen.count() do
   movetagL[s] = customButton.tagmover(s,{ direction = "left", icon = awful.util.getdir("config") .. "/Icon/tags/screen_left.png" })
   movetagR[s] = customButton.tagmover(s,{ direction = "right", icon = awful.util.getdir("config") .. "/Icon/tags/screen_right.png" })
   
-  if s == screen.count() then
+  if s == 2 --[[screen.count()]] then
     mywibox[s].widgets = { 
 			  {
 			      mytaglist[s],
@@ -314,7 +314,7 @@ for s = 1, screen.count() do
 			  {
 			    movetagL[s],
 			    movetagR[s],
-			    mylayoutbox[s],
+			    --mylayoutbox[s],
 			    spacer3,
 			    mytasklist[s],
 			    layout = awful.widget.layout.horizontal.rightleft,
@@ -329,7 +329,11 @@ local musicBarVisibility = false
 
 shifty.taglist = mytaglist
 
-loadMonitor(screen.count() * screen[1].geometry.width - 415) --BUG support only identical screens
+local monitorPos = 0
+for s = 1, screen.count() do
+  monitorPos = monitorPos + screen[s].geometry.width
+end
+loadMonitor(2)
 
 root.buttons(awful.util.table.join(
     awful.button({ }, 1, function () 
