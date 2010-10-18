@@ -51,6 +51,12 @@ function createDrawer()
   local freeSwapLabel = capi.widget({type = "textbox"})
   local usedSwapLabel = capi.widget({type = "textbox"})
   
+  local ramLabel = capi.widget({type = "textbox"})
+  local swapLabel = capi.widget({type = "textbox"})
+  local totalLabel = capi.widget({type = "textbox"})
+  local usedLabel = capi.widget({type = "textbox"})
+  local freeLabel = capi.widget({type = "textbox"})
+  
   infoHeader.text = " <span color='".. beautiful.bg_normal .."'><b><tt>USAGE</tt></b></span> "
   infoHeader.bg = beautiful.fg_normal
   infoHeader.width = 212
@@ -89,30 +95,61 @@ function createDrawer()
       statNotFound = "N/A"
     end
     
+    ramLabel.text = "<span color='".. beautiful.bg_normal .."'>Ram</span>"
+    ramLabel.width = 55
+    ramLabel.border_width = 1
+    ramLabel.bg = beautiful.fg_normal
+    ramLabel.border_color = beautiful.bg_normal
+    swapLabel.text = "<span color='".. beautiful.bg_normal .."'>Swap</span>"
+    swapLabel.width = 55
+    swapLabel.border_width = 1
+    swapLabel.bg = beautiful.fg_normal
+    swapLabel.border_color = beautiful.bg_normal
+    totalLabel.text = "<span color='".. beautiful.bg_normal .."'>Total</span>"
+    totalLabel.width = 55
+    totalLabel.border_width = 1
+    totalLabel.bg = beautiful.fg_normal
+    totalLabel.border_color = beautiful.bg_normal
+    usedLabel.text = "<span color='".. beautiful.bg_normal .."'>Used</span>"
+    usedLabel.width = 55
+    usedLabel.border_width = 1
+    usedLabel.bg = beautiful.fg_normal
+    usedLabel.border_color = beautiful.bg_normal
+    freeLabel.text = "<span color='".. beautiful.bg_normal .."'>Used</span>"
+    freeLabel.width = 55
+    freeLabel.border_width = 1
+    freeLabel.bg = beautiful.fg_normal
+    freeLabel.border_color = beautiful.bg_normal
     
-    totalRam.text = statNotFound or memStat["ram"]["total"] 
-    totalRamLabel.text = "Total Ram:"
-    totalRamLabel.width = 70
+    totalRam.text = statNotFound or memStat["ram"]["total"]
+    totalRam.width = 55
+    totalRam.border_width = 1
+    totalRam.border_color = beautiful.fg_normal
     
     freeRam.text = statNotFound or memStat["ram"]["free"]
-    freeRamLabel.text = "Free Ram:"
-    freeRamLabel.width = 70
+    freeRam.width = 55
+    freeRam.border_width = 1
+    freeRam.border_color = beautiful.fg_normal
     
     usedRam.text = statNotFound or memStat["ram"]["used"]
-    usedRamLabel.text = "Used Ram:"
-    usedRamLabel.width = 70
+    usedRam.width = 55
+    usedRam.border_width = 1
+    usedRam.border_color = beautiful.fg_normal
     
     totalSwap.text = statNotFound or memStat["swap"]["total"]
-    totalSwapLabel.text = "Total Swap:"
-    totalSwapLabel.width = 70
+    totalSwap.width = 55
+    totalSwap.border_width = 1
+    totalSwap.border_color = beautiful.fg_normal
     
     freeSwap.text = statNotFound or memStat["swap"]["free"]
-    freeSwapLabel.text = "Free Swap:"
-    freeSwapLabel.width = 70
+    freeSwap.width = 55
+    freeSwap.border_width = 1
+    freeSwap.border_color = beautiful.fg_normal
     
     usedSwap.text = statNotFound or memStat["swap"]["used"]
-    usedSwapLabel.text = "Used Swap:"
-    usedSwapLabel.width = 70
+    usedSwap.width = 55
+    usedSwap.border_width = 1
+    usedSwap.border_color = beautiful.fg_normal
     
     local newWidgets2 = {} --TODO be sure to destroy the older vestion of this array or it will cause a memory leak
     local totalUser = 0
@@ -134,7 +171,7 @@ function createDrawer()
     table.insert(newWidgets2,stateHeader)
     
     local totalState = 0
-    if memStat ~= nil then
+    if memStat ~= nil and memStat["state"] ~= nil then
       for v, i in next, memStat["state"] do
         local anState = capi.widget({type = "textbox"})
         anState.text = i
@@ -204,21 +241,29 @@ function createDrawer()
       return { widgets = newWidgets, count  = (#process or 0)}
   end
 
+--   ramLabel 
+--   swapLabel
+--   totalLabel
+--   usedLabel
+  
   function refreshAll() 
     local tempWdg = refreshStat()
     table.insert(tempWdg,infoHeader)
-    table.insert(tempWdg,{totalRamLabel,totalRam, layout = widget2.layout.horizontal.leftright})
-    table.insert(tempWdg,{freeRamLabel,freeRam, layout = widget2.layout.horizontal.leftright})
-    table.insert(tempWdg,{usedRamLabel,usedRam, layout = widget2.layout.horizontal.leftright})
-    table.insert(tempWdg,{totalSwapLabel,totalSwap, layout = widget2.layout.horizontal.leftright})
-    table.insert(tempWdg,{freeSwapLabel,freeSwap, layout = widget2.layout.horizontal.leftright})
-    table.insert(tempWdg,{usedSwapLabel,usedSwap, layout = widget2.layout.horizontal.leftright})
+    --table.insert(tempWdg,{totalRamLabel,totalRam, layout = widget2.layout.horizontal.leftright})
+    --table.insert(tempWdg,{freeRamLabel,freeRam, layout = widget2.layout.horizontal.leftright})
+    --table.insert(tempWdg,{usedRamLabel,usedRam, layout = widget2.layout.horizontal.leftright})
+    --table.insert(tempWdg,{totalSwapLabel,totalSwap, layout = widget2.layout.horizontal.leftright})
+    --table.insert(tempWdg,{freeSwapLabel,freeSwap, layout = widget2.layout.horizontal.leftright})
+    --table.insert(tempWdg,{usedSwapLabel,usedSwap, layout = widget2.layout.horizontal.leftright})
+    table.insert(tempWdg,{totalLabel,totalLabel,usedLabel,freeLabel, layout = widget2.layout.horizontal.leftright})
+    table.insert(tempWdg,{ramLabel,totalRam,usedRam,freeRam, layout = widget2.layout.horizontal.leftright})
+    table.insert(tempWdg,{swapLabel,totalSwap,usedSwap,freeSwap, layout = widget2.layout.horizontal.leftright})
     table.insert(tempWdg,userHeader)
     tempWdg["layout"] = widget2.layout.vertical.flex
                      
     local widgetTable4 = generateTop(tempWdg) 
     data.wibox.widgets = widgetTable4.widgets
-    data.wibox:geometry({ width = 212, height = (((widgetTable4.count or 0)*22) or 0) + (#tempWdg*22), y = 20, x = capi.screen[capi.mouse.screen].geometry.width*2 -  212})
+    data.wibox:geometry({ width = 212, height = (((widgetTable4.count or 0)*22) or 0) + (#tempWdg*22) + 200, y = 20, x = capi.screen[capi.mouse.screen].geometry.width*2 -  212})
   end
   
   refreshAll() 

@@ -41,14 +41,17 @@ local function createDrawer()
   
   
   local f = io.popen('ifconfig | grep -e "inet addr:[0-9.]*" -o |  grep -e "[0-9.]*" -o')
-  local ipValue = "<i><b>  v4: </b>" .. f:read() .. "</i>"
+  local ip4Value = "<i><b>  v4: </b>" .. f:read() .. "</i>"
   f:close()
   f = io.popen('ifconfig | grep -e "inet6 addr: [0-9.A-Fa-f;:]*" -o | cut -f3 -d " "')
-  ipValue =  ipValue .. "\n<i><b>  v6: </b>" .. f:read() .. "</i>\n\n"
+  local ip6Value = "<i><b>  v6: </b>" .. f:read() .. "</i>\n\n"
   f:close()
   
-  local ipInfo = capi.widget({type = "textbox"})
-  ipInfo.text = ipValue
+  local ip4Info = capi.widget({type = "textbox"})
+  ip4Info.text = ip4Value
+  
+  local ip6Info = capi.widget({type = "textbox"})
+  ip6Info.text = ip6Value .. "test"
   
   local localHeader = capi.widget({type = "textbox"})
   localHeader.text = " <span color='".. beautiful.bg_normal .."'><b><tt>Local Network</tt></b></span> "
@@ -157,22 +160,10 @@ local function createDrawer()
    },
    netUpGraph,
 	ipHeader,
-	ipInfo,
+	ip4Info,
+        ip6Info,
 	localHeader,
 	localInfo,
-	--connHeader,
-	--mainText,
---	{
---	  downloadImg,
---	  netUsageDown,
---	  netDownGraph,
---	  netSpacer2,
---	  uploadImg,
---	  netUsageUp,
---	  netUpGraph,
---	  layout = widget2.layout.horizontal.leftright
---	},
-	
 	layout = widget2.layout.vertical.flex
   }
 
@@ -225,7 +216,7 @@ local function createDrawer()
   end
 
   local appHeader = capi.widget({type = "textbox"})
-  appHeader.text = " <span color='".. beautiful.bg_normal .."'><b><tt>PROTOCOLS</tt></b></span> "
+  appHeader.text = " <span color='".. beautiful.bg_normal .."'><b><tt>APPLICATIONS</tt></b></span> "
   appHeader.bg = beautiful.fg_normal
   appHeader.width = 240
   table.insert(widgetArray, appHeader)
@@ -245,7 +236,7 @@ local function createDrawer()
 
   data.wibox.widgets = widgetArray  
 
-  return mainText:extents().height + (#appStat *22) + (#protocolStat * 22) + 270
+  return mainText:extents().height + (#appStat *22) + (#protocolStat * 22) + 290
 end
 
 function new(screen, args)
