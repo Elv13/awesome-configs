@@ -19,7 +19,8 @@ local capi = { image = image,
                screen = screen,
                widget = widget,
                mouse = mouse,
-	       tag = tag}
+	       tag = tag,
+               timer = timer}
 
 module("drawer.dateinfo")
 
@@ -91,27 +92,60 @@ local function createDrawer()
   dateInfo = dateInfo .. "\n<b>  <span size=\"x-large\">?</span> JST: </b><i>" ..  getHour(os.date('%H') + 13) .. ":" .. os.date('%M').. ":" .. os.date('%S') .. "</i>\n"
 
   util.spawn("/bin/bash -c '"..util.getdir("config") .."/Scripts/curWeather2.sh > /tmp/weather2.txt'")
-  f = io.open('/tmp/weather2.txt',"r")
-  local weatherInfo = nil
-  if f ~= nil then
-    weatherInfo = f:read("*all")
-    f:close()
   
-    weatherInfo = string.gsub(weatherInfo, "@cloud", "☁")
-    weatherInfo = string.gsub(weatherInfo, "@sun", "✸")
-    weatherInfo = string.gsub(weatherInfo, "@moon", "☪")
-    weatherInfo = string.gsub(weatherInfo, "@rain", "☔")--☂
-    weatherInfo = string.gsub(weatherInfo, "@snow", "❄")
-    weatherInfo = string.gsub(weatherInfo, "deg", "°")
+  local weatherInfo2 = capi.widget({ type = 'textbox', })
+  function updateWeater()
+    local f = io.open('/tmp/weather2.txt',"r")
+    local weatherInfo = nil
+    if f ~= nil then
+      weatherInfo = f:read("*all")
+      f:close()
+    
+      weatherInfo = string.gsub(weatherInfo, "@cloud", "☁")
+      weatherInfo = string.gsub(weatherInfo, "@sun", "✸")
+      weatherInfo = string.gsub(weatherInfo, "@moon", "☪")
+      weatherInfo = string.gsub(weatherInfo, "@rain", "☔")--☂
+      weatherInfo = string.gsub(weatherInfo, "@snow", "❄")
+      weatherInfo = string.gsub(weatherInfo, "deg", "°")
+      weatherInfo2.text = weatherInfo or "N/A"
+    end
   end
+  mytimer2 = capi.timer({ timeout = 2000 })
+  mytimer2:add_signal("timeout", updateWeater)
+  mytimer2:start()
+  updateWeater()
+  
 
   local timeInfo = capi.widget({ type = 'textbox', })
   timeInfo.text = dateInfo
   
-  local weatherInfo2 = capi.widget({ type = 'textbox', })
-  weatherInfo2.text = weatherInfo or "N/A"
-  
   local calInfo = capi.widget({ type = 'textbox', })
+  
+  mytimer = capi.timer({ timeout = 3600 })
+  mytimer:add_signal("timeout", function ()
+                                  local f = io.popen('cal | sed -r -e "s/(^| )(`date +\\"%d\\"`)($| )/\\1<b><span background=\\"#1577D3\\" foreground=\\"#0A1535\\">\\2<\\/span><\\/b>\\3/"',"r")
+                                  local someText3 = "<tt><b><i>" .. f:read() .. "</i></b><u>" .. "\n" .. f:read() .. '</u>\n' .. f:read("*all") .. "</tt>"
+                                  f:close()
+                                  
+                                  local month = os.date('%m')
+                                  local year = os.date('%Y')
+                                  
+                                  --Display the next month
+                                  if month == '12' then
+                                    month = 1
+                                    year = year + 1
+                                  else
+                                    month = month + 1
+                                  end
+                                  
+                                  f = io.popen('cal ' .. month .. ' ' .. year ,"r")
+                                  someText3 = someText3 .. "<tt><b><i>" .. f:read() .. "</i></b><u>" .. "\n" .. f:read() .. '</u>\n' .. f:read("*all") .. "</tt>"
+                                  f:close()
+                                  calInfo.text = someText3
+                                end)
+  mytimer:start()
+  
+  
   calInfo.text = someText2
   
   margins[calInfo] = {bottom = 0, left =5}

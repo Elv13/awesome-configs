@@ -74,7 +74,7 @@ local function createDrawer()
   connHeader.bg = beautiful.fg_normal
   connHeader.width = 240
   
---  util.spawn("/bin/bash -c 'while true; do "..util.getdir("config") .."/Scripts/connectedHost2.sh > /tmp/connectedHost.lua;sleep 12;done'")
+  util.spawn("/bin/bash -c 'while true; do "..util.getdir("config") .."/Scripts/connectedHost2.sh > /tmp/connectedHost.lua;sleep 15;done'")
   
   local connectionInfo ={}
   f = io.open('/tmp/connectedHost.lua','r')

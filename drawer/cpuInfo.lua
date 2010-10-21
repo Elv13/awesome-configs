@@ -51,7 +51,7 @@ local function updateTable()
   end
   
   if cpuStat ~= nil and cpuStat["core0"] ~= nil and coreWidgets ~= nil then  
-    for i=0 , cpuStat["core"] do
+    for i=0 , cpuStat["core"] do --TODO add some way to correct the number of core, it usually fail on load
       if i <= (coreWidgets["count"] or 1) then
         coreWidgets[i]["core"].text = " <span color='".. beautiful.bg_normal .."'>".."C"..i.."</span> "
         coreWidgets[i]["clock"].text = tonumber(cpuStat["core"..i]["speed"]) /1024 .. "Ghz"
@@ -76,7 +76,8 @@ function createDrawer()
   local iowaitHeader = capi.widget({type = "textbox"})
   local idleHeader = capi.widget({type = "textbox"})
 
-  util.spawn("/bin/bash -c '"..util.getdir("config") .."/Scripts/cpuInfo2.sh > /tmp/cpuStatistic.lua'")
+  io.popen("/bin/bash -c '"..util.getdir("config") .."/Scripts/cpuInfo2.sh > /tmp/cpuStatistic.lua'") --It have to wait at least once
+  util.spawn("/bin/bash -c 'while true; do sleep 3 &&"..util.getdir("config") .."/Scripts/cpuInfo2.sh > /tmp/cpuStatistic.lua;done'")
   local f = io.open('/tmp/cpuStatistic.lua','r')
   local cpuStat = {}
   if f ~= nil then
