@@ -297,8 +297,7 @@ for s = 1, screen.count() do
     mywibox2.widgets = {
 			  mypromptbox[s],
 			  spacer3,
-			  {  mysystray,
-			    keyboardSwitcherWidget,
+			  {  
 			    movetagL[s],
 			    movetagR[s],
 			    spacer3,
@@ -307,7 +306,23 @@ for s = 1, screen.count() do
 			  },
 			  layout = awful.widget.layout.horizontal.leftright,
 			}
+    elseif s ==2 then
+      mywibox2.widgets = {
+                          mypromptbox[s],
+                          spacer3,
+                          { mysystray,
+                            keyboardSwitcherWidget,
+                            movetagL[s],
+                            movetagR[s],
+                            --mylayoutbox[s],
+                            spacer3,
+                            mytasklist[s],
+                            layout = awful.widget.layout.horizontal.rightleft,
+                          },
+                          layout = awful.widget.layout.horizontal.leftright,
+                        }
     else
+      
     mywibox2.widgets = {
 			  mypromptbox[s],
 			  spacer3,

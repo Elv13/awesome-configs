@@ -388,11 +388,6 @@ volumebarwidget:set_gradient_colors({
 volumebarwidget:set_offset(1)
 volumebarwidget:set_margin({top=3,bottom=3})
 
-
-
-
-
-
 volumepixmap2       = widget({ type = "imagebox", align = "right" })
 volumepixmap2.image = image(awful.util.getdir("config") .. "/Icon/vol.png")
 volumepixmap2:buttons(awful.util.table.join(

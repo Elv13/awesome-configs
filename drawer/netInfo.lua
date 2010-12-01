@@ -235,8 +235,11 @@ local function createDrawer()
   end
 
   data.wibox.widgets = widgetArray  
-
-  return mainText:extents().height + (#appStat *22) + (#protocolStat * 22) + 290
+  if connectionInfo ~= nil then
+    return mainText:extents().height + (#appStat *22) + (#protocolStat * 22) + ((#connectionInfo or 0)*22) + (#widgetArray or 0 * 22)+ 240
+  else
+    return mainText:extents().height + (#appStat *22) + (#protocolStat * 22) +  (#widgetArray or 0 * 22)+ 240
+  end
 end
 
 function new(screen, args)

@@ -269,9 +269,9 @@ function createDrawer()
   refreshAll() 
   
   process = {}
-  mytimer = capi.timer({ timeout = 5 })
-  mytimer:add_signal("timeout", refreshAll)
-  mytimer:start()
+  --mytimer = capi.timer({ timeout = 5 })
+  --mytimer:add_signal("timeout", refreshAll)
+  --mytimer:start()
   
   return 
 end

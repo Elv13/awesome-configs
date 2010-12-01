@@ -51,7 +51,7 @@ local function updateTable()
   end
   
   if cpuStat ~= nil and cpuStat["core0"] ~= nil and coreWidgets ~= nil then  
-    for i=0 , cpuStat["core"] do --TODO add some way to correct the number of core, it usually fail on load
+    for i=0 , cpuStat["core"] do --TODO add some way to correct the number of core, it usually fail on load --Solved
       if i <= (coreWidgets["count"] or 1) then
         coreWidgets[i]["core"].text = " <span color='".. beautiful.bg_normal .."'>".."C"..i.."</span> "
         coreWidgets[i]["clock"].text = tonumber(cpuStat["core"..i]["speed"]) /1024 .. "Ghz"
@@ -76,9 +76,7 @@ function createDrawer()
   local iowaitHeader = capi.widget({type = "textbox"})
   local idleHeader = capi.widget({type = "textbox"})
 
-  io.popen("/bin/bash -c '"..util.getdir("config") .."/Scripts/cpuInfo2.sh > /tmp/cpuStatistic.lua'") --It have to wait at least once
   util.spawn("/bin/bash -c 'while true; do sleep 3 &&"..util.getdir("config") .."/Scripts/cpuInfo2.sh > /tmp/cpuStatistic.lua;done'")
-  local f = io.open('/tmp/cpuStatistic.lua','r')
   local cpuStat = {}
   if f ~= nil then
     local text3 = f:read("*all")
@@ -157,50 +155,48 @@ function createDrawer()
   idleHeader.border_color = beautiful.bg_normal
   table.insert(cpuWidgetArray, {emptyCornerHeader,clockHeader,tempHeader,usageHeader,iowaitHeader,idleHeader, layout = widget2.layout.horizontal.leftright})
 
-  if cpuStat ~= nil and cpuStat["core0"] ~= nil then  
-    for i=0 , cpuStat["core"] do
-      coreWidgets[i] = {}
-      local aCore = capi.widget({type = "textbox"})
-      aCore.text = " <span color='".. beautiful.bg_normal .."'>".."C"..i.."</span> "
-      aCore.bg = beautiful.fg_normal
-      aCore.width = 35
-      coreWidgets[i]["core"] = aCore
-      local aCoreClock = capi.widget({type = "textbox"})
-      aCoreClock.text = tonumber(cpuStat["core"..i]["speed"]) /1024 .. "Ghz"
-      aCoreClock.width = 30
-      aCoreClock.border_width = 1
-      aCoreClock.border_color = beautiful.fg_normal
-      coreWidgets[i]["clock"] = aCoreClock
-      local aCoreTemp = capi.widget({type = "textbox"})
-      aCoreTemp.text = cpuStat["core"..i]["temp"]
-      aCoreTemp.width = 40
-      aCoreTemp.border_width = 1
-      aCoreTemp.border_color = beautiful.fg_normal
-      coreWidgets[i]["temp"] = aCoreTemp
-      local aCoreUsage = capi.widget({type = "textbox"})
-      aCoreUsage.text = cpuStat["core"..i]["usage"]
-      aCoreUsage.width = 37
-      aCoreUsage.border_width = 1
-      aCoreUsage.border_color = beautiful.fg_normal
-      coreWidgets[i]["usage"] = aCoreUsage
-      local aCoreIoWait = capi.widget({type = "textbox"})
-      aCoreIoWait.text = cpuStat["core"..i]["iowait"]
-      aCoreIoWait.width = 35
-      aCoreIoWait.border_width = 1
-      aCoreIoWait.border_color = beautiful.fg_normal
-      coreWidgets[i]["wait"] =  aCoreIoWait
-      local aCoreIdle = capi.widget({type = "textbox"})
-      aCoreIdle.text = cpuStat["core"..i]["idle"]
-      aCoreIdle.width = 35
-      aCoreIdle.border_width = 1
-      aCoreIdle.border_color = beautiful.fg_normal
-      coreWidgets[i]["idle"] = aCoreIdle
-      aCore.border_width = 1
-      aCore.border_color = beautiful.bg_normal
-      table.insert(cpuWidgetArray, {aCore,aCoreClock,aCoreTemp,aCoreUsage,aCoreIoWait,aCoreIdle, layout = widget2.layout.horizontal.leftright})
-      coreWidgets["count"] = i
-    end
+
+  local f2 = io.popen("cat /proc/cpuinfo | grep processor | tail -n1 | grep -e'[0-9]*' -o")
+  local coreNb = f2:read("*all") or "0"
+  f2:close() 
+  coreWidgets["count"] = tonumber(coreNb)
+  for i=0 , coreWidgets["count"] do
+    coreWidgets[i] = {}
+    local aCore = capi.widget({type = "textbox"})
+    aCore.text = " <span color='".. beautiful.bg_normal .."'>".."C"..i.."</span> "
+    aCore.bg = beautiful.fg_normal
+    aCore.width = 35
+    coreWidgets[i]["core"] = aCore
+    local aCoreClock = capi.widget({type = "textbox"})
+    aCoreClock.width = 30
+    aCoreClock.border_width = 1
+    aCoreClock.border_color = beautiful.fg_normal
+    coreWidgets[i]["clock"] = aCoreClock
+    local aCoreTemp = capi.widget({type = "textbox"})
+    aCoreTemp.width = 40
+    aCoreTemp.border_width = 1
+    aCoreTemp.border_color = beautiful.fg_normal
+    coreWidgets[i]["temp"] = aCoreTemp
+    local aCoreUsage = capi.widget({type = "textbox"})
+    aCoreUsage.width = 37
+    aCoreUsage.border_width = 1
+    aCoreUsage.border_color = beautiful.fg_normal
+    coreWidgets[i]["usage"] = aCoreUsage
+    local aCoreIoWait = capi.widget({type = "textbox"})
+    aCoreIoWait.width = 35
+    aCoreIoWait.border_width = 1
+    aCoreIoWait.border_color = beautiful.fg_normal
+    coreWidgets[i]["wait"] =  aCoreIoWait
+    local aCoreIdle = capi.widget({type = "textbox"})
+    aCoreIdle.width = 35
+    aCoreIdle.border_width = 1
+    aCoreIdle.border_color = beautiful.fg_normal
+    coreWidgets[i]["idle"] = aCoreIdle
+    aCore.border_width = 1
+    aCore.border_color = beautiful.bg_normal
+    table.insert(cpuWidgetArray, {aCore,aCoreClock,aCoreTemp,aCoreUsage,aCoreIoWait,aCoreIdle, layout = widget2.layout.horizontal.leftright})
   end
+  
   
   local spacer1 = capi.widget({type = "textbox"})
   spacer1.text = ""
