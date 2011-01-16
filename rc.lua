@@ -401,7 +401,7 @@ client.add_signal("manage", function (c, startup)
 end)
 
 client.add_signal("focus", function(c) 
-  if (c.class == "Firefox" or c.class == ide.class or c.class == editor.class or c.class == mediaplayer.class) then
+  if (c.class == webbrowser.class or c.class == "luakit" or c.class == ide.class or c.class == editor.class or c.class == mediaplayer.class) then
     c.border_color = "#0A1535"
   else
     c.border_color = beautiful.border_focus 
@@ -409,7 +409,7 @@ client.add_signal("focus", function(c)
 end)
 
 client.add_signal("unfocus", function(c) 
-  if (c.class == webbrowser.class or c.class == ide.class or c.class == editor.class or c.class == mediaplayer.class) then
+  if (c.class == webbrowser.class or c.class == "luakit" or c.class == ide.class or c.class == editor.class or c.class == mediaplayer.class) then
     c.border_color = "#0A1535"
   else
     c.border_color = beautiful.border_normal 

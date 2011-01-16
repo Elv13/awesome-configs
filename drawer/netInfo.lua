@@ -17,7 +17,8 @@ local capi = { image = image,
                screen = screen,
                widget = widget,
                mouse = mouse,
-	       tag = tag}
+	       tag = tag,
+               timer = timer}
 
 module("drawer.netInfo")
 
@@ -74,20 +75,7 @@ local function createDrawer()
   connHeader.bg = beautiful.fg_normal
   connHeader.width = 240
   
-  util.spawn("/bin/bash -c 'while true; do "..util.getdir("config") .."/Scripts/connectedHost2.sh > /tmp/connectedHost.lua;sleep 15;done'")
   
-  local connectionInfo ={}
-  f = io.open('/tmp/connectedHost.lua','r')
-  if f ~= nil then
-    local text3 = f:read("*all")
-    text3 = text3.." return connectionInfo"
-    f:close()
-    afunction = loadstring(text3)
-    if afunction == nil then
-      return { count = o, widgets = widgetTable2}
-    end
-    connectionInfo = afunction()
-  end
   
 
   
@@ -173,72 +161,151 @@ local function createDrawer()
   connHeader.width = 240  
   table.insert(widgetArray, connHeader)
 
-  local protocolStat = {}
-  local appStat = {}
-
-  if connectionInfo ~= nil then
-    for i=0 , #connectionInfo do
-      if connectionInfo[i] ~= nil then
-        local protocol = capi.widget({type = "textbox"})
-        protocol.width = 40
-        protocol.bg = "#0F2051"
-        protocol.border_width = 1
-        protocol.border_color = beautiful.bg_normal
-        protocol.text = " ["..(connectionInfo[i]['protocol'] or "").."]"
-        local application = capi.widget({type = "textbox"})
-        application.width = 25
-        application.bg = "#0F2051"
-        application.text = connectionInfo[i]['application'] or ""
-        application.border_width = 1
-        application.border_color = beautiful.bg_normal
-        local address = capi.widget({type = "textbox"})
-        address.text = " " .. (connectionInfo[i]['site'] or "")
-
-        table.insert(widgetArray, {application,protocol,address, layout = widget2.layout.horizontal.leftright})        
-
-        appStat[connectionInfo[i]['application']] = (protocolStat[connectionInfo[i]['application']] or 0) + 1
-        protocolStat[connectionInfo[i]['protocol']] = (protocolStat[connectionInfo[i]['protocol']] or 0) + 1
-      end
-    end  
+  local connectionWidget = {}
+  local protWidget = {}
+  local appWidget = {}
+  
+  for i=0 , 10 do
+    local protocol = capi.widget({type = "textbox",visible = false})
+    protocol.width = 40
+    protocol.bg = "#0F2051"
+    protocol.border_width = 1
+    protocol.border_color = beautiful.bg_normal
+    local application = capi.widget({type = "textbox",visible = false})
+    application.width = 25
+    application.bg = "#0F2051"
+    application.border_width = 1
+    application.border_color = beautiful.bg_normal
+    local address = capi.widget({type = "textbox",visible = false})
+    
+    protocol.visible = false
+    application.visible = false
+    address.visible = false
+    
+    application.text = "test"
+    
+    connectionWidget[i] = {application = application, protocol = protocol, address = address, layout = widget2.layout.horizontal.leftright}
+    table.insert(widgetArray, {application,protocol,address, layout = widget2.layout.horizontal.leftright})--connectionWidget)
   end
-  --netWorkWibox.box.height = netWorkWibox.box.height + 25
+  
 
   local protHeader = capi.widget({type = "textbox"})
   protHeader.text = " <span color='".. beautiful.bg_normal .."'><b><tt>PROTOCOLS</tt></b></span> "
   protHeader.bg = beautiful.fg_normal
   protHeader.width = 240
   table.insert(widgetArray, protHeader)
-
-  for v, i in next, protocolStat do
+  
+  for i=0 , 10 do
     local protocol3 = capi.widget({type = "textbox"})
-    protocol3.text = " " .. v.."("..i..")"
+    protWidget[i] = protocol3
     table.insert(widgetArray, protocol3)
   end
-
+  
+  
   local appHeader = capi.widget({type = "textbox"})
   appHeader.text = " <span color='".. beautiful.bg_normal .."'><b><tt>APPLICATIONS</tt></b></span> "
   appHeader.bg = beautiful.fg_normal
   appHeader.width = 240
   table.insert(widgetArray, appHeader)
-
-  for v, i in next, appStat do
+  
+  for i=0 , 10 do
     local appIcon = capi.widget({type = "textbox"})
     appIcon.width = 25
     appIcon.bg = "#0F2051"
     appIcon.border_color = beautiful.bg_normal
     appIcon.border_width = 1
     local app2 = capi.widget({type = "textbox"})
-    app2.text = " " .. v .."("..i..")"
     testImage2       = capi.widget({ type = "imagebox"})
     testImage2.image = capi.image(util.getdir("config") .. "/Icon/kill.png")
+    appWidget[i] = {appIcon=appIcon,app2=app2}
     table.insert(widgetArray, {{appIcon, app2, layout = widget2.layout.horizontal.leftright}, testImage2, layout = widget2.layout.horizontal.rightleft})
   end
+  
+  
+  
+  util.spawn("/bin/bash -c 'while true; do "..util.getdir("config") .."/Scripts/connectedHost2.sh > /tmp/connectedHost.lua;sleep 15;done'")
+  
+  mytimer = capi.timer({ timeout = 2 })
+  mytimer:add_signal("timeout", function() 
+    local connectionInfo ={}
+    local protocolStat = {}
+    local appStat = {}
+    
+    f = io.open('/tmp/connectedHost.lua','r')
+    if f ~= nil then
+      local text3 = f:read("*all")
+      text3 = text3.." return connectionInfo"
+      f:close()
+      afunction = loadstring(text3)
+      if afunction == nil then
+        return { count = o, widgets = widgetTable2}
+      end
+      connectionInfo = afunction()
+    end
+    
+    local count =0
+    if connectionInfo ~= nil then
+      for i=0 , #connectionInfo do
+        if connectionInfo[i] ~= nil and i < 10 and connectionInfo[i]['protocol'] ~= nil then
+          connectionWidget[i].application.text = " ["..(connectionInfo[i]['protocol'] or "").."]"
+          connectionWidget[i].protocol.text = connectionInfo[i]['application'] or ""
+          connectionWidget[i].address.text = " " .. (connectionInfo[i]['site'] or "")
+          
+          connectionWidget[i].application.visible = true
+          connectionWidget[i].protocol.visible = true
+          connectionWidget[i].address.visible = true
+
+
+          appStat[connectionInfo[i]['application'] ] = (protocolStat[connectionInfo[i]['application'] ] or 0) + 1
+          protocolStat[connectionInfo[i]['protocol'] ] = (protocolStat[connectionInfo[i]['protocol'] ] or 0) + 1
+	  count = count +1
+        end
+	
+	for i=0 , 10-count do
+	  connectionWidget[10-count].application.visible = false
+          connectionWidget[10-count].protocol.visible = false
+          connectionWidget[10-count].address.visible = false
+	end
+      end  
+      
+      
+    end
+    
+    count =0
+    for v, i in next, protocolStat do
+      protWidget[count].text = " " .. v.."("..i..")"
+      protWidget[count].visible = true
+      count = count +1
+    end
+    
+    for i=0 , 10-count do
+      protWidget[count].visible = false
+    end
+    
+    count =0
+    for v, i in next, appStat do
+      appWidget[count].app2.text = " " .. v .."("..i..")"
+      appWidget[count].app2.visible = true
+      count = count +1
+    end
+    
+    for i=0 , 10-count do
+      appWidget[count].app2.visible = false
+    end
+  end)
+  mytimer:start()
+  --netWorkWibox.box.height = netWorkWibox.box.height + 25]]
+
+  
+
+
+  
 
   data.wibox.widgets = widgetArray  
   if connectionInfo ~= nil then
-    return mainText:extents().height + (#appStat *22) + (#protocolStat * 22) + ((#connectionInfo or 0)*22) + (#widgetArray or 0 * 22)+ 240
+    return 800--mainText:extents().height + (#appStat *22) + (#protocolStat * 22) + ((#connectionInfo or 0)*22) + (#widgetArray or 0 * 22)+ 240 + 300
   else
-    return mainText:extents().height + (#appStat *22) + (#protocolStat * 22) +  (#widgetArray or 0 * 22)+ 240
+    return 800--mainText:extents().height + (#appStat *22) + (#protocolStat * 22) +  (#widgetArray or 0 * 22)+ 240 + 300
   end
 end
 

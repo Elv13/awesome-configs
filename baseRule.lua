@@ -142,6 +142,8 @@ shifty.config.tags ={
 			position = 10, 
 			exclusive = true,
 			screen = 3,
+			init = true,
+                        spawn = "konversation",
 			icon = awful.util.getdir("config") .. "/Icon/tags/irc.png",
 			layout = awful.layout.suit.fair },
     ["Test"] =       {  init = false, 
@@ -176,7 +178,7 @@ shifty.config.tags ={
                         
     ["Other"] =       {  init = true, 
                         position = 15, 
-                        exclusive = true, 
+                        exclusive = false, 
                         icon = awful.util.getdir("config") .. "/Icon/tags/term.png",
                         max_clients = 5,
                         screen = {3, 4},
@@ -207,7 +209,7 @@ shifty.config.apps = {
 	    ,"KPres","Basket","openoffice.org","openoffice.org 3.1", "OpenOffice.*" },tag = "Office" } ,
 {match = { "Pidgin", "Kopete"} , tag = "Chat" } ,
 {match = { "Konversation", "Botch"} , tag = "IRC" } ,
-{match = { "MPlayer","pinentry","ksnapshot","pinentry","gtksu","xine","feh","kmix","kcalc","xcalc","yakuake","Select Color$","kcolorchooser","kruler", "Paste Special", "Insert Picture","New Form"},float= true},
+{match = { "MPlayer","pinentry","ksnapshot","pinentry","gtksu","xine","feh","kmix","kcalc","xcalc","yakuake","Select Color$","kcolorchooser","kruler", "Paste Special", "Insert Picture","New Form","kcharselect"},float= true},
 {match = { "Konversation","Opera","mythfrontend","Firefox","Chrome", "Okular","*OpenOffice*","OpenOffice", "Qt Designer"} , float = false } ,
 {match = { "ksnapshot","pinentry","gtksu","kcalc","xcalc","feh","About KDE","Gradient editor", "Background color", "Paste Special","kcolorchooser" }, intrusive = true, } ,
 
