@@ -21,6 +21,7 @@ require("drawer.cpuInfo")
 require("drawer.netInfo")
 require("widget.spacer")
 require("widget.keyboardSwitcher")
+require("mouseManager")
 
 -- Cache result for probe used more than once
 vicious.cache(vicious.widgets.net)
