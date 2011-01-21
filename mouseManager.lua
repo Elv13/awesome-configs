@@ -5,36 +5,29 @@ local setmetatable = setmetatable
 local io = io
 local ipairs = ipairs
 local table = table
-local tag = require("awful.tag")
 local print = print
-local util = require("awful.util")
-local capi = { image = image,
-               screen = screen,
-               widget = widget,
-               mouse = mouse,
-               tag = tag}
+local capi = { screen = screen,
+               mouse = mouse}
 
 module("mouseManager")
 
 local data = {screen = {}}
-
-function update()
-
-end
-
 function new(screen, args) 
   return --Nothing to do
 end
 
 function switchTo(s)
-  data.screen[capi.mouse.screen] = capi.mouse.coords
-  capi.mouse.screen = s
-  --capi.mouse.coords(data.screen[s] or {x=0,y=0}) --TODO
+  data.screen[capi.mouse.screen] = capi.mouse.coords()
+  if (data.screen[s] ~= nil) then
+    capi.mouse.coords(data.screen[s])
+  else
+    capi.mouse.screen = s
+    capi.mouse.coords({x=capi.mouse.coords().x+(capi.screen[s].geometry.width/2),y=capi.mouse.coords().y+(capi.screen[s].geometry.height/2)})
+  end
 end
 
 function reset()
   data.screen = nil
 end
-
 
 setmetatable(_M, { __call = function(_, ...) return new(...) end })

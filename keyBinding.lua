@@ -54,11 +54,10 @@ globalkeys = awful.util.table.join(
     awful.key({ modkey, "Shift"   }, "space", function () awful.layout.inc(layouts, -1) end),
 
     --Switch screen
+    
     awful.key({                   }, "#67", function () mouseManager.switchTo(1) end),
     awful.key({                   }, "#68", function () mouseManager.switchTo(2) end),
     awful.key({                   }, "#69", function () mouseManager.switchTo(3) end),
-    awful.key({                   }, "#70", function () mouseManager.switchTo(4) end),
-    awful.key({                   }, "#71", function () mouseManager.switchTo(5) end),
 
     --awful.keys.ignore_modifiers = { "Lock" }
     awful.key({                   }, "#86", function () awful.layout.inc(layouts,  1) end),
