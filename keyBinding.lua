@@ -55,9 +55,11 @@ globalkeys = awful.util.table.join(
 
     --Switch screen
     
-    awful.key({                   }, "#67", function () mouseManager.switchTo(1) end),
-    awful.key({                   }, "#68", function () mouseManager.switchTo(2) end),
-    awful.key({                   }, "#69", function () mouseManager.switchTo(3) end),
+    awful.key({                   }, "#177", function () mouseManager.switchTo(1) end),
+    awful.key({                   }, "#152", function () mouseManager.switchTo(2) end),
+    awful.key({                   }, "#190", function () mouseManager.switchTo(3) end),
+    awful.key({                   }, "#208", function () mouseManager.switchTo(4) end),
+    awful.key({                   }, "#129", function () mouseManager.switchTo(5) end),    
 
     --awful.keys.ignore_modifiers = { "Lock" }
     awful.key({                   }, "#86", function () awful.layout.inc(layouts,  1) end),
@@ -84,12 +86,13 @@ globalkeys = awful.util.table.join(
     awful.key({                          }, "#83", awful.client.movetoscreen ),
 
 
-    awful.key({                          }, "#177", function () awful.tag.viewonly(shifty.getpos(1)) end),
-    awful.key({                          }, "#152", function () awful.tag.viewonly(shifty.getpos(2)) end),
-    awful.key({                          }, "#190", function () awful.tag.viewonly(shifty.getpos(3)) end),
-    awful.key({                          }, "#208", function () awful.tag.viewonly(shifty.getpos(4)) end),
-    awful.key({                          }, "#129", function () awful.tag.viewonly(shifty.getpos(5)) end),
-    awful.key({                          }, "#178", function () awful.tag.viewonly(shifty.getpos(6)) end),
+
+    --awful.key({                          }, "#177", function () awful.tag.viewonly(shifty.getpos(1)) end),
+    --awful.key({                          }, "#152", function () awful.tag.viewonly(shifty.getpos(2)) end),
+    --awful.key({                          }, "#190", function () awful.tag.viewonly(shifty.getpos(3)) end),
+    --awful.key({                          }, "#208", function () awful.tag.viewonly(shifty.getpos(4)) end),
+    --awful.key({                          }, "#129", function () awful.tag.viewonly(shifty.getpos(5)) end),
+    --awful.key({                          }, "#178", function () awful.tag.viewonly(shifty.getpos(6)) end),
     awful.key({                          }, "#81",  function () mypromptbox[mouse.screen]:run() end),
     -- Prompt
     awful.key({ modkey }, "F2",     function () mypromptbox[mouse.screen]:run() end)

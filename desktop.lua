@@ -165,7 +165,9 @@ function loadMonitor(screen2)
 
   local xPos = 0
   for s = 1, screen2 or screen.count() do
-    xPos = xPos + screen[s].geometry.width
+    if s < screen.count() then
+      xPos = xPos + screen[s].geometry.width
+    end
   end
   xPos = xPos - 415
 

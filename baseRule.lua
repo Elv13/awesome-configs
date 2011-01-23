@@ -141,7 +141,7 @@ shifty.config.tags ={
     ["IRC"] =        {  init = false, 
 			position = 10, 
 			exclusive = true,
-			screen = 3,
+			screen = 5,
 			init = true,
                         spawn = "konversation",
 			icon = awful.util.getdir("config") .. "/Icon/tags/irc.png",
@@ -181,7 +181,15 @@ shifty.config.tags ={
                         exclusive = false, 
                         icon = awful.util.getdir("config") .. "/Icon/tags/term.png",
                         max_clients = 5,
-                        screen = {3, 4},
+                        screen = {3, 4,5},
+                        layout = awful.layout.suit.tile },
+    ["MediaCenter"] =       {  init = true, 
+                        position = 15, 
+                        exclusive = false, 
+                        icon = awful.util.getdir("config") .. "/Icon/tags/video.png",
+                        max_clients = 5,
+                        screen = {4},
+                        init="mythfrontend",
                         layout = awful.layout.suit.tile },
 			
 
@@ -190,7 +198,7 @@ shifty.config.tags ={
 -- client settings
 -- order here matters, early rules will be applied first
 shifty.config.apps = {
-{match = { "xterm", "urxvt", "aterm","sauer_client"} , honorsizehints = false, slave = false, tag = "Term" } ,
+{match = { "xterm", "urxvt", "aterm","sauer_client","mythfrontend"} , honorsizehints = false, slave = false, tag = "Term" } ,
 {match = { "Kimberlite", "Kling", "Krong","ktechlab_test"} , tag = "Test" } ,
 {match = { "Opera", "Firefox", "ReKonq", "Dillo", "Arora","Chromium","minefield","Minefield" } , tag = "Internet" } ,
 {match = { "Thunar", "Konqueror", "Dolphin", "emelfm2", "Nautilus", "Ark", "XArchiver"} , tag = "Files" } ,
@@ -205,12 +213,14 @@ shifty.config.apps = {
 {match = { "Amarok", "SongBird","last.fm"} , tag = "Music" } ,
 {match = { "Assistant", "Okular", "Evince", "EPDFviewer", "xpdf", "Xpdf"} , tag = "Doc" } ,
 {match = { "Transmission", "KGet"} , tag = "Down" } ,
+{match = { "mythfrontend", "xbmc"} , tag = "MediaCenter", geometry = {0,0,1024,740},  honorsizehints = false} ,
 {match = { "OOWriter","OOCalc","OOMath","OOImpress","OOBase","SQLitebrowser","Silverun","Workbench","KWord","KSpread" 
 	    ,"KPres","Basket","openoffice.org","openoffice.org 3.1", "OpenOffice.*" },tag = "Office" } ,
 {match = { "Pidgin", "Kopete"} , tag = "Chat" } ,
 {match = { "Konversation", "Botch"} , tag = "IRC" } ,
-{match = { "MPlayer","pinentry","ksnapshot","pinentry","gtksu","xine","feh","kmix","kcalc","xcalc","yakuake","Select Color$","kcolorchooser","kruler", "Paste Special", "Insert Picture","New Form","kcharselect"},float= true},
-{match = { "Konversation","Opera","mythfrontend","Firefox","Chrome", "Okular","*OpenOffice*","OpenOffice", "Qt Designer"} , float = false } ,
+{match = { "MPlayer","pinentry","ksnapshot","pinentry","gtksu","xine","feh","kmix","kcalc","xcalc","yakuake","Select Color$","kcolorchooser","kruler",
+"Paste Special", "Insert Picture","New Form","kcharselect","mythfrontend"},float= true},
+{match = { "Konversation","Opera","Firefox","Chrome", "Okular","*OpenOffice*","OpenOffice", "Qt Designer"} , float = false } ,
 {match = { "ksnapshot","pinentry","gtksu","kcalc","xcalc","feh","About KDE","Gradient editor", "Background color", "Paste Special","kcolorchooser" }, intrusive = true, } ,
 
 {match = { "Systemsettings", "Kcontrol", "gconf-editor"} , tag = "Config" } ,

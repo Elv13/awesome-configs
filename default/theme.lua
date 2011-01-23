@@ -79,7 +79,7 @@ theme.titlebar_maximized_button_normal_active = awful.util.getdir("config") .. "
 theme.titlebar_maximized_button_focus_active = awful.util.getdir("config") .. "/Icon/titlebar/maximized_focus_active.png"
 
 -- You can use your own command to set your wallpaper
-theme.wallpaper_cmd = { "feh --bg-scale /home/lepagee/bg/final/bin_ascii_ds.png" }
+theme.wallpaper_cmd = { "feh --bg-tile /home/lepagee/bg/final/bin_ascii_ds.png" }
 
 -- You can use your own layout icons like this:
 theme.layout_fairh = awful.util.getdir("config") .. "/Icon/layouts/fairh.png"

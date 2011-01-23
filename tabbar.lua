@@ -27,7 +27,7 @@ local client = require("awful.client")
 local layout = require("awful.widget.layout")
 
 --- Titlebar module for awful
-module("awful.titlebar")
+module("awful.tabbar")
 
 -- Privata data
 local data = setmetatable({}, { __mode = 'k' })
