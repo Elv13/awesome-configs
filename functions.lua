@@ -154,5 +154,10 @@ function toggleSensorBar()
     end
 end
 
+-- Focus a client by-position from left to right and top to bottom
+-- function switchToClient(number)
+--   awful.client.focus.byidx
+-- end
+
 
 -- }}}

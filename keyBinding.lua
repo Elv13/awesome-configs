@@ -60,6 +60,13 @@ globalkeys = awful.util.table.join(
     awful.key({                   }, "#190", function () mouseManager.switchTo(3) end),
     awful.key({                   }, "#208", function () mouseManager.switchTo(4) end),
     awful.key({                   }, "#129", function () mouseManager.switchTo(5) end),    
+    
+    --Switch client
+    awful.key({ "Control"         }, "#177", function () clientSwitcher.switchTo(1) end),
+    awful.key({ "Control"         }, "#152", function () clientSwitcher.switchTo(2) end),
+    awful.key({ "Control"         }, "#190", function () clientSwitcher.switchTo(3) end),
+    awful.key({ "Control"         }, "#208", function () clientSwitcher.switchTo(4) end),
+    awful.key({ "Control"         }, "#129", function () clientSwitcher.switchTo(5) end),
 
     --awful.keys.ignore_modifiers = { "Lock" }
     awful.key({                   }, "#86", function () awful.layout.inc(layouts,  1) end),
@@ -118,7 +125,7 @@ clientkeys = awful.util.table.join(
     awful.key({ modkey,           }, "f",      function (c) c.fullscreen = not c.fullscreen  end),
     awful.key({ modkey, "Shift"   }, "c",      function (c) c:kill()                         end),
     awful.key({ modkey, "Control" }, "space",  awful.client.floating.toggle                     ),
-    awful.key({ modkey, "Control" }, "Return", function (c) c:swap(awful.client.getmaster()) end),
+    awful.key({                   }, "#178", function (c) c:swap(awful.client.getmaster()) end),
     awful.key({ modkey,           }, "o",      awful.client.movetoscreen                        ),
     awful.key({ modkey, "Shift"   }, "r",      function (c) c:redraw()                       end),
     awful.key({ modkey,           }, "n",      function (c) c.minimized = not c.minimized    end),

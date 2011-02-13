@@ -22,7 +22,7 @@ function testSlash {
 
 echo process = {}
 COUNTER=0
-for LINE in `ps -e -o pid,pmem,args --sort -rss | grep -ve "0.[0-9] "`;do #sed '/^ 0.[0-9] /d' | sort -nr
+for LINE in `/bin/ps -e -o pid,pmem,args --sort -rss | grep -ve "0.[0-9] "`;do #sed '/^ 0.[0-9] /d' | sort -nr
     PID=`echo $LINE | awk '{print $1}'`
     PERCENT=`echo $LINE | awk '{print $2}'`
     COMMAND=`echo $LINE | awk '{ for (i=3; i<=NF; i++) printf("%s ", $i);}'`

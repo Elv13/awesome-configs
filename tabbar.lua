@@ -10,24 +10,28 @@ local image = image
 local pairs = pairs
 local type = type
 local setmetatable = setmetatable
+local print = print
 local type = type
 local capi =
 {
     awesome = awesome,
     wibox = wibox,
+    image = image,
     widget = widget,
     client = client,
 }
 local abutton = require("awful.button")
 local beautiful = require("beautiful")
+local button = require("awful.button")
 local util = require("awful.util")
 local widget = require("awful.widget")
 local mouse = require("awful.mouse")
 local client = require("awful.client")
 local layout = require("awful.widget.layout")
+local urxvtIntegration = require("urxvtIntegration")
 
 --- Titlebar module for awful
-module("awful.tabbar")
+module("tabbar")
 
 -- Privata data
 local data = setmetatable({}, { __mode = 'k' })
@@ -114,9 +118,37 @@ function add(c, args)
         end
     end
 
+    
+    local testBox = capi.widget({ type = "textbox" })
+    urxvtIntegration.register(testBox,c.pid,"pmem",5)
+    
+    local aGraph = widget.graph()
+    aGraph:set_width(50)
+    aGraph:set_height(30)
+    aGraph:set_scale(false)
+    aGraph:set_max_value(100)
+    aGraph:set_border_color(beautiful.fg_normal)
+    aGraph:set_color(beautiful.fg_normal)
+    urxvtIntegration.register(aGraph,c.pid,"pcpu",3)
+    
+    
+    local addTab = capi.widget({ type = "imagebox", align = "left" })
+    addTab.image = capi.image(util.getdir("config") .. "/Icon/tags/cross2.png")
+    
+    addTab:buttons( util.table.join(
+      button({ }, 1, function()
+        print("test")
+        util.spawn('dbus-send --type=method_call --dest=org.schmorp.urxvt /pid/12/control org.schmorp.urxvt.addTab')
+        urxvtIntegration.addTab(12)
+      end)
+    ))
+    
     tb.widgets = {
         widget_list,
+        addTab,
         customwidget,
+        testBox,
+        aGraph,
         {
             appicon = appicon,
             title = title,

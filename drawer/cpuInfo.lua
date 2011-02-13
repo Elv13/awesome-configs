@@ -78,6 +78,7 @@ function createDrawer()
 
   util.spawn("/bin/bash -c 'while true; do sleep 3 &&"..util.getdir("config") .."/Scripts/cpuInfo2.sh > /tmp/cpuStatistic.lua;done'")
   local cpuStat = {}
+  local f = io.open('/tmp/cpuStatistic.lua','r')
   if f ~= nil then
     local text3 = f:read("*all")
     text3 = text3.." return cpuInfo"

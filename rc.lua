@@ -22,6 +22,9 @@ require("drawer.netInfo")
 require("widget.spacer")
 require("widget.keyboardSwitcher")
 require("mouseManager")
+require("urxvtIntegration")
+require("tasklist2")
+require("clientSwitcher")
 
 -- Cache result for probe used more than once
 vicious.cache(vicious.widgets.net)
@@ -48,10 +51,10 @@ end
 
 dofile(awful.util.getdir("config") .. "/functions.lua")
 dofile(awful.util.getdir("config") .. "/desktop.lua")
-dofile(awful.util.getdir("config") .. "/hardware.lua")
-dofile(awful.util.getdir("config") .. "/musicBar.lua")
+--dofile(awful.util.getdir("config") .. "/hardware.lua")
+--dofile(awful.util.getdir("config") .. "/musicBar.lua")
 
-terminal = 'urxvt  -tr +sb -tint gray -fade 50 +bl +si -cr red -pr green -iconic -bg black -fg white -fn "xft:DejaVu Sans Mono:pixelsize=13" -pe tabbed'
+terminal = 'urxvt -tint gray -fade 50 +bl +si -cr red -pr green -iconic -fn "xft:DejaVu Sans Mono:pixelsize=13" -pe tabbed'
 -- terminal = 'aterm -tr +sb -tint gray -fade 50 +bl -tinttype true +si -cr red -pr green'
 editor = {cmd = "kwrite", class = "Kwrite"}
 editor_cmd = 'kwrite'
@@ -71,7 +74,11 @@ shifty.config.defaults = {
   floatBars=true,
 }
 
+-- Assign the modkey
 shifty.modkey = modkey
+
+-- Start the URXVT integration library watchdog
+--urxvtIntegration()
 
 -- Create the application menu
 applicationMenu = customMenu.application()
@@ -190,7 +197,7 @@ for s = 1, screen.count() do
   mytaglist[s] = awful.widget.taglist(s, awful.widget.taglist.label.all, mytaglist.buttons)
 
   -- Create a tasklist widget
-  mytasklist[s] = awful.widget.tasklist(function(c) return awful.widget.tasklist.label.currenttags(c, s) end, mytasklist.buttons)
+  mytasklist[s] = tasklist2(function(c) return tasklist2.label.currenttags(c, s) end, mytasklist.buttons)
   -- Create the top
   --mywibox[s] = awful.wibox({ position = "top", screen = s })
   

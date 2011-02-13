@@ -42,10 +42,10 @@ local function createDrawer()
   
   
   local f = io.popen('ifconfig | grep -e "inet addr:[0-9.]*" -o |  grep -e "[0-9.]*" -o')
-  local ip4Value = "<i><b>  v4: </b>" .. f:read() .. "</i>"
+  local ip4Value = "<i><b>  v4: </b>" .. (f:read() or "") .. "</i>"
   f:close()
   f = io.popen('ifconfig | grep -e "inet6 addr: [0-9.A-Fa-f;:]*" -o | cut -f3 -d " "')
-  local ip6Value = "<i><b>  v6: </b>" .. f:read() .. "</i>\n\n"
+  local ip6Value = "<i><b>  v6: </b>" .. (f:read() or "") .. "</i>\n\n"
   f:close()
   
   local ip4Info = capi.widget({type = "textbox"})
