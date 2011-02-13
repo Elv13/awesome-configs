@@ -102,7 +102,9 @@ globalkeys = awful.util.table.join(
     --awful.key({                          }, "#178", function () awful.tag.viewonly(shifty.getpos(6)) end),
     awful.key({                          }, "#81",  function () mypromptbox[mouse.screen]:run() end),
     -- Prompt
-    awful.key({ modkey }, "F2",     function () mypromptbox[mouse.screen]:run() end)
+    awful.key({ modkey }, "F2",     function () mypromptbox[mouse.screen]:run() end),
+    awful.key({ modkey }, "r",     function () mypromptbox[mouse.screen]:run() end),
+    awful.key({        }, "#184",     function () mypromptbox[mouse.screen]:run() end)
     
 
 --     awful.key({ modkey }, "F2",
@@ -123,12 +125,14 @@ globalkeys = awful.util.table.join(
 
 clientkeys = awful.util.table.join(
     awful.key({ modkey,           }, "f",      function (c) c.fullscreen = not c.fullscreen  end),
+    awful.key({                   }, "#93",    function (c) c.fullscreen = not c.fullscreen  end),
     awful.key({ modkey, "Shift"   }, "c",      function (c) c:kill()                         end),
+    awful.key({                   }, "#247",   function (c) c:kill()                         end),
     awful.key({ modkey, "Control" }, "space",  awful.client.floating.toggle                     ),
-    awful.key({                   }, "#178", function (c) c:swap(awful.client.getmaster()) end),
+    awful.key({                   }, "#178",   function (c) c:swap(awful.client.getmaster()) end),
     awful.key({ modkey,           }, "o",      awful.client.movetoscreen                        ),
     awful.key({ modkey, "Shift"   }, "r",      function (c) c:redraw()                       end),
-    awful.key({ modkey,           }, "n",      function (c) c.minimized = not c.minimized    end),
+    awful.key({                   }, "#131",   function (c) c.minimized = not c.minimized    end),
     awful.key({ modkey,           }, "m",
         function (c)
             c.maximized_horizontal = not c.maximized_horizontal
