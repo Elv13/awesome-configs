@@ -46,7 +46,7 @@ delTag = {}
 
 --Create the wiboxes
 for s = 1, screen.count() do
-  mywibox[s] = awful.wibox({ position = "top", screen = s })
+  mywibox[s] = awful.wibox({ position = "top", screen = s, height = 18 })
 end
 
 dofile(awful.util.getdir("config") .. "/functions.lua")
@@ -263,7 +263,7 @@ for s = 1, screen.count() do
     end 
   end
 
-  mywibox2 = awful.wibox({ position = "bottom", screen = s })
+  mywibox2 = awful.wibox({ position = "bottom", screen = s, height = 19 })
   
   if screen.count() == 1 then
     mywibox2.widgets = {  applicationMenu,

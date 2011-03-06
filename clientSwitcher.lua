@@ -7,13 +7,15 @@ local io = io
 local ipairs = ipairs
 local table = table
 local print = print
+local wibox = require("awful.wibox")
 local capi = { screen = screen,
                mouse = mouse,
+               widget = widget,
                client = client}
 
 module("clientSwitcher")
 
-local data = {client = {}}
+local data = {client = {}, wibox = {}}
 function new(screen, args) 
   return --Nothing to do
 end
@@ -31,6 +33,14 @@ function switchTo(i)
   else
     print("nil")
   end
+end
+
+function addCornerWibox(c,i)
+  data.wibox[i] = wibox({ position = "free", screen = capi.screen.count() })
+  data.wibox.ontop = true
+  data.wibox.visible = false
+  createDrawer() 
+  data.wibox:geometry({ width = 147, height = 994, x = capi.screen[capi.mouse.screen].geometry.width*2 -  147, y = 20})
 end
 
 function reset()

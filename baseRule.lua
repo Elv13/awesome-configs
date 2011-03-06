@@ -240,6 +240,7 @@ shifty.config.apps = {
         awful.button({ modkey }, 1, awful.mouse.client.move),
         awful.button({ modkey }, 3, awful.mouse.client.resize),
         awful.button({ modkey }, 2, function (c) clientMenu:toggle(c) end),
+        awful.button({ modkey }, 9, awful.mouse.client.move),
         awful.button({ modkey }, 8, awful.mouse.client.resize)),
     titlebar = false
   },

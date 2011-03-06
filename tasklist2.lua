@@ -132,7 +132,7 @@ local function widget_tasklist_label_common(c, args)
         text = text .. numberStyle..numbers[counter]..numberStyleEnd .. name
     end
     text = text .. "</span>"
-    return text, bg, status_image, c.icon
+    return text, bg, status_image, c.icon, beautiful.fg_normal
 end
 
 --- Return labels for a tasklist widget with clients from all tags and screen.
