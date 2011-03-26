@@ -3,6 +3,7 @@
 -- @copyright 2008 Julien Danjou
 -- @release v3.4-rc3
 ---------------------------------------------------------------------------
+--dbus-send --type=method_call --dest=org.schmorp.urxvt /pid/12/control org.schmorp.urxvt.selectTab int32:3
 
 -- Grab environment we need
 local math = math
@@ -11,6 +12,7 @@ local pairs = pairs
 local type = type
 local setmetatable = setmetatable
 local print = print
+local table = table
 local type = type
 local capi =
 {
@@ -19,6 +21,8 @@ local capi =
     image = image,
     widget = widget,
     client = client,
+    dbus = dbus,
+    timer = timer,
 }
 local abutton = require("awful.button")
 local beautiful = require("beautiful")
@@ -29,6 +33,7 @@ local mouse = require("awful.mouse")
 local client = require("awful.client")
 local layout = require("awful.widget.layout")
 local urxvtIntegration = require("urxvtIntegration")
+local tabList = require("tablist")
 
 --- Titlebar module for awful
 module("tabbar")
@@ -63,6 +68,14 @@ end
 -- fg_focus: the background color for focused window.
 -- width: the titlebar width
 function add(c, args)
+  if c.titlebar == nil then
+    create(c,args)
+  else
+    c.titlebar.visible = true
+  end
+end
+
+function create(c, args)
     if not c or (c.type ~= "normal" and c.type ~= "dialog") then return end
     if not args then args = {} end
     if not args.height then args.height = capi.awesome.font_height * 1.5 end
@@ -135,27 +148,49 @@ function add(c, args)
     local addTab = capi.widget({ type = "imagebox", align = "left" })
     addTab.image = capi.image(util.getdir("config") .. "/Icon/tags/cross2.png")
     
+    local aTabList = tabList.new(nil,nil)
+    aTabList:add_tab(c.pid)
+    
+    
+--     flex = {
+--         layout = layout.horizontal.flex
+--     }
+    
+    tb.widgets = {
+        widget_list,
+        --aGraph,
+        addTab,
+        testBox,
+        {
+          aTabList,
+          appicon,
+          layout = layout.horizontal.leftright
+        },
+        --flex,
+        layout = layout.horizontal.rightleft
+    }
+    
     addTab:buttons( util.table.join(
       button({ }, 1, function()
-        print("test")
-        util.spawn('dbus-send --type=method_call --dest=org.schmorp.urxvt /pid/12/control org.schmorp.urxvt.addTab')
+        local pid = c.pid
+        print("test "..pid.."\n\n\n")
+        util.spawn('dbus-send --type=method_call --dest=org.schmorp.urxvt /pid/'..pid..'/control org.schmorp.urxvt.addTab', false)
+        aTabList:add_tab(pid)
         urxvtIntegration.addTab(12)
       end)
     ))
     
-    tb.widgets = {
-        widget_list,
-        addTab,
-        customwidget,
-        testBox,
-        aGraph,
-        {
-            appicon = appicon,
-            title = title,
-            layout = layout.horizontal.flex
-        },
-        layout = layout.horizontal.rightleft
-    }
+    capi.client.add_signal("focus", function(c2)
+      if c == c2 then
+        aTabList:focus2()
+      end
+    end)
+    
+    capi.client.add_signal("unfocus",  function(c2)
+      if c == c2 then
+        aTabList:unfocus2()
+      end
+    end)
 
     c.titlebar = tb
 
@@ -167,6 +202,21 @@ function add(c, args)
     c:add_signal("property::maximized_vertical", update)
     c:add_signal("property::maximized_horizontal", update)
     update(c)
+    
+    --Dbus handling
+    mytimer = capi.timer({ timeout = 7 }) --Give it some time to register
+    mytimer:add_signal("timeout", function() 
+      if capi.dbus then
+        capi.dbus.add_signal("org.schmorp.urxvt", function (data, index, pid)
+          print("Dbus event :"..data.member.."\n\n\n\n")
+          --if data.member == "" then
+              
+          --end
+        end)
+      end
+      mytimer:stop()
+    end)
+    mytimer:start()
 end
 
 --- Update a titlebar. This should be called in some hooks.
@@ -201,8 +251,9 @@ end
 --- Remove a titlebar from a client.
 -- @param c The client.
 function remove(c)
-    c.titlebar = nil
-    data[c] = nil
+    c.titlebar.visible = false
+    --c.titlebar = nil --No more of that please
+    --data[c] = nil
 end
 
 -- Create a new button for the toolbar

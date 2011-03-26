@@ -25,6 +25,7 @@ require("mouseManager")
 require("urxvtIntegration")
 require("tasklist2")
 require("clientSwitcher")
+require("tabbar")
 
 -- Cache result for probe used more than once
 vicious.cache(vicious.widgets.net)

@@ -1,5 +1,6 @@
 ---------------------------------------------------------------------------
 -- @author Julien Danjou &lt;julien@danjou.info&gt;
+-- @author Emmanuel Lepage Vallee elv1313@gmail.com
 -- @copyright 2008-2009 Julien Danjou
 -- @release v3.4-rc3
 ---------------------------------------------------------------------------
@@ -20,6 +21,7 @@ local util = require("awful.util")
 local tag = require("awful.tag")
 local layout = require("awful.widget.layout")
 local clientSwitcher = require("clientSwitcher")
+local tabList = 
 
 --- Tasklist widget module for awful
 module("tasklist2")

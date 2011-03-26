@@ -4,6 +4,7 @@ local table = table
 local r_widget = require("awful.widget")
 local button = require("awful.button")
 local layout = require("awful.layout")
+local client2 = require("awful.client")
 local tag = require("awful.tag")
 local tabbar = require("tabbar")
 local util = require("awful.util")
@@ -31,7 +32,7 @@ local showTitleBar = {}
 local function enableTitleBar(value)
   if tag.selected() ~= nil then
     for i, client in ipairs(tag.selected():clients()) do
-      if value == true or awful.client.floating.get(client) == true then
+      if value == true or client2.floating.get(client) == true then
 	tabbar.add(client)
       else
 	tabbar.remove(client)
