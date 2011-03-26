@@ -209,6 +209,7 @@ function create(c, args)
       if capi.dbus then
         capi.dbus.add_signal("org.schmorp.urxvt", function (data, index, pid)
           print("Dbus event :"..data.member.."\n\n\n\n")
+          util.spawn("notify-send "..data.member,false)
           --if data.member == "" then
               
           --end
