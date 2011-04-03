@@ -38,6 +38,7 @@ beautiful.init(awful.util.getdir("config") .. "/default/theme.lua")
 -- Some widget for every screens
 mywibox = {}
 mypromptbox = {}
+mynotificationbox = {}
 mylayoutmenu = {}
 mytaglist = {}
 movetagL= {}
@@ -205,6 +206,9 @@ for s = 1, screen.count() do
   -- Create the delTag button
   delTag[s] = customButton.delTag(s)
   
+  -- Create the notification box
+  mynotificationbox[s] = naughty()
+  
   -- Create the button to move a tag the next screen
   movetagL[s] = customButton.tagmover(s,{ direction = "left", icon = awful.util.getdir("config") .. "/Icon/tags/screen_left.png" })
   movetagR[s] = customButton.tagmover(s,{ direction = "right", icon = awful.util.getdir("config") .. "/Icon/tags/screen_right.png" })
@@ -239,6 +243,10 @@ for s = 1, screen.count() do
 			  cpuinfo["text"],
 			  cpuinfo["logo"],
 			  spacer3,
+                          {
+                            mynotificationbox[s],
+                            layout = awful.widget.layout.horizontal.flex
+                          },
 			  layout = awful.widget.layout.horizontal.rightleft
 			}
     else
@@ -249,6 +257,10 @@ for s = 1, screen.count() do
 			    movetagL[s],
 			    movetagR[s],
 			    mylayoutmenu[s],
+                            {
+                              mynotificationbox[s],
+                              layout = awful.widget.layout.horizontal.flex
+                            },
 			    layout = awful.widget.layout.horizontal.leftright
 			  }
     end

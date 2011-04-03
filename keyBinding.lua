@@ -92,6 +92,8 @@ globalkeys = awful.util.table.join(
     awful.key({                          }, "#84", function () awful.screen.focus_relative( 1) end),
     awful.key({                          }, "#83", awful.client.movetoscreen ),
 
+    -- Fake event (xbindkey)
+    awful.key({  "Control"               }, "F11", function () awful.mouse.client.move(awful.mouse.client_under_pointer()) end),
 
 
     --awful.key({                          }, "#177", function () awful.tag.viewonly(shifty.getpos(1)) end),

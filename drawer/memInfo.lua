@@ -85,7 +85,10 @@ function createDrawer()
       text3 = text3.." return memStat"
       f:close()
       local afunction = loadstring(text3)
-      memStat = afunction()
+      memStat = {}
+      if afunction ~= nil then
+        memStat = afunction()
+      end
       statNotFound = nil
     else
       statNotFound = "N/A"
