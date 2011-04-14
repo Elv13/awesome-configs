@@ -314,7 +314,9 @@ function notify(args)
                     timer_fade:add_signal("timeout", function () 
                                             for k, w in ipairs(widgets) do
                                               if (w.opacity < 100 and w.opacity ~= nil) then
-                                                w.widget.text = string.format('<span rise="%s" font_desc="%s"><b>%s</b>%s</span>', 0-(w.opacity*100), font, title, text)
+                                                local newTitle = string.gsub(title, "\n", " - ")
+                                                local newText = string.gsub(text, "\n", " - ")
+                                                w.widget.text = string.format('<span rise="%s" font_desc="%s"><b>%s</b>%s</span>', 0-(w.opacity*100), font, newTitle, newText)
                                                 w.opacity = w.opacity + 3
                                               else
                                                 w.widget.text = ""
@@ -361,7 +363,9 @@ function notify(args)
       timer_fade_in:add_signal("timeout", function () 
                         for k, w in ipairs(widgets) do
                           if (w.opacity > 0 and w.opacity ~= nil) then
-                            w.widget.text = string.format('<span rise="%s" font_desc="%s"><b>%s</b>%s</span>', (w.opacity*100), font, title, text)
+                            local newTitle = string.gsub(title, "\n", " - ")
+                            local newText = string.gsub(text, "\n", " - ")
+                            w.widget.text = string.format('<span rise="%s" font_desc="%s"><b>%s</b>%s</span>', (w.opacity*100), font, newTitle, newText)
                             w.opacity = w.opacity - 3
                           else
                             timer_fade_in:stop()
