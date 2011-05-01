@@ -1,24 +1,17 @@
 local setmetatable = setmetatable
 local tonumber = tonumber
-local loadstring = loadstring
-local ipairs = ipairs
 local table = table
 local io = io
-local util = require("awful.util")
 local button = require("awful.button")
 local vicious = require("vicious")
-local tag = require("awful.tag")
 local wibox = require("awful.wibox")
 local widget2 = require("awful.widget")
 local beautiful = require("beautiful")
 local util = require("awful.util")
-local naughty = require("naughty")
---local shifty = require("shifty")
 local capi = { image = image,
                screen = screen,
                widget = widget,
-               mouse = mouse,
-	       		tag = tag}
+               mouse = mouse}
 
 module("drawer.soundInfo")
 
@@ -157,9 +150,6 @@ function new(mywibox3)
 	  util.spawn("amixer -c0 sset Master 2dB- >/dev/null") 
       end)
   ))
-
-  -- volumepixmap.mouse_enter = function () soundInfo() end
-  -- volumepixmap.mouse_leave = function () naughty.destroy(alsaInfo[3]) end
 
   volumepixmap:add_signal("mouse::enter", function ()
       data.wibox.visible = true

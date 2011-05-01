@@ -206,15 +206,15 @@ function create(c, args)
     --Dbus handling
     mytimer = capi.timer({ timeout = 7 }) --Give it some time to register
     mytimer:add_signal("timeout", function() 
-      if capi.dbus then
-        capi.dbus.add_signal("org.schmorp.urxvt", function (data, index, pid)
-          print("Dbus event :"..data.member.."\n\n\n\n")
-          util.spawn("notify-send "..data.member,false)
-          --if data.member == "" then
-              
-          --end
-        end)
-      end
+--       if capi.dbus then
+--         capi.dbus.add_signal("org.schmorp.urxvt", function (data, index, pid)
+--           print("Dbus event :"..data.member.."\n\n\n\n")
+--           util.spawn("notify-send "..data.member,false)
+--           --if data.member == "" then
+--               
+--           --end
+--         end)
+--       end
       mytimer:stop()
     end)
     mytimer:start()

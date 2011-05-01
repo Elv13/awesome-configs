@@ -1,23 +1,17 @@
 local setmetatable = setmetatable
 local io = io
 local next = next
-local ipairs = ipairs
 local loadstring = loadstring
 local table = table
-local button = require("awful.button")
 local beautiful = require("beautiful")
-local naughty = require("naughty")
 local widget2 = require("awful.widget")
 local wibox = require("awful.wibox")
 local vicious = require("vicious")
-local tag = require("awful.tag")
 local util = require("awful.util")
-local shifty = require("shifty")
 local capi = { image = image,
                screen = screen,
                widget = widget,
                mouse = mouse,
-	       tag = tag,
                timer = timer}
 
 module("drawer.netInfo")

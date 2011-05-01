@@ -7,15 +7,15 @@ theme = {}
 theme.font          = "snap 8"
 
 theme.bg_normal     = "#0A1535"
-theme.bg_focus      = "#173758"
-theme.bg_urgent     = "#ff4500"
-theme.bg_minimize   = "#444444"
-theme.bg_highlight  = "#0F2153"
+theme.bg_focus      = "#003687"
+theme.bg_urgent     = "#5B0000"
+theme.bg_minimize   = "#040A1A"
+theme.bg_highlight  = "#0E2051"
 
 theme.fg_normal     = "#1577D3"
 theme.fg_focus      = "#00BBD7"
-theme.fg_urgent     = "#111111"
-theme.fg_minimize  = "#ffffff"
+theme.fg_urgent     = "#ABA6A6"
+theme.fg_minimize   = "#1577D3"
 
 --theme.border_width  = "1"
 --theme.border_normal = "#555555"

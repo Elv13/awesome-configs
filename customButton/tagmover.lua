@@ -1,6 +1,4 @@
 local setmetatable = setmetatable
-local ipairs = ipairs
-local table = table
 local button = require("awful.button")
 local tag = require("awful.tag")
 local util = require("awful.util")
@@ -9,9 +7,7 @@ local beautiful = require("beautiful")
 local menu2 = require("customMenu.menu2")
 local capi = { image = image,
                screen = screen,
-               widget = widget,
-               mouse = mouse,
-	       tag = tag}
+               widget = widget}
 
 module("customButton.tagmover")
 

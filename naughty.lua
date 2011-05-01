@@ -21,6 +21,7 @@ local capi = { screen = screen,
                timer = timer }
 local button = require("awful.button")
 local util = require("awful.util")
+local tag = require("awful.tag")
 local bt = require("beautiful")
 local layout = require("awful.widget.layout")
 
@@ -184,7 +185,11 @@ end
 -- @param notification Notification object to be destroyed
 -- @return True if the popup was successfully destroyed, nil otherwise
 function destroy(notification)
-    if notification and notification.box.screen then
+    if not notification.box then
+      return 
+    end
+    
+    if notification and notification.box and notification.box.screen then
         local scr = notification.box.screen
         table.remove(notifications[notification.box.screen][notification.position], notification.idx)
         if notification.timer then
@@ -224,6 +229,21 @@ local function getIcon(name)
             end
         end
     end
+end
+
+function notify_hidden(pid,title,text)
+  print("\n\n\n\ncount"..capi.screen.count().." "..#tag.selected(1):clients().." pid:"..pid)
+  local found = false
+  for s =1,capi.screen.count() do
+    for k,c in pairs(tag.selected(s):clients()) do
+      print(c.pid.."\n")
+      if c.pid == pid then
+        return
+      end
+    end
+  end
+  
+  notify({text=text,title=title})
 end
 
 --- Create notification. args is a dictionary of (optional) arguments.
@@ -318,7 +338,7 @@ function notify(args)
                                                 local newText = string.gsub(text, "\n", " - ")
                                                 w.widget.text = string.format('<span rise="%s" font_desc="%s"><b>%s</b>%s</span>', 0-(w.opacity*100), font, newTitle, newText)
                                                 w.opacity = w.opacity + 3
-                                              else
+                                              elseif timer_fade then
                                                 w.widget.text = ""
                                                 timer_fade:stop()
                                                 timer_fade = nil
@@ -367,7 +387,7 @@ function notify(args)
                             local newText = string.gsub(text, "\n", " - ")
                             w.widget.text = string.format('<span rise="%s" font_desc="%s"><b>%s</b>%s</span>', (w.opacity*100), font, newTitle, newText)
                             w.opacity = w.opacity - 3
-                          else
+                          elseif timer_fade_in then
                             timer_fade_in:stop()
                             timer_fade_in = nil
                           end
@@ -377,6 +397,9 @@ function notify(args)
       --w.widget.text = string.format('<span font_desc="%s"><b>%s</b>%s</span>', font, title, text)
     end
 
+    --if #widgets > 0 then
+    --  return nil
+    --end
     -- create textbox
     local textbox = capi.widget({ type = "textbox", align = "flex" })
     textbox:buttons(util.table.join(button({ }, 1, run), button({ }, 3, die)))

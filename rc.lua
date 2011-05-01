@@ -3,29 +3,19 @@ require("beautiful")
 require("naughty")
 require("shifty")
 require("vicious")
-require("customMenu.layoutmenu")
-require("customMenu.recent")
-require("customMenu.application")
-require("customMenu.places")
-require("customMenu.tagOption")
-require("customMenu.clientMenu")
-require("customButton.launcher")
-require("customButton.showDesktop")
-require("customButton.addTag")
-require("customButton.delTag")
-require("customButton.tagmover")
-require("drawer.soundInfo")
-require("drawer.dateInfo")
-require("drawer.memInfo")
-require("drawer.cpuInfo")
-require("drawer.netInfo")
+require("customMenu")
+require("customButton")
+require("drawer")
 require("widget.spacer")
 require("widget.keyboardSwitcher")
+require("widget.desktopMonitor")
+require("widget.devices")
 require("mouseManager")
 require("urxvtIntegration")
 require("tasklist2")
 require("clientSwitcher")
 require("tabbar")
+require("taglist")
 
 -- Cache result for probe used more than once
 vicious.cache(vicious.widgets.net)
@@ -36,19 +26,13 @@ vicious.cache(vicious.widgets.cpu)
 beautiful.init(awful.util.getdir("config") .. "/default/theme.lua")
 
 -- Some widget for every screens
-mywibox = {}
-mypromptbox = {}
-mynotificationbox = {}
-mylayoutmenu = {}
-mytaglist = {}
-movetagL= {}
-movetagR= {}
-mytasklist = {}
-delTag = {}
+wiboxTop  = {}; promptbox = {}; notifibox = {}; layoutmenu = {}; wiboxBot = {}
+mytaglist = {}; movetagL  = {}; movetagR  = {}; mytasklist = {}; delTag   = {}
 
---Create the wiboxes
+--Create the top wiboxes
 for s = 1, screen.count() do
-  mywibox[s] = awful.wibox({ position = "top", screen = s, height = 18 })
+  wiboxTop[s] = awful.wibox({ position = "top", screen = s, height = 16 })
+  wiboxBot[s] = awful.wibox({ position = "bottom", screen = s, height = 16 })
 end
 
 dofile(awful.util.getdir("config") .. "/functions.lua")
@@ -57,14 +41,12 @@ dofile(awful.util.getdir("config") .. "/desktop.lua")
 --dofile(awful.util.getdir("config") .. "/musicBar.lua")
 
 terminal = 'urxvt -tint gray -fade 50 +bl +si -cr red -pr green -iconic -fn "xft:DejaVu Sans Mono:pixelsize=13" -pe tabbed'
--- terminal = 'aterm -tr +sb -tint gray -fade 50 +bl -tinttype true +si -cr red -pr green'
 editor = {cmd = "kwrite", class = "Kwrite"}
 editor_cmd = 'kwrite'
 webbrowser = {cmd = "firefox", class = "Firefox"}
 ide = {cmd = "kate", class = "Kate"}
 mediaplayer = {cmd = "vlc", class = "VLC"}
 filemanager = {cmd = "dolphin", class = "Dolphin"}
-xcompmgr_path = "/home/kde-devel/kde/src/xcompmgr2/"
 
 modkey = "Mod4"
 
@@ -110,11 +92,10 @@ cpuinfo = drawer.cpuInfo()
 netinfo = drawer.netInfo()
 
 -- Create the volume box
-soundWidget = drawer.soundInfo(mywibox3)
+soundWidget = drawer.soundInfo(wiboxTop3)
 
 -- Create the keyboard layout switcher, feel free to add your contry and push it to master
 keyboardSwitcherWidget = widget.keyboardSwitcher()
-
 
 -- Create a systray
 mysystray = widget({ type = "systray" })
@@ -142,7 +123,6 @@ mytaglist.buttons = awful.util.table.join(
                     awful.button({ }, 5, awful.tag.viewprev)
                     )
 
-
 --Tasklist button
 mytasklist.buttons = awful.util.table.join(
                      awful.button({ }, 1, function (c)
@@ -169,207 +149,100 @@ mytasklist.buttons = awful.util.table.join(
                                               if client.focus then client.focus:raise() end
                                           end))
 
-spacer3 = widget.spacer({text = "| "})
+--Some spacers with dirrent text
+spacer3 = widget.spacer({text = "| "}); spacer2 = widget.spacer({text = "  |"}); spacer4 = widget.spacer({text = "|"})
 
-spacer2 = widget.spacer({text = "  |"})
-
-spacer4 = widget.spacer({text = "|"})
-
---Add icons on the desktop. They have to be the size of those bellow to work fine, but it's not nice, so I don't use it anymore
--- setupRectLauncher(1, {awful.util.getdir("config") .. "/Icon/rectangles90/run.png"}) 
--- setupRectLauncher(2, {awful.util.getdir("config") .. "/Icon/rectangles90/update_server3.png"}) 
--- setupRectLauncher(3, {awful.util.getdir("config") .. "/Icon/rectangles90/backup_virtual_machine.png"})
--- setupRectLauncher(3, {awful.util.getdir("config") .. "/Icon/rectangles90/backup_dev_files.png"})
--- setupRectLauncher(4, {awful.util.getdir("config") .. "/Icon/rectangles90/fetch_pictures.png"})
--- setupRectLauncher(4, {awful.util.getdir("config") .. "/Icon/rectangles90/xkill.png"})
--- setupRectLauncher(4, {awful.util.getdir("config") .. "/Icon/rectangles90/mount_iso_image.png"})
--- setupRectLauncher(4, {awful.util.getdir("config") .. "/Icon/rectangles90/mount_img_image.png"})
---loadRectLauncher(2)
-    
-
--- The widget array with different possible screens configuration TODO create some kind of screen widget rule system, this long array suck
+-- The widget array with different possible screens configuration
 for s = 1, screen.count() do
   -- Create a promptbox for each screen
-  mypromptbox[s] = awful.widget.prompt({ layout = awful.widget.layout.horizontal.leftright })
+  promptbox[s] = awful.widget.prompt({ layout = awful.widget.layout.horizontal.leftright })
 			    
   -- Create the layout menu for this screen
-  mylayoutmenu[s] = customMenu.layoutmenu(s,layouts_all)
+  layoutmenu[s] = customMenu.layoutmenu(s,layouts_all)
   
   -- Create a taglist widget
-  mytaglist[s] = awful.widget.taglist(s, awful.widget.taglist.label.all, mytaglist.buttons)
+  mytaglist[s] = taglist(s, taglist.label.all, mytaglist.buttons)
 
   -- Create a tasklist widget
   mytasklist[s] = tasklist2(function(c) return tasklist2.label.currenttags(c, s) end, mytasklist.buttons)
-  -- Create the top
-  --mywibox[s] = awful.wibox({ position = "top", screen = s })
   
   -- Create the delTag button
   delTag[s] = customButton.delTag(s)
   
   -- Create the notification box
-  mynotificationbox[s] = naughty()
+  notifibox[s] = naughty()
   
   -- Create the button to move a tag the next screen
   movetagL[s] = customButton.tagmover(s,{ direction = "left", icon = awful.util.getdir("config") .. "/Icon/tags/screen_left.png" })
   movetagR[s] = customButton.tagmover(s,{ direction = "right", icon = awful.util.getdir("config") .. "/Icon/tags/screen_right.png" })
   
-  if s == 2 --[[screen.count()]] then
-    mywibox[s].widgets = { 
-			  {
-			      mytaglist[s],
-			      addTag,
-			      delTag[s],
-			      movetagL[s],
-			      movetagR[s],
-			      mylayoutmenu[s],
-			      layout = awful.widget.layout.horizontal.leftright
-			  },
-			  mytextclock,
-			  kgetwidget,
-			  kgetpixmap,
-			  soundWidget["wid"],
-			  soundWidget["pix"],
-			  spacer4,
-			  netinfo["up_text"],
-			  netinfo["up_logo"],
-			  netinfo["down_text"],
-			  netinfo["down_logo"],
-			  spacer2,
-			  meminfo["bar"],
-			  meminfo["text"],
-			  meminfo["logo"],
-			  spacer2,
-			  cpuinfo["graph"],
-			  cpuinfo["text"],
-			  cpuinfo["logo"],
-			  spacer3,
-                          {
-                            mynotificationbox[s],
-                            layout = awful.widget.layout.horizontal.flex
-                          },
-			  layout = awful.widget.layout.horizontal.rightleft
-			}
-    else
-    mywibox[s].widgets = {
-			    mytaglist[s],
-			    addTag,
-			    delTag[s],
-			    movetagL[s],
-			    movetagR[s],
-			    mylayoutmenu[s],
-                            {
-                              mynotificationbox[s],
-                              layout = awful.widget.layout.horizontal.flex
-                            },
-			    layout = awful.widget.layout.horizontal.leftright
-			  }
-    end
-
-  -- Create the device list on the desktop
-  if s == 1 then --Don't ask, otherwise it bug, I don't know why I can't put that out of this loop
-    add_device("/dev/root,/home/lepagee")
-    local deviceList = io.popen("mount | grep -e'^[/]' | awk '{print substr($1,6,3)\"/\"substr($1,6,4)\",\"$3}' | tail -n 4")
-    while true do
-	local line = deviceList:read("*line")
-	if line == nil then break end
-	add_device(line, "hdd")
-    end 
-  end
-
-  mywibox2 = awful.wibox({ position = "bottom", screen = s, height = 19 })
+  -- Top wibox widgets
+  wiboxTop[s].widgets = { 
+      {
+          mytaglist[s],
+          addTag,
+          delTag[s],
+          movetagL[s],
+          movetagR[s],
+          layoutmenu[s],
+          layout = awful.widget.layout.horizontal.leftright
+      },
+      (s == 2 or screen.count() == 1) and mytextclock or nil,
+      (s == 2 or screen.count() == 1) and kgetwidget or nil,
+      (s == 2 or screen.count() == 1) and kgetpixmap or nil,
+      (s == 2 or screen.count() == 1) and soundWidget["wid"] or nil,
+      (s == 2 or screen.count() == 1) and soundWidget["pix"] or nil,
+      (s == 2 or screen.count() == 1) and spacer4 or nil,
+      (s == 2 or screen.count() == 1) and netinfo["up_text"] or nil,
+      (s == 2 or screen.count() == 1) and netinfo["up_logo"] or nil,
+      (s == 2 or screen.count() == 1) and netinfo["down_text"] or nil,
+      (s == 2 or screen.count() == 1) and netinfo["down_logo"] or nil,
+      (s == 2 or screen.count() == 1) and spacer2 or nil,
+      (s == 2 or screen.count() == 1) and meminfo["bar"] or nil,
+      (s == 2 or screen.count() == 1) and meminfo["text"] or nil,
+      (s == 2 or screen.count() == 1) and meminfo["logo"] or nil,
+      (s == 2 or screen.count() == 1) and spacer2,
+      (s == 2 or screen.count() == 1) and cpuinfo["graph"] or nil,
+      (s == 2 or screen.count() == 1) and cpuinfo["text"] or nil,
+      (s == 2 or screen.count() == 1) and cpuinfo["logo"] or nil,
+      (s == 2 or screen.count() == 1) and spacer3 or nil,
+      {
+        notifibox[s],
+        layout = awful.widget.layout.horizontal.flex
+      },
+      layout = awful.widget.layout.horizontal.rightleft
+  }
   
-  if screen.count() == 1 then
-    mywibox2.widgets = {  applicationMenu,
-			  placesMenu,
-			  recentMenu,
-			  desktopPix,
-			  launcherPix,
-			  mypromptbox[s],
-			  spacer3,
-			  {
-			    movetagL[s],
-			    movetagR[s],
-			    keyboardSwitcherWidget,
-			    spacer3,
-			    mytasklist[s],
-			    s == 1 and mysystray or nil,
-			    layout = awful.widget.layout.horizontal.rightleft,
-			  },
-			  layout = awful.widget.layout.horizontal.leftright,
-			}  
-  elseif s == 1 then
-    mywibox2.widgets = {  applicationMenu,
-			  placesMenu,
-			  recentMenu,
-			  desktopPix,
-			  launcherPix,
-			  mypromptbox[s],
-			  spacer3,
-			  {
-			    movetagL[s],
-			    movetagR[s],
-			    spacer3,
-			    mytasklist[s],
-			    layout = awful.widget.layout.horizontal.rightleft,
-			  },
-			  layout = awful.widget.layout.horizontal.leftright,
-			}  
-  elseif screen.count() == s then
-    mywibox2.widgets = {
-			  mypromptbox[s],
-			  spacer3,
-			  {  
-			    movetagL[s],
-			    movetagR[s],
-			    spacer3,
-			    mytasklist[s],
-			    layout = awful.widget.layout.horizontal.rightleft,
-			  },
-			  layout = awful.widget.layout.horizontal.leftright,
-			}
-    elseif s ==2 then
-      mywibox2.widgets = {
-                          mypromptbox[s],
-                          spacer3,
-                          { mysystray,
-                            keyboardSwitcherWidget,
-                            movetagL[s],
-                            movetagR[s],
-                            --mylayoutbox[s],
-                            spacer3,
-                            mytasklist[s],
-                            layout = awful.widget.layout.horizontal.rightleft,
-                          },
-                          layout = awful.widget.layout.horizontal.leftright,
-                        }
-    else
-      
-    mywibox2.widgets = {
-			  mypromptbox[s],
-			  spacer3,
-			  {
-			    movetagL[s],
-			    movetagR[s],
-			    --mylayoutbox[s],
-			    spacer3,
-			    mytasklist[s],
-			    layout = awful.widget.layout.horizontal.rightleft,
-			  },
-			  layout = awful.widget.layout.horizontal.leftright,
-			}
-    end
+  wiboxBot[s].widgets = {  
+    s == 1 and applicationMenu or nil,
+    s == 1 and placesMenu or nil,
+    s == 1 and recentMenu or nil,
+    s == 1 and desktopPix or nil,
+    s == 1 and launcherPix or nil,
+    promptbox[s],
+    spacer3,
+    {
+      s == 1 and keyboardSwitcherWidget or nil,
+      movetagL[s],
+      movetagR[s],
+      spacer3,
+      mytasklist[s],
+      s == 1 and mysystray or nil,
+      layout = awful.widget.layout.horizontal.rightleft,
+    },
+    layout = awful.widget.layout.horizontal.leftright,
+  }  
 end
+
+--Add the drives list on the desktop
+widget.devices()
 
 local isPlayingMovie = false
 local musicBarVisibility = false
 
 shifty.taglist = mytaglist
 
-local monitorPos = 0
-for s = 1, screen.count() do
-  monitorPos = monitorPos + screen[s].geometry.width
-end
-loadMonitor(2)
+widget.desktopMonitor(screen.count() == 1 and 1 or 2)
 
 root.buttons(awful.util.table.join(
     awful.button({ }, 1, function () 
@@ -396,7 +269,6 @@ dofile(awful.util.getdir("config") .. "/keyBinding.lua")
 
 client.add_signal("manage", function (c, startup)
     -- Add a titlebar
-    -- awful.titlebar.add(c, { modkey = modkey })
     if awful.client.floating.get(c) == true then
       if (not c.class == "^XMMS$" or not c.class == "Xine") then
 	awful.titlebar.add(c, { modkey = modkey })
@@ -407,8 +279,7 @@ client.add_signal("manage", function (c, startup)
 
     -- Enable sloppy focus
     c:add_signal("mouse::enter", function(c)
-        if awful.layout.get(c.screen) ~= awful.layout.suit.magnifier
-            and awful.client.focus.filter(c) then
+        if awful.layout.get(c.screen) ~= awful.layout.suit.magnifier and awful.client.focus.filter(c) then
             client.focus = c
         end
     end)
@@ -422,7 +293,7 @@ client.add_signal("manage", function (c, startup)
 end)
 
 client.add_signal("focus", function(c) 
-  if (c.class == webbrowser.class or c.class == "luakit" or c.class == ide.class or c.class == editor.class or c.class == mediaplayer.class) then
+  if (c.class == webbrowser.class or c.class == ide.class or c.class == editor.class or c.class == mediaplayer.class) then
     c.border_color = "#0A1535"
   else
     c.border_color = beautiful.border_focus 
@@ -430,7 +301,7 @@ client.add_signal("focus", function(c)
 end)
 
 client.add_signal("unfocus", function(c) 
-  if (c.class == webbrowser.class or c.class == "luakit" or c.class == ide.class or c.class == editor.class or c.class == mediaplayer.class) then
+  if (c.class == webbrowser.class or c.class == ide.class or c.class == editor.class or c.class == mediaplayer.class) then
     c.border_color = "#0A1535"
   else
     c.border_color = beautiful.border_normal 
@@ -443,11 +314,6 @@ for s = 1, screen.count() do
 end
 
 shifty.init()
-mywibox[1].visible = false
-mywibox[1].visible = true
-
-mywibox2.visible = false
-mywibox2.visible = true
 
 --Start application when a tag is first used, better than using shifty.init
 for s = 1, screen.count() do
@@ -457,7 +323,7 @@ for s = 1, screen.count() do
       if musicBarVisibility == false then
 	  volumepixmap.visible = true
 	  volumewidget.visible = true
-	  mywibox3.visible = false
+	  wiboxTop3.visible = false
       end
       enableAmarokCtrl(true)
     end
@@ -470,15 +336,13 @@ for s = 1, screen.count() do
 	run_or_raise(ide.cmd, { class = ide.class })
     elseif tag.name == "Movie" then
       enableAmarokCtrl(false)
-      musicBarVisibility = mywibox3.visible
+      musicBarVisibility = wiboxTop3.visible
       volumepixmap.visible = false
       volumewidget.visible = false
-      mywibox3.visible = true
+      wiboxTop3.visible = true
       isPlayingMovie = true
       end
     end
   end)
 end
 
-io.popen("killall xcompmgr")
-awful.util.spawn(xcompmgr_path .."xcompmgr -fFC -I 0.05")

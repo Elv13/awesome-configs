@@ -28,7 +28,6 @@ module("tablist")
 label = {}
 
 function widget_tasklist_label_common(tab, w)
-    print("In widget_tasklist_label_common")
     local numberStyle = "<span size='x-large' bgcolor='".. beautiful.fg_normal .."'color='".. beautiful.bg_normal .."'><tt><b>"
     local numberStyleEnd = "</b></tt></span> "
     local suffix, prefix = "",""
@@ -60,7 +59,6 @@ function widget_tasklist_label_common(tab, w)
 end
 
 local function tasklist_update(tabs, w, buttons, label, data, widgets, tab)
-  print("In tasklist_update")
   local numberStyle = "<span size='x-large' bgcolor='".. beautiful.fg_normal .."'color='".. beautiful.bg_normal .."'><tt><b>"
   local numberStyleEnd = "</b></tt></span> "
   
@@ -77,7 +75,6 @@ function new(label, buttons)
     }
     local data = setmetatable({}, { __mode = 'k' })
     local label2 = label or function (tab) 
-                                        print("I am in label")
                                         return widget_tasklist_label_common(tab,w)
                                       end
     local widgets = { }
@@ -90,7 +87,6 @@ function new(label, buttons)
     w.widgets = widgets
     local buttons2 = buttons or util.table.join(
                     awButtons({ }, 1, function (tab) 
-                                        print("I am here index:"..tab.index.." pid:"..(tab.pid or 0))
                                         
                                         for kt, t in ipairs(tabs) do
                                           t.selected = false
@@ -126,26 +122,22 @@ function new(label, buttons)
 --     capi.client.add_signal("unfocus", u)
     local index =0
     function w:add_tab(pid)
-      print("Create a tab with pid:"..pid)
       table.insert(tabs, {name = "test2", index = index, pid = pid, selected = false})
       tasklist_update(tabs, w, buttons2, label2, data, widgets)
       index = index + 1
     end
     
     function w:focus2()
-      print("Updating")
       w.focus = true
       tasklist_update(tabs, w, buttons2, label2, data, widgets)
     end
     
     function w:unfocus2()
-      print("Updating")
       w.focus = false
       tasklist_update(tabs, w, buttons2, label2, data, widgets)
     end
     
     function w:update()
-      print("Updating")
       tasklist_update(tabs, w, buttons2, label2, data, widgets)
     end
     u()

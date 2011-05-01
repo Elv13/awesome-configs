@@ -1,27 +1,19 @@
 local setmetatable = setmetatable
 local io = io
-local ipairs = ipairs
 local pairs = pairs
-local dofile = dofile
 local loadstring = loadstring
-local loadfile = loadfile
-local print = print
-local next = next	
+local next = next
 local table = table
 local button = require("awful.button")
 local beautiful = require("beautiful")
 local widget2 = require("awful.widget")
 local wibox = require("awful.wibox")
-local naughty = require("naughty")
 local vicious = require("vicious")
-local tag = require("awful.tag")
 local util = require("awful.util")
-local shifty = require("shifty")
 local capi = { image = image,
                screen = screen,
                widget = widget,
                mouse = mouse,
-	       tag = tag,
 	       timer = timer}
 
 module("drawer.memInfo")

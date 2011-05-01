@@ -1,15 +1,10 @@
 local setmetatable = setmetatable
-local table = table
 local io = io
 local button = require("awful.button")
 local beautiful = require("beautiful")
-local widget2 = require("awful.widget")
-local next = next
 local ipairs = ipairs
-local type = type
 local tag = require("awful.tag")
 local util = require("awful.util")
-local wibox = require("awful.wibox")
 local shifty = require("shifty")
 local menu2 = require("customMenu.menu2")
 local capi = { image = image,

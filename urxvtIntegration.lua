@@ -31,6 +31,16 @@ local function cumulCpu(pid)
   end
 end
 
+--       if capi.dbus then
+--         capi.dbus.add_signal("org.schmorp.urxvt", function (data, index, pid)
+--           print("Dbus event :"..data.member.."\n\n\n\n")
+--           util.spawn("notify-send "..data.member,false)
+--           --if data.member == "" then
+--               
+--           --end
+--         end)
+--       end
+
 local function cumulMem(pid)
   local result = 0
   if data["pid_"..pid] ~= nil then

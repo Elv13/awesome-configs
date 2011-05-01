@@ -1,23 +1,13 @@
 local setmetatable = setmetatable
 local io = io
-local ipairs = ipairs
-local table = table
-local loadstring = loadstring
 local button = require("awful.button")
 local beautiful = require("beautiful")
-local widget2 = require("awful.widget")
-local naughty = require("naughty")
-local vicious = require("vicious")
-local tag = require("awful.tag")
-local print = print
 local util = require("awful.util")
-local shifty = require("shifty")
 local menu = require("awful.menu")
 local capi = { image = image,
                screen = screen,
                widget = widget,
-               mouse = mouse,
-	       tag = tag}
+               mouse = mouse}
 
 module("customMenu.recent")
 

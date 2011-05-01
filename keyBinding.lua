@@ -102,11 +102,11 @@ globalkeys = awful.util.table.join(
     --awful.key({                          }, "#208", function () awful.tag.viewonly(shifty.getpos(4)) end),
     --awful.key({                          }, "#129", function () awful.tag.viewonly(shifty.getpos(5)) end),
     --awful.key({                          }, "#178", function () awful.tag.viewonly(shifty.getpos(6)) end),
-    awful.key({                          }, "#81",  function () mypromptbox[mouse.screen]:run() end),
+    awful.key({                          }, "#81",  function () promptbox[mouse.screen]:run() end),
     -- Prompt
-    awful.key({ modkey }, "F2",     function () mypromptbox[mouse.screen]:run() end),
-    awful.key({ modkey }, "r",     function () mypromptbox[mouse.screen]:run() end),
-    awful.key({        }, "#184",     function () mypromptbox[mouse.screen]:run() end)
+    awful.key({ modkey }, "F2",     function () promptbox[mouse.screen]:run() end),
+    awful.key({ modkey }, "r",     function () promptbox[mouse.screen]:run() end),
+    awful.key({        }, "#184",     function () promptbox[mouse.screen]:run() end)
     
 
 --     awful.key({ modkey }, "F2",
@@ -150,6 +150,14 @@ shifty.config.clientkeys = clientkeys
 -- Bind all key numbers to tags.
 -- Be careful: we use keycodes to make it works on any keyboard layout.
 -- This should map on the top row of your keyboard, usually 1 to 9.
+
+for i=1, ( 8 ) do
+  globalkeys = awful.util.table.join(globalkeys, awful.key({ }, "F"..i,
+  function ()
+    local t = awful.tag.viewonly(shifty.getpos(i))
+  end))
+end
+
 for i=1, ( shifty.config.maxtags or 9 ) do
   
   globalkeys = awful.util.table.join(globalkeys, awful.key({ modkey }, i,

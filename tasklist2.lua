@@ -33,7 +33,6 @@ local numbers = {'①','②','③','④','⑤','⑥','⑦','⑧','⑨','⑩','�
 local function tasklist_update(w, buttons, label, data, widgets)
   counter = 0
   clientSwitcher.reset()
-  print("tasklist_update")
     local clients = capi.client.get()
     local shownclients = {}
     for k, c in ipairs(clients) do
@@ -92,7 +91,7 @@ end
 local function widget_tasklist_label_common(c, args)
     counter = counter + 1
     clientSwitcher.assign(c,counter)
-    local numberStyle = "<span size='x-large' bgcolor='".. beautiful.fg_normal .."'color='".. beautiful.bg_normal .."'><tt><b>"
+    local numberStyle = "<span size='large' bgcolor='".. beautiful.fg_normal .."'color='".. beautiful.bg_normal .."'><tt><b>"
     local numberStyleEnd = "</b></tt></span> "
     if not args then args = {} end
     local theme = beautiful.get()
