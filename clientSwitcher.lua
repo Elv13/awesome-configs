@@ -7,6 +7,7 @@ local io = io
 local ipairs = ipairs
 local table = table
 local print = print
+local tag = require("awful.tag")
 local wibox = require("awful.wibox")
 local capi = { screen = screen,
                mouse = mouse,
@@ -15,7 +16,8 @@ local capi = { screen = screen,
 
 module("clientSwitcher")
 
-local data = {client = {}, wibox = {}}
+local data = {client = {}, wibox = {}, fav = {}}
+
 function new(screen, args) 
   return --Nothing to do
 end
@@ -32,6 +34,19 @@ function switchTo(i)
     capi.client.focus = data.client[i]
   else
     print("nil")
+  end
+end
+
+function setFavClient(idx,c)
+  data.fav[idx] = c
+end
+
+function selectFavClient(idx)
+  if data.fav[idx] ~= nil then
+    if data.fav[idx]:tags()[1] ~= tag.selected(data.fav[idx].screen) then
+      tag.viewonly(data.fav[idx]:tags()[1])
+    end
+    capi.client.focus = data.fav[idx]
   end
 end
 

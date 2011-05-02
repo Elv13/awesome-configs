@@ -151,10 +151,23 @@ shifty.config.clientkeys = clientkeys
 -- Be careful: we use keycodes to make it works on any keyboard layout.
 -- This should map on the top row of your keyboard, usually 1 to 9.
 
-for i=1, ( 8 ) do
+for i=1, ( 4 ) do
   globalkeys = awful.util.table.join(globalkeys, awful.key({ }, "F"..i,
   function ()
     local t = awful.tag.viewonly(shifty.getpos(i))
+  end))
+end
+
+for i=6, ( 8 ) do
+  globalkeys = awful.util.table.join(globalkeys, awful.key({ }, "F"..i,
+  function ()
+    print("get fav")
+    clientSwitcher.selectFavClient(i)
+  end))
+  globalkeys = awful.util.table.join(globalkeys, awful.key({ modkey }, "F"..i,
+  function ()
+    print("setfav")
+    clientSwitcher.setFavClient(i, client.focus)
   end))
 end
 

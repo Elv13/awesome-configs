@@ -290,7 +290,7 @@ function new(screen, args)
   term.image = capi.image(util.getdir("config") .. "/Icon/term.png")
   term:buttons(util.table.join(
     button({ }, 1, function()
-        executeAppsNewNew(1, "Term" , "urxvt -tint gray -fade 50 +bl +si -cr red -pr green -iconic -fn "xft:DejaVu Sans Mono:pixelsize=13" -pe tabbed")
+        executeAppsNewNew(1, "Term" , "urxvt -tint gray -fade 50 +bl +si -cr red -pr green -iconic -fn \"xft:DejaVu Sans Mono:pixelsize=13\" -pe tabbed")
     end),
     button({ }, 3, function()
         lauchBar.visible = false
