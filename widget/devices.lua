@@ -22,7 +22,7 @@ end
 
 function new(screen, args) 
    add_device("/dev/root,/home/lepagee")
-  local deviceList = io.popen("/bin/mount | grep -E \"/dev/(root|sd[a-z])\" | awk '{print $3\",\"$1}'")
+  local deviceList = io.popen("/bin/mount | grep -E \"/dev/(root|sd[a-z])\" | awk '{print $1\",\"$3}'")
   if deviceList then
     while true do
         local line = deviceList:read("*line")
@@ -96,7 +96,7 @@ function add_device(args)
   
   local volName = capi.widget({ type = "textbox" })
   volName.text = mountPoint
-  vicious.register(volName, vicious.widgets.fs,mountPoint..' (${'..mountPoint..' size_gb}GB)')
+  vicious.register(volName, vicious.widgets.fs,mountPoint..' (${'..mountPoint..' size_gb} GB)')
   
   local volName2 = capi.widget({ type = "textbox" })
   volName2.text = "<b>Cap:</b> 100gb"

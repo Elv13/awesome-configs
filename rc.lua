@@ -10,6 +10,7 @@ require("widget.spacer")
 require("widget.keyboardSwitcher")
 require("widget.desktopMonitor")
 require("widget.devices")
+require("widget.dock")
 require("mouseManager")
 require("urxvtIntegration")
 require("tasklist2")
@@ -75,6 +76,9 @@ recentMenu = customMenu.recent()
 
 -- Call the laucher wibox
 launcherPix = customButton.launcher()
+
+-- Create the laucher dock
+lauchDock = widget.dock()
 
 -- Create the "Show Desktop" icon
 desktopPix = customButton.showDesktop()
@@ -213,7 +217,7 @@ for s = 1, screen.count() do
       layout = awful.widget.layout.horizontal.rightleft
   }
   
-  wiboxBot[s].widgets = {  
+  wiboxBot[s].widgets = {
     s == 1 and applicationMenu or nil,
     s == 1 and placesMenu or nil,
     s == 1 and recentMenu or nil,
@@ -223,8 +227,6 @@ for s = 1, screen.count() do
     spacer3,
     {
       s == 1 and keyboardSwitcherWidget or nil,
-      movetagL[s],
-      movetagR[s],
       spacer3,
       mytasklist[s],
       s == 1 and mysystray or nil,

@@ -103,7 +103,7 @@ shifty.config.tags ={
     ["Music"] =      {  init = false, 
 			position = 10, 
 			exclusive = true,
-			screen = 4,
+			screen = 3,
 			icon = awful.util.getdir("config") .. "/Icon/tags_invert/media.png",
 			layout = awful.layout.suit.max },
     ["Down"] =       {  init = false, 

@@ -185,7 +185,7 @@ end
 -- @param notification Notification object to be destroyed
 -- @return True if the popup was successfully destroyed, nil otherwise
 function destroy(notification)
-    if not notification.box then
+    if not notification or not notification.box then
       return 
     end
     
