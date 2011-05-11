@@ -210,29 +210,30 @@ for s = 1, screen.count() do
       (s == 2 or screen.count() == 1) and cpuinfo["text"] or nil,
       (s == 2 or screen.count() == 1) and cpuinfo["logo"] or nil,
       (s == 2 or screen.count() == 1) and spacer3 or nil,
+      layout = awful.widget.layout.horizontal.rightleft,
       {
         notifibox[s],
         layout = awful.widget.layout.horizontal.flex
       },
-      layout = awful.widget.layout.horizontal.rightleft
   }
   
+  --Bottom wibox widgets
   wiboxBot[s].widgets = {
-    s == 1 and applicationMenu or nil,
-    s == 1 and placesMenu or nil,
-    s == 1 and recentMenu or nil,
-    s == 1 and desktopPix or nil,
-    s == 1 and launcherPix or nil,
+    (s == 1) and applicationMenu or nil,
+    (s == 1) and placesMenu or nil,
+    (s == 1) and recentMenu or nil,
+    (s == 1) and desktopPix or nil,
+    (s == 1) and launcherPix or nil,
     promptbox[s],
     spacer3,
     {
-      s == 1 and keyboardSwitcherWidget or nil,
+      (s == 1) and keyboardSwitcherWidget or nil,
       spacer3,
-      mytasklist[s],
-      s == 1 and mysystray or nil,
+      (s == 1) and mysystray or nil,
       layout = awful.widget.layout.horizontal.rightleft,
     },
     layout = awful.widget.layout.horizontal.leftright,
+    mytasklist[s],
   }  
 end
 

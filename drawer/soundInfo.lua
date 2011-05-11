@@ -78,7 +78,9 @@ function soundInfo()
     volume:set_border_color(beautiful.fg_normal)
     volume:set_color(beautiful.fg_normal)
     volume:set_value(aVolume or 0)
-    volume:set_offset(1)
+    if (widget2.progressbar.set_offset ~= nil) then
+      volume:set_offset(1)
+    end
     --volume:set_margin({top=6,bottom=6})
     
     minus = capi.widget({ type = "imagebox", align = "left" })

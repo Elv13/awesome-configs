@@ -326,7 +326,10 @@ function new(s, args)
   if (widget2.progressbar.set_offset ~= nil) then
     membarwidget:set_offset(1)
   end
-  membarwidget:set_margin({top=2,bottom=2})
+  
+  if widget2.progressbar.set_margin then
+    membarwidget:set_margin({top=2,bottom=2})
+  end
   membarwidget:set_vertical(false)
   membarwidget:set_background_color(beautiful.bg_normal)
   membarwidget:set_border_color(beautiful.fg_normal)

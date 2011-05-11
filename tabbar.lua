@@ -106,7 +106,7 @@ function create(c, args)
     title:buttons(bts)
 
     local appicon = capi.widget({ type = "imagebox" })
-    appicon.image = c.icon
+    appicon.image = capi.image(util.getdir("config") .. "/Icon/tags/term.png")
 
     -- for each button group, call create for the client.
     -- if a button set is created add the set to the
@@ -159,15 +159,15 @@ function create(c, args)
     tb.widgets = {
         widget_list,
         --aGraph,
-        addTab,
         testBox,
         {
-          aTabList,
           appicon,
+          addTab,
           layout = layout.horizontal.leftright
         },
         --flex,
-        layout = layout.horizontal.rightleft
+        layout = layout.horizontal.rightleft,
+        aTabList,
     }
     
     addTab:buttons( util.table.join(
