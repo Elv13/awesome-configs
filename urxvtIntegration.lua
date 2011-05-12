@@ -72,7 +72,7 @@ function register(widget, pid, type, intervale) --TYPE=cpup or memp
     if type == "pcpu" then
       widget:add_value(cumulCpu(pid))
     else
-      widget.text = "[mem:"..cumulMem(pid).."%]"
+      widget.text = ":"..cumulMem(pid).."%"
     end
   end)
   mytimer:start()

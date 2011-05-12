@@ -16,7 +16,7 @@ local capi = { screen = screen,
 
 module("clientSwitcher")
 
-local data = {client = {}, wibox = {}, fav = {}}
+local data = {client = {}, index = {}, wibox = {}, fav = {}}
 
 function new(screen, args) 
   return --Nothing to do
@@ -25,15 +25,24 @@ end
 function assign(client, index)
   if client:tags()[1] == capi.screen[capi.mouse.screen]:tags()[1] then
     data.client[index] = client
+    data.index[client.pid] = index
   end
 end
 
 function switchTo(i)
-  print("I am here "..i)
   if data.client[i] ~= nil then
     capi.client.focus = data.client[i]
   else
-    print("nil")
+    print("client not set")
+  end
+end
+
+function getIndex(c)
+  if data.index[c.pid] ~= nil then
+    return data.index[c.pid]
+  else
+    print("client not set")
+    return nil
   end
 end
 

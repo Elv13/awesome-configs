@@ -122,9 +122,11 @@ function new(label, buttons)
 --     capi.client.add_signal("unfocus", u)
     local index =0
     function w:add_tab(pid)
-      table.insert(tabs, {name = "test2", index = index, pid = pid, selected = false})
+      local aTab = {name = "test2", index = index, pid = pid, selected = false}
+      table.insert(tabs, aTab)
       tasklist_update(tabs, w, buttons2, label2, data, widgets)
       index = index + 1
+      return aTab
     end
     
     function w:focus2()

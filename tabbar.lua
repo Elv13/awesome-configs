@@ -33,6 +33,7 @@ local mouse = require("awful.mouse")
 local client = require("awful.client")
 local layout = require("awful.widget.layout")
 local urxvtIntegration = require("urxvtIntegration")
+local clientSwitcher =  require("clientSwitcher")
 local tabList = require("tablist")
 
 --- Titlebar module for awful
@@ -40,6 +41,10 @@ module("tabbar")
 
 -- Privata data
 local data = setmetatable({}, { __mode = 'k' })
+
+local idxWdg = {}
+
+local numbers = {'①','②','③','④','⑤','⑥','⑦','⑧','⑨','⑩','⑪','⑫','⑬','⑭','⑮','⑯','⑰','⑱','⑲','⑳'}
 
 -- Predeclaration for buttons
 local button_groups
@@ -72,14 +77,23 @@ function add(c, args)
     create(c,args)
   else
     c.titlebar.visible = true
+    if idxWdg[c.titlebar] then
+      local theme = beautiful.get()
+      local numberStyle = "<span size='large' bgcolor='".. theme.fg_normal .."'color='".. theme.bg_normal .."'><tt><b>"--"<span size='x-large' bgcolor='".. theme.fg_normal .."'color='".. theme.bg_normal .."'><tt><b>"
+      local numberStyleEnd = "</b></tt></span>"--"</b></tt></span> "
+      idxWdg[c.titlebar].text = numberStyle .. (numbers[clientSwitcher.getIndex(c)] or "N/A") .. numberStyleEnd
+    end
   end
 end
 
 function create(c, args)
+    local theme = beautiful.get()
+    local numberStyle = "<span  size='large'bgcolor='".. theme.fg_normal .."'color='".. theme.bg_normal .."'><tt><b>"--"<span size='x-large' bgcolor='".. theme.fg_normal .."'color='".. theme.bg_normal .."'><tt><b>"
+    local numberStyleEnd = "</b></tt></span>"--"</b></tt></span> "
     if not c or (c.type ~= "normal" and c.type ~= "dialog") then return end
     if not args then args = {} end
     if not args.height then args.height = capi.awesome.font_height * 1.5 end
-    local theme = beautiful.get()
+
     if not args.widget then customwidget = {} else customwidget = args.widget end
     -- Store colors
     data[c] = {}
@@ -90,6 +104,9 @@ function create(c, args)
     data[c].width = args.width
     data[c].font = args.font or theme.titlebar_font or theme.font
 
+    --if not args.height then
+      args.height = 16
+    --end
     local tb = capi.wibox(args)
 
     local title = capi.widget({ type = "textbox" })
@@ -104,10 +121,41 @@ function create(c, args)
         abutton({ args.modkey }, 1, button_callback_move),
         abutton({ args.modkey }, 3, button_callback_resize))
     title:buttons(bts)
+    
+    local openS      = capi.widget({ type = "textbox" })
+    openS.text       = '['
+    
+    local closeS     = capi.widget({ type = "textbox" })
+    closeS.text      = ']'
+    
+    local spacer     = capi.widget({ type = "textbox" })
+    spacer.text      = '  '
+    
+    local cpuPer     = capi.widget({ type = "textbox" })
+    cpuPer.text      = ': 0%'
 
-    local appicon = capi.widget({ type = "imagebox" })
-    appicon.image = capi.image(util.getdir("config") .. "/Icon/tags/term.png")
+    local appicon    = capi.widget({ type = "imagebox" })
+    appicon.bg       = theme.fg_normal
+    appicon.image    = capi.image(util.getdir("config") .. "/Icon/tags_invert/term.png")
 
+    idxWdg[tb]       = capi.widget({ type = "textbox" })
+    idxWdg[tb].text  = numberStyle .. (numbers[clientSwitcher.getIndex(c)] or "N/A") .. numberStyleEnd
+    
+    local ramlogo    = capi.widget({ type = "imagebox", align = "right" })
+    ramlogo.image    = capi.image(util.getdir("config") .. "/Icon/cpu.png")
+    
+    local cpulogo    = capi.widget({ type = "imagebox", align = "right" })
+    cpulogo.image    = capi.image(util.getdir("config") .. "/Icon/brain.png")
+    
+    local testBox    = capi.widget({ type = "textbox" })
+    urxvtIntegration.register(testBox,c.pid,"pmem",5)
+    
+    local addTab     = capi.widget({ type = "imagebox", align = "left" })
+    addTab.image     = capi.image(util.getdir("config") .. "/Icon/addTabs.png")
+    
+    local bell0      = capi.widget({ type = "imagebox", align = "left" })
+    bell0.image      = capi.image(util.getdir("config") .. "/Icon/bell2.png")
+    
     -- for each button group, call create for the client.
     -- if a button set is created add the set to the
     -- data[c].button_sets for late updates and add the
@@ -132,9 +180,6 @@ function create(c, args)
     end
 
     
-    local testBox = capi.widget({ type = "textbox" })
-    urxvtIntegration.register(testBox,c.pid,"pmem",5)
-    
     local aGraph = widget.graph()
     aGraph:set_width(50)
     aGraph:set_height(30)
@@ -145,11 +190,9 @@ function create(c, args)
     urxvtIntegration.register(aGraph,c.pid,"pcpu",3)
     
     
-    local addTab = capi.widget({ type = "imagebox", align = "left" })
-    addTab.image = capi.image(util.getdir("config") .. "/Icon/tags/cross2.png")
     
     local aTabList = tabList.new(nil,nil)
-    aTabList:add_tab(c.pid)
+    aTabList:add_tab(c.pid).selected = true
     
     
 --     flex = {
@@ -158,11 +201,19 @@ function create(c, args)
     
     tb.widgets = {
         widget_list,
+        closeS,
+        cpuPer,
+        cpulogo,
+        spacer,
         --aGraph,
         testBox,
+        ramlogo,
+        openS,
+        bell0,
+        addTab,
         {
           appicon,
-          addTab,
+          idxWdg[tb],
           layout = layout.horizontal.leftright
         },
         --flex,
@@ -215,7 +266,10 @@ function create(c, args)
 --           --end
 --         end)
 --       end
-      mytimer:stop()
+      if mytimer then
+        mytimer:stop()
+        mytimer = nil
+      end
     end)
     mytimer:start()
 end
