@@ -138,7 +138,7 @@ function new(mywibox3)
 
 
   volumepixmap       = capi.widget({ type = "imagebox", align = "right" })
-  volumepixmap.image = capi.image("/home/lepagee/Icon/vol.png")
+  volumepixmap.image = capi.image(util.getdir("config") .. "/Icon/vol.png")
   volumepixmap:buttons( util.table.join(
       button({ }, 1, function()
 	  mywibox3.visible = not mywibox3.visible
