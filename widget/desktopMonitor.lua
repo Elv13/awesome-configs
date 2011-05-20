@@ -34,7 +34,7 @@ function new(screen2, args)
   aWibox:geometry({ width = 400, height = 200, x = xPos, y = 40})
   --aWibox:rounded_corners(10)
   wibox.rounded_corners(aWibox,10)
-  aWibox.bg = "#0A1535AA"
+  aWibox.bg = beautiful.bg_normal.."AA"
   
   local systemWdg = capi.widget({ type = "textbox" })
   systemWdg.text = "  <b><u>System:</u></b>"
@@ -165,7 +165,7 @@ function new(screen2, args)
   diskUsageUp.text = "I\O Read: 10kbs"
   diskUsageUp.width = 190
   
---  vicious.register(diskUsageUp, vicious.widgets.dio, "I/O Read: ${read_kb}kbs", 1, "sdb")
+ vicious.register(diskUsageUp, vicious.widgets.dio, "I/O Read: ${sda read_kb}kbs", 1, "sdb")
   
   local diskSpacer1 = capi.widget({ type = "textbox" })
   diskSpacer1.text = " "
@@ -175,7 +175,7 @@ function new(screen2, args)
   diskUsageDown.text = "I\O Write: 10kbs"
   diskUsageDown.width = 190
   
---  vicious.register(diskUsageDown, vicious.widgets.dio, "I/O Write: ${write_kb}kbs", 1, "sdb")
+ vicious.register(diskUsageDown, vicious.widgets.dio, "I/O Write: ${sda write_kb}kbs", 1, "sdb")
   
   local diskSpacer3 = capi.widget({ type = "textbox" })
   diskSpacer3.text = "  "
@@ -191,7 +191,7 @@ function new(screen2, args)
     diskUpGraph:set_offset(1)
   end
   
---  vicious.register(diskUpGraph, vicious.widgets.dio, "${read_kb}", 1, "sdb")
+ vicious.register(diskUpGraph, vicious.widgets.dio, "${sda read_kb}", 1, "sdb")
   
   local diskSpacer2 = capi.widget({ type = "textbox" })
   diskSpacer2.text = " "
@@ -208,7 +208,7 @@ function new(screen2, args)
     diskDownGraph:set_offset(1)
   end
   
---  vicious.register(diskDownGraph, vicious.widgets.dio, "${write_kb}", 1, "sdb")
+ vicious.register(diskDownGraph, vicious.widgets.dio, "${sda write_kb}", 1, "sdb")
   
   local bottomSpacer = capi.widget({ type = "textbox" })
   bottomSpacer.text = " "

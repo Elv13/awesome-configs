@@ -87,7 +87,7 @@ function increment_date()
 
 CUR_DATE=`date +"%d"`
 
-WEATHER=`/home/lepagee/dev/rssstockview/rssStock http://www.weatheroffice.gc.ca/rss/city/qc-133_e.xml --list --onepass | grep -ve "[a-zA-Z ]night:"`
+WEATHER=`rssStock http://www.weatheroffice.gc.ca/rss/city/qc-133_e.xml --list --onepass | grep -ve "[a-zA-Z ]night:"`
 WEATHER=`echo -e "$WEATHER" | sed 's/minus /-/g' | sed 's/plus //g' | sed 's/zero/0/g'`
 COUNT=0
 for LINE in `echo -e "$WEATHER"`;do

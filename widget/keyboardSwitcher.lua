@@ -15,10 +15,10 @@ function update()
 end
 
 local function setupKb()
-  local keyboardPipe = io.open('/tmp/kbMap',"r")
-  local text = keyboardPipe:read("*all")
-  keyboardPipe:close()
-  return text
+  --local keyboardPipe = io.open('/tmp/kbMap',"r") --This is not reliable
+  --local text = keyboardPipe:read("*all")
+  --keyboardPipe:close()
+  return "us"--text
 end
 
 function new(screen, args) 

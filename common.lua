@@ -12,7 +12,7 @@ local setmetatable = setmetatable
 local capi = { widget = widget, button = button }
 
 --- Common widget code
-module("awful.widget.common")
+module("common")
 
 -- Private structures
 tagwidgets = setmetatable({}, { __mode = 'k' })

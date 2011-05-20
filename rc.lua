@@ -24,7 +24,7 @@ vicious.cache(vicious.widgets.fs)
 vicious.cache(vicious.widgets.dio)
 vicious.cache(vicious.widgets.cpu)
 
-beautiful.init(awful.util.getdir("config") .. "/default/theme.lua")
+beautiful.init(awful.util.getdir("config") .. "/lightburn/theme.lua")
 
 -- Some widget for every screens
 wiboxTop  = {}; promptbox = {}; notifibox = {}; layoutmenu = {}; wiboxBot = {}
@@ -191,25 +191,26 @@ for s = 1, screen.count() do
           layoutmenu[s],
           layout = awful.widget.layout.horizontal.leftright
       },
-      (s == 2 or screen.count() == 1) and mytextclock or nil,
-      (s == 2 or screen.count() == 1) and kgetwidget or nil,
-      (s == 2 or screen.count() == 1) and kgetpixmap or nil,
-      (s == 2 or screen.count() == 1) and soundWidget["wid"] or nil,
-      (s == 2 or screen.count() == 1) and soundWidget["pix"] or nil,
-      (s == 2 or screen.count() == 1) and spacer4 or nil,
-      (s == 2 or screen.count() == 1) and netinfo["up_text"] or nil,
-      (s == 2 or screen.count() == 1) and netinfo["up_logo"] or nil,
-      (s == 2 or screen.count() == 1) and netinfo["down_text"] or nil,
-      (s == 2 or screen.count() == 1) and netinfo["down_logo"] or nil,
-      (s == 2 or screen.count() == 1) and spacer2 or nil,
-      (s == 2 or screen.count() == 1) and meminfo["bar"] or nil,
-      (s == 2 or screen.count() == 1) and meminfo["text"] or nil,
-      (s == 2 or screen.count() == 1) and meminfo["logo"] or nil,
+      --           RULES                                       WIDGET
+      (s == 2 or screen.count() == 1)                   and mytextclock or nil,
+      (s == 2 or screen.count() == 1)                   and kgetwidget or nil,
+      (s == 2 or screen.count() == 1)                   and kgetpixmap or nil,
+      ((s == 2 or screen.count() == 1) and soundWidget) and soundWidget["wid"] or nil,
+      ((s == 2 or screen.count() == 1) and soundWidget) and soundWidget["pix"] or nil,
+      (s == 2 or screen.count() == 1)                   and spacer4 or nil,
+      ((s == 2 or screen.count() == 1) and netInfo)     and netinfo["up_text"] or nil,
+      ((s == 2 or screen.count() == 1) and netInfo)     and netinfo["up_logo"] or nil,
+      ((s == 2 or screen.count() == 1) and netInfo)     and netinfo["down_text"] or nil,
+      ((s == 2 or screen.count() == 1) and netInfo)     and netinfo["down_logo"] or nil,
+      (s == 2 or screen.count() == 1)                   and spacer2 or nil,
+      ((s == 2 or screen.count() == 1) and netInfo)     and meminfo["bar"] or nil,
+      ((s == 2 or screen.count() == 1) and netInfo)     and meminfo["text"] or nil,
+      ((s == 2 or screen.count() == 1) and netInfo)     and meminfo["logo"] or nil,
       (s == 2 or screen.count() == 1) and spacer2,
-      (s == 2 or screen.count() == 1) and cpuinfo["graph"] or nil,
-      (s == 2 or screen.count() == 1) and cpuinfo["text"] or nil,
-      (s == 2 or screen.count() == 1) and cpuinfo["logo"] or nil,
-      (s == 2 or screen.count() == 1) and spacer3 or nil,
+      ((s == 2 or screen.count() == 1) and netInto)     and cpuinfo["graph"] or nil,
+      ((s == 2 or screen.count() == 1) and netInfo)     and cpuinfo["text"] or nil,
+      ((s == 2 or screen.count() == 1) and netInfo)     and cpuinfo["logo"] or nil,
+      (s == 2 or screen.count() == 1)                   and spacer3 or nil,
       layout = awful.widget.layout.horizontal.rightleft,
       {
         notifibox[s],

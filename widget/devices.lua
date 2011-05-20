@@ -21,7 +21,7 @@ function update()
 end
 
 function new(screen, args) 
-   add_device("/dev/root,/home/lepagee")
+  add_device("/dev/root,/home/lepagee")
   local deviceList = io.popen("/bin/mount | grep -E \"/dev/(root|sd[a-z])\" | awk '{print $1\",\"$3}'")
   if deviceList then
     while true do
@@ -119,7 +119,7 @@ function add_device(args)
   volUsage:set_width(130)
   volUsage:set_height(10)
   volUsage:set_scale(true)
-  volUsage:set_background_color("#000000"--[[beautiful.bg_normal]])
+  volUsage:set_background_color(beautiful.bg_normal)
   volUsage:set_border_color(beautiful.fg_normal)
   volUsage:set_color(beautiful.fg_normal)
   
