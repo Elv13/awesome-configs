@@ -89,7 +89,7 @@ function new(screen, args)
   
   local mainMenu2 = createMenu()
   
-  local f = io.popen('find '..util.getdir("config") .. "/Icon/tags/ -maxdepth 1 -iname \"*.png\" -type f","r")
+  local f = io.popen('find '..util.getdir("config") .. "/theme/darkBlue/Icon/tags/ -maxdepth 1 -iname \"*.png\" -type f","r")
   local counter = 0
   while true do
     local file = f:read("*line")

@@ -26,7 +26,7 @@ end
 
 function new(screen, args)
   kgetpixmap       = widget({ type = "imagebox", align = "right" })
-  kgetpixmap.image = image(awful.util.getdir("config") .. "/Icon/tags/download.png")
+  kgetpixmap.image = image(awful.util.getdir("config") .. "/theme/darkBlue/Icon/tags/download.png")
 
   kgetwidget = widget({
       type = 'textbox',

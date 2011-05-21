@@ -223,7 +223,7 @@ function createDrawer()
           aMem.border_color = beautiful.bg_normal
           
           testImage2       = capi.widget({ type = "imagebox"})
-          testImage2.image = capi.image(util.getdir("config") .. "/Icon/kill.png")
+          testImage2.image = capi.image(util.getdir("config") .. "/theme/darkBlue/Icon/kill.png")
           
           local aLine = {aMem, aProcess, {testImage2, layout = widget2.layout.horizontal.rightleft}, layout = widget2.layout.horizontal.leftright}
           table.insert(newWidgets, aLine)
@@ -282,7 +282,7 @@ function new(s, args)
   local height = createDrawer() 
 
   ramlogo       = capi.widget({ type = "imagebox", align = "right" })
-  ramlogo.image = capi.image(util.getdir("config") .. "/Icon/cpu.png")
+  ramlogo.image = capi.image(util.getdir("config") .. "/theme/darkBlue/Icon/cpu.png")
   ramlogo:buttons( util.table.join(
     button({ }, 1, function()
       toggleSensorBar()

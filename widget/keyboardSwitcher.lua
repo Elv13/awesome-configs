@@ -28,9 +28,9 @@ function new(screen, args)
   keyboardSwitcher:add_signal("mouse::leave", function() keyboardSwitcher.bg = beautiful.bg_normal end)
 
   if setupKb() ==  "us" then
-    keyboardSwitcher.image = capi.image(util.getdir("config") .. "/Icon/us_flag.png")
+    keyboardSwitcher.image = capi.image(util.getdir("config") .. "/theme/darkBlue/Icon/us_flag.png")
   else
-    keyboardSwitcher.image = capi.image(util.getdir("config") .. "/Icon/canada_flag.png")
+    keyboardSwitcher.image = capi.image(util.getdir("config") .. "/theme/darkBlue/Icon/canada_flag.png")
   end
 
   keyboardSwitcher:buttons( util.table.join(
@@ -41,14 +41,14 @@ function new(screen, args)
 	  aFile:write("ca")
 	  aFile:close() 
 	  util.spawn("setxkbmap ca") 
-	  keyboardSwitcher.image = capi.image(util.getdir("config") .. "/Icon/canada_flag.png")
+	  keyboardSwitcher.image = capi.image(util.getdir("config") .. "/theme/darkBlue/Icon/canada_flag.png")
 	else
 	  keyboardSwitcher.text = "us"
 	  local aFile = io.open('/tmp/kbMap',"w")
 	  aFile:write("us")
 	  aFile:close() 
 	  util.spawn("setxkbmap us")
-	  keyboardSwitcher.image = capi.image(util.getdir("config") .. "/Icon/us_flag.png")
+	  keyboardSwitcher.image = capi.image(util.getdir("config") .. "/theme/darkBlue/Icon/us_flag.png")
 	end
     end)
   ))

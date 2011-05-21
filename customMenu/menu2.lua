@@ -22,7 +22,7 @@ function new(screen, args)
   subArrow.image = capi.image(beautiful.menu_submenu_icon)
   
   local checkbox = capi.widget({type="imagebox"})
-  checkbox.image = capi.image(util.getdir("config") .. "/Icon/check.png")
+  checkbox.image = capi.image(util.getdir("config") .. "/theme/darkBlue/Icon/check.png")
   
   local function createMenu()
     local menu = {settings = {counter = 0, itemHeight = beautiful.menu_height, itemWidth = beautiful.menu_width, x = nil, y = nil, } }

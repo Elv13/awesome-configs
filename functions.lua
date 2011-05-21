@@ -9,31 +9,31 @@ function amixer_volume(format)
    f:close()
    if l+0 == 0 then
     if volumepixmap == not nil then
-      volumepixmap.image = image(awful.util.getdir("config") .. "/Icon/volm.png")
+      volumepixmap.image = image(awful.util.getdir("config") .. "/theme/darkBlue/Icon/volm.png")
     end
     if volumepixmap2 == not nil then
-      volumepixmap2.image = image(awful.util.getdir("config") .. "/Icon/volm.png")
+      volumepixmap2.image = image(awful.util.getdir("config") .. "/theme/darkBlue/Icon/volm.png")
     end
    elseif l+0 < 15 then
    if volumepixmap == not nil then
-      volumepixmap.image = image(awful.util.getdir("config") .. "/Icon/vol1.png")
+      volumepixmap.image = image(awful.util.getdir("config") .. "/theme/darkBlue/Icon/vol1.png")
     end
     if volumepixmap2 == not nil then
-      volumepixmap2.image = image(awful.util.getdir("config") .. "/Icon/vol1.png")
+      volumepixmap2.image = image(awful.util.getdir("config") .. "/theme/darkBlue/Icon/vol1.png")
     end
    elseif l+0 < 35 then
    if volumepixmap == not nil then
-      volumepixmap.image = image(awful.util.getdir("config") .. "/Icon/vol2.png")
+      volumepixmap.image = image(awful.util.getdir("config") .. "/theme/darkBlue/Icon/vol2.png")
     end
     if volumepixmap2 == not nil then
-      volumepixmap2.image = image(awful.util.getdir("config") .. "/Icon/vol2.png")
+      volumepixmap2.image = image(awful.util.getdir("config") .. "/theme/darkBlue/Icon/vol2.png")
     end
    else
     if volumepixmap == not nil then
-      volumepixmap.image = image(awful.util.getdir("config") .. "/Icon/vol3.png")
+      volumepixmap.image = image(awful.util.getdir("config") .. "/theme/darkBlue/Icon/vol3.png")
     end
     if volumepixmap2 == not nil then
-      volumepixmap2.image = image(awful.util.getdir("config") .. "/Icon/vol3.png")
+      volumepixmap2.image = image(awful.util.getdir("config") .. "/theme/darkBlue/Icon/vol3.png")
     end
    end
    return {l}

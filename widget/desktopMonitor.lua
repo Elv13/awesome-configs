@@ -79,10 +79,10 @@ function new(screen2, args)
   netWdg.text = "  <b><u>Networking:</u></b>"
   
   local uploadImg = capi.widget({ type = "imagebox"})
-  uploadImg.image = capi.image(util.getdir("config") .. "/Icon/arrowUp.png")
+  uploadImg.image = capi.image(util.getdir("config") .. "/theme/darkBlue/Icon/arrowUp.png")
   
   local downloadImg = capi.widget({ type = "imagebox"})
-  downloadImg.image = capi.image(util.getdir("config") .. "/Icon/arrowDown.png")
+  downloadImg.image = capi.image(util.getdir("config") .. "/theme/darkBlue/Icon/arrowDown.png")
   
   local netUsageUp = capi.widget({ type = "textbox" })
   netUsageUp.text = "Upload: 10kbs"

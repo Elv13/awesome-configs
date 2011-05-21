@@ -136,25 +136,25 @@ function create(c, args)
 
     local appicon    = capi.widget({ type = "imagebox" })
     appicon.bg       = theme.fg_normal
-    appicon.image    = capi.image(util.getdir("config") .. "/Icon/tags_invert/term.png")
+    appicon.image    = capi.image(util.getdir("config") .. "/theme/darkBlue/Icon/tags_invert/term.png")
 
     idxWdg[tb]       = capi.widget({ type = "textbox" })
     idxWdg[tb].text  = numberStyle .. (numbers[clientSwitcher.getIndex(c)] or "N/A") .. numberStyleEnd
     
     local ramlogo    = capi.widget({ type = "imagebox", align = "right" })
-    ramlogo.image    = capi.image(util.getdir("config") .. "/Icon/cpu.png")
+    ramlogo.image    = capi.image(util.getdir("config") .. "/theme/darkBlue/Icon/cpu.png")
     
     local cpulogo    = capi.widget({ type = "imagebox", align = "right" })
-    cpulogo.image    = capi.image(util.getdir("config") .. "/Icon/brain.png")
+    cpulogo.image    = capi.image(util.getdir("config") .. "/theme/darkBlue/Icon/brain.png")
     
     local testBox    = capi.widget({ type = "textbox" })
     urxvtIntegration.register(testBox,c.pid,"pmem",5)
     
     local addTab     = capi.widget({ type = "imagebox", align = "left" })
-    addTab.image     = capi.image(util.getdir("config") .. "/Icon/addTabs.png")
+    addTab.image     = capi.image(util.getdir("config") .. "/theme/darkBlue/Icon/addTabs.png")
     
     local bell0      = capi.widget({ type = "imagebox", align = "left" })
-    bell0.image      = capi.image(util.getdir("config") .. "/Icon/bell2.png")
+    bell0.image      = capi.image(util.getdir("config") .. "/theme/darkBlue/Icon/bell2.png")
     
     -- for each button group, call create for the client.
     -- if a button set is created add the set to the
