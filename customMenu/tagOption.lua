@@ -7,6 +7,7 @@ local tag = require("awful.tag")
 local util = require("awful.util")
 local shifty = require("shifty")
 local menu2 = require("customMenu.menu2")
+local config = require("config")
 local capi = { image = image,
                widget = widget,
                mouse = mouse,
@@ -89,7 +90,7 @@ function new(screen, args)
   
   local mainMenu2 = createMenu()
   
-  local f = io.popen('find '..util.getdir("config") .. "/theme/darkBlue/Icon/tags/ -maxdepth 1 -iname \"*.png\" -type f","r")
+  local f = io.popen('find '..config.data.iconPath .. "tags/ -maxdepth 1 -iname \"*.png\" -type f","r")
   local counter = 0
   while true do
     local file = f:read("*line")

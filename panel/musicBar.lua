@@ -2,14 +2,14 @@ mywibox3 = awful.wibox({ position = "top", screen = s, height = 20})
 awful.wibox.set_position(mywibox3,"top",1)
 
 previouspixmap       = widget({ type = "imagebox", align = "left" })
-previouspixmap.image = image(awful.util.getdir("config") .. "/theme/darkBlue/Icon/previous.png")
+previouspixmap.image = image(config.data.iconPath .. "previous.png")
 
 previouspixmap:add_signal("mouse::enter", function ()
-    previouspixmap.image = image(awful.util.getdir("config") .. "/theme/darkBlue/Icon/previous_light.png")
+    previouspixmap.image = image(config.data.iconPath .. "previous_light.png")
 end)
 
 previouspixmap:add_signal("mouse::leave", function ()
-  previouspixmap.image = image(awful.util.getdir("config") .. "/theme/darkBlue/Icon/previous.png")
+  previouspixmap.image = image(config.data.iconPath .. "previous.png")
 end)
 
 previouspixmap:buttons(awful.util.table.join(
@@ -23,14 +23,14 @@ previouspixmap:buttons(awful.util.table.join(
 ))
 
 playpixmap       = widget({ type = "imagebox", align = "left" })
-playpixmap.image = image(awful.util.getdir("config") .. "/theme/darkBlue/Icon/play.png")
+playpixmap.image = image(config.data.iconPath .. "play.png")
 
 playpixmap:add_signal("mouse::enter", function ()
-    playpixmap.image = image(awful.util.getdir("config") .. "/theme/darkBlue/Icon/play_light.png")
+    playpixmap.image = image(config.data.iconPath .. "play_light.png")
 end)
 
 playpixmap:add_signal("mouse::leave", function ()
-   playpixmap.image = image(awful.util.getdir("config") .. "/theme/darkBlue/Icon/play.png")
+   playpixmap.image = image(config.data.iconPath .. "play.png")
 end)
 
 playpixmap:buttons(awful.util.table.join(
@@ -44,14 +44,14 @@ playpixmap:buttons(awful.util.table.join(
 ))
 
 pausepixmap       = widget({ type = "imagebox", align = "left" })
-pausepixmap.image = image(awful.util.getdir("config") .. "/theme/darkBlue/Icon/pause.png")
+pausepixmap.image = image(config.data.iconPath .. "pause.png")
 
 pausepixmap:add_signal("mouse::enter", function ()
-    pausepixmap.image = image(awful.util.getdir("config") .. "/theme/darkBlue/Icon/pause_light.png")
+    pausepixmap.image = image(config.data.iconPath .. "pause_light.png")
 end)
 
 pausepixmap:add_signal("mouse::leave", function ()
-  pausepixmap.image = image(awful.util.getdir("config") .. "/theme/darkBlue/Icon/pause.png")
+  pausepixmap.image = image(config.data.iconPath .. "pause.png")
 end)
 
 pausepixmap:buttons(awful.util.table.join(
@@ -65,14 +65,14 @@ pausepixmap:buttons(awful.util.table.join(
 ))
 
 stoppixmap       = widget({ type = "imagebox", align = "left" })
-stoppixmap.image = image(awful.util.getdir("config") .. "/theme/darkBlue/Icon/stop.png")
+stoppixmap.image = image(config.data.iconPath .. "stop.png")
 
 stoppixmap:add_signal("mouse::enter", function ()
-    stoppixmap.image = image(awful.util.getdir("config") .. "/theme/darkBlue/Icon/stop_light.png")
+    stoppixmap.image = image(config.data.iconPath .. "stop_light.png")
 end)
 
 stoppixmap:add_signal("mouse::leave", function ()
-  stoppixmap.image = image(awful.util.getdir("config") .. "/theme/darkBlue/Icon/stop.png")
+  stoppixmap.image = image(config.data.iconPath .. "stop.png")
 end)
 
 stoppixmap:buttons(awful.util.table.join(
@@ -86,14 +86,14 @@ stoppixmap:buttons(awful.util.table.join(
 ))
 
 nextpixmap       = widget({ type = "imagebox", align = "left" })
-nextpixmap.image = image(awful.util.getdir("config") .. "/theme/darkBlue/Icon/next.png")
+nextpixmap.image = image(config.data.iconPath .. "next.png")
 
 nextpixmap:add_signal("mouse::enter", function ()
-    nextpixmap.image = image(awful.util.getdir("config") .. "/theme/darkBlue/Icon/next_light.png")
+    nextpixmap.image = image(config.data.iconPath .. "next_light.png")
 end)
 
 nextpixmap:add_signal("mouse::leave", function ()
-  nextpixmap.image = image(awful.util.getdir("config") .. "/theme/darkBlue/Icon/next.png")
+  nextpixmap.image = image(config.data.iconPath .. "next.png")
 end)
 
 nextpixmap:buttons(awful.util.table.join(
@@ -254,11 +254,11 @@ end
 
 function toggleHeadPhone()
   if headphonecheck == true then
-    headphonecheckpix.image = image(awful.util.getdir("config") .. "/theme/darkBlue/Icon/uncheck.png")
+    headphonecheckpix.image = image(config.data.iconPath .. "uncheck.png")
     awful.util.spawn("amixer -c0 sset Front mute >/dev/null")
     headphonecheck = false
   else
-    headphonecheckpix.image = image(awful.util.getdir("config") .. "/theme/darkBlue/Icon/check.png")
+    headphonecheckpix.image = image(config.data.iconPath .. "check.png")
     awful.util.spawn("amixer -c0 sset Front unmute >/dev/null")
     headphonecheck = true
   end
@@ -266,9 +266,9 @@ end
 
 headphonecheckpix       = widget({ type = "imagebox", align = "right" })
 if headphonecheck == true then
-  headphonecheckpix.image = image(awful.util.getdir("config") .. "/theme/darkBlue/Icon/check.png")
+  headphonecheckpix.image = image(config.data.iconPath .. "check.png")
 else
-  headphonecheckpix.image = image(awful.util.getdir("config") .. "/theme/darkBlue/Icon/uncheck.png")
+  headphonecheckpix.image = image(config.data.iconPath .. "uncheck.png")
 end
 
 headphonecheckpix:buttons(awful.util.table.join(
@@ -300,11 +300,11 @@ end
 
 function toggleSpeakers()
   if speakercheck == true then
-    speakercheckpix.image = image(awful.util.getdir("config") .. "/theme/darkBlue/Icon/uncheck.png")
+    speakercheckpix.image = image(config.data.iconPath .. "uncheck.png")
     awful.util.spawn("amixer -c0 sset Surround mute >/dev/null")
     speakercheck = false
   else
-    speakercheckpix.image = image(awful.util.getdir("config") .. "/theme/darkBlue/Icon/check.png")
+    speakercheckpix.image = image(config.data.iconPath .. "check.png")
     awful.util.spawn("amixer -c0 sset Surround unmute >/dev/null")
     speakercheck = true
   end
@@ -312,9 +312,9 @@ end
 
 speakercheckpix  = widget({ type = "imagebox", align = "right" })
 if speakercheck == true then
-  speakercheckpix.image = image(awful.util.getdir("config") .. "/theme/darkBlue/Icon/check.png")
+  speakercheckpix.image = image(config.data.iconPath .. "check.png")
 else
-  speakercheckpix.image = image(awful.util.getdir("config") .. "/theme/darkBlue/Icon/uncheck.png")
+  speakercheckpix.image = image(config.data.iconPath .. "uncheck.png")
 end
 
 speakercheckpix:buttons(awful.util.table.join(
@@ -389,7 +389,7 @@ volumebarwidget:set_offset(1)
 volumebarwidget:set_margin({top=3,bottom=3})
 
 volumepixmap2       = widget({ type = "imagebox", align = "right" })
-volumepixmap2.image = image(awful.util.getdir("config") .. "/theme/darkBlue/Icon/vol.png")
+volumepixmap2.image = image(config.data.iconPath .. "vol.png")
 volumepixmap2:buttons(awful.util.table.join(
     awful.button({ }, 1, function()
         mywibox3.visible = not mywibox3.visible

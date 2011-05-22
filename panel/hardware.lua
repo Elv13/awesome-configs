@@ -1,7 +1,7 @@
 mywibox4 = awful.wibox({ position = "bottom", screen = s, layout = awful.widget.layout.vertical.flex })
 
 cpuTempIcn       = widget({ type = "imagebox", align = "left" })
-cpuTempIcn.image = image(awful.util.getdir("config") .. "/theme/darkBlue/Icon/temp.png")
+cpuTempIcn.image = image(config.data.iconPath .. "temp.png")
 
 cpuTempLbl = widget({
     type = 'textbox',
@@ -37,7 +37,7 @@ cpuTempVal = widget({
 cpuTempVal.text ="50C | "
 
 gpuTempIcn       = widget({ type = "imagebox", align = "left" })
-gpuTempIcn.image = image(awful.util.getdir("config") .. "/theme/darkBlue/Icon/temp.png")
+gpuTempIcn.image = image(config.data.iconPath .. "temp.png")
 
 gpuTempLbl = widget({
     type = 'textbox',
@@ -71,7 +71,7 @@ gpuTempVal = widget({
 gpuTempVal.text ="50C | "
 
 hddTempIcn       = widget({ type = "imagebox", align = "left" })
-hddTempIcn.image = image(awful.util.getdir("config") .. "/theme/darkBlue/Icon/temp.png")
+hddTempIcn.image = image(config.data.iconPath .. "temp.png")
 
 hddTempLbl = widget({
     type = 'textbox',
@@ -107,7 +107,7 @@ hddTempVal.text ="50C | "
 vicious.register(hddTempVal, vicious.widgets.hddtemp, '${/dev/sda}°C | ', 20)
 
 ambTempIcn       = widget({ type = "imagebox", align = "left" })
-ambTempIcn.image = image(awful.util.getdir("config") .. "/theme/darkBlue/Icon/temp.png")
+ambTempIcn.image = image(config.data.iconPath .. "temp.png")
 
 ambTempLbl = widget({
     type = 'textbox',
@@ -143,7 +143,7 @@ ambTempVal.text ="50C | "
 vicious.register(ambTempVal, getTemp1, "$1°C | ", 10)
 
 cpuFanIcn       = widget({ type = "imagebox", align = "left" })
-cpuFanIcn.image = image(awful.util.getdir("config") .. "/theme/darkBlue/Icon/fan.png")
+cpuFanIcn.image = image(config.data.iconPath .. "fan.png")
 
 cpuFanLbl = widget({
     type = 'textbox',
@@ -162,7 +162,7 @@ cpuFanVal.text ="4232rpm | "
 vicious.register(cpuFanVal, getFan1, "$1rpm | ", 10)
 
 gpuFanIcn       = widget({ type = "imagebox", align = "left" })
-gpuFanIcn.image = image(awful.util.getdir("config") .. "/theme/darkBlue/Icon/fan.png")
+gpuFanIcn.image = image(config.data.iconPath .. "fan.png")
 
 gpuFanLbl = widget({
     type = 'textbox',
@@ -244,7 +244,7 @@ voltage = widget({
 voltage.text ="| <b>Voltage: </b>"
 
 volt12Icn       = widget({ type = "imagebox", align = "right" })
-volt12Icn.image = image(awful.util.getdir("config") .. "/theme/darkBlue/Icon/volt.png")
+volt12Icn.image = image(config.data.iconPath .. "volt.png")
 
 volt12Lbl = widget({
     type = 'textbox',
@@ -261,7 +261,7 @@ volt12Val = widget({
 volt12Val.text ="<small><i>11.2v</i></small> "
 
 volt5Icn       = widget({ type = "imagebox", align = "right" })
-volt5Icn.image = image(awful.util.getdir("config") .. "/theme/darkBlue/Icon/volt.png")
+volt5Icn.image = image(config.data.iconPath .. "volt.png")
 
 volt5Lbl = widget({
     type = 'textbox',
@@ -278,7 +278,7 @@ volt5Val = widget({
 volt5Val.text ="<small><i>5.3v</i></small> "
 
 volt33Icn       = widget({ type = "imagebox", align = "right" })
-volt33Icn.image = image(awful.util.getdir("config") .. "/theme/darkBlue/Icon/volt.png")
+volt33Icn.image = image(config.data.iconPath .. "volt.png")
 
 volt33Lbl = widget({
     type = 'textbox',

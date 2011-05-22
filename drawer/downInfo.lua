@@ -10,6 +10,7 @@ local vicious = require("vicious")
 local tag = require("awful.tag")
 local util = require("awful.util")
 local shifty = require("shifty")
+local config = require("config")
 local capi = { image = image,
                screen = screen,
                widget = widget,
@@ -26,7 +27,7 @@ end
 
 function new(screen, args)
   kgetpixmap       = widget({ type = "imagebox", align = "right" })
-  kgetpixmap.image = image(awful.util.getdir("config") .. "/theme/darkBlue/Icon/tags/download.png")
+  kgetpixmap.image = image(config.data.iconPath .. "tags/download.png")
 
   kgetwidget = widget({
       type = 'textbox',

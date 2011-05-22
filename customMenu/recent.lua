@@ -4,6 +4,7 @@ local button = require("awful.button")
 local beautiful = require("beautiful")
 local util = require("awful.util")
 local menu = require("awful.menu")
+local config = require("config")
 local capi = { image = image,
                screen = screen,
                widget = widget,
@@ -33,7 +34,7 @@ function new(screen, args)
 
   mylauncher3text = capi.widget({ type = "textbox" })
   mylauncher3text.text = "       Recent |"
-  mylauncher3text.bg_image = capi.image(util.getdir("config") .. "/Icon/tags/star2.png")
+  mylauncher3text.bg_image = capi.image(config.data.iconPath .. "tags/star2.png")
   mylauncher3text.bg_align = "left"
   mylauncher3text.bg_resize = true
   

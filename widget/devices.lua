@@ -5,6 +5,7 @@ local string = string
 local button = require("awful.button")
 local wibox = require("awful.wibox")
 local beautiful = require("beautiful")
+local config = require("config")
 local util = require("awful.util")
 local vicious = require("vicious")
 local capi = { image = image,
@@ -66,11 +67,11 @@ function add_device(args)
   local iconTest = capi.widget({ type = "imagebox"})
   
   if devType == "hdd" then
-    iconTest.image = capi.image(util.getdir("config") .. "/theme/darkBlue/Icon/hdd.png")
+    iconTest.image = capi.image(config.data.iconPath .. "hdd.png")
   elseif devType == "net" then
-    iconTest.image = capi.image(util.getdir("config") .. "/theme/darkBlue/Icon/hddn.png")
+    iconTest.image = capi.image(config.data.iconPath .. "hddn.png")
   elseif devType == "home" then
-    iconTest.image = capi.image(util.getdir("config") .. "/theme/darkBlue/Icon/home.png")
+    iconTest.image = capi.image(config.data.iconPath .. "home.png")
   end
   
   iconTest:buttons( util.table.join(
@@ -81,14 +82,14 @@ function add_device(args)
   
   
   local iconTest1 = capi.widget({ type = "imagebox"})
-  iconTest1.image = capi.image(util.getdir("config") .. "/theme/darkBlue/Icon/tags/eject.png")
+  iconTest1.image = capi.image(config.data.iconPath .. "tags/eject.png")
   
   iconTest1:add_signal("mouse::enter", function ()
-    iconTest1.image = capi.image(util.getdir("config") .. "/theme/darkBlue/Icon/tags/eject_over.png")
+    iconTest1.image = capi.image(config.data.iconPath .. "tags/eject_over.png")
   end)
 
   iconTest1:add_signal("mouse::leave", function ()
-    iconTest1.image = capi.image(util.getdir("config") .. "/theme/darkBlue/Icon/tags/eject.png")
+    iconTest1.image = capi.image(config.data.iconPath .. "tags/eject.png")
   end)
   
   local volSpacer = capi.widget({ type = "textbox" })

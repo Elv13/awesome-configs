@@ -1,10 +1,8 @@
 -------------------------------
 --  "lightburn" awesome theme  --
---    By Adrian C. (anrxc)   --
+--    By Emmanuel Lepage Vallee
+--    mostly derived from ZenBurn by Adrian C. (anrxc)   --
 -------------------------------
-
--- Alternative icon sets and widget icons:
---  * http://awesome.naquadah.org/wiki/Nice_Icons
 
 -- {{{ Main
 theme = {}

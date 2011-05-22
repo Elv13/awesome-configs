@@ -8,6 +8,7 @@ local wibox = require("awful.wibox")
 local widget2 = require("awful.widget")
 local beautiful = require("beautiful")
 local util = require("awful.util")
+local config = require("config")
 local capi = { image = image,
                screen = screen,
                widget = widget,
@@ -62,14 +63,14 @@ function soundInfo()
     channal.width = 107
         
     mute = capi.widget({ type = "imagebox", align = "left" })
-    mute.image = capi.image(util.getdir("config") .. "/theme/darkBlue/Icon/volm.png")
+    mute.image = capi.image(config.data.iconPath .. "volm.png")
     mute.width = 25
     mute.bg = "#0F2051"
     mute.border_width = 1
     mute.border_color = beautiful.bg_normal
     
     plus = capi.widget({ type = "imagebox", align = "left" })
-    plus.image = capi.image(util.getdir("config") .. "/theme/darkBlue/Icon/tags/cross2.png")
+    plus.image = capi.image(config.data.iconPath .. "tags/cross2.png")
 
     volume = widget2.progressbar()
     volume:set_width(40)
@@ -84,7 +85,7 @@ function soundInfo()
     --volume:set_margin({top=6,bottom=6})
     
     minus = capi.widget({ type = "imagebox", align = "left" })
-    minus.image = capi.image(util.getdir("config") .. "/theme/darkBlue/Icon/tags/minus2.png")
+    minus.image = capi.image(config.data.iconPath .. "tags/minus2.png")
     counter = counter +1
     table.insert(widgetTable, {mute, channal, plus, volume, minus, layout = widget2.layout.horizontal.leftright})
   end
@@ -138,7 +139,7 @@ function new(mywibox3)
 
 
   volumepixmap       = capi.widget({ type = "imagebox", align = "right" })
-  volumepixmap.image = capi.image(util.getdir("config") .. "/theme/darkBlue/Icon/vol.png")
+  volumepixmap.image = capi.image(config.data.iconPath .. "vol.png")
   volumepixmap:buttons( util.table.join(
       button({ }, 1, function()
 	  mywibox3.visible = not mywibox3.visible
