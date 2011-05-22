@@ -8,7 +8,6 @@ local widget2 = require("awful.widget")
 local wibox = require("awful.wibox")
 local vicious = require("vicious")
 local util = require("awful.util")
-local config = require("config")
 local capi = { image = image,
                screen = screen,
                widget = widget,
@@ -85,11 +84,11 @@ local function createDrawer()
   mainText.text = text2
 	      
   local uploadImg = capi.widget({ type = "imagebox"})
-  uploadImg.image = capi.image(config.data.iconPath .. "arrowUp.png")
+  uploadImg.image = capi.image(util.getdir("config") .. "/theme/darkBlue/Icon/arrowUp.png")
   uploadImg.resize = false
   
   local downloadImg = capi.widget({ type = "imagebox"})
-  downloadImg.image = capi.image(config.data.iconPath .. "arrowDown.png")
+  downloadImg.image = capi.image(util.getdir("config") .. "/theme/darkBlue/Icon/arrowDown.png")
   downloadImg.resize = false
   
   local netUsageUp = capi.widget({ type = "textbox" })
@@ -211,7 +210,7 @@ local function createDrawer()
     appIcon.border_width = 1
     local app2 = capi.widget({type = "textbox"})
     testImage2       = capi.widget({ type = "imagebox"})
-    testImage2.image = capi.image(config.data.iconPath .. "kill.png")
+    testImage2.image = capi.image(util.getdir("config") .. "/theme/darkBlue/Icon/kill.png")
     appWidget[i] = {appIcon=appIcon,app2=app2}
     table.insert(widgetArray, {{appIcon, app2, layout = widget2.layout.horizontal.leftright}, testImage2, layout = widget2.layout.horizontal.rightleft})
   end
@@ -315,7 +314,7 @@ function new(screen, args)
   data.wibox:geometry({ width = 240, height = height, x = capi.screen[capi.mouse.screen].geometry.width*2 -  240, y = 20})
 
   downlogo       = capi.widget({ type = "imagebox", align = "right" })
-  downlogo.image = capi.image(config.data.iconPath .. "arrowDown.png")
+  downlogo.image = capi.image(util.getdir("config") .. "/theme/darkBlue/Icon/arrowDown.png")
 
   downlogo:add_signal("mouse::enter", function ()
       data.wibox.visible = true
@@ -344,7 +343,7 @@ function new(screen, args)
   end)
 
   uplogo       = capi.widget({ type = "imagebox", align = "right" })
-  uplogo.image = capi.image(config.data.iconPath .. "arrowUp.png")
+  uplogo.image = capi.image(util.getdir("config") .. "/theme/darkBlue/Icon/arrowUp.png")
 
   uplogo:add_signal("mouse::enter", function ()
       data.wibox.visible = true

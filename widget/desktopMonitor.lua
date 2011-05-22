@@ -7,7 +7,6 @@ local wibox = require("awful.wibox")
 local tag = require("awful.tag")
 local util = require("awful.util")
 local vicious = require("vicious")
-local config = require("config")
 local capi = { image = image,
                widget = widget,
                screen = screen}
@@ -80,10 +79,10 @@ function new(screen2, args)
   netWdg.text = "  <b><u>Networking:</u></b>"
   
   local uploadImg = capi.widget({ type = "imagebox"})
-  uploadImg.image = capi.image(config.data.iconPath .. "arrowUp.png")
+  uploadImg.image = capi.image(util.getdir("config") .. "/theme/darkBlue/Icon/arrowUp.png")
   
   local downloadImg = capi.widget({ type = "imagebox"})
-  downloadImg.image = capi.image(config.data.iconPath .. "arrowDown.png")
+  downloadImg.image = capi.image(util.getdir("config") .. "/theme/darkBlue/Icon/arrowDown.png")
   
   local netUsageUp = capi.widget({ type = "textbox" })
   netUsageUp.text = "Upload: 10kbs"

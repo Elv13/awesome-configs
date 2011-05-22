@@ -18,7 +18,6 @@ require( "tasklist2"               )
 require( "clientSwitcher"          )
 require( "tabbar"                  )
 require( "taglist"                 )
-require( "config"                  )
 
 -- Cache result for probe used more than once
 vicious.cache( vicious.widgets.net )
@@ -31,44 +30,40 @@ dofile(awful.util.getdir("config") .. "/functions.lua")
 --dofile(awful.util.getdir("config") .. "/musicBar.lua")
 
 -- Some widget for every screens
-wiboxTop       = {}; promptbox = {}; notifibox = {}; layoutmenu = {}; wiboxBot = {}
-mytaglist      = {}; movetagL  = {}; movetagR  = {}; mytasklist = {}; delTag   = {}
+wiboxTop     = {}; promptbox = {}; notifibox = {}; layoutmenu = {}; wiboxBot = {}
+mytaglist    = {}; movetagL  = {}; movetagR  = {}; mytasklist = {}; delTag   = {}
 
 -- Default applications
-terminal       = 'urxvt -tint gray -fade 50 +bl +si -cr red -pr green -iconic -fn "xft:DejaVu Sans Mono:pixelsize=13" -pe tabbed'
-editor         = { cmd = "kwrite" , class = "Kwrite"  }
-ide            = { cmd = "kate"   , class = "Kate"    }
-webbrowser     = { cmd = "firefox", class = "Firefox" }
-mediaplayer    = { cmd = "vlc"    , class = "VLC"     }
-filemanager    = { cmd = "dolphin", class = "Dolphin" }
+terminal     = 'urxvt -tint gray -fade 50 +bl +si -cr red -pr green -iconic -fn "xft:DejaVu Sans Mono:pixelsize=13" -pe tabbed'
+editor       = { cmd = "kwrite" , class = "Kwrite"  }
+ide          = { cmd = "kate"   , class = "Kate"    }
+webbrowser   = { cmd = "firefox", class = "Firefox" }
+mediaplayer  = { cmd = "vlc"    , class = "VLC"     }
+filemanager  = { cmd = "dolphin", class = "Dolphin" }
 
 -- Main awesome key
-modkey         = "Mod4"
+modkey       = "Mod4"
 
 -- Various configuration options
-config.data = {
-  showTitleBar = true, --TODO
-  themeName    = "darkBlue",
-  showNotPopup = true, --TODO
-  showListPref = true, --TODO
-  deviceOnDesk = true, --TODO
-  desktopIcon  = false, --TODO
-  listPref     = {'①','②','③','④','⑤','⑥','⑦','⑧','⑨','⑩','⑪','⑫','⑬','⑭','⑮','⑯','⑰','⑱','⑲','⑳'} --TODO
-}
+showTitleBar = true --TODO
+themeName    = "darkBlue"
+showNotPopup = true --TODO
+showListPref = true --TODO
+deviceOnDesk = true --TODO
+desktopIcon  = false --TODO
+listPref     = {'①','②','③','④','⑤','⑥','⑦','⑧','⑨','⑩','⑪','⑫','⑬','⑭','⑮','⑯','⑰','⑱','⑲','⑳'} --TODO
 
 -- Shifty config
 shifty.config.defaults = {
-  layout       = awful.layout.suit.tile,
-  ncol         = 1,
-  mwfact       = 0.60,
-  floatBars    = true,
+  layout     = awful.layout.suit.tile,
+  ncol       = 1,
+  mwfact     = 0.60,
+  floatBars  = true,
 }
 
 -- Load the theme
-config.data.themePath = awful.util.getdir("config") .. "/theme/" .. config.data.themeName .. "/"
-config.data.iconPath  = config.data.themePath .. "/Icon/"
-beautiful.init(config.data.themePath  .."/theme.lua")
-  
+beautiful.init(awful.util.getdir("config") .. "/theme/".. themeName .."/theme.lua")
+
 -- Create the panels
 for s = 1, screen.count() do
   wiboxTop[s] = awful.wibox({ position = "top"   , screen = s, height = 16 })

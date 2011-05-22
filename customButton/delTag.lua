@@ -4,7 +4,6 @@ local beautiful = require("beautiful")
 local tag = require("awful.tag")
 local util = require("awful.util")
 local shifty = require("shifty")
-local config = require("config")
 local capi = { image = image,
                screen = screen,
                widget = widget,
@@ -29,7 +28,7 @@ end
 
 function new(screen, args) 
   data[screen] = capi.widget({ type = "imagebox", align = "left" })
-  data[screen].image = capi.image(config.data.iconPath .. "tags/minus2.png")
+  data[screen].image = capi.image(util.getdir("config") .. "/Icon/tags/minus2.png")
   data[screen].visible = false
   
   data[screen]:buttons( util.table.join(

@@ -5,7 +5,6 @@ local beautiful = require("beautiful")
 local util = require("awful.util")
 local shifty = require("shifty")
 local menu2 = require("customMenu.menu2")
-local config = require("config")
 local capi = { image = image,
                widget = widget,
                mouse = mouse}
@@ -20,7 +19,7 @@ end
 
 function new(screen, args) 
   local addTag = capi.widget({ type = "imagebox", align = "left" })
-  addTag.image = capi.image(config.data.iconPath .. "tags/cross2.png")
+  addTag.image = capi.image(util.getdir("config") .. "/Icon/tags/cross2.png")
   local tagMenu = menu2()
 
   for v, i in next, shifty.config.tags do
