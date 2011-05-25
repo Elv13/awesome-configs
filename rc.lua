@@ -12,12 +12,15 @@ require( "widget.keyboardSwitcher" )
 require( "widget.desktopMonitor"   )
 require( "widget.devices"          )
 require( "widget.dock"             )
+require( "panel.musicBar"          )
+require( "panel.hardware"          )
 require( "mouseManager"            )
 require( "urxvtIntegration"        )
 require( "tasklist2"               )
 require( "clientSwitcher"          )
 require( "tabbar"                  )
 require( "taglist"                 )
+require( "config"                  )
 
 -- Cache result for probe used more than once
 vicious.cache( vicious.widgets.net )
@@ -27,43 +30,48 @@ vicious.cache( vicious.widgets.cpu )
 
 dofile(awful.util.getdir("config") .. "/functions.lua")
 --dofile(awful.util.getdir("config") .. "/hardware.lua")
---dofile(awful.util.getdir("config") .. "/musicBar.lua")
 
 -- Some widget for every screens
-wiboxTop     = {}; promptbox = {}; notifibox = {}; layoutmenu = {}; wiboxBot = {}
-mytaglist    = {}; movetagL  = {}; movetagR  = {}; mytasklist = {}; delTag   = {}
+wiboxTop        = {}; promptbox = {}; notifibox = {}; layoutmenu = {}; wiboxBot = {}
+mytaglist       = {}; movetagL  = {}; movetagR  = {}; mytasklist = {}; delTag   = {}
 
 -- Default applications
-terminal     = 'urxvt -tint gray -fade 50 +bl +si -cr red -pr green -iconic -fn "xft:DejaVu Sans Mono:pixelsize=13" -pe tabbed'
-editor       = { cmd = "kwrite" , class = "Kwrite"  }
-ide          = { cmd = "kate"   , class = "Kate"    }
-webbrowser   = { cmd = "firefox", class = "Firefox" }
-mediaplayer  = { cmd = "vlc"    , class = "VLC"     }
-filemanager  = { cmd = "dolphin", class = "Dolphin" }
+terminal        = 'urxvt -tint gray -fade 50 +bl +si -cr red -pr green -iconic -fn "xft:DejaVu Sans Mono:pixelsize=13" -pe tabbed'
+editor          = { cmd = "kwrite" , class = "Kwrite"  }
+ide             = { cmd = "kate"   , class = "Kate"    }
+webbrowser      = { cmd = "firefox", class = "Firefox" }
+mediaplayer     = { cmd = "vlc"    , class = "VLC"     }
+filemanager     = { cmd = "dolphin", class = "Dolphin" }
 
 -- Main awesome key
-modkey       = "Mod4"
+modkey          = "Mod4"
 
 -- Various configuration options
-showTitleBar = true --TODO
-themeName    = "darkBlue"
-showNotPopup = true --TODO
-showListPref = true --TODO
-deviceOnDesk = true --TODO
-desktopIcon  = false --TODO
-listPref     = {'①','②','③','④','⑤','⑥','⑦','⑧','⑨','⑩','⑪','⑫','⑬','⑭','⑮','⑯','⑰','⑱','⑲','⑳'} --TODO
+config.data = {
+  showTitleBar  = false,
+  themeName     = "darkBlue",
+  noNotifyPopup = true, --TODO
+  useListPrefix = true,
+  deviceOnDesk  = true, 
+  desktopIcon   = false, --TODO
+  advTermTB     = true, 
+  scriptPath    = awful.util.getdir("config") .. "/Scripts/",
+  listPrefix    = {'①','②','③','④','⑤','⑥','⑦','⑧','⑨','⑩','⑪','⑫','⑬','⑭','⑮','⑯','⑰','⑱','⑲','⑳'}
+}
 
 -- Shifty config
 shifty.config.defaults = {
-  layout     = awful.layout.suit.tile,
-  ncol       = 1,
-  mwfact     = 0.60,
-  floatBars  = true,
+  layout       = awful.layout.suit.tile,
+  ncol         = 1,
+  mwfact       = 0.60,
+  floatBars    = true,
 }
 
 -- Load the theme
-beautiful.init(awful.util.getdir("config") .. "/theme/".. themeName .."/theme.lua")
-
+config.data.themePath = awful.util.getdir("config") .. "/theme/" .. config.data.themeName .. "/"
+config.data.iconPath  = config.data.themePath .. "/Icon/"
+beautiful.init(config.data.themePath  .."/theme.lua")
+  
 -- Create the panels
 for s = 1, screen.count() do
   wiboxTop[s] = awful.wibox({ position = "top"   , screen = s, height = 16 })
@@ -120,6 +128,12 @@ tagMenu                = customMenu.tagOption     ( nil                         
 
 -- Create the mod4 + middle click menu on a client
 clientMenu             = customMenu.clientMenu    ( nil                                )
+
+-- Create the music panel
+musicBar = panel.musicBar()
+
+-- Create the hardware alarm panel
+hardwarePanel = panel.hardware()
 
 -- Shifty rules
 dofile(awful.util.getdir("config") .. "/baseRule.lua"                                  )
@@ -217,8 +231,8 @@ for s = 1, screen.count() do
   mytasklist[s] = tasklist2(function(c) return tasklist2.label.currenttags(c, s) end, mytasklist.buttons)
   
   -- Create the button to move a tag the next screen
-  movetagL[s]   = customButton.tagmover(s,{ direction = "left",  icon = awful.util.getdir("config") .. "/theme/darkBlue/Icon/tags/screen_left.png"  })
-  movetagR[s]   = customButton.tagmover(s,{ direction = "right", icon = awful.util.getdir("config") .. "/theme/darkBlue/Icon/tags/screen_right.png" })
+  movetagL[s]   = customButton.tagmover(s,{ direction = "left",  icon = config.data.iconPath .. "tags/screen_left.png"  })
+  movetagR[s]   = customButton.tagmover(s,{ direction = "right", icon = config.data.iconPath .. "tags/screen_right.png" })
   
   -- Top wibox widgets
   wiboxTop[s].widgets = { 
@@ -239,18 +253,18 @@ for s = 1, screen.count() do
       ((s == 2 or screen.count() == 1) and soundWidget ) and soundWidget["wid"]     or nil,
       ((s == 2 or screen.count() == 1) and soundWidget ) and soundWidget["pix"]     or nil,
       ( s == 2 or screen.count() == 1                  ) and spacer4                or nil,
-      ((s == 2 or screen.count() == 1) and netInfo     ) and netinfo["up_text"]     or nil,
-      ((s == 2 or screen.count() == 1) and netInfo     ) and netinfo["up_logo"]     or nil,
-      ((s == 2 or screen.count() == 1) and netInfo     ) and netinfo["down_text"]   or nil,
-      ((s == 2 or screen.count() == 1) and netInfo     ) and netinfo["down_logo"]   or nil,
+      ((s == 2 or screen.count() == 1) and netinfo     ) and netinfo["up_text"]     or nil,
+      ((s == 2 or screen.count() == 1) and netinfo     ) and netinfo["up_logo"]     or nil,
+      ((s == 2 or screen.count() == 1) and netinfo     ) and netinfo["down_text"]   or nil,
+      ((s == 2 or screen.count() == 1) and netinfo     ) and netinfo["down_logo"]   or nil,
       ( s == 2 or screen.count() == 1                  ) and spacer2                or nil,
-      ((s == 2 or screen.count() == 1) and netInfo     ) and meminfo["bar"]         or nil,
-      ((s == 2 or screen.count() == 1) and netInfo     ) and meminfo["text"]        or nil,
-      ((s == 2 or screen.count() == 1) and netInfo     ) and meminfo["logo"]        or nil,
+      ((s == 2 or screen.count() == 1) and meminfo     ) and meminfo["bar"]         or nil,
+      ((s == 2 or screen.count() == 1) and meminfo     ) and meminfo["text"]        or nil,
+      ((s == 2 or screen.count() == 1) and meminfo     ) and meminfo["logo"]        or nil,
       ( s == 2 or screen.count() == 1                  ) and spacer2                or nil,
-      ((s == 2 or screen.count() == 1) and netInto     ) and cpuinfo["graph"]       or nil,
-      ((s == 2 or screen.count() == 1) and netInfo     ) and cpuinfo["text"]        or nil,
-      ((s == 2 or screen.count() == 1) and netInfo     ) and cpuinfo["logo"]        or nil,
+      ((s == 2 or screen.count() == 1) and cpuinto     ) and cpuinfo["graph"]       or nil,
+      ((s == 2 or screen.count() == 1) and cpuinfo     ) and cpuinfo["text"]        or nil,
+      ((s == 2 or screen.count() == 1) and cpuinfo     ) and cpuinfo["logo"]        or nil,
       ( s == 2 or screen.count() == 1                  ) and spacer3                or nil,
       layout = awful.widget.layout.horizontal.rightleft,                            ------
       {                                                                             ------
@@ -281,7 +295,9 @@ for s = 1, screen.count() do
 end
 
 -- Add the drives list on the desktop
-widget.devices()
+if config.data.deviceOnDesk == true then
+  widget.devices()
+end
 
 
 shifty.taglist = mytaglist
@@ -294,8 +310,8 @@ dofile(awful.util.getdir("config") .. "/keyBinding.lua")
 
 -- Hooks
 client.add_signal("manage", function (c, startup)
-    -- Add a titlebar --TODO DEAD CODE?
-    if awful.client.floating.get(c) == true or showTitleBar == true then
+    -- Add a titlebar to floating clients
+    if awful.client.floating.get(c) == true or config.data.showTitleBar == true  then
       if (not c.class == "^XMMS$" or not c.class == "Xine") then
 	awful.titlebar.add(c, { modkey = modkey })
       end

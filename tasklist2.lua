@@ -19,6 +19,7 @@ local beautiful = require("beautiful")
 local client = require("awful.client")
 local util = require("awful.util")
 local tag = require("awful.tag")
+local config = require("config")
 local layout = require("awful.widget.layout")
 local clientSwitcher = require("clientSwitcher")
 
@@ -28,7 +29,6 @@ module("tasklist2")
 -- Public structures
 label = {}
 local counter = 0
-local numbers = {'①','②','③','④','⑤','⑥','⑦','⑧','⑨','⑩','⑪','⑫','⑬','⑭','⑮','⑯','⑰','⑱','⑲','⑳'}
 
 local function tasklist_update(w, buttons, label, data, widgets)
   counter = 0
@@ -117,10 +117,18 @@ local function widget_tasklist_label_common(c, args)
     end
     if capi.client.focus == c then
         bg = bg_focus
-        if fg_focus then
-            text = text ..numberStyle..numbers[counter]..numberStyleEnd.."<span color='"..util.color_strip_alpha(fg_focus).."'>"..name.."</span>"
+        if config.data.useListPrefix == true then
+          if fg_focus then
+            text = text .. numberStyle..config.data.listPrefix[counter]..numberStyleEnd.."<span color='"..util.color_strip_alpha(fg_focus).."'>"..name.."</span>"
+          else
+            text = text .. numberStyle..config.data.listPrefix[counter]..numberStyleEnd..name
+          end
         else
-            text = text .. numberStyle..numbers[counter]..numberStyleEnd..name
+          if fg_focus then
+            text = text .."<span color='"..util.color_strip_alpha(fg_focus).."'>"..name.."</span>"
+          else
+            text = text .. name
+          end
         end
     elseif c.urgent and fg_urgent then
         bg = bg_urgent
@@ -129,10 +137,14 @@ local function widget_tasklist_label_common(c, args)
         bg = bg_minimize
         text = text .. "<span color='"..util.color_strip_alpha(fg_minimize).."'>"..name.."</span>"
     else
-        text = text .. numberStyle..numbers[counter]..numberStyleEnd .. name
+      if config.data.useListPrefix == true then
+        text = text .. numberStyle..config.data.listPrefix[counter]..numberStyleEnd .. name
+      else
+        text = text .. name
+      end
     end
     text = text .. "</span>"
-    return text, bg, status_image, c.icon, beautiful.fg_normal
+    return text, bg, status_image, c.icon, (config.data.useListPrefix == true and beautiful.fg_normal or bg)
 end
 
 --- Return labels for a tasklist widget with clients from all tags and screen.

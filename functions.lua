@@ -9,31 +9,31 @@ function amixer_volume(format)
    f:close()
    if l+0 == 0 then
     if volumepixmap == not nil then
-      volumepixmap.image = image(awful.util.getdir("config") .. "/theme/darkBlue/Icon/volm.png")
+      volumepixmap.image = image(config.data.iconPath .. "volm.png")
     end
     if volumepixmap2 == not nil then
-      volumepixmap2.image = image(awful.util.getdir("config") .. "/theme/darkBlue/Icon/volm.png")
+      volumepixmap2.image = image(config.data.iconPath .. "volm.png")
     end
    elseif l+0 < 15 then
    if volumepixmap == not nil then
-      volumepixmap.image = image(awful.util.getdir("config") .. "/theme/darkBlue/Icon/vol1.png")
+      volumepixmap.image = image(config.data.iconPath .. "vol1.png")
     end
     if volumepixmap2 == not nil then
-      volumepixmap2.image = image(awful.util.getdir("config") .. "/theme/darkBlue/Icon/vol1.png")
+      volumepixmap2.image = image(config.data.iconPath .. "vol1.png")
     end
    elseif l+0 < 35 then
    if volumepixmap == not nil then
-      volumepixmap.image = image(awful.util.getdir("config") .. "/theme/darkBlue/Icon/vol2.png")
+      volumepixmap.image = image(config.data.iconPath .. "vol2.png")
     end
     if volumepixmap2 == not nil then
-      volumepixmap2.image = image(awful.util.getdir("config") .. "/theme/darkBlue/Icon/vol2.png")
+      volumepixmap2.image = image(config.data.iconPath .. "vol2.png")
     end
    else
     if volumepixmap == not nil then
-      volumepixmap.image = image(awful.util.getdir("config") .. "/theme/darkBlue/Icon/vol3.png")
+      volumepixmap.image = image(config.data.iconPath .. "vol3.png")
     end
     if volumepixmap2 == not nil then
-      volumepixmap2.image = image(awful.util.getdir("config") .. "/theme/darkBlue/Icon/vol3.png")
+      volumepixmap2.image = image(config.data.iconPath .. "vol3.png")
     end
    end
    return {l}
@@ -131,13 +131,13 @@ function string:split(sep)
 end
 
 function addTitleBar(screen)
-  local add_title = false
+  local add_title = config.data.showTitleBar or false
   if awful.layout.get(screen) == awful.layout.suit.floating then
     add_title = true 
   end
   if awful.tag.selected() ~= nil then
     for i, client in ipairs(awful.tag.selected():clients()) do
-      if client.class == "urxvt" or client.class == "URxvt" then
+      if (client.class == "urxvt" or client.class == "URxvt") and config.data.advTermTB == true then
         tabbar.add(client)
       elseif add_title == true or awful.client.floating.get(client) == true or customMenu.layoutmenu.showTitle(awful.tag.selected()) == true then
 	awful.titlebar.add(client, { modkey = modkey })

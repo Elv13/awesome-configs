@@ -8,6 +8,7 @@ local client2 = require("awful.client")
 local tag = require("awful.tag")
 local tabbar = require("tabbar")
 local util = require("awful.util")
+local config = require("config")
 local beautiful = require("beautiful")
 local wibox = require("awful.wibox")
 local capi = { image = image,
@@ -30,7 +31,7 @@ end
 local showTitleBar = {}
 
 local function enableTitleBar(value)
-  if tag.selected() ~= nil then
+  if tag.selected() ~= nil and config.data.advTermTB == true then
     for i, client in ipairs(tag.selected():clients()) do
       if value == true or client2.floating.get(client) == true then
 	tabbar.add(client)

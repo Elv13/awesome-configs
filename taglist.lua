@@ -16,6 +16,7 @@ local ipairs = ipairs
 local table = table
 local common = require("common")
 local util = require("awful.util")
+local config = require("config")
 local tag = require("awful.tag")
 local beautiful = require("beautiful")
 local layout = require("awful.widget.layout")
@@ -163,11 +164,20 @@ function label.all(t, args)
         end
     end
     if not tag.getproperty(t, "icon_only") then
-        if fg_color then
-            text = text .. numberStyle..numbers[tag.getidx(t)]..numberStyleEnd.."<span color='"..util.color_strip_alpha(fg_color).."'>"
-            text = text.. " " .. (util.escape(t.name) or "") .." </span>"
+        if config.data.useListPrefix == true then
+          if fg_color then
+            text = text .. numberStyle..config.data.listPrefix[tag.getidx(t)]..numberStyleEnd.."<span color='"..util.color_strip_alpha(fg_color).."'>"
+            text = text .. " " .. (util.escape(t.name) or "") .." </span>"
+          else
+            text = text .. numberStyle..config.data.listPrefix[tag.getidx(t)]..numberStyleEnd.. " " .. (util.escape(t.name) or "") .. " "
+          end
         else
-            text = text ..numberStyle..numbers[tag.getidx(t)]..numberStyleEnd.. " " .. (util.escape(t.name) or "") .. " "
+          if fg_color then
+            text = text .. "<span color='"..util.color_strip_alpha(fg_color).."'>"
+            text = text .. " " .. (util.escape(t.name) or "") .." </span>"
+          else
+            text = text .. " " .. (util.escape(t.name) or "") .. " "
+          end
         end
     end
     text = text .. "</span>"
@@ -177,7 +187,7 @@ function label.all(t, args)
         icon = capi.image(tag.geticon(t))
     end
 
-    return text, bg_color, bg_image, icon, beautiful.fg_normal
+    return text, bg_color, bg_image, icon, (config.data.useListPrefix == true and beautiful.fg_normal or bg_color)
 end
 
 --- Return labels for a taglist widget with all *non empty* tags from screen.
