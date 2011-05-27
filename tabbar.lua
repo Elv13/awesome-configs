@@ -33,7 +33,7 @@ local mouse = require("awful.mouse")
 local client = require("awful.client")
 local layout = require("awful.widget.layout")
 local urxvtIntegration = require("urxvtIntegration")
-local clientSwitcher =  require("clientSwitcher")
+local clientSwitcher =  require("utils.clientSwitcher")
 local tabList = require("tablist")
 
 --- Titlebar module for awful

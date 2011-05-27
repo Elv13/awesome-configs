@@ -4,6 +4,7 @@ local tag = require("awful.tag")
 local util = require("awful.util")
 local shifty = require("shifty")
 local beautiful = require("beautiful")
+local utils = require("utils.tools")
 local menu2 = require("customMenu.menu2")
 local capi = { image = image,
                screen = screen,
@@ -54,7 +55,7 @@ function new(screen, args)
     
     for i=1,capi.screen.count() do
       screenMenu:addItem(i,nil,function() 
-                                tag_to_screen(data[id].selected,i)
+                                utils.tools.tag_to_screen(data[id].selected,i)
                                 screenMenu:toggle()
                                end,nil)
     end
@@ -78,7 +79,7 @@ function new(screen, args)
 	    if screen2 > capi.screen.count() then
 	      screen2 = 1
 	    end
-	    tag_to_screen(data[id].selected, screen2)
+	    utils.tools.tag_to_screen(data[id].selected, screen2)
 	    data[id].selected = tag.selected(screen)
 	  end
       end),
@@ -91,7 +92,7 @@ function new(screen, args)
 	    if screen2 > capi.screen.count() then
 	      screen2 = 1
 	    end
-	    tag_to_screen(data[id].selected, screen2)
+	    utils.tools.tag_to_screen(data[id].selected, screen2)
 	  end
       end),
       button({ }, 5, function()
@@ -100,29 +101,13 @@ function new(screen, args)
 	    if screen2 == 0 then
 	      screen2 = capi.screen.count()
 	    end
-	    tag_to_screen(data[id].selected, screen2)
+	    utils.tools.tag_to_screen(data[id].selected, screen2)
 	  end
       end)
     ))
     
 
     return data[id].widget
-end
-
---By bios007
-function tag_to_screen(t, scr)
-    local ts = t or tag.selected()
-    tag.history.restore(ts.screen,1)
-    shifty.set(ts, { screen = scr or
-                    awful.util.cycle(capi.screen.count(), ts.screen + 1)})
-    tag.viewonly(ts)
-    --capi.mouse.screen = ts.screen //Move the mouse the the screen
-
-    if #ts:clients() > 0 then
-        local c = ts:clients()[1]
-        capi.client.focus = c
-        c:raise()
-    end
 end
 
 setmetatable(_M, { __call = function(_, ...) return new(...) end })

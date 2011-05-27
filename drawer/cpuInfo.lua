@@ -6,6 +6,7 @@ local loadstring = loadstring
 local tonumber = tonumber
 local beautiful = require("beautiful")
 local widget2 = require("awful.widget")
+local config = require("config")
 local vicious = require("vicious")
 local util = require("awful.util")
 local wibox = require("awful.wibox")
@@ -235,7 +236,7 @@ function createDrawer()
 	aMem.border_color = beautiful.bg_normal
 	
 	testImage2       = capi.widget({ type = "imagebox"})
-	testImage2.image = capi.image(util.getdir("config") .. "/theme/darkBlue/Icon/kill.png")
+	testImage2.image = capi.image(config.data.iconPath .. "kill.png")
 	
 	local aLine = {aMem, aProcess, {testImage2, layout = widget2.layout.horizontal.rightleft}, layout = widget2.layout.horizontal.leftright}
 	table.insert(cpuWidgetArray, aLine)
@@ -261,7 +262,7 @@ function new(screen, args)
   data.wibox:geometry({ width = 212, height = height, x = capi.screen[capi.mouse.screen].geometry.width*2 -  212, y = 20})
 
   cpulogo       = capi.widget({ type = "imagebox", align = "right" })
-  cpulogo.image = capi.image(util.getdir("config") .. "/theme/darkBlue/Icon/brain.png")
+  cpulogo.image = capi.image(config.data.iconPath .. "brain.png")
   cpulogo:buttons( util.table.join(
     button({ }, 1, function()
       toggleSensorBar()

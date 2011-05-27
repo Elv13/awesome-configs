@@ -9,7 +9,9 @@ local widget2 = require("awful.widget")
 local naughty = require("naughty")
 local vicious = require("vicious")
 local tag = require("awful.tag")
+local utils = require("utils.tools")
 local print = print
+local config = require("config")
 local util = require("awful.util")
 local wibox = require("awful.wibox")
 local shifty = require("shifty")
@@ -31,7 +33,7 @@ end
 local function run_or_raise(cmd, properties)
    local clients = client.get()
    for i, c in pairs(clients) do
-      if match(properties, c) then
+      if utils.tools.match(properties, c) then
          local ctags = c:tags()
          if table.getn(ctags) == 0 then
             local curtag = tag.selected()
@@ -42,15 +44,6 @@ local function run_or_raise(cmd, properties)
       end
    end
    util.spawn(cmd)
-end
-
-local function match (table1, table2)
-   for k, v in pairs(table1) do
-      if table2[k] ~= v then
-         return false
-      end
-   end
-   return true
 end
 
 local function executeApps(screen, tagName , cmd, class)
@@ -109,7 +102,7 @@ function displayInfo(anApps, name)
 end
 
 inkscape       = capi.widget({ type = "imagebox", align = "left" })
-inkscape.image = capi.image(util.getdir("config") .. "/theme/darkBlue/Icon/inkscape.png")
+inkscape.image = capi.image(config.data.iconPath .. "inkscape.png")
 displayInfo(inkscape,"inkscape")
 inkscape:buttons(util.table.join(
    button({ }, 1, function()
@@ -121,7 +114,7 @@ inkscape:buttons(util.table.join(
 ))
 
 konqueror       = capi.widget({ type = "imagebox", align = "left" })
-konqueror.image = capi.image(util.getdir("config") .. "/theme/darkBlue/Icon/konquror.png")
+konqueror.image = capi.image(config.data.iconPath .. "konquror.png")
 displayInfo(konqueror,"konqueror")
 konqueror:buttons(util.table.join(
    button({ }, 1, function()
@@ -133,7 +126,7 @@ konqueror:buttons(util.table.join(
 ))
 
 blender       = capi.widget({ type = "imagebox", align = "left" })
-blender.image = capi.image(util.getdir("config") .. "/theme/darkBlue/Icon/blender.png")
+blender.image = capi.image(config.data.iconPath .. "blender.png")
 displayInfo(blender,"blender")
 blender:buttons(util.table.join(
    button({ }, 1, function()
@@ -145,7 +138,7 @@ blender:buttons(util.table.join(
 ))
 
 cinelerra       = capi.widget({ type = "imagebox", align = "left" })
-cinelerra.image = capi.image(util.getdir("config") .. "/theme/darkBlue/Icon/cinelerra.png")
+cinelerra.image = capi.image(config.data.iconPath .. "cinelerra.png")
 displayInfo(cinelerra,"cinelerra")
 cinelerra:buttons(util.table.join(
    button({ }, 1, function()
@@ -157,7 +150,7 @@ cinelerra:buttons(util.table.join(
 ))
 
 codeblocks       = capi.widget({ type = "imagebox", align = "left" })
-codeblocks.image = capi.image(util.getdir("config") .. "/theme/darkBlue/Icon/code-blocks.png")
+codeblocks.image = capi.image(config.data.iconPath .. "code-blocks.png")
 displayInfo(codeblocks,"codeblocks")
 codeblocks:buttons(util.table.join(
    button({ }, 1, function()
@@ -169,7 +162,7 @@ codeblocks:buttons(util.table.join(
 ))
 
 kdevelop       = capi.widget({ type = "imagebox", align = "left" })
-kdevelop.image = capi.image(util.getdir("config") .. "/theme/darkBlue/Icon/kdevelop.png")
+kdevelop.image = capi.image(config.data.iconPath .. "kdevelop.png")
 displayInfo(kdevelop,"kdevelop")
 kdevelop:buttons(util.table.join(
    button({ }, 1, function()
@@ -181,7 +174,7 @@ kdevelop:buttons(util.table.join(
 ))
 
 gimp       = capi.widget({ type = "imagebox", align = "left" })
-gimp.image = capi.image(util.getdir("config") .. "/theme/darkBlue/Icon/gimp.png")
+gimp.image = capi.image(config.data.iconPath .. "gimp.png")
 displayInfo(gimp,"gimp")
 gimp:buttons(util.table.join(
    button({ }, 1, function()
@@ -193,7 +186,7 @@ gimp:buttons(util.table.join(
 ))
 
 oowrite       = capi.widget({ type = "imagebox", align = "left" })
-oowrite.image = capi.image(util.getdir("config") .. "/theme/darkBlue/Icon/oowriter2.png")
+oowrite.image = capi.image(config.data.iconPath .. "oowriter2.png")
 displayInfo(oowrite,"writer")
 oowrite:buttons(util.table.join(
    button({ }, 1, function()
@@ -205,7 +198,7 @@ oowrite:buttons(util.table.join(
 ))
 
 oocalc       = capi.widget({ type = "imagebox", align = "left" })
-oocalc.image = capi.image(util.getdir("config") .. "/theme/darkBlue/Icon/oocalc2.png")
+oocalc.image = capi.image(config.data.iconPath .. "oocalc2.png")
 displayInfo(oocalc,"calc")
 oocalc:buttons(util.table.join(
    button({ }, 1, function()
@@ -217,7 +210,7 @@ oocalc:buttons(util.table.join(
 ))
 
 ooimpress       = capi.widget({ type = "imagebox", align = "left" })
-ooimpress.image = capi.image(util.getdir("config") .. "/theme/darkBlue/Icon/oopres2.png")
+ooimpress.image = capi.image(config.data.iconPath .. "oopres2.png")
 displayInfo(ooimpress,"impress")
 ooimpress:buttons(util.table.join(
    button({ }, 1, function()
@@ -229,7 +222,7 @@ ooimpress:buttons(util.table.join(
 ))
 
 oomath       = capi.widget({ type = "imagebox", align = "left" })
-oomath.image = capi.image(util.getdir("config") .. "/theme/darkBlue/Icon/ooformula2.png")
+oomath.image = capi.image(config.data.iconPath .. "ooformula2.png")
 displayInfo(oomath,"math")
 oomath:buttons(util.table.join(
    button({ }, 1, function()
@@ -241,7 +234,7 @@ oomath:buttons(util.table.join(
 ))
 
 oobase       = capi.widget({ type = "imagebox", align = "left" })
-oobase.image = capi.image(util.getdir("config") .. "/theme/darkBlue/Icon/oobase2.png")
+oobase.image = capi.image(config.data.iconPath .. "oobase2.png")
 displayInfo(oobase,"base")
 oobase:buttons(util.table.join(
    button({ }, 1, function()
@@ -253,7 +246,7 @@ oobase:buttons(util.table.join(
 ))
 
 vlc       = capi.widget({ type = "imagebox", align = "left" })
-vlc.image = capi.image(util.getdir("config") .. "/theme/darkBlue/Icon/vlc.png")
+vlc.image = capi.image(config.data.iconPath .. "vlc.png")
 displayInfo(vlc,"vlc")
 vlc:buttons(util.table.join(
    button({ }, 1, function()
@@ -265,7 +258,7 @@ vlc:buttons(util.table.join(
 ))
 
 vmware       = capi.widget({ type = "imagebox", align = "left" })
-vmware.image = capi.image(util.getdir("config") .. "/theme/darkBlue/Icon/windows.png")
+vmware.image = capi.image(config.data.iconPath .. "windows.png")
 vmware:buttons(util.table.join(
    button({ }, 1, function()
       executeApps(1, "Internet" , "inkscape", "Inkscape") --Broken
@@ -276,7 +269,7 @@ vmware:buttons(util.table.join(
 ))
 
 amarok       = capi.widget({ type = "imagebox", align = "left" })
-amarok.image = capi.image(util.getdir("config") .. "/theme/darkBlue/Icon/amarok.png")
+amarok.image = capi.image(config.data.iconPath .. "amarok.png")
 displayInfo(amarok,"amarok")
 amarok:buttons(util.table.join(
    button({ }, 1, function()
@@ -288,7 +281,7 @@ amarok:buttons(util.table.join(
 ))
 
 term       = capi.widget({ type = "imagebox", align = "left" })
-term.image = capi.image(util.getdir("config") .. "/theme/darkBlue/Icon/term.png")
+term.image = capi.image(config.data.iconPath .. "term.png")
 term:buttons(util.table.join(
    button({ }, 1, function()
       executeAppsNew(1, "Term" , terminal)
@@ -299,7 +292,7 @@ term:buttons(util.table.join(
 ))
 
 kolourpaint       = capi.widget({ type = "imagebox", align = "left" })
-kolourpaint.image = capi.image(util.getdir("config") .. "/theme/darkBlue/Icon/kolourpaint.png")
+kolourpaint.image = capi.image(config.data.iconPath .. "kolourpaint.png")
 displayInfo(kolourpaint,"kolourpaint")
 kolourpaint:buttons(util.table.join(
    button({ }, 1, function()
@@ -311,7 +304,7 @@ kolourpaint:buttons(util.table.join(
 ))
 
 thunar       = capi.widget({ type = "imagebox", align = "left" })
-thunar.image = capi.image(util.getdir("config") .. "/theme/darkBlue/Icon/Thunar.png")
+thunar.image = capi.image(config.data.iconPath .. "Thunar.png")
 displayInfo(thunar,"thunar")
 thunar:buttons(util.table.join(
    button({ }, 1, function()
@@ -323,7 +316,7 @@ thunar:buttons(util.table.join(
 ))
 
 digikam       = capi.widget({ type = "imagebox", align = "left" })
-digikam.image = capi.image(util.getdir("config") .. "/theme/darkBlue/Icon/digikam.png")
+digikam.image = capi.image(config.data.iconPath .. "digikam.png")
 displayInfo(digikam,"digikam")
 digikam:buttons(util.table.join(
    button({ }, 1, function()
@@ -335,7 +328,7 @@ digikam:buttons(util.table.join(
 ))
 
 kcalc       = capi.widget({ type = "imagebox", align = "left" })
-kcalc.image = capi.image(util.getdir("config") .. "/theme/darkBlue/Icon/calc.png")
+kcalc.image = capi.image(config.data.iconPath .. "calc.png")
 displayInfo(kcalc,"kcalc")
 kcalc:buttons(util.table.join(
    button({ }, 1, function()
@@ -347,7 +340,7 @@ kcalc:buttons(util.table.join(
 ))
 
 transmission       = capi.widget({ type = "imagebox", align = "left" })
-transmission.image = capi.image(util.getdir("config") .. "/theme/darkBlue/Icon/transmission.png")
+transmission.image = capi.image(config.data.iconPath .. "transmission.png")
 displayInfo(transmission,"transmission")
 transmission:buttons(util.table.join(
    button({ }, 1, function()
@@ -359,7 +352,7 @@ transmission:buttons(util.table.join(
 ))
 
 kdenlive       = capi.widget({ type = "imagebox", align = "left" })
-kdenlive.image = capi.image(util.getdir("config") .. "/theme/darkBlue/Icon/kdenlive.png")
+kdenlive.image = capi.image(config.data.iconPath .. "kdenlive.png")
 displayInfo(kdenlive,"kdenlive")
 kdenlive:buttons(util.table.join(
    button({ }, 1, function()
@@ -371,7 +364,7 @@ kdenlive:buttons(util.table.join(
 ))
 
 kino       = capi.widget({ type = "imagebox", align = "left" })
-kino.image = capi.image(util.getdir("config") .. "/theme/darkBlue/Icon/kino.png")
+kino.image = capi.image(config.data.iconPath .. "kino.png")
 --displayInfo(kino,"kino")
 kino:buttons(util.table.join(
    button({ }, 1, function()
@@ -383,7 +376,7 @@ kino:buttons(util.table.join(
 ))
 
 konversation       = capi.widget({ type = "imagebox", align = "left" })
-konversation.image = capi.image(util.getdir("config") .. "/theme/darkBlue/Icon/konversation.png")
+konversation.image = capi.image(config.data.iconPath .. "konversation.png")
 displayInfo(konversation,"konversation")
 konversation:buttons(util.table.join(
    button({ }, 1, function()
@@ -426,7 +419,7 @@ lauchBar.visible = false
 
 
   local launcherPix = capi.widget({ type = "imagebox", align = "left" })
-  launcherPix.image = capi.image(util.getdir("config") .. "/theme/darkBlue/Icon/gearA2.png")
+  launcherPix.image = capi.image(config.data.iconPath .. "gearA2.png")
   
   launcherPix:add_signal("mouse::enter", function() launcherPix.bg = beautiful.bg_highlight end)
   launcherPix:add_signal("mouse::leave", function() launcherPix.bg = beautiful.bg_normal end)

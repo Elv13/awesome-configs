@@ -2,6 +2,7 @@
 local progressbar =  require("awful.widget.progressbar")
 local setmetatable = setmetatable
 local io = io
+local tonumber = tonumber
 local os = os
 local string = string
 local button = require("awful.button")
@@ -23,6 +24,29 @@ local capi = { image = image,
 
 module("panel.hardware")
 
+
+local function getFan1()
+  local keyboardPipe = io.open('/sys/devices/platform/w83627ehf.656/fan1_input',"r")
+  local text = keyboardPipe:read("*all")
+  keyboardPipe:close()
+  return { tonumber(text) }
+end
+
+local function getTemp1()
+  local keyboardPipe = io.open('/sys/devices/platform/w83627ehf.656/temp1_input',"r")
+  local text = keyboardPipe:read("*all")
+  keyboardPipe:close()
+  return { tonumber(text)/1000 }
+end
+
+
+function toggleSensorBar()
+    if mywibox4.visible ==  false then
+      mywibox4.visible = true
+    else
+      mywibox4.visible = false
+    end
+end
 
 function new()
     mywibox4 = wibox({ position = "bottom", screen = s, layout = layout.vertical.flex })

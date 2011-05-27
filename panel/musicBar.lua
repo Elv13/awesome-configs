@@ -49,7 +49,7 @@ end
 local function check_is_running(properties)
     local clients = client.get()
     for i, c in pairs(clients) do
-        if match(properties, c) then
+        if utils.tools.match(properties, c) then
             return true
         end
     end

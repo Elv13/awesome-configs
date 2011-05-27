@@ -9,7 +9,7 @@ local print = print
 local capi = { screen = screen,
                mouse = mouse}
 
-module("mouseManager")
+module("utils.mouseManager")
 
 local data = {screen = {}}
 function new(screen, args) 

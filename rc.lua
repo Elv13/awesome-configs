@@ -12,12 +12,14 @@ require( "widget.keyboardSwitcher" )
 require( "widget.desktopMonitor"   )
 require( "widget.devices"          )
 require( "widget.dock"             )
+require( "utils.tools"             )
+require( "utils.keyFunctions"      )
 require( "panel.musicBar"          )
 require( "panel.hardware"          )
-require( "mouseManager"            )
+require( "utils.mouseManager"      )
 require( "urxvtIntegration"        )
 require( "tasklist2"               )
-require( "clientSwitcher"          )
+require( "utils.clientSwitcher"    )
 require( "tabbar"                  )
 require( "taglist"                 )
 require( "config"                  )
@@ -28,15 +30,12 @@ vicious.cache( vicious.widgets.fs  )
 vicious.cache( vicious.widgets.dio )
 vicious.cache( vicious.widgets.cpu )
 
-dofile(awful.util.getdir("config") .. "/functions.lua")
---dofile(awful.util.getdir("config") .. "/hardware.lua")
-
 -- Some widget for every screens
 wiboxTop        = {}; promptbox = {}; notifibox = {}; layoutmenu = {}; wiboxBot = {}
 mytaglist       = {}; movetagL  = {}; movetagR  = {}; mytasklist = {}; delTag   = {}
 
 -- Default applications
-terminal        = 'urxvt -tint gray -fade 50 +bl +si -cr red -pr green -iconic -fn "xft:DejaVu Sans Mono:pixelsize=13" -pe tabbed'
+terminal        = { cmd = "urxvt"  , class = "urxvt"   }
 editor          = { cmd = "kwrite" , class = "Kwrite"  }
 ide             = { cmd = "kate"   , class = "Kate"    }
 webbrowser      = { cmd = "firefox", class = "Firefox" }
@@ -319,7 +318,7 @@ client.add_signal("manage", function (c, startup)
       awful.titlebar.remove(c)
     end
 
-    -- Enable sloppy focus
+    -- Enable focus on mouse over
     c:add_signal("mouse::enter", function(c)
         if awful.layout.get(c.screen) ~= awful.layout.suit.magnifier and awful.client.focus.filter(c) then
             client.focus = c
@@ -351,8 +350,8 @@ client.add_signal("unfocus", function(c)
 end)
 
 for s = 1, screen.count() do
-  awful.tag.attached_add_signal(s, "property::selected", function () addTitleBar(s) end)
-  awful.tag.attached_add_signal(s, "property::layout"  , function () addTitleBar(s) end)
+  awful.tag.attached_add_signal(s, "property::selected", function () utils.tools.addTitleBar(s) end)
+  awful.tag.attached_add_signal(s, "property::layout"  , function () utils.tools.addTitleBar(s) end)
 end
 
 shifty.init()
@@ -373,12 +372,14 @@ for s = 1, screen.count() do
       enableAmarokCtrl(true)
     end
       isPlayingMovie = false
+      
+      -- Run or raise options
       if tag.name == "Files" then
-        run_or_raise(filemanager.cmd, { class = filemanager.class })
+        utils.tools.run_or_raise(filemanager.cmd, { class = filemanager.class })
       elseif tag.name == "Internet" then
-        run_or_raise(webbrowser.cmd,  { class = webbrowser.class  })
+        utils.tools.run_or_raise(webbrowser.cmd,  { class = webbrowser.class  })
       elseif tag.name == "Develop" then
-        run_or_raise(ide.cmd,         { class = ide.class         })
+        utils.tools.run_or_raise(ide.cmd,         { class = ide.class         })
       elseif tag.name == "Movie" then
         enableAmarokCtrl(false)
         musicBarVisibility   = wiboxTop3.visible

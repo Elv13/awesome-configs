@@ -21,7 +21,7 @@ local util = require("awful.util")
 local tag = require("awful.tag")
 local config = require("config")
 local layout = require("awful.widget.layout")
-local clientSwitcher = require("clientSwitcher")
+local clientSwitcher = require("utils.clientSwitcher")
 
 --- Tasklist widget module for awful
 module("tasklist2")

@@ -14,7 +14,7 @@ local capi = { screen = screen,
                mouse = mouse,
                timer = timer}
 
-module("urxvtIntegration")
+module("utils.urxvtIntegration")
 
 local data = {}
 

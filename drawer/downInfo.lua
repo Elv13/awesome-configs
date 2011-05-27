@@ -86,10 +86,10 @@ function new(screen, args)
 	size = string.format("%.2f", tonumber(size) / 1024 /1024)
 	downloaded = string.format("%.2f", tonumber(downloaded) / 1024 /1024)
 	
-	local path = explode("/",source)
+	local path = utils.tools.explode("/",source)
 	local fileName = path[# path]:gsub("\"","")
 	
-	local dpath = explode("/",destination:gsub("\"",""))
+	local dpath = utils.tools.explode("/",destination:gsub("\"",""))
 	destination = ""
 	for i = 1, (# dpath) -1 do
 	  destination = destination .. dpath[i] .. "/"

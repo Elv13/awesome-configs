@@ -14,7 +14,7 @@ local capi = { screen = screen,
                widget = widget,
                client = client}
 
-module("clientSwitcher")
+module("utils.clientSwitcher")
 
 local data = {client = {}, index = {}, wibox = {}, fav = {}}
 

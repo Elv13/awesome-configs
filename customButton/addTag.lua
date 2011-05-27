@@ -4,6 +4,7 @@ local button = require("awful.button")
 local beautiful = require("beautiful")
 local util = require("awful.util")
 local shifty = require("shifty")
+local config = require("config")
 local menu2 = require("customMenu.menu2")
 local capi = { image = image,
                widget = widget,
@@ -19,7 +20,7 @@ end
 
 function new(screen, args) 
   local addTag = capi.widget({ type = "imagebox", align = "left" })
-  addTag.image = capi.image(util.getdir("config") .. "/Icon/tags/cross2.png")
+  addTag.image = capi.image(config.data.iconPath .. "tags/cross2.png")
   local tagMenu = menu2()
 
   for v, i in next, shifty.config.tags do
@@ -33,7 +34,7 @@ function new(screen, args)
   addTag:buttons( util.table.join(
     button({ }, 1, function()
       shifty.add({name = "NewTag"})
-      delTag[capi.mouse.screen].visible = true
+      --delTag[capi.mouse.screen].visible = true
     end),
     button({ }, 3, function()
       tagMenu:toggle()

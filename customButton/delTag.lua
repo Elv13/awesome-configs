@@ -2,6 +2,7 @@ local setmetatable = setmetatable
 local button = require("awful.button")
 local beautiful = require("beautiful")
 local tag = require("awful.tag")
+local config = require("config")
 local util = require("awful.util")
 local shifty = require("shifty")
 local capi = { image = image,
@@ -28,7 +29,7 @@ end
 
 function new(screen, args) 
   data[screen] = capi.widget({ type = "imagebox", align = "left" })
-  data[screen].image = capi.image(util.getdir("config") .. "/Icon/tags/minus2.png")
+  data[screen].image = capi.image(config.data.iconPath .. "tags/minus2.png")
   data[screen].visible = false
   
   data[screen]:buttons( util.table.join(
