@@ -32,12 +32,12 @@ local widget = require("awful.widget")
 local mouse = require("awful.mouse")
 local client = require("awful.client")
 local layout = require("awful.widget.layout")
-local urxvtIntegration = require("urxvtIntegration")
+local urxvtIntegration = require("utils.urxvtIntegration")
 local clientSwitcher =  require("utils.clientSwitcher")
-local tabList = require("tablist")
+local tabList = require("widgets.tablist")
 
 --- Titlebar module for awful
-module("tabbar")
+module("widgets.tabbar")
 
 -- Privata data
 local data = setmetatable({}, { __mode = 'k' })

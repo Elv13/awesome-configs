@@ -22,7 +22,7 @@ local beautiful = require("beautiful")
 local layout = require("awful.widget.layout")
 
 --- Taglist widget module for awful
-module("taglist")
+module("widgets.taglist")
 
 label = {}
 

@@ -12,7 +12,7 @@ local capi = { image = image,
                widget = widget}
 local widget = require("awful.widget")
 
-module("widget.devices")
+module("widgets.devices")
 
 local data = {}
 local devices = {}

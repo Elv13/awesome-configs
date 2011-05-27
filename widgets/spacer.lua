@@ -1,7 +1,7 @@
 local setmetatable = setmetatable
 local capi = { widget = widget }
 
-module("widget.spacer")
+module("widgets.spacer")
 
 local data = {}
 

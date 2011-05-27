@@ -22,7 +22,7 @@ local layout = require("awful.widget.layout")
 local awButtons = require("awful.button")
 
 --- Tasklist widget module for awful
-module("tablist")
+module("widgets.tablist")
 
 -- Public structures
 label = {}

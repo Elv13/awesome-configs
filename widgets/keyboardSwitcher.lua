@@ -7,7 +7,7 @@ local config = require("config")
 local capi = { image = image,
                widget = widget }
 
-module("widget.keyboardSwitcher")
+module("widgets.keyboardSwitcher")
 
 local data = {}
 

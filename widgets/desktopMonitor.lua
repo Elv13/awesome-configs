@@ -13,7 +13,7 @@ local capi = { image = image,
                screen = screen}
 local widget = require("awful.widget")
 
-module("widget.desktopMonitor")
+module("widgets.desktopMonitor")
 
 local data = {}
 

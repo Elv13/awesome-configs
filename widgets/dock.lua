@@ -21,7 +21,7 @@ local capi = { image = image,
                mouse = mouse,
 	       tag = tag}
 
-module("widget.dock")
+module("widgets.dock")
 
 local lauchBar
 

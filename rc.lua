@@ -1,28 +1,16 @@
 -- Includes
-require( "awful"                   )
-require( "beautiful"               )
-require( "naughty"                 )
-require( "shifty"                  )
-require( "vicious"                 )
-require( "customMenu"              )
-require( "customButton"            )
-require( "drawer"                  )
-require( "widget.spacer"           )
-require( "widget.keyboardSwitcher" )
-require( "widget.desktopMonitor"   )
-require( "widget.devices"          )
-require( "widget.dock"             )
-require( "utils.tools"             )
-require( "utils.keyFunctions"      )
-require( "panel.musicBar"          )
-require( "panel.hardware"          )
-require( "utils.mouseManager"      )
-require( "urxvtIntegration"        )
-require( "tasklist2"               )
-require( "utils.clientSwitcher"    )
-require( "tabbar"                  )
-require( "taglist"                 )
-require( "config"                  )
+require( "awful"        )
+require( "beautiful"    )
+require( "naughty"      )
+require( "shifty"       )
+require( "vicious"      )
+require( "customMenu"   )
+require( "customButton" )
+require( "drawer"       )
+require( "widgets"      )
+require( "utils"        )
+require( "panel"        )
+require( "config"       )
 
 -- Cache result for probe used more than once
 vicious.cache( vicious.widgets.net )
@@ -96,7 +84,7 @@ recentMenu             = customMenu.recent        ( nil                         
 launcherPix            = customButton.launcher    ( nil                                )
 
 -- Create the laucher dock
-lauchDock              = widget.dock              ( nil                                )
+lauchDock              = widgets.dock              ( nil                                )
 
 -- Create the "Show Desktop" icon
 desktopPix             = customButton.showDesktop ( nil                                )
@@ -117,7 +105,7 @@ netinfo                = drawer.netInfo           ( nil                         
 soundWidget            = drawer.soundInfo         ( wiboxTop3                          )
 
 -- Create the keyboard layout switcher, feel free to add your contry and push it to master
-keyboardSwitcherWidget = widget.keyboardSwitcher  ( nil                                )
+keyboardSwitcherWidget = widgets.keyboardSwitcher  ( nil                                )
 
 -- Create a systray
 mysystray              = widget                   ( { type = "systray"               } )
@@ -207,27 +195,27 @@ root.buttons(awful.util.table.join(
 ))
 
 --Some spacers with dirrent text
-spacer3 = widget.spacer({text = "| "}); spacer2 = widget.spacer({text = "  |"}); spacer4 = widget.spacer({text = "|"})
+spacer3 = widgets.spacer({text = "| "}); spacer2 = widgets.spacer({text = "  |"}); spacer4 = widgets.spacer({text = "|"})
 
 -- The widget array with different possible screens configuration
 for s = 1, screen.count() do
   -- Create a promptbox for each screen
-  promptbox[s]  = awful.widget.prompt   (                                         )
+  promptbox[s]  = awful.widget.prompt   (                                                 )
 			    
   -- Create the layout menu for this screen
-  layoutmenu[s] = customMenu.layoutmenu ( s,layouts_all                           )
+  layoutmenu[s] = customMenu.layoutmenu ( s,layouts_all                                   )
   
   -- Create a taglist widget
-  mytaglist[s]  = taglist               ( s, taglist.label.all, mytaglist.buttons )
+  mytaglist[s]  = widgets.taglist       ( s, widgets.taglist.label.all, mytaglist.buttons )
 
   -- Create the delTag button
-  delTag[s]     = customButton.delTag   ( s                                       )
+  delTag[s]     = customButton.delTag   ( s                                               )
   
   -- Create the notification box
-  notifibox[s]  = naughty               (                                         )
+  notifibox[s]  = naughty               (                                                 )
   
   -- Create a tasklist widget
-  mytasklist[s] = tasklist2(function(c) return tasklist2.label.currenttags(c, s) end, mytasklist.buttons)
+  mytasklist[s] = widgets.tasklist(function(c) return widgets.tasklist.label.currenttags(c, s) end, mytasklist.buttons)
   
   -- Create the button to move a tag the next screen
   movetagL[s]   = customButton.tagmover(s,{ direction = "left",  icon = config.data.iconPath .. "tags/screen_left.png"  })
@@ -295,14 +283,14 @@ end
 
 -- Add the drives list on the desktop
 if config.data.deviceOnDesk == true then
-  widget.devices()
+  widgets.devices()
 end
 
 
 shifty.taglist = mytaglist
 
 -- Load the desktop "conky" widget
-widget.desktopMonitor(screen.count() == 1 and 1 or 2)
+widgets.desktopMonitor(screen.count() == 1 and 1 or 2)
 
 -- Load the keybindings
 dofile(awful.util.getdir("config") .. "/keyBinding.lua")
