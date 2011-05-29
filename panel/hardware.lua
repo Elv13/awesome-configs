@@ -27,6 +27,9 @@ module("panel.hardware")
 
 local function getFan1()
   local keyboardPipe = io.open('/sys/devices/platform/w83627ehf.656/fan1_input',"r")
+  if not keyboardPipe then
+      return 0
+  end
   local text = keyboardPipe:read("*all")
   keyboardPipe:close()
   return { tonumber(text) }
@@ -34,6 +37,9 @@ end
 
 local function getTemp1()
   local keyboardPipe = io.open('/sys/devices/platform/w83627ehf.656/temp1_input',"r")
+  if not keyboardPipe then
+      return 0
+  end
   local text = keyboardPipe:read("*all")
   keyboardPipe:close()
   return { tonumber(text)/1000 }

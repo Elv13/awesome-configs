@@ -104,12 +104,14 @@ function addTitleBar(screen)
   end
   if tag.selected() ~= nil then
     for i, client in ipairs(tag.selected():clients()) do
-      if (client.class == "urxvt" or client.class == "URxvt") and config.data.advTermTB == true then
-        tabbar.add(client)
-      elseif add_title == true or client.floating.get(client) == true or customMenu.layoutmenu.showTitle(awful.tag.selected()) == true then
-        titlebar.add(client, { modkey = modkey })
-      else
-        titlebar.remove(client)
+      if client == nil or client.class ~= "" or client.floating ~= nil then
+        if (client.class == "urxvt" or client.class == "URxvt") and config.data.advTermTB == true then
+          tabbar.add(client)
+        elseif add_title == true or client.floating.get(client) == true or customMenu.layoutmenu.showTitle(awful.tag.selected()) == true then
+          titlebar.add(client, { modkey = modkey })
+        else
+          titlebar.remove(client)
+        end
       end
     end
   end
