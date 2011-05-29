@@ -305,9 +305,13 @@ function new(screen, args)
     progression:set_border_color(beautiful.fg_normal)
     progression:set_color(beautiful.fg_normal)
     progression:set_value(0.5)
-    progression:set_offset(1)
-    progression:set_margin({top=6,bottom=6})
-
+    if progressbar.set_offset then
+      progression:set_offset(1)
+    end
+    if progressbar.set_margin then
+      progression:set_margin({top=6,bottom=6})
+    end
+    
     spacer999 = capi.widget({
         type = 'textbox',
         name = 'spacer999',
@@ -443,8 +447,12 @@ function new(screen, args)
     beautiful.fg_normal,
     '#CC0000'
     })
-    volumebarwidget:set_offset(1)
-    volumebarwidget:set_margin({top=3,bottom=3})
+    if progressbar.set_offset then
+      volumebarwidget:set_offset(1)
+    end
+    if progressbar.set_margin then
+      volumebarwidget:set_margin({top=3,bottom=3})
+    end
 
     volumepixmap2       = capi.widget({ type = "imagebox", align = "right" })
     volumepixmap2.image = capi.image(config.data.iconPath .. "vol.png")

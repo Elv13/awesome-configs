@@ -4,7 +4,7 @@ IFS=`echo -en "\n\b"`
 #TODO can check if the port use non mumeric, then is can replace the protocol field
 
 
-CONNECTED=`netstat --inet -avW --program 2> /dev/null | grep ESTABLISHED | awk '{print $5 " " $7 }'`
+CONNECTED=`/bin/netstat --inet -avW --program 2> /dev/null | grep ESTABLISHED | awk '{print $5 " " $7 }'`
 REPORT=" "
 PROTOCOLS_ARRAY=""
 COUNT=0

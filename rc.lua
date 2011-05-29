@@ -11,6 +11,7 @@ require( "widgets"      )
 require( "utils"        )
 require( "panel"        )
 require( "config"       )
+require( "monkeyPatch"  )
 
 -- Cache result for probe used more than once
 vicious.cache( vicious.widgets.net )
@@ -117,7 +118,7 @@ tagMenu                = customMenu.tagOption     ( nil                         
 clientMenu             = customMenu.clientMenu    ( nil                                )
 
 -- Create the music panel
-musicBar = panel.musicBar()
+--musicBar = panel.musicBar()
 
 -- Create the hardware alarm panel
 hardwarePanel = panel.hardware()

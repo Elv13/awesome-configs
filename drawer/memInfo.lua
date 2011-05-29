@@ -26,29 +26,29 @@ local memInfo = {}
 function createDrawer() 
   widgetTable = {  }
   
-  local infoHeader = capi.widget({type = "textbox"})
-  local totalRam = capi.widget({type = "textbox"})
-  local freeRam = capi.widget({type = "textbox"})
-  local usedRam = capi.widget({type = "textbox"})
-  local freeSwap = capi.widget({type = "textbox"})
-  local usedSwap = capi.widget({type = "textbox"})
-  local totalSwap = capi.widget({type = "textbox"})
-  local userHeader = capi.widget({type = "textbox"})
-  local stateHeader = capi.widget({type = "textbox"})
-  local processHeader = capi.widget({type = "textbox"})
+  local infoHeader     = capi.widget({type = "textbox"})
+  local totalRam       = capi.widget({type = "textbox"})
+  local freeRam        = capi.widget({type = "textbox"})
+  local usedRam        = capi.widget({type = "textbox"})
+  local freeSwap       = capi.widget({type = "textbox"})
+  local usedSwap       = capi.widget({type = "textbox"})
+  local totalSwap      = capi.widget({type = "textbox"})
+  local userHeader     = capi.widget({type = "textbox"})
+  local stateHeader    = capi.widget({type = "textbox"})
+  local processHeader  = capi.widget({type = "textbox"})
   
-  local totalRamLabel = capi.widget({type = "textbox"})
-  local freeRamLabel = capi.widget({type = "textbox"})
-  local usedRamLabel = capi.widget({type = "textbox"})
+  local totalRamLabel  = capi.widget({type = "textbox"})
+  local freeRamLabel   = capi.widget({type = "textbox"})
+  local usedRamLabel   = capi.widget({type = "textbox"})
   local totalSwapLabel = capi.widget({type = "textbox"})
-  local freeSwapLabel = capi.widget({type = "textbox"})
-  local usedSwapLabel = capi.widget({type = "textbox"})
+  local freeSwapLabel  = capi.widget({type = "textbox"})
+  local usedSwapLabel  = capi.widget({type = "textbox"})
   
-  local ramLabel = capi.widget({type = "textbox"})
-  local swapLabel = capi.widget({type = "textbox"})
-  local totalLabel = capi.widget({type = "textbox"})
-  local usedLabel = capi.widget({type = "textbox"})
-  local freeLabel = capi.widget({type = "textbox"})
+  local ramLabel       = capi.widget({type = "textbox"})
+  local swapLabel      = capi.widget({type = "textbox"})
+  local totalLabel     = capi.widget({type = "textbox"})
+  local usedLabel      = capi.widget({type = "textbox"})
+  local freeLabel      = capi.widget({type = "textbox"})
   
   infoHeader.text = " <span color='".. beautiful.bg_normal .."'><b><tt>USAGE</tt></b></span> "
   infoHeader.bg = beautiful.fg_normal
@@ -259,7 +259,7 @@ function createDrawer()
                      
     local widgetTable4 = generateTop(tempWdg) 
     data.wibox.widgets = widgetTable4.widgets
-    data.wibox:geometry({ width = 212, height = (((widgetTable4.count or 0)*22) or 0) + (#tempWdg*22) + 200, y = 20, x = capi.screen[capi.mouse.screen].geometry.width*2 -  212})
+    data.wibox:geometry({ width = 212, height = (((widgetTable4.count or 0)*22) or 0) + (#tempWdg*22) + 600, y = 20, x = capi.screen[capi.mouse.screen].geometry.width*2 -  212})
   end
   
   refreshAll() 

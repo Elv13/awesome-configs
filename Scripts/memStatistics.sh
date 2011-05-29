@@ -39,7 +39,7 @@ echo "memStat[\"swap\"][\"total\"] = \"$TOTAL_SWAP Mb\""
 echo "memStat[\"swap\"][\"free\"] = \"$FREE_SWAP Mb\""
 echo "memStat[\"swap\"][\"used\"] = \"$USED_SWAP Mb\""
 
-PS_AUX=`ps ax -eo user,stat`
+PS_AUX=`/bin/ps ax -eo user,stat`
 CUR_USER="nobody"
 COUNT=0
 

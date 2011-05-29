@@ -9,6 +9,7 @@ local tag = require("awful.tag")
 local layout = require("awful.layout")
 local client = require("awful.client")
 local titlebar = require("awful.titlebar")
+local tabbar = require("widgets.tabbar")
 local config = require("config")
 local util = require("awful.util")
 local capi = { image = image,
@@ -20,6 +21,9 @@ module("utils.tools")
 local data = {}
 
 function run_or_raise(cmd, properties)
+    if not capi.client.get then
+        return
+    end
    local clients = capi.client.get()
    for i, c in pairs(clients) do
       if match(properties, c) then

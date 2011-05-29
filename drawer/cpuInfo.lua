@@ -247,7 +247,7 @@ function createDrawer()
   
   cpuWidgetArray["layout"] = widget2.layout.vertical.flex
   data.wibox.widgets = cpuWidgetArray
-  return (processCount * 22) + ((coreWidgets["count"] or 0)*22) + 100
+  return (processCount * 22) + ((coreWidgets["count"] or 0)*22) + 200
 end
 
 function update()
@@ -308,7 +308,8 @@ function new(screen, args)
   cpugraphwidget:set_width(40)
   cpugraphwidget:set_height(18)
   if (widget2.graph.set_offset ~= nil) then
-    cpugraphwidget:set_offset(1)
+    --cpugraphwidget:set_offset(1)
+    widget2.graph.set_offset(cpugraphwidget,1)
   end
   cpugraphwidget:set_height(14)
   cpugraphwidget:set_background_color(beautiful.bg_normal)
@@ -321,7 +322,7 @@ function new(screen, args)
   mytimer:add_signal("timeout", updateTable)
   mytimer:start()
   
-  return {logo = cpulogo, text = cpuwidget, graph = cpugraphwidget}
+  return {logo = cpulogo, text = cpuwidget, graph = nil--[[cpugraphwidget]]}
 end
 
 setmetatable(_M, { __call = function(_, ...) return new(...) end })
