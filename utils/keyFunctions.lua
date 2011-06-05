@@ -7,6 +7,7 @@ local client = require("awful.client")
 local tag = require("awful.tag")
 local util = require("awful.util")
 local tools = require("utils.tools")
+local customMenu = require("customMenu.altTab")
 local capi = { image = image,
                widget = widget,
                client = client,
@@ -23,11 +24,12 @@ function moveTagToScreen()
 end
 
 function altTab()
+    customMenu()
     if not capi.client.focus then
        return 
     end
     client.focus.byidx( 1)
-    if capi.client.focus then capi.client.focus:raise() end
+    --if capi.client.focus then capi.client.focus:raise() end --TODO
 end
 
 function altTabBack()

@@ -1,5 +1,6 @@
 local setmetatable = setmetatable
 local table = table
+local pairs = pairs
 local button = require("awful.button")
 local beautiful = require("beautiful")
 local widget2 = require("awful.widget")
@@ -10,7 +11,8 @@ local util = require("awful.util")
 local wibox = require("awful.wibox")
 local capi = { image = image,
                widget = widget,
-               mouse = mouse}
+               mouse = mouse,
+               screen = screen}
 
 module("customMenu.menu2")
 
@@ -26,7 +28,7 @@ function new(screen, args)
   checkbox.image = capi.image(config.data.iconPath .. "check.png")
   
   local function createMenu()
-    local menu = {settings = {counter = 0, itemHeight = beautiful.menu_height, itemWidth = beautiful.menu_width, x = nil, y = nil, } }
+    local menu = {settings = {counter = 0, itemHeight = beautiful.menu_height, itemWidth = beautiful.menu_width, x = nil, y = nil}, signalList = {} }
     
     function menu:toggle(value)
       self["settings"].visible = value or not self[1].widget.visible
@@ -38,6 +40,18 @@ function new(screen, args)
           i.widget.visible = self["settings"].visible
         end
       end
+      
+      if self["settings"].visible == false and self.signalList["menu::hide"] ~= nil then
+          for k,v in pairs(self.signalList["menu::hide"]) do
+              v(self)
+          end
+      elseif self["settings"].visible == true and self.signalList["menu::show"] ~= nil then
+          for k,v in pairs(self.signalList["menu::show"]) do
+              v(self)
+          end
+      end
+      
+      
       self:set_coords()
     end
     
@@ -45,11 +59,22 @@ function new(screen, args)
       self["settings"]["xPos"] = x or self["settings"]["x"] or capi.mouse.coords().x
       self["settings"]["yPos"] = y or self["settings"]["y"] or capi.mouse.coords().y
       self["settings"]["counter"] = 0
+      
+      local downOrUp = 1 --(down == false)
+      local yPadding = 0
+      if #self*self.settings.itemHeight + self["settings"]["yPos"] > capi.screen[capi.mouse.screen].geometry.height then
+          downOrUp = -1
+          yPadding = -self.settings.itemHeight
+      end
+      
       for v, i in next, self do
         if type(i) ~= "function" and type(v) == "number" then
           i.x = self.settings.xPos
-          i.y = self.settings.yPos+(self.settings.itemHeight*self.settings.counter)
-          i.widget:geometry({ width = i.width, height = i.height, y=i.y, x=i.x})
+          i.y = self.settings.yPos+(self.settings.itemHeight*self.settings.counter)*downOrUp+yPadding
+          local geo = i.widget:geometry()
+          if geo.x ~= i.x or geo.y ~= i.y or geo.width ~= i.width or geo.height ~= i.height then --moving is slow
+            i.widget:geometry({ width = i.width, height = i.height, y=i.y, x=i.x})
+          end
           self.settings.counter = self.settings.counter +1
           if type(i.subMenu) ~= "function" and i.subMenu ~= nil and i.subMenu.settings ~= nil then
             i.subMenu.settings.x = i.x+i.width
@@ -59,6 +84,20 @@ function new(screen, args)
       end
     end
     
+    function menu:set_width(width)
+        self["settings"]["itemWidth"] = width
+    end
+    
+    
+    ---Possible signals = "menu::hide", "menu::show", "menu::resize"
+    function menu:add_signal(name,func)
+        if self.signalList.name == nil then
+            self.signalList.name = {}
+        end
+        table.insert(self.signalList.name,func)
+    end
+    
+    
     function menu:toggleSubMenu(aSubMenu,hideOld,forceValue)
       if (self.subMenu ~= nil) and (hideOld == true) then
         self.subMenu:toggleSubMenu(nil,true,false)
@@ -66,7 +105,7 @@ function new(screen, args)
         --if self["settings"].parent ~= nil and self["settings"].parent["settings"].visible == true then
         --  self["settings"].parent:toggle(false)
         --end
-      elseif aSubMenu ~= nil then
+      elseif aSubMenu ~= nil and aSubMenu.toggle ~= nil then
         aSubMenu:toggle(forceValue or true)  
       end
 --       

@@ -11,6 +11,7 @@ local client = require("awful.client")
 local titlebar = require("awful.titlebar")
 local tabbar = require("widgets.tabbar")
 local config = require("config")
+local customMenu = require("customMenu.layoutmenu")
 local util = require("awful.util")
 local capi = { image = image,
                client = client,
@@ -103,14 +104,14 @@ function addTitleBar(screen)
     add_title = true 
   end
   if tag.selected() ~= nil then
-    for i, client in ipairs(tag.selected():clients()) do
-      if client == nil or client.class ~= "" or client.floating ~= nil then
-        if (client.class == "urxvt" or client.class == "URxvt") and config.data.advTermTB == true then
-          tabbar.add(client)
-        elseif add_title == true or client.floating.get(client) == true or customMenu.layoutmenu.showTitle(awful.tag.selected()) == true then
-          titlebar.add(client, { modkey = modkey })
+    for i, client2 in ipairs(tag.selected():clients()) do
+      if client2 == nil or client2.class ~= "" or client2.floating ~= nil then
+        if (client2.class == "urxvt" or client2.class == "URxvt") and config.data.advTermTB == true then
+          tabbar.add(client2)
+        elseif add_title == true or client.floating.get(client2) == true or layoutmenu.showTitle(awful.tag.selected()) == true then
+          titlebar.add(client2, { modkey = modkey })
         else
-          titlebar.remove(client)
+          titlebar.remove(client2)
         end
       end
     end

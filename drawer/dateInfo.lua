@@ -116,7 +116,7 @@ local function createDrawer()
   
   mytimer = capi.timer({ timeout = 3600 })
   mytimer:add_signal("timeout", function ()
-                                  local f = io.popen('cal | sed -r -e "s/(^| )(`date +\\"%d\\"`)($| )/\\1<b><span background=\\"#1577D3\\" foreground=\\"#0A1535\\">\\2<\\/span><\\/b>\\3/"',"r")
+                                  local f = io.popen('/usr/bin/cal | sed -r -e "s/(^| )(`date +\\"%d\\"`)($| )/\\1<b><span background=\\"#1577D3\\" foreground=\\"#0A1535\\">\\2<\\/span><\\/b>\\3/"',"r")
                                   local someText3 = "<tt><b><i>" .. f:read() .. "</i></b><u>" .. "\n" .. f:read() .. '</u>\n' .. f:read("*all") .. "</tt>"
                                   f:close()
                                   
@@ -131,7 +131,7 @@ local function createDrawer()
                                     month = month + 1
                                   end
                                   
-                                  f = io.popen('cal ' .. month .. ' ' .. year ,"r")
+                                  f = io.popen('/usr/bin/cal ' .. month .. ' ' .. year ,"r")
                                   someText3 = someText3 .. "<tt><b><i>" .. f:read() .. "</i></b><u>" .. "\n" .. f:read() .. '</u>\n' .. f:read("*all") .. "</tt>"
                                   f:close()
                                   calInfo.text = someText3

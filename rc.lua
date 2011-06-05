@@ -82,10 +82,10 @@ placesMenu             = customMenu.places        ( nil                         
 recentMenu             = customMenu.recent        ( nil                                )
 
 -- Call the laucher wibox
-launcherPix            = customButton.launcher    ( nil                                )
+launcherPix            = customMenu.launcher       ( nil                                )
 
 -- Create the laucher dock
-lauchDock              = widgets.dock              ( nil                                )
+lauchDock              = widgets.dock             ( nil                                )
 
 -- Create the "Show Desktop" icon
 desktopPix             = customButton.showDesktop ( nil                                )
