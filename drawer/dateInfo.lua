@@ -145,7 +145,7 @@ local function createDrawer()
     
 
   testImage2       = capi.widget({ type = "imagebox"})
-  testImage2.image = capi.image("/tmp/1600.jpg")
+  --testImage2.image = capi.image("/tmp/1600.jpg")
   margins.margins[testImage2] = {left = 5, right = 25}
   
   testImage3       = capi.widget({ type = "imagebox"})

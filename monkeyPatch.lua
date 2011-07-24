@@ -189,9 +189,14 @@ awful.widget.graph.update = function (graph)
     graph.widget.image = img
 end
 
+-- awful.widget.graph.graphData = {}
+-- 
 -- awful.widget.graph.set_offset = function (graph, offset)
 --     --if width >= 5 then
---         awful.widget.graph.data[graph].offset = offset
+--         if awful.widget.graph.graphData[graph] == nil then
+--             awful.widget.graph.graphData[graph] = {}
+--         end
+--         awful.widget.graph.graphData[graph].offset = offset
 --         awful.widget.graph.update(graph)
 --     --end
 --     return graph

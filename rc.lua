@@ -82,7 +82,7 @@ placesMenu             = customMenu.places        ( nil                         
 recentMenu             = customMenu.recent        ( nil                                )
 
 -- Call the laucher wibox
-launcherPix            = customMenu.launcher       ( nil                                )
+launcherPix            = customMenu.launcher      ( nil                                )
 
 -- Create the laucher dock
 lauchDock              = widgets.dock             ( nil                                )
@@ -151,7 +151,7 @@ mytasklist.buttons = awful.util.table.join(
       c:raise()
     end),
   awful.button({        }, 3, 
-    function ()
+    function ( )
       if instance then
         instance:hide()
         instance = nil
@@ -160,12 +160,12 @@ mytasklist.buttons = awful.util.table.join(
       end
     end),
   awful.button({        }, 4, 
-    function ()
+    function ( )
       awful.client.focus.byidx(1)
       if client.focus then client.focus:raise() end
     end),
   awful.button({        }, 5, 
-    function ()
+    function ( )
       awful.client.focus.byidx(-1)
       if client.focus then client.focus:raise() end
     end)
@@ -202,7 +202,7 @@ spacer3 = widgets.spacer({text = "| "}); spacer2 = widgets.spacer({text = "  |"}
 for s = 1, screen.count() do
   -- Create a promptbox for each screen
   promptbox[s]  = awful.widget.prompt   (                                                 )
-			    
+  
   -- Create the layout menu for this screen
   layoutmenu[s] = customMenu.layoutmenu ( s,layouts_all                                   )
   

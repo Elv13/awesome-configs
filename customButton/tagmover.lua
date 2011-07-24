@@ -55,7 +55,7 @@ function new(screen, args)
     
     for i=1,capi.screen.count() do
       screenMenu:addItem(i,nil,function() 
-                                utils.tools.tag_to_screen(data[id].selected,i)
+                                utils.tag_to_screen(data[id].selected,i)
                                 screenMenu:toggle()
                                end,nil)
     end
@@ -79,7 +79,7 @@ function new(screen, args)
 	    if screen2 > capi.screen.count() then
 	      screen2 = 1
 	    end
-	    utils.tools.tag_to_screen(data[id].selected, screen2)
+	    utils.tag_to_screen(data[id].selected, screen2)
 	    data[id].selected = tag.selected(screen)
 	  end
       end),
@@ -92,7 +92,7 @@ function new(screen, args)
 	    if screen2 > capi.screen.count() then
 	      screen2 = 1
 	    end
-	    utils.tools.tag_to_screen(data[id].selected, screen2)
+	    utils.tag_to_screen(data[id].selected, screen2)
 	  end
       end),
       button({ }, 5, function()

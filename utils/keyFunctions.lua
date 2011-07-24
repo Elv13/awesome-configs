@@ -51,3 +51,7 @@ function maxClient(c)
     c.maximized_horizontal = not c.maximized_horizontal
     c.maximized_vertical   = not c.maximized_vertical
 end
+
+function toggleHWPan() 
+    hardwarePanel.visible = not hardwarePanel.visible 
+end

@@ -17,7 +17,10 @@ local capi = { image = image,
 module("customMenu.menu2")
 
 local function hightlight(aWibox, value)
-  aWibox.bg = (value == true) and beautiful.bg_focus or beautiful.bg_normal
+  if not aWibox or not value then
+      return
+  end
+  aWibox.bg = ((value == true) and beautiful.bg_focus or beautiful.bg_normal) or ""
 end
 
 function new(screen, args) 

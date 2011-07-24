@@ -340,6 +340,7 @@ function notify(args)
                                                 w.opacity = w.opacity + 3
                                               elseif timer_fade then
                                                 w.widget.text = ""
+                                                widgets[k] = nil
                                                 timer_fade:stop()
                                                 timer_fade = nil
                                               end

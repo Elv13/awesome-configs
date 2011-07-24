@@ -11,8 +11,9 @@ local client = require("awful.client")
 local titlebar = require("awful.titlebar")
 local tabbar = require("widgets.tabbar")
 local config = require("config")
-local customMenu = require("customMenu.layoutmenu")
+local layoutmenu = require("customMenu.layoutmenu")
 local util = require("awful.util")
+local shifty = require("shifty")
 local capi = { image = image,
                client = client,
                widget = widget}
@@ -108,7 +109,7 @@ function addTitleBar(screen)
       if client2 == nil or client2.class ~= "" or client2.floating ~= nil then
         if (client2.class == "urxvt" or client2.class == "URxvt") and config.data.advTermTB == true then
           tabbar.add(client2)
-        elseif add_title == true or client.floating.get(client2) == true or layoutmenu.showTitle(awful.tag.selected()) == true then
+        elseif add_title == true or client.floating.get(client2) == true or layoutmenu.showTitle(tag.selected()) == true then
           titlebar.add(client2, { modkey = modkey })
         else
           titlebar.remove(client2)
@@ -118,3 +119,6 @@ function addTitleBar(screen)
   end
 end
 
+function invertedIconPath(tagName)
+    return config.data.iconPath .. (config.data.useListPrefix == true and "tags_invert/" or "tags/") .. tagName
+end
