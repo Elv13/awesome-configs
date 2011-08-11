@@ -70,7 +70,8 @@ shifty.config.tags ={
                     icon        = utils.tools.invertedIconPath("info.png")       ,
                     screen      = 3                                              ,
                     layout      = awful.layout.suit.max                        } ,
-
+----------------------------------------------------------------------------------
+                    
 -- Volatile tags
 -- NAME             PARAMETER                         VALUE                       
 ["Imaging"] =    {  init        = false                                          , 

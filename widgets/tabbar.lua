@@ -148,7 +148,7 @@ function create(c, args)
     cpulogo.image    = capi.image(util.getdir("config") .. "/theme/darkBlue/Icon/brain.png")
     
     local testBox    = capi.widget({ type = "textbox" })
-    urxvtIntegration.register(testBox,c.pid,"pmem",5)
+    urxvtIntegration.register(testBox,c.window,"pmem",5)
     
     local addTab     = capi.widget({ type = "imagebox", align = "left" })
     addTab.image     = capi.image(util.getdir("config") .. "/theme/darkBlue/Icon/addTabs.png")
@@ -192,7 +192,7 @@ function create(c, args)
     
     
     local aTabList = tabList.new(nil,nil)
-    aTabList:add_tab(c.pid).selected = true
+    aTabList:add_tab(c.window).selected = true
     
     
 --     flex = {
@@ -223,9 +223,9 @@ function create(c, args)
     
     addTab:buttons( util.table.join(
       button({ }, 1, function()
-        local pid = c.pid
+        local pid = c.window
         print("test "..pid.."\n\n\n")
-        util.spawn('dbus-send --type=method_call --dest=org.schmorp.urxvt /pid/'..pid..'/control org.schmorp.urxvt.addTab', false)
+        util.spawn('dbus-send --type=method_call --dest=org.schmorp.urxvt /term/'..pid..'/control org.schmorp.urxvt.addTab', false)
         aTabList:add_tab(pid)
         urxvtIntegration.addTab(12)
       end)

@@ -93,7 +93,7 @@ function new(label, buttons)
                                         end
                                         
                                         tab.selected = true 
-                                        util.spawn('dbus-send --type=method_call --dest=org.schmorp.urxvt /pid/'..(tab.pid or 0)..'/control org.schmorp.urxvt.selectTab int32:'..tab.index)
+                                        util.spawn('dbus-send --type=method_call --dest=org.schmorp.urxvt /term/'..(tab.pid or 0)..'/control org.schmorp.urxvt.selectTab int32:'..tab.index)
                                         
                                         tasklist_update(tabs, w, buttons2, label2, data, widgets,tab)
                                       end)

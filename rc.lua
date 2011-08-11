@@ -24,7 +24,7 @@ wiboxTop        = {}; promptbox = {}; notifibox = {}; layoutmenu = {}; wiboxBot 
 mytaglist       = {}; movetagL  = {}; movetagR  = {}; mytasklist = {}; delTag   = {}
 
 -- Default applications
-terminal        = { cmd = "urxvt"  , class = "urxvt"   }
+terminal        = { cmd = "urxvtc" , class = "urxvt"   }
 editor          = { cmd = "kwrite" , class = "Kwrite"  }
 ide             = { cmd = "kate"   , class = "Kate"    }
 webbrowser      = { cmd = "firefox", class = "Firefox" }
