@@ -11,10 +11,10 @@ local config       = require( "config"       )
 local util         = require( "awful.util"   )
 local wibox        = require( "awful.wibox"  )
 
-local capi = { image  = image,
-               widget = widget,
-               mouse  = mouse,
-               screen = screen}
+local capi = { image  = image  ,
+               widget = widget ,
+               mouse  = mouse  ,
+               screen = screen , }
 
 module("customMenu.menu2")
 
@@ -37,10 +37,15 @@ function new(screen, args)
                               itemWidth = beautiful.menu_width, x = nil, y = nil}, signalList = {} }
     
     function menu:toggle(value)
+      if self["settings"].visible == false and value == false then
+          return
+      end
+      
       self["settings"].visible = value or not self[1].widget.visible
       if self["settings"].visible == false then
         self:toggleSubMenu(nil,true,false)
       end
+      
       for v, i in next, self do
         if type(i) ~= "function" and type(v) == "number" then
           i.widget.visible = self["settings"].visible
@@ -158,6 +163,8 @@ function new(screen, args)
               self:toggleSubMenu(subMenu,value,value)
             elseif self.subMenu == nil then --Prevent memory leak
               local aSubMenu = subMenu()
+              aSubMenu["settings"].x = self["settings"]["xPos"] + aSubMenu["settings"].itemWidth
+              aSubMenu["settings"].y = self["settings"]["yPos"]
               aSubMenu["settings"].parent = self
               self:toggleSubMenu(aSubMenu,value,value)
             end
@@ -182,15 +189,24 @@ function new(screen, args)
       
       aWibox.widgets = { {icon,wdg, {subArrow2,checkbox2, layout = widget2.layout.horizontal.rightleft}, layout = widget2.layout.horizontal.leftright}, layout = widget2.layout.vertical.flex }
       
+      local hideEverything = function () 
+        self:toggle(false)
+        local aMenu = self["settings"].parent
+        while aMenu ~= nil do
+          aMenu:toggle(value)
+          aMenu = aMenu["settings"].parent
+        end
+      end
+      
       aWibox:buttons( util.table.join(
         button({ }, 1, function()
           if aFunction ~= nil then
             aFunction()
           end
-          self:toggle(false)
+          hideEverything()
         end),
         button({ }, 3, function()
-          self:toggle(false)
+          hideEverything()
         end)
       ))
       
