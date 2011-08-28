@@ -1,23 +1,25 @@
 local setmetatable = setmetatable
-local table = table
-local pairs = pairs
-local button = require("awful.button")
-local beautiful = require("beautiful")
-local widget2 = require("awful.widget")
-local next = next
-local type = type
-local config = require("config")
-local util = require("awful.util")
-local wibox = require("awful.wibox")
-local capi = { image = image,
+local table        = table
+local pairs        = pairs
+local next         = next
+local type         = type
+local print        = print
+local button       = require( "awful.button" )
+local beautiful    = require( "beautiful"    )
+local widget2      = require( "awful.widget" )
+local config       = require( "config"       )
+local util         = require( "awful.util"   )
+local wibox        = require( "awful.wibox"  )
+
+local capi = { image  = image,
                widget = widget,
-               mouse = mouse,
+               mouse  = mouse,
                screen = screen}
 
 module("customMenu.menu2")
 
 local function hightlight(aWibox, value)
-  if not aWibox or not value then
+  if not aWibox or value == nil then
       return
   end
   aWibox.bg = ((value == true) and beautiful.bg_focus or beautiful.bg_normal) or ""
@@ -31,7 +33,8 @@ function new(screen, args)
   checkbox.image = capi.image(config.data.iconPath .. "check.png")
   
   local function createMenu()
-    local menu = {settings = {counter = 0, itemHeight = beautiful.menu_height, itemWidth = beautiful.menu_width, x = nil, y = nil}, signalList = {} }
+    local menu = {settings = {counter = 0, itemHeight = beautiful.menu_height, visible = false,
+                              itemWidth = beautiful.menu_width, x = nil, y = nil}, signalList = {} }
     
     function menu:toggle(value)
       self["settings"].visible = value or not self[1].widget.visible
@@ -59,8 +62,24 @@ function new(screen, args)
     end
     
     function menu:set_coords(x,y)
+      
+      
+      local prevX = self["settings"]["xPos"] or -1
+      local prevY = self["settings"]["yPos"] or -1
+      
       self["settings"]["xPos"] = x or self["settings"]["x"] or capi.mouse.coords().x
       self["settings"]["yPos"] = y or self["settings"]["y"] or capi.mouse.coords().y
+      
+      if prevX ~= self["settings"]["xPos"] or prevY ~= self["settings"]["yPos"] then
+          self["settings"].hasChanged = true
+      end
+      
+      if self["settings"].visible == false or self["settings"].hasChanged == false then
+        return;
+      end
+      
+      self["settings"].hasChanged = false
+      
       self["settings"]["counter"] = 0
       
       local downOrUp = 1 --(down == false)
@@ -118,6 +137,8 @@ function new(screen, args)
     function menu:addItem(text, checked, aFunction, subMenu,args)
       local aWibox = wibox({ position = "free", visible = false, ontop = true, border_width = 1, border_color = beautiful.border_normal })
       local data = {width = self.settings.itemWidth, height = self.settings.itemHeight, widget = aWibox, aFunction = aFunction, subMenu = subMenu}
+      self["settings"].hasChanged = true
+      
       table.insert(self, data)
       self:set_coords()
       
