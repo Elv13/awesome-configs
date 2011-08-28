@@ -15,6 +15,7 @@ local layoutmenu = require("customMenu.layoutmenu")
 local util = require("awful.util")
 local shifty = require("shifty")
 local capi = { image = image,
+               mouse = mouse,
                client = client,
                widget = widget}
 
@@ -56,7 +57,7 @@ function tag_to_screen(t, scr)
     shifty.set(ts, { screen = scr or
                     util.cycle(screen.count(), ts.screen + 1)})
     tag.viewonly(ts)
-    mouse.screen = ts.screen
+    --capi.mouse.screen = ts.screen
 
     if #ts:clients() > 0 then
         local c = ts:clients()[1]

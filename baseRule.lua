@@ -142,7 +142,7 @@ shifty.config.tags ={
                     exclusive   = true                                           ,
                     screen      = 5                                              ,
                     init        = true                                           ,
-                    spawn       = "konversation"                                 ,
+                    --spawn       = "konversation"                                 ,
                     icon        = utils.tools.invertedIconPath("irc.png")        ,
                     layout      = awful.layout.suit.fair                       } ,
 ["Test"] =       {  init        = false                                          , 
@@ -257,8 +257,8 @@ shifty.config.apps = {
            "xine"         , "feh"             , "kmix"       , "kcalc"        , "xcalc"              ,                             --
            "yakuake"      , "Select Color$"   , "kruler"     , "kcolorchooser", "Paste Special"      ,                             --
            "New Form"     , "Insert Picture"  , "kcharselect", "mythfrontend" ,                    } , float = true               } ,
-{match = { "Konversation" ,  "Opera"          , "Firefox"    , "Chrome"       , "Okular"             ,                             --
-           "*OpenOffice*" ,  "OpenOffice"     , "Qt Designer",                                     } , float = false              } ,
+{match = { "Konversation" , "Opera"           , "Firefox"    , "Chrome"       , "Okular"             ,                             --
+           "*OpenOffice*" , "OpenOffice"      , "Qt Designer",                                     } , float = false              } ,
 -------------------------------------------------------------------------------------------------------------------------------------
 
 

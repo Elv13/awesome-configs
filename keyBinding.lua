@@ -64,6 +64,10 @@ globalkeys = awful.util.table.join(
     awful.key({                   }, "#84"   , function () awful.screen.focus_relative( 1)      end ),
     awful.key({                   }, "#83"   , awful.client.movetoscreen                            ),
     
+    -- Paste selection buffer
+    awful.key({                   }, "#96"   , utils.keyFunctions.printTextBuffer                   ),
+    awful.key({                   }, "#95"   , utils.keyFunctions.printClipboard                    ),
+    
     -- Prompt
     --              MODIFIERS         KEY                        ACTION                               
     awful.key({                   }, "#81"   , function () promptbox[mouse.screen]:run()        end ),

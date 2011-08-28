@@ -61,7 +61,7 @@ function getTabTitle(pid,id)
 end
 
 function addTab(pid)
-  print('dbus-send --type=method_call --dest=org.schmorp.urxvt /pid/12/control org.schmorp.urxvt.addTab')
+  --print('dbus-send --type=method_call --dest=org.schmorp.urxvt /pid/12/control org.schmorp.urxvt.addTab')
   util.spawn('dbus-send --type=method_call --dest=org.schmorp.urxvt /pid/12/control org.schmorp.urxvt.addTab')
   --io.popen('dbus-send --type=method_call --dest=org.schmorp.urxvt /pid/12/control org.schmorp.urxvt.addTab')
 end
