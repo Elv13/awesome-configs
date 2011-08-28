@@ -18,13 +18,6 @@ local capi = { image  = image  ,
 
 module("customMenu.menu2")
 
-local function hightlight(aWibox, value)
-  if not aWibox or value == nil then
-      return
-  end
-  aWibox.bg = ((value == true) and beautiful.bg_focus or beautiful.bg_normal) or ""
-end
-
 function new(screen, args) 
   local subArrow = capi.widget({type="imagebox"})
   subArrow.image = capi.image(beautiful.menu_submenu_icon)
@@ -34,7 +27,8 @@ function new(screen, args)
   
   local function createMenu()
     local menu = {settings = {counter = 0, itemHeight = beautiful.menu_height, visible = false,
-                              itemWidth = beautiful.menu_width, x = nil, y = nil}, signalList = {} }
+                              itemWidth = beautiful.menu_width, x = nil, y = nil,
+                              highlighted = {} }, signalList = {}}
     
     function menu:toggle(value)
       if self["settings"].visible == false and value == false then
@@ -64,6 +58,34 @@ function new(screen, args)
       
       
       self:set_coords()
+    end
+    
+    
+    function hightlight(aWibox, value)
+        if not aWibox or value == nil then
+            return
+        end
+        aWibox.bg = ((value == true) and beautiful.bg_focus or beautiful.bg_normal) or ""
+        if value == true then
+            table.insert(menu["settings"].highlighted,aWibox)
+        end
+    end
+    
+    function menu:highlight_item(index)
+        if self[index] ~= nil then
+            if self[index].widget ~= nil then
+                hightlight(self[index].widget,true)
+            end
+        end
+    end
+    
+    function menu:clear_highlight()
+        if #(self["settings"].highlighted) > 0 then
+            for k, v in pairs(self["settings"].highlighted) do
+                hightlight(v,false)
+            end
+            self["settings"].highlighted = {}
+        end
     end
     
     function menu:set_coords(x,y)
