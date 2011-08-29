@@ -44,7 +44,7 @@ theme.tasklist_floating_icon = awful.util.getdir("config") .. "/theme/darkBlue/I
 -- Variables set for theming menu
 -- menu_[bg|fg]_[normal|focus]
 -- menu_[border_color|border_width]
-theme.menu_submenu_icon = "/home/lepagee/icons/arrow.png"
+theme.menu_submenu_icon = awful.util.getdir("config").."/theme/darkBlue/Icon/tags/arrow.png"
 theme.menu_height   = "20"
 theme.menu_width    = "130"
 
