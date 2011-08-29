@@ -1,6 +1,7 @@
 local setmetatable = setmetatable
 local table        = table
 local io           = io
+local string       = string
 local button       = require( "awful.button"     )
 local beautiful    = require( "beautiful"        )
 local naughty      = require( "naughty"          )
@@ -80,4 +81,45 @@ function printClipboard()
     local text = f:read("*all")
     f:close()
     naughty.notify({text = '<u><b>Clipboard content:</b></u>\n'..text})
+end
+
+function pasteTextBuffer() 
+    local f = io.popen('xsel')
+    local text = f:read("*all")
+    f:close()
+    util.spawn("xvkbd -text '".. text:gsub("'", "\\'" ) .."'")
+end
+
+function pasteClipboard() 
+    local f = io.popen('xsel -b')
+    local text = f:read("*all")
+    f:close()
+    util.spawn("xvkbd -text '".. text:gsub("'", "\\'" ) .."'")
+end
+
+function printHexTextBuffer() 
+    local header = "<tt><span color='".. beautiful.bg_normal .."' bgcolor='".. beautiful.fg_normal .."'>  LINE  |                        CONTENT                          |     ASCII      |</span>\n"
+    local f = io.popen('xsel | /usr/bin/hexdump -f '..util.getdir("config")..'/Scripts/hexDumpSyntax')
+    local text = ""
+    
+    local line1 = f:read("*line")
+    local line2 = f:read("*line")
+    local alternate = false
+    while line1 ~= nil and line2 ~= nil do
+        local block = line1..'\n'..line2..'\n'
+        block = block:gsub('toReplace1', alternate and "#DDDDDD" or "#DDDDDD")
+        block = block:gsub('toReplace2',beautiful.fg_normal)
+        block = block:gsub('toReplace3',"#FFBBBB")
+        block = block:gsub('toReplace4', alternate and beautiful.bg_normal or beautiful.bg_highlight)
+        block = block:gsub('toReplace5', alternate and beautiful.bg_normal or beautiful.bg_highlight)
+        block = block:gsub('toReplace6', alternate and beautiful.bg_normal or beautiful.bg_highlight)
+        text =  text .. block
+        line1 = f:read("*line")
+        line2 = f:read("*line")
+        alternate = not alternate
+    end
+    
+    
+    f:close()
+    naughty.notify({text = '<u><b>Hexdecimal content:</b></u>\n\n'..header..text..'</tt>', timeout = 999, noslider = true})
 end

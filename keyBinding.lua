@@ -65,8 +65,13 @@ globalkeys = awful.util.table.join(
     awful.key({                   }, "#83"   , awful.client.movetoscreen                            ),
     
     -- Paste selection buffer
-    awful.key({                   }, "#96"   , utils.keyFunctions.printTextBuffer                   ),
-    awful.key({                   }, "#95"   , utils.keyFunctions.printClipboard                    ),
+    --              MODIFIERS         KEY                        ACTION                               
+    awful.key({                   }, "#96"   , utils.keyFunctions.pasteTextBuffer                   ),
+    awful.key({                   }, "#95"   , utils.keyFunctions.pasteClipboard                    ),
+    awful.key({ "Shift"           }, "#96"   , utils.keyFunctions.printTextBuffer                   ),
+    awful.key({ "Shift"           }, "#95"   , utils.keyFunctions.printClipboard                    ),
+    awful.key({ modkey, "Shift"   }, "#96"   , utils.keyFunctions.printHexTextBuffer                   ),
+    
     
     -- Prompt
     --              MODIFIERS         KEY                        ACTION                               

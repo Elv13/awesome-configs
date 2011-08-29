@@ -1,17 +1,17 @@
 local setmetatable = setmetatable
-local table = table
-local print = print
-local ipairs = ipairs
-local button = require("awful.button")
-local beautiful = require("beautiful")
-local naughty = require("naughty")
-local tag = require("awful.tag")
-local menu = require("customMenu.menu2")
-local util = require("awful.util")
-local capi = { image = image,
+local table        = table
+local print        = print
+local ipairs       = ipairs
+local button       = require("awful.button"     )
+local beautiful    = require("beautiful"        )
+local naughty      = require("naughty"          )
+local tag          = require("awful.tag"        )
+local menu         = require("customMenu.menu2" )
+local util         = require("awful.util"       )
+local capi = { image  = image,
                widget = widget,
                client = client,
-               mouse = mouse,
+               mouse  = mouse,
                screen = screen}
 
 module("customMenu.altTab")

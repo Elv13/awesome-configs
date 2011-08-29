@@ -1,0 +1,6 @@
+"<span color='toReplace1' bgcolor='toReplace4'><b>%06.8_ao</b></span><span color='toReplace2' bgcolor='toReplace5'>| "  4/1 "%2x " " | " 4/1 "%2x "  " | " 4/1 "%2x " " | " 4/1 "%2x "
+"   |</span>" 16/1 "<span color='toReplace3' bgcolor='toReplace6'><i>%1_p</i></span>"
+"|\n"
+"<span color='toReplace1' bgcolor='toReplace4'><b>%06.8_ao</b></span><span color='toReplace2' bgcolor='toReplace5'>| "  4/1 "%2_c "" | " 4/1 "%2_c "" | " 4/1 "%2_c "" | " 4/1 "%2_c "
+"   |</span>" "<span color='toReplace3' bgcolor='toReplace6'>                </span>"
+"|\n"
