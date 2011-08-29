@@ -4,6 +4,7 @@ local pairs        = pairs
 local next         = next
 local type         = type
 local print        = print
+local string       = string
 local button       = require( "awful.button" )
 local beautiful    = require( "beautiful"    )
 local widget2      = require( "awful.widget" )
@@ -55,7 +56,7 @@ function new(args)
       
       for v, i in next, self.items do
         if type(i) ~= "function" and type(v) == "number" then
-          i.widget.visible = self.settings.visible
+          i.widget.visible = self.settings.visible and not i.hidden
         end
       end
       
@@ -97,6 +98,21 @@ function new(args)
             end
             self.highlighted = {}
         end
+    end
+    
+    local filterDefault = function(item,text)
+        if item.text:find(text) ~= nil then
+            return false
+        end
+        return true
+    end
+    
+    function menu:filter(text,func)
+        local toExec = func or filterDefault
+        for k, v in next, self.items do
+            v.hidden = toExec(v,text)
+        end
+        self:toggle(self.settings.visible)
     end
     
     function menu:set_coords(x,y)
@@ -170,6 +186,7 @@ function new(args)
       local data = {
         --PROPERTY       VALUE                BACKUP VALUE          
         text        = args.text        or ""                       ,
+        hidden      = args.hidden      or false                    ,
         prefix      = args.prefix      or nil                      ,
         suffix      = args.suffix      or nil                      ,
         width       = capi.width       or self.settings.itemWidth  , 
