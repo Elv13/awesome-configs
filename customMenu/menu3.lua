@@ -12,10 +12,11 @@ local config       = require( "config"       )
 local util         = require( "awful.util"   )
 local wibox        = require( "awful.wibox"  )
 
-local capi = { image  = image  ,
-               widget = widget ,
-               mouse  = mouse  ,
-               screen = screen , }
+local capi = { image      = image      ,
+               widget     = widget     ,
+               mouse      = mouse      ,
+               screen     = screen     , 
+               keygrabber = keygrabber }
 
 module("customMenu.menu3")
 
@@ -27,24 +28,102 @@ function new(args)
     args = args or {}
     local menu = { settings = { 
     -- Settings
-    --PROPERTY          VALUE               BACKUP VLAUE       
-    itemHeight  = args.itemHeight    or beautiful.menu_height , 
-    visible     = false                                       ,
-    itemWidth   = args.width         or beautiful.menu_width  , 
-    bg_normal   = args.bg_normal     or beautiful.bg_normal   ,
-    bg_focus    = args.bg_focus      or beautiful.bg_focus    ,
-    x           = args.x             or nil                   ,
-    y           = args.y             or nil                   ,
-    },---------------------------------------------------------
+    --PROPERTY          VALUE               BACKUP VLAUE         
+    itemHeight    = args.itemHeight    or beautiful.menu_height , 
+    visible       = false                                       ,
+    itemWidth     = args.width         or beautiful.menu_width  , 
+    bg_normal     = args.bg_normal     or beautiful.bg_normal   ,
+    bg_focus      = args.bg_focus      or beautiful.bg_focus    ,
+    nokeyboardnav = args.nokeyboardnav or false                 ,
+    filter        = args.filter        or false                 ,
+    showfilter    = args.showfilter    or false                 ,
+    filterprefix  = args.filterprefix  or "<b>Filter:</b>"      ,
+    x             = args.x             or nil                   ,
+    y             = args.y             or nil                   ,
+    },-----------------------------------------------------------
 
     -- Data
-    --  TYPE      INIT                                         
-    signalList  = {}                                          ,
-    items       = {}                                          ,
-    hasChanged  = nil                                         ,
-    highlighted = {}                                          ,
-    -----------------------------------------------------------
+    --  TYPE      INITIAL VALUE                                  
+    signalList    = {}                                          ,
+    items         = {}                                          ,
+    hasChanged    = nil                                         ,
+    highlighted   = {}                                          ,
+    currentIndex  = 1                                           ,
+    keyShortcut   = {}                                          ,
+    filterString  = ""                                          ,
+    filterWidget  = nil                                         ,
+    -------------------------------------------------------------
     }
+    
+    menu.signalList["menu::hide"] = {}
+    menu.signalList["menu::show"] = {}
+    
+    local function keyboardNavigation(leap)
+        if menu.currentIndex + leap > #menu.items then
+            menu.currentIndex = 1
+        elseif menu.currentIndex + leap < 1 then
+            menu.currentIndex = #menu.items
+        else
+            menu.currentIndex = menu.currentIndex + leap
+        end
+        menu:clear_highlight()
+        menu:highlight_item(menu.currentIndex) 
+    end
+    
+    local function getFilterWidget()
+        if menu.settings.showfilter == true then
+            if menu.filterWidget == nil then
+                local textbox = capi.widget({type="textbox" })
+                textbox.text = menu.settings.filterprefix
+                local filterWibox = wibox({ position = "free", visible = false, ontop = true, border_width = 1, border_color = beautiful.border_normal })
+                filterWibox.widgets = { textbox, layout = widget2.layout.horizontal.leftright }
+                menu.filterWidget = {textbox = textbox, widget = filterWibox, hidden = false, width = menu.settings.itemWidth, height = menu.settings.itemHeight}
+            end
+            return menu.filterWidget
+        end
+        return nil
+    end
+    
+    local function activateKeyboard()
+        if (not menu.settings.nokeyboardnav) and menu.settings.visible == true then
+            capi.keygrabber.run(function(mod, key, event)
+                if event == "release" then 
+                    return true 
+                end 
+                
+                if (menu.keyShortcut[{mod,key}] or key == 'Enter') and menu.keyShortcut[{mod,key}].button1 then --TODO use a different function
+                    menu.keyShortcut[{mod,key}].button1()
+                elseif key == 'Escape' or (key == 'Tab' and menu.filterString == "") then 
+                    menu:toggle(false)
+                    capi.keygrabber.stop()
+                    return false
+                elseif key == 'Up' then 
+                    keyboardNavigation(-1)
+                elseif key == 'Down' then 
+                    keyboardNavigation(1)
+                elseif (key == 'BackSpace') and menu.filterString ~= "" and menu.settings.filter == true then
+                    menu.filterString = menu.filterString:sub(1,-1)
+                    menu:filter(menu.filterString:lower())
+                    if getFilterWidget() ~= nil then
+                        getFilterWidget().widget.text = getFilterWidget().widget.text:sub(1,-1)
+                    end
+                elseif menu.settings.filter == true then 
+                    menu.filterString = menu.filterString .. key
+                    if getFilterWidget() ~= nil then
+                        getFilterWidget().textbox.text = getFilterWidget().textbox.text .. key
+                    end
+                    menu:filter(menu.filterString:lower())
+                else
+                    capi.keygrabber.stop()
+                    menu:toggle(false)
+                    return false
+                end
+                return true
+            end)
+        end
+    end
+    
+
     
     function menu:toggle(value)
       if self.settings.visible == false and value == false then return end
@@ -60,16 +139,21 @@ function new(args)
         end
       end
       
-      if self.settings.visible == false and self.signalList["menu::hide"] ~= nil then
+      if self.settings.visible == false and #self.signalList["menu::hide"] ~= 0 then
           for k,v in pairs(self.signalList["menu::hide"]) do
               v(self)
           end
-      elseif self.settings.visible == true and self.signalList["menu::show"] ~= nil then
+      elseif self.settings.visible == true and #self.signalList["menu::show"] ~= 0 then
           for k,v in pairs(self.signalList["menu::show"]) do
               v(self)
           end
       end
       
+      if getFilterWidget() then
+          menu.filterWidget.widget.visible = value
+      end
+      
+      activateKeyboard()
       self:set_coords()
     end
     
@@ -110,7 +194,9 @@ function new(args)
     function menu:filter(text,func)
         local toExec = func or filterDefault
         for k, v in next, self.items do
-            v.hidden = toExec(v,text)
+            if v.nofilter == false then
+                v.hidden = toExec(v,text)
+            end
         end
         self:toggle(self.settings.visible)
     end
@@ -119,8 +205,8 @@ function new(args)
       local prevX = self.settings["xPos"] or -1
       local prevY = self.settings["yPos"] or -1
       
-      self.settings["xPos"] = x or self.settings["x"] or capi.mouse.coords().x
-      self.settings["yPos"] = y or self.settings["y"] or capi.mouse.coords().y
+      self.settings.xPos = x or self.settings.x or capi.mouse.coords().x
+      self.settings.yPos = y or self.settings.y or capi.mouse.coords().y
       
       if prevX ~= self.settings["xPos"] or prevY ~= self.settings["yPos"] then
           self.hasChanged = true
@@ -140,34 +226,42 @@ function new(args)
           yPadding = -self.settings.itemHeight
       end
       
-      for v, i in next, self.items do
-        if type(i) ~= "function" and type(v) == "number" then
-          i.x = self.settings.xPos
-          i.y = self.settings.yPos+(self.settings.itemHeight*counter)*downOrUp+yPadding
-          local geo = i.widget:geometry()
-          if geo.x ~= i.x or geo.y ~= i.y or geo.width ~= i.width or geo.height ~= i.height then --moving is slow
-            i.widget:geometry({ width = i.width, height = i.height, y=i.y, x=i.x})
-          end
-          counter = counter +1
-          if type(i.subMenu) ~= "function" and i.subMenu ~= nil and i.subMenu.settings ~= nil then
-            i.subMenu.settings.x = i.x+i.width
-            i.subMenu.settings.y = i.y
-          end
+      local set_geometry = function(wdg)
+        if type(wdg) ~= "function" and wdg.hidden == false then
+            local geo = wdg.widget:geometry()
+            wdg.x = self.settings.xPos
+            wdg.y = self.settings.yPos+(self.settings.itemHeight*counter)*downOrUp+yPadding
+            if geo.x ~= wdg.x or geo.y ~= wdg.y or geo.width ~= wdg.width or geo.height ~= wdg.height then --moving is slow
+                wdg.widget:geometry({ width = wdg.width, height = wdg.height, y=wdg.y, x=wdg.x})
+            end
+            counter = counter +1
+            if type(wdg.subMenu) ~= "function" and wdg.subMenu ~= nil and wdg.subMenu.settings ~= nil then
+                wdg.subMenu.settings.x = wdg.x+wdg.width
+                wdg.subMenu.settings.y = wdg.y
+            end
         end
+      end
+      
+      for v, i in next, self.items do
+        set_geometry(i)
+      end
+      
+      if getFilterWidget() ~= nil then
+          set_geometry(getFilterWidget())
       end
     end
     
     function menu:set_width(width)
-        self.settings["itemWidth"] = width
+        self.settings.itemWidth = width
     end
     
     
     ---Possible signals = "menu::hide", "menu::show", "menu::resize"
     function menu:add_signal(name,func)
-        if self.signalList.name == nil then
-            self.signalList.name = {}
+        if self.signalList[name] == nil then
+            self.signalList[name] = {}
         end
-        table.insert(self.signalList.name,func)
+        table.insert(self.signalList[name],func)
     end
     
     
@@ -200,6 +294,7 @@ function new(args)
         subMenu     = args.subMenu     or nil                      ,
         nohighlight = args.nohighlight or false                    ,
         noautohide  = args.noautohide  or false                    ,
+        nofilter    = args.nofilter    or false                    ,
         ------------------------------------------------------------
       }
       for i=2, 10 do
@@ -273,22 +368,22 @@ function new(args)
       end
       
       aWibox:buttons( util.table.join(
-        button({ }, 1, function() clickCommon(1 ) end),
-        button({ }, 1, function() clickCommon(2 ) end),
-        button({ }, 3, function() clickCommon(3 ) end),
-        button({ }, 3, function() clickCommon(4 ) end),
-        button({ }, 3, function() clickCommon(5 ) end),
-        button({ }, 3, function() clickCommon(6 ) end),
-        button({ }, 3, function() clickCommon(7 ) end),
-        button({ }, 3, function() clickCommon(8 ) end),
-        button({ }, 3, function() clickCommon(9 ) end),
-        button({ }, 3, function() clickCommon(10) end)
+        button({ }, 1 , function() clickCommon(1 ) end),
+        button({ }, 3 , function() clickCommon(2 ) end),
+        button({ }, 3 , function() clickCommon(3 ) end),
+        button({ }, 4 , function() clickCommon(4 ) end),
+        button({ }, 5 , function() clickCommon(5 ) end),
+        button({ }, 6 , function() clickCommon(6 ) end),
+        button({ }, 7 , function() clickCommon(7 ) end),
+        button({ }, 8 , function() clickCommon(8 ) end),
+        button({ }, 9 , function() clickCommon(9 ) end),
+        button({ }, 10, function() clickCommon(10) end)
       ))
       
       aWibox:add_signal("mouse::enter", function() toggleItem(true) end)
       aWibox:add_signal("mouse::leave", function() toggleItem(false) end)
       aWibox.visible = false
-      return aWibox
+      return data
     end
     return menu
   end
