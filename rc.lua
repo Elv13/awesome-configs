@@ -82,7 +82,7 @@ placesMenu             = customMenu.places        ( nil                         
 recentMenu             = customMenu.recent        ( nil                                )
 
 -- Call the laucher wibox
-launcherPix            = customMenu.launcher      ( nil                                )
+launcher               = customMenu.launcher      ( nil                                )
 
 -- Create the laucher dock
 lauchDock              = widgets.dock             ( nil                                )
@@ -238,21 +238,21 @@ for s = 1, screen.count() do
       ( s == 2 or screen.count() == 1                  ) and mytextclock            or nil,
       ( s == 2 or screen.count() == 1                  ) and kgetwidget             or nil,
       ( s == 2 or screen.count() == 1                  ) and kgetpixmap             or nil,
-      ((s == 2 or screen.count() == 1) and soundWidget ) and soundWidget["wid"]     or nil,
-      ((s == 2 or screen.count() == 1) and soundWidget ) and soundWidget["pix"]     or nil,
+      ((s == 2 or screen.count() == 1) and soundWidget ) and soundWidget.wid        or nil,
+      ((s == 2 or screen.count() == 1) and soundWidget ) and soundWidget.pix        or nil,
       ( s == 2 or screen.count() == 1                  ) and spacer4                or nil,
-      ((s == 2 or screen.count() == 1) and netinfo     ) and netinfo["up_text"]     or nil,
-      ((s == 2 or screen.count() == 1) and netinfo     ) and netinfo["up_logo"]     or nil,
-      ((s == 2 or screen.count() == 1) and netinfo     ) and netinfo["down_text"]   or nil,
-      ((s == 2 or screen.count() == 1) and netinfo     ) and netinfo["down_logo"]   or nil,
+      ((s == 2 or screen.count() == 1) and netinfo     ) and netinfo.up_text        or nil,
+      ((s == 2 or screen.count() == 1) and netinfo     ) and netinfo.up_logo        or nil,
+      ((s == 2 or screen.count() == 1) and netinfo     ) and netinfo.down_text      or nil,
+      ((s == 2 or screen.count() == 1) and netinfo     ) and netinfo.down_logo      or nil,
       ( s == 2 or screen.count() == 1                  ) and spacer2                or nil,
-      ((s == 2 or screen.count() == 1) and meminfo     ) and meminfo["bar"]         or nil,
-      ((s == 2 or screen.count() == 1) and meminfo     ) and meminfo["text"]        or nil,
-      ((s == 2 or screen.count() == 1) and meminfo     ) and meminfo["logo"]        or nil,
+      ((s == 2 or screen.count() == 1) and meminfo     ) and meminfo.bar            or nil,
+      ((s == 2 or screen.count() == 1) and meminfo     ) and meminfo.text           or nil,
+      ((s == 2 or screen.count() == 1) and meminfo     ) and meminfo.logo           or nil,
       ( s == 2 or screen.count() == 1                  ) and spacer2                or nil,
-      ((s == 2 or screen.count() == 1) and cpuinto     ) and cpuinfo["graph"]       or nil,
-      ((s == 2 or screen.count() == 1) and cpuinfo     ) and cpuinfo["text"]        or nil,
-      ((s == 2 or screen.count() == 1) and cpuinfo     ) and cpuinfo["logo"]        or nil,
+      ((s == 2 or screen.count() == 1) and cpuinto     ) and cpuinfo.graph          or nil,
+      ((s == 2 or screen.count() == 1) and cpuinfo     ) and cpuinfo.text           or nil,
+      ((s == 2 or screen.count() == 1) and cpuinfo     ) and cpuinfo.logo           or nil,
       ( s == 2 or screen.count() == 1                  ) and spacer3                or nil,
       layout = awful.widget.layout.horizontal.rightleft,                            ------
       {                                                                             ------
@@ -266,9 +266,9 @@ for s = 1, screen.count() do
     --           RULES                                       WIDGET                FALLBACK
     ( s == 1                                           ) and applicationMenu        or nil,
     ( s == 1                                           ) and placesMenu             or nil,
-    ( s == 1                                           ) and recentMenu             or nil,
+    --( s == 1                                           ) and recentMenu             or nil,
+    ( s == 1                                           ) and launcher               or nil,
     ( s == 1                                           ) and desktopPix             or nil,
-    ( s == 1                                           ) and launcherPix            or nil,
     promptbox[s]                                                                    or nil,
     spacer3                                                                         or nil,
     {                                                                               ------

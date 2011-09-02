@@ -142,13 +142,14 @@ function new(args)
     -------------------------------------------------------------
     }
     
-    menu.signalList["menu::hide"] = {}
-    menu.signalList["menu::show"] = {}
+    menu.signalList["menu::hide"    ] = {}
+    menu.signalList["menu::show"    ] = {}
+    menu.signalList["menu::changed" ] = {}
 
     function menu:toggle(value)
       if self.settings.visible == false and value == false then return end
       
-      self.settings.visible = value or not self.items[1].widget.visible
+      self.settings.visible = value or not self.settings.visible
       if self.settings.visible == false then
         self:toggleSubMenu(nil,true,false)
       end
@@ -159,14 +160,10 @@ function new(args)
         end
       end
       
-      if self.settings.visible == false and #self.signalList["menu::hide"] ~= 0 then
-          for k,v in pairs(self.signalList["menu::hide"]) do
-              v(self)
-          end
-      elseif self.settings.visible == true and #self.signalList["menu::show"] ~= 0 then
-          for k,v in pairs(self.signalList["menu::show"]) do
-              v(self)
-          end
+      if self.settings.visible == false then
+          self:emit("menu::hide")
+      else
+          self:emit("menu::show")
       end
       
       if getFilterWidget(self) then
@@ -184,6 +181,12 @@ function new(args)
         aWibox.bg = ((value == true) and menu.settings.bg_focus or menu.settings.bg_normal) or ""
         if value == true then
             table.insert(menu.highlighted,aWibox)
+        end
+    end
+    
+    function menu:emit(signName)
+        for k,v in pairs(self.signalList[signName] or {}) do
+            v(self)
         end
     end
     
@@ -215,7 +218,9 @@ function new(args)
         local toExec = func or filterDefault
         for k, v in next, self.items do
             if v.nofilter == false then
-                v.hidden = toExec(v,text)
+                local hidden = toExec(v,text)
+                self.hasChanged = self.hasChanged or (hidden ~= v.hidden)
+                v.hidden = hidden
             end
         end
         self:toggle(self.settings.visible)
@@ -234,6 +239,10 @@ function new(args)
       
       if self.settings.visible == false or self.hasChanged == false then
         return;
+      end
+      
+      if self.hasChanged == true then
+          self:emit("menu::changed")
       end
       
       self.hasChanged = false
@@ -262,11 +271,15 @@ function new(args)
         end
       end
       
+      if getFilterWidget() ~= nil and downOrUp == -1 then
+          set_geometry(getFilterWidget())
+      end
+      
       for v, i in next, self.items do
         set_geometry(i)
       end
       
-      if getFilterWidget() ~= nil then
+      if getFilterWidget() ~= nil and downOrUp == 1 then
           set_geometry(getFilterWidget())
       end
     end
@@ -309,6 +322,10 @@ function new(args)
         hidden      = args.hidden      or false                    ,
         prefix      = args.prefix      or nil                      ,
         suffix      = args.suffix      or nil                      ,
+        prefixwidth = args.prefixwidth or nil                      ,
+        suffixwidth = args.suffixwidth or nil                      ,
+        prefixbg    = args.prefixbg    or nil                      ,
+        suffixbg    = args.suffixbg    or nil                      ,
         width       = capi.width       or self.settings.itemWidth  , 
         height      = capi.height      or self.settings.itemHeight , 
         widget      = aWibox           or nil                      , 
@@ -321,6 +338,7 @@ function new(args)
         nohighlight = args.nohighlight or false                    ,
         noautohide  = args.noautohide  or false                    ,
         nofilter    = args.nofilter    or false                    ,
+        widgets     = {}
         ------------------------------------------------------------
       }
       for i=2, 10 do
@@ -358,23 +376,30 @@ function new(args)
           end
       end
       
+      local optionalWdgFeild = {"width","bg"}
       local createWidget = function(field,type)
-        local newWdg = (field ~= nil) and capi.widget({type=type }) or nil
+        local newWdg = (data[field] ~= nil) and capi.widget({type=type }) or nil
         if newWdg ~= nil and type == "textbox" then
-            newWdg.text  = field
+            newWdg.text  = data[field]
         elseif newWdg ~= nil and type == "imagebox" then
-            newWdg.image = capi.image(field)
+            newWdg.image = capi.image(data[field])
+        end
+        
+        for k,v in pairs(optionalWdgFeild) do
+            if newWdg ~= nil and data[field..v] ~= nil then
+                newWdg[v] = data[field..v]
+            end
         end
         return newWdg
       end
       
       local checkbox2 = (checked ~= nil) and checkbox or nil
       
-      local prefix = createWidget(data.prefix,"textbox")
-      local suffix = createWidget(data.suffix,"textbox")
-      local wdg    = createWidget(data.text,"textbox")
+      data.widgets.prefix = createWidget("prefix","textbox")
+      data.widgets.suffix = createWidget("suffix","textbox")
+      data.widgets.wdg    = createWidget("text","textbox")
       
-      aWibox.widgets = {prefix,data.icon,wdg, {subArrow2,checkbox2,suffix, layout = widget2.layout.horizontal.rightleft}, layout = widget2.layout.horizontal.leftright}
+      aWibox.widgets = {data.widgets.prefix,data.icon,data.widgets.wdg, {subArrow2,checkbox2,data.widgets.suffix, layout = widget2.layout.horizontal.rightleft}, layout = widget2.layout.horizontal.leftright}
       
       local hideEverything = function () 
         self:toggle(false)

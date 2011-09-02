@@ -21,10 +21,11 @@ local capi = { image  = image  ,
 module("customMenu.launcher")
 
 local currentMenu = nil
+local fkeymap = {}
 
 function createMenu(center)
     
-    local numberStyle = "<span size='large' bgcolor='".. beautiful.fg_normal .."'color='".. beautiful.bg_normal .."'><tt><b>"
+    local numberStyle = "<span size='large' color='".. beautiful.bg_normal .."'><tt><b>"
     local numberStyleEnd = "</b></tt></span> "
     
      -- Read the history and sort them by use (most used first)
@@ -55,7 +56,7 @@ function createMenu(center)
 
     table.sort(commandArray2, compare)
   
-    mainMenu = menu({filter = true, showfilter = true, filterprefix = "<b>Run: </b>"})
+    mainMenu = menu({filter = true, showfilter = true, filterprefix = "<b>Run: </b>", y = capi.screen[1].geometry.height - 18, x = 147})
     mainMenu:set_width(((screen or capi.screen[capi.mouse.screen]).geometry.width)/2)
     
     mainMenu:add_filter_hook({}, "Return", "press", function(menu)
@@ -64,33 +65,57 @@ function createMenu(center)
         return false
     end)
     
+    for i=1,15 do
+        mainMenu:add_filter_hook({}, "F"..i, "press", function(menu)
+            if fkeymap[i] ~= nil then
+                util.spawn(fkeymap[i].text)
+            end
+            menu:toggle(false)
+            return false
+        end)
+    end
+    
     -- Fill the menu
     local counter = 1
     for k,v in pairs(commandArray2) do
-       mainMenu:addItem({prefix = numberStyle.."[F".. counter .."]"..numberStyleEnd,  text =  v[2], onclick = function() util.spawn(v[2]) end})
+       local item = mainMenu:addItem({prefix = numberStyle.."[F".. counter .."]"..numberStyleEnd, prefixbg = beautiful.fg_normal,prefixwidth = 45, text =  v[2], onclick = function() util.spawn(v[2]) end})
+       item.fkey = "F"..counter
+       fkeymap[counter] = item
        counter = counter + 1
     end
     
     mainMenu:add_signal("menu::hide", function() currentMenu = nil end)
+    
+    mainMenu:add_signal("menu::changed",  function(menu) 
+        local counter = 1
+        fkeymap = {}
+        for k, v in pairs(menu.items) do
+            if v.hidden ~= true then
+                v.widgets.prefix.text = numberStyle.."[F".. counter .."]"..numberStyleEnd
+                fkeymap[counter] = v
+                counter = counter + 1
+            end
+        end
+    end)
     
     mainMenu:toggle(true)
     
     return mainMenu
 end
 
-function new(screen, args) 
+function new(screen, args)
+    local launcherText = capi.widget({ type = "textbox", align = "left" })
+    launcherText.text  = "      Launch  |"
+    launcherText.bg_image = capi.image(config.data.iconPath .. "gearA2.png")
     
+    launcherText:add_signal("mouse::enter", function()
+        launcherText.bg = beautiful.bg_highlight
+    end)
+    launcherText:add_signal("mouse::leave", function() 
+        launcherText.bg = beautiful.bg_normal 
+    end)
     
-   
-    
-    -- Create the menu icon
-    local launcherPix = capi.widget({ type = "imagebox", align = "left" })
-    launcherPix.image = capi.image(config.data.iconPath .. "gearA2.png")
-    
-    launcherPix:add_signal("mouse::enter", function() launcherPix.bg = beautiful.bg_highlight end)
-    launcherPix:add_signal("mouse::leave", function() launcherPix.bg = beautiful.bg_normal end)
-    
-    launcherPix:buttons( util.table.join(
+    launcherText:buttons( util.table.join(
     button({ }, 1, function()
         if currentMenu ~= nil then
             currentMenu:toggle(false)
@@ -99,7 +124,7 @@ function new(screen, args)
         end
     end)
     ))
-    return launcherPix
+    return launcherText
 end
 
 
