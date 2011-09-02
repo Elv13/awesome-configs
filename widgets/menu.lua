@@ -18,8 +18,94 @@ local capi = { image      = image      ,
                screen     = screen     , 
                keygrabber = keygrabber }
 
-module("customMenu.menu3")
+module("widgets.menu")
 
+-- Common function
+local grabKeyboard = false
+local currentMenu  = nil
+
+local function stopGrabber()
+    currentMenu:toggle(false)
+    capi.keygrabber.stop()
+    grabKeyboard = false
+    currentMenu  = nil
+    return false
+end
+
+local function keyboardNavigation(leap)
+    if currentMenu.currentIndex + leap > #currentMenu.items then
+        currentMenu.currentIndex = 1
+    elseif currentMenu.currentIndex + leap < 1 then
+        currentMenu.currentIndex = #currentMenu.items
+    else
+        currentMenu.currentIndex = currentMenu.currentIndex + leap
+    end
+    currentMenu:clear_highlight()
+    currentMenu:highlight_item(currentMenu.currentIndex) 
+end
+
+local function getFilterWidget(aMenu)
+    local menu = aMenu or currentMenu or nil
+    if menu.settings.showfilter == true then
+        if menu.filterWidget == nil then
+            local textbox = capi.widget({type="textbox" })
+            textbox.text = menu.settings.filterprefix
+            local filterWibox = wibox({ position = "free", visible = false, ontop = true, border_width = 1, border_color = beautiful.border_normal })
+            filterWibox:buttons( util.table.join(button({},3,function() menu:toggle(false) end)))
+            filterWibox.widgets = { textbox, layout = widget2.layout.horizontal.leftright }
+            menu.filterWidget = {textbox = textbox, widget = filterWibox, hidden = false, width = menu.settings.itemWidth, height = menu.settings.itemHeight}
+        end
+        return menu.filterWidget
+    end
+    return nil
+end
+
+local function activateKeyboard(curMenu)
+    currentMenu = curMenu or currentMenu or nil
+    if not currentMenu or grabKeyboard == true then return end
+    
+    if (not currentMenu.settings.nokeyboardnav) and currentMenu.settings.visible == true then
+        grabKeyboard = true
+        capi.keygrabber.run(function(mod, key, event)
+            if event == "release" then 
+                return true 
+            end 
+            
+            for k,v in pairs(currentMenu.filterHooks) do --TODO modkeys
+                if k.key == key and k.event == event then
+                    return v(currentMenu)
+                end
+            end
+            
+            if (currentMenu.keyShortcut[{mod,key}] or key == 'Enter') and currentMenu.keyShortcut[{mod,key}].button1 then --TODO use a different function
+                currentMenu.keyShortcut[{mod,key}].button1()
+            elseif key == 'Escape' or (key == 'Tab' and currentMenu.filterString == "") then 
+                stopGrabber()
+            elseif key == 'Up' then 
+                keyboardNavigation(-1)
+            elseif key == 'Down' then 
+                keyboardNavigation(1)
+            elseif (key == 'BackSpace') and currentMenu.filterString ~= "" and currentMenu.settings.filter == true then
+                currentMenu.filterString = currentMenu.filterString:sub(1,-2)
+                currentMenu:filter(currentMenu.filterString:lower())
+                if getFilterWidget() ~= nil then
+                    getFilterWidget().textbox.text = getFilterWidget().textbox.text:sub(1,-2)
+                end
+            elseif currentMenu.settings.filter == true and key:len() == 1 then 
+                currentMenu.filterString = currentMenu.filterString .. key
+                if getFilterWidget() ~= nil then
+                    getFilterWidget().textbox.text = getFilterWidget().textbox.text .. key
+                end
+                currentMenu:filter(currentMenu.filterString:lower())
+            else
+                stopGrabber()
+            end
+            return true
+        end)
+    end
+end
+
+-- Individual menu function
 function new(args) 
   local subArrow = capi.widget({type="imagebox", image = capi.image( beautiful.menu_submenu_icon         ) })
   local checkbox = capi.widget({type="imagebox", image = capi.image( config.data.iconPath .. "check.png" ) })
@@ -52,79 +138,13 @@ function new(args)
     keyShortcut   = {}                                          ,
     filterString  = ""                                          ,
     filterWidget  = nil                                         ,
+    filterHooks   = {}                                          ,
     -------------------------------------------------------------
     }
     
     menu.signalList["menu::hide"] = {}
     menu.signalList["menu::show"] = {}
-    
-    local function keyboardNavigation(leap)
-        if menu.currentIndex + leap > #menu.items then
-            menu.currentIndex = 1
-        elseif menu.currentIndex + leap < 1 then
-            menu.currentIndex = #menu.items
-        else
-            menu.currentIndex = menu.currentIndex + leap
-        end
-        menu:clear_highlight()
-        menu:highlight_item(menu.currentIndex) 
-    end
-    
-    local function getFilterWidget()
-        if menu.settings.showfilter == true then
-            if menu.filterWidget == nil then
-                local textbox = capi.widget({type="textbox" })
-                textbox.text = menu.settings.filterprefix
-                local filterWibox = wibox({ position = "free", visible = false, ontop = true, border_width = 1, border_color = beautiful.border_normal })
-                filterWibox.widgets = { textbox, layout = widget2.layout.horizontal.leftright }
-                menu.filterWidget = {textbox = textbox, widget = filterWibox, hidden = false, width = menu.settings.itemWidth, height = menu.settings.itemHeight}
-            end
-            return menu.filterWidget
-        end
-        return nil
-    end
-    
-    local function activateKeyboard()
-        if (not menu.settings.nokeyboardnav) and menu.settings.visible == true then
-            capi.keygrabber.run(function(mod, key, event)
-                if event == "release" then 
-                    return true 
-                end 
-                
-                if (menu.keyShortcut[{mod,key}] or key == 'Enter') and menu.keyShortcut[{mod,key}].button1 then --TODO use a different function
-                    menu.keyShortcut[{mod,key}].button1()
-                elseif key == 'Escape' or (key == 'Tab' and menu.filterString == "") then 
-                    menu:toggle(false)
-                    capi.keygrabber.stop()
-                    return false
-                elseif key == 'Up' then 
-                    keyboardNavigation(-1)
-                elseif key == 'Down' then 
-                    keyboardNavigation(1)
-                elseif (key == 'BackSpace') and menu.filterString ~= "" and menu.settings.filter == true then
-                    menu.filterString = menu.filterString:sub(1,-1)
-                    menu:filter(menu.filterString:lower())
-                    if getFilterWidget() ~= nil then
-                        getFilterWidget().widget.text = getFilterWidget().widget.text:sub(1,-1)
-                    end
-                elseif menu.settings.filter == true then 
-                    menu.filterString = menu.filterString .. key
-                    if getFilterWidget() ~= nil then
-                        getFilterWidget().textbox.text = getFilterWidget().textbox.text .. key
-                    end
-                    menu:filter(menu.filterString:lower())
-                else
-                    capi.keygrabber.stop()
-                    menu:toggle(false)
-                    return false
-                end
-                return true
-            end)
-        end
-    end
-    
 
-    
     function menu:toggle(value)
       if self.settings.visible == false and value == false then return end
       
@@ -149,11 +169,11 @@ function new(args)
           end
       end
       
-      if getFilterWidget() then
+      if getFilterWidget(self) then
           menu.filterWidget.widget.visible = value
       end
       
-      activateKeyboard()
+      activateKeyboard(self)
       self:set_coords()
     end
     
@@ -221,11 +241,11 @@ function new(args)
       
       local downOrUp = 1 --(down == false)
       local yPadding = 0
-      if #self*self.settings.itemHeight + self.settings["yPos"] > capi.screen[capi.mouse.screen].geometry.height then
+      if #self.items*self.settings.itemHeight + self.settings["yPos"] > capi.screen[capi.mouse.screen].geometry.height then
           downOrUp = -1
           yPadding = -self.settings.itemHeight
       end
-      
+            
       local set_geometry = function(wdg)
         if type(wdg) ~= "function" and wdg.hidden == false then
             local geo = wdg.widget:geometry()
@@ -264,6 +284,12 @@ function new(args)
         table.insert(self.signalList[name],func)
     end
     
+    function menu:add_filter_hook(mod, key, event, func)
+        if key and event and func then
+            --table.insert(filterHooks,{, func = func})
+            self.filterHooks[{key = key, event = event, mod = mod}] = func
+        end
+    end
     
     function menu:toggleSubMenu(aSubMenu,hideOld,forceValue) --TODO dead code?
       if (self.subMenu ~= nil) and (hideOld == true) then
@@ -319,6 +345,7 @@ function new(args)
               hightlight(aWibox,value)
           end
           if value == true then
+            currentMenu = self
             if type(subMenu) ~= "function" then
               self:toggleSubMenu(subMenu,value,value)
             elseif self.subMenu == nil then --Prevent memory leak
@@ -369,7 +396,7 @@ function new(args)
       
       aWibox:buttons( util.table.join(
         button({ }, 1 , function() clickCommon(1 ) end),
-        button({ }, 3 , function() clickCommon(2 ) end),
+        button({ }, 2 , function() clickCommon(2 ) end),
         button({ }, 3 , function() clickCommon(3 ) end),
         button({ }, 4 , function() clickCommon(4 ) end),
         button({ }, 5 , function() clickCommon(5 ) end),

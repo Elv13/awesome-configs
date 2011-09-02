@@ -6,7 +6,7 @@ local button       = require("awful.button"     )
 local beautiful    = require("beautiful"        )
 local naughty      = require("naughty"          )
 local tag          = require("awful.tag"        )
-local menu         = require("customMenu.menu3" )
+local menu         = require("widgets.menu"     )
 local util         = require("awful.util"       )
 local capi = { image      = image,
                widget     = widget,

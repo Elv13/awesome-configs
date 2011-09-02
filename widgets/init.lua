@@ -7,5 +7,6 @@ require("widgets.taglist")
 require("widgets.tasklist")
 require("widgets.tablist")
 require("widgets.tabbar")
+require("widgets.menu")
 
 module("widgets")
