@@ -73,7 +73,11 @@ local function activateKeyboard(curMenu)
             
             for k,v in pairs(currentMenu.filterHooks) do --TODO modkeys
                 if k.key == key and k.event == event then
-                    return v(currentMenu)
+                    local retval = v(currentMenu)
+                    if retval == false then
+                        grabKeyboard = false
+                    end
+                    return retval
                 end
             end
             
@@ -81,9 +85,9 @@ local function activateKeyboard(curMenu)
                 currentMenu.keyShortcut[{mod,key}].button1()
             elseif key == 'Escape' or (key == 'Tab' and currentMenu.filterString == "") then 
                 stopGrabber()
-            elseif key == 'Up' then 
+            elseif (key == 'Up' and currentMenu.downOrUp == 1) or (key == 'Down' and currentMenu.downOrUp == -1) then 
                 keyboardNavigation(-1)
-            elseif key == 'Down' then 
+            elseif (key == 'Down' and currentMenu.downOrUp == 1) or (key == 'Up' and currentMenu.downOrUp == -1) then 
                 keyboardNavigation(1)
             elseif (key == 'BackSpace') and currentMenu.filterString ~= "" and currentMenu.settings.filter == true then
                 currentMenu.filterString = currentMenu.filterString:sub(1,-2)
@@ -139,6 +143,7 @@ function new(args)
     filterString  = ""                                          ,
     filterWidget  = nil                                         ,
     filterHooks   = {}                                          ,
+    downOrUp      = 1
     -------------------------------------------------------------
     }
     
@@ -248,10 +253,9 @@ function new(args)
       self.hasChanged = false
       local counter = 0
       
-      local downOrUp = 1 --(down == false)
       local yPadding = 0
       if #self.items*self.settings.itemHeight + self.settings["yPos"] > capi.screen[capi.mouse.screen].geometry.height then
-          downOrUp = -1
+          self.downOrUp = -1
           yPadding = -self.settings.itemHeight
       end
             
@@ -259,7 +263,7 @@ function new(args)
         if type(wdg) ~= "function" and wdg.hidden == false then
             local geo = wdg.widget:geometry()
             wdg.x = self.settings.xPos
-            wdg.y = self.settings.yPos+(self.settings.itemHeight*counter)*downOrUp+yPadding
+            wdg.y = self.settings.yPos+(self.settings.itemHeight*counter)*self.downOrUp+yPadding
             if geo.x ~= wdg.x or geo.y ~= wdg.y or geo.width ~= wdg.width or geo.height ~= wdg.height then --moving is slow
                 wdg.widget:geometry({ width = wdg.width, height = wdg.height, y=wdg.y, x=wdg.x})
             end
@@ -271,7 +275,7 @@ function new(args)
         end
       end
       
-      if getFilterWidget() ~= nil and downOrUp == -1 then
+      if getFilterWidget() ~= nil and self.downOrUp == -1 then
           set_geometry(getFilterWidget())
       end
       
@@ -279,7 +283,7 @@ function new(args)
         set_geometry(i)
       end
       
-      if getFilterWidget() ~= nil and downOrUp == 1 then
+      if getFilterWidget() ~= nil and self.downOrUp == 1 then
           set_geometry(getFilterWidget())
       end
     end
@@ -407,6 +411,9 @@ function new(args)
         while aMenu ~= nil do
           aMenu:toggle(value)
           aMenu = aMenu.settings.parent
+        end
+        if currentMenu == self then
+            stopGrabber()
         end
       end
       

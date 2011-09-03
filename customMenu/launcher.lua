@@ -23,6 +23,13 @@ module("customMenu.launcher")
 local currentMenu = nil
 local fkeymap = {}
 
+local function save(command)
+    print("writing: ".. command)
+    local file = io.open(util.getdir("cache") .. "/history", "a")
+    file:write("\n"..command)
+    file:close()
+end
+
 function createMenu(center)
     
     local numberStyle = "<span size='large' color='".. beautiful.bg_normal .."'><tt><b>"
@@ -61,6 +68,7 @@ function createMenu(center)
     
     mainMenu:add_filter_hook({}, "Return", "press", function(menu)
         util.spawn(menu.filterString)
+        save(menu.filterString)
         menu:toggle(false)
         return false
     end)
@@ -69,16 +77,23 @@ function createMenu(center)
         mainMenu:add_filter_hook({}, "F"..i, "press", function(menu)
             if fkeymap[i] ~= nil then
                 util.spawn(fkeymap[i].text)
+                save(fkeymap[i].text)
             end
             menu:toggle(false)
             return false
         end)
     end
     
+   
+    
     -- Fill the menu
     local counter = 1
     for k,v in pairs(commandArray2) do
-       local item = mainMenu:addItem({prefix = numberStyle.."[F".. counter .."]"..numberStyleEnd, prefixbg = beautiful.fg_normal,prefixwidth = 45, text =  v[2], onclick = function() util.spawn(v[2]) end})
+        local function onclick()
+            util.spawn(v[2])
+            save(v[2])
+        end
+       local item = mainMenu:addItem({prefix = numberStyle.."[F".. counter .."]"..numberStyleEnd, prefixbg = beautiful.fg_normal,prefixwidth = 45, text =  v[2], onclick = onclick})
        item.fkey = "F"..counter
        fkeymap[counter] = item
        counter = counter + 1
