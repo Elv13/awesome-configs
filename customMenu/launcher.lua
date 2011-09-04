@@ -24,7 +24,6 @@ local currentMenu = nil
 local fkeymap = {}
 
 local function save(command)
-    print("writing: ".. command)
     local file = io.open(util.getdir("cache") .. "/history", "a")
     file:write("\n"..command)
     file:close()
@@ -66,7 +65,7 @@ function createMenu(center)
     mainMenu = menu({filter = true, showfilter = true, filterprefix = "<b>Run: </b>", y = capi.screen[1].geometry.height - 18, x = 147})
     mainMenu:set_width(((screen or capi.screen[capi.mouse.screen]).geometry.width)/2)
     
-    mainMenu:add_filter_hook({}, "Return", "press", function(menu)
+    mainMenu:add_key_hook({}, "Return", "press", function(menu)
         util.spawn(menu.filterString)
         save(menu.filterString)
         menu:toggle(false)
@@ -74,7 +73,7 @@ function createMenu(center)
     end)
     
     for i=1,15 do
-        mainMenu:add_filter_hook({}, "F"..i, "press", function(menu)
+        mainMenu:add_key_hook({}, "F"..i, "press", function(menu)
             if fkeymap[i] ~= nil then
                 util.spawn(fkeymap[i].text)
                 save(fkeymap[i].text)
@@ -93,7 +92,7 @@ function createMenu(center)
             util.spawn(v[2])
             save(v[2])
         end
-       local item = mainMenu:addItem({prefix = numberStyle.."[F".. counter .."]"..numberStyleEnd, prefixbg = beautiful.fg_normal,prefixwidth = 45, text =  v[2], onclick = onclick})
+       local item = mainMenu:add_item({prefix = numberStyle.."[F".. counter .."]"..numberStyleEnd, prefixbg = beautiful.fg_normal,prefixwidth = 45, text =  v[2], onclick = onclick})
        item.fkey = "F"..counter
        fkeymap[counter] = item
        counter = counter + 1

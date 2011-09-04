@@ -6,7 +6,7 @@ local ipairs = ipairs
 local tag = require("awful.tag")
 local util = require("awful.util")
 local shifty = require("shifty")
-local menu2 = require("customMenu.menu2")
+local menu = require("widgets.menu")
 local capi = { image = image,
                widget = widget,
                mouse = mouse,
@@ -38,54 +38,54 @@ local aTag
 
 function new(screen, args) 
   local function createMenu()
-    local menu3 = { data = menu2() }
+    local menu = { data = menu() }
     
-    function menu3:toggle(aTag2)
+    function menu:toggle(aTag2)
       aTag = aTag2
-      menu3["data"]:toggle()
+      menu["data"]:toggle()
     end
-    return menu3
+    return menu
   end
   
   mainMenu = createMenu()
   
-  mainMenu["data"]:addItem("Visible",true,function() aTag.selected = not aTag.selected end)
-  mainMenu["data"]:addItem("Rename",nil,function() shifty.rename(aTag) end)
+  mainMenu["data"]:add_item({text = "Visible", checked = true,onclick = function() aTag.selected = not aTag.selected end})
+  mainMenu["data"]:add_item({text = "Rename", onclick = function() shifty.rename(aTag) end})
   
-  mainMenu["data"]:addItem("Close applications and remove",nil, function() 
-								  for i=1, #aTag:clients() do
-								    aTag:clients()[i]:kill() 
-								  end
-								  shifty.del(aTag)
-								end)
+  mainMenu["data"]:add_item({text = "Close applications and remove", onclick = function() 
+                                                                                    for i=1, #aTag:clients() do
+                                                                                        aTag:clients()[i]:kill() 
+                                                                                    end
+                                                                                    shifty.del(aTag)
+                                                                                end})
   
   if capi.screen.count() > 1 then
     local screenMenu = createMenu()
-    mainMenu["data"]:addItem("Screen",nil,nil,screenMenu["data"])
+    mainMenu["data"]:add_item({text = "Screen",subMenu = screenMenu["data"]})
     
     for i=1,capi.screen.count() do
-      screenMenu["data"]:addItem(i,nil,function() tag_to_screen(aTag,i) end,nil)
+      screenMenu["data"]:add_item({text = "Screen "..i, onclick = function() tag_to_screen(aTag,i) end})
     end
   end
   
   local screenMenuMerge = createMenu()
-  mainMenu["data"]:addItem("Merge With",nil,nil,screenMenuMerge["data"])
+  mainMenu["data"]:add_item({text = "Merge With", subMenu = screenMenuMerge["data"]})
 
   function createTagList(aScreen)
     local tagList = createMenu()
     local count = 0
     for _, v in ipairs(capi.screen[aScreen]:tags()) do
-       tagList["data"]:addItem(v.name)
+       tagList["data"]:add_item({text = v.name})
        count = count + 1
     end
     return tagList["data"]
   end
   
   for i=1,capi.screen.count() do
-    screenMenuMerge["data"]:addItem("Screen " .. i,nil,nil,function() return createTagList(i) end)
+    screenMenuMerge["data"]:add_item({text = "Screen " .. i, subMenu = function() return createTagList(i) end})
   end
   
-  mainMenu["data"]:addItem("<b>Save settings</b>",nil,nil)
+  mainMenu["data"]:add_item({text = "<b>Save settings</b>"})
   
   local mainMenu2 = createMenu()
   
@@ -96,13 +96,13 @@ function new(screen, args)
     if (file == "END" or nil) or (counter > 30) then
       break
     end
-    mainMenu2["data"]:addItem("",nil,function() tag.seticon(file,aTag) end,nil,{icon = file})
+    mainMenu2["data"]:add_item({"Text", onclick = function() tag.seticon(file,aTag) end, icon = capi.image(file)})
     counter = counter +1
   end
   f:close()
-  mainMenu["data"]:addItem("Set Icon",nil,nil,mainMenu2["data"])
+  mainMenu["data"]:add_item({text= "Set Icon", subMenu = mainMenu2["data"]})
   
-  --mainMenu["data"]:addItem("Advanced",nil,nil,mainMenu2["data"])
+  --mainMenu["data"]:add_item("Advanced",nil,nil,mainMenu2["data"])
   
   return mainMenu
 end

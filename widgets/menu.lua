@@ -32,18 +32,6 @@ local function stopGrabber()
     return false
 end
 
-local function keyboardNavigation(leap)
-    if currentMenu.currentIndex + leap > #currentMenu.items then
-        currentMenu.currentIndex = 1
-    elseif currentMenu.currentIndex + leap < 1 then
-        currentMenu.currentIndex = #currentMenu.items
-    else
-        currentMenu.currentIndex = currentMenu.currentIndex + leap
-    end
-    currentMenu:clear_highlight()
-    currentMenu:highlight_item(currentMenu.currentIndex) 
-end
-
 local function getFilterWidget(aMenu)
     local menu = aMenu or currentMenu or nil
     if menu.settings.showfilter == true then
@@ -86,9 +74,9 @@ local function activateKeyboard(curMenu)
             elseif key == 'Escape' or (key == 'Tab' and currentMenu.filterString == "") then 
                 stopGrabber()
             elseif (key == 'Up' and currentMenu.downOrUp == 1) or (key == 'Down' and currentMenu.downOrUp == -1) then 
-                keyboardNavigation(-1)
+                currentMenu:rotate_selected(-1)
             elseif (key == 'Down' and currentMenu.downOrUp == 1) or (key == 'Up' and currentMenu.downOrUp == -1) then 
-                keyboardNavigation(1)
+                currentMenu:rotate_selected(1)
             elseif (key == 'BackSpace') and currentMenu.filterString ~= "" and currentMenu.settings.filter == true then
                 currentMenu.filterString = currentMenu.filterString:sub(1,-2)
                 currentMenu:filter(currentMenu.filterString:lower())
@@ -111,8 +99,10 @@ end
 
 -- Individual menu function
 function new(args) 
-  local subArrow = capi.widget({type="imagebox", image = capi.image( beautiful.menu_submenu_icon         ) })
-  local checkbox = capi.widget({type="imagebox", image = capi.image( config.data.iconPath .. "check.png" ) })
+  local subArrow = capi.widget({type="imagebox"})
+  local checkbox = capi.widget({type="imagebox"})
+  checkbox.image = capi.image( config.data.iconPath .. "check.png" )
+  subArrow.image = capi.image( beautiful.menu_submenu_icon         )
   
   local function createMenu(args)
     args = args or {}
@@ -156,7 +146,7 @@ function new(args)
       
       self.settings.visible = value or not self.settings.visible
       if self.settings.visible == false then
-        self:toggleSubMenu(nil,true,false)
+        self:toggle_sub_menu(nil,true,false)
       end
       
       for v, i in next, self.items do
@@ -189,6 +179,18 @@ function new(args)
         end
     end
     
+    function menu:rotate_selected(leap)
+        if self.currentIndex + leap > #self.items then
+            self.currentIndex = 1
+        elseif self.currentIndex + leap < 1 then
+            self.currentIndex = #self.items
+        else
+            self.currentIndex = self.currentIndex + leap
+        end
+        self:clear_highlight()
+        self:highlight_item(self.currentIndex) 
+    end
+
     function menu:emit(signName)
         for k,v in pairs(self.signalList[signName] or {}) do
             v(self)
@@ -301,16 +303,16 @@ function new(args)
         table.insert(self.signalList[name],func)
     end
     
-    function menu:add_filter_hook(mod, key, event, func)
+    function menu:add_key_hook(mod, key, event, func)
         if key and event and func then
             --table.insert(filterHooks,{, func = func})
             self.filterHooks[{key = key, event = event, mod = mod}] = func
         end
     end
     
-    function menu:toggleSubMenu(aSubMenu,hideOld,forceValue) --TODO dead code?
+    function menu:toggle_sub_menu(aSubMenu,hideOld,forceValue) --TODO dead code?
       if (self.subMenu ~= nil) and (hideOld == true) then
-        self.subMenu:toggleSubMenu(nil,true,false)
+        self.subMenu:toggle_sub_menu(nil,true,false)
         self.subMenu:toggle(false)
       elseif aSubMenu ~= nil and aSubMenu.toggle ~= nil then
         aSubMenu:toggle(forceValue or true)  
@@ -318,7 +320,7 @@ function new(args)
       self.subMenu = aSubMenu
     end
     
-    function menu:addItem(args)
+    function menu:add_item(args)
       local aWibox = wibox({ position = "free", visible = false, ontop = true, border_width = 1, border_color = beautiful.border_normal })
       local data = {
         --PROPERTY       VALUE                BACKUP VALUE          
@@ -341,8 +343,9 @@ function new(args)
         subMenu     = args.subMenu     or nil                      ,
         nohighlight = args.nohighlight or false                    ,
         noautohide  = args.noautohide  or false                    ,
+        addwidgets  = args.addwidgets  or nil                      ,
         nofilter    = args.nofilter    or false                    ,
-        widgets     = {}
+        widgets     = {}                                           ,
         ------------------------------------------------------------
       }
       for i=2, 10 do
@@ -353,10 +356,10 @@ function new(args)
       table.insert(self.items, data)
       self:set_coords()
       
-      if subMenu ~= nil then
+      if data.subMenu ~= nil then
          subArrow2 = subArrow
-         if type(subMenu) ~= "function" and subMenu.settings then
-           subMenu.settings.parent = self
+         if type(data.subMenu) ~= "function" and data.subMenu.settings then
+           data.subMenu.settings.parent = self
          end
       else
         subArrow2 = nil
@@ -368,25 +371,27 @@ function new(args)
           end
           if value == true then
             currentMenu = self
-            if type(subMenu) ~= "function" then
-              self:toggleSubMenu(subMenu,value,value)
-            elseif self.subMenu == nil then --Prevent memory leak
-              local aSubMenu = subMenu()
+            if type(data.subMenu) ~= "function" then
+              self:toggle_sub_menu(data.subMenu,value,value)
+            elseif self.data.subMenu == nil then --Prevent memory leak
+              local aSubMenu = data.subMenu()
               aSubMenu.settings.x = self.settings["xPos"] + aSubMenu.settings.itemWidth
               aSubMenu.settings.y = self.settings["yPos"]
               aSubMenu.settings.parent = self
-              self:toggleSubMenu(aSubMenu,value,value)
+              self:toggle_sub_menu(aSubMenu,value,value)
             end
           end
       end
       
       local optionalWdgFeild = {"width","bg"}
-      local createWidget = function(field,type)
-        local newWdg = (data[field] ~= nil) and capi.widget({type=type }) or nil
-        if newWdg ~= nil and type == "textbox" then
+      local createWidget = function(field,type2)
+        local newWdg = (data[field] ~= nil) and capi.widget({type=type2 }) or nil
+        if newWdg ~= nil and type2 == "textbox" then
             newWdg.text  = data[field]
-        elseif newWdg ~= nil and type == "imagebox" then
+        elseif newWdg ~= nil and type2 == "imagebox" and type(data[field]) == "string" then
             newWdg.image = capi.image(data[field])
+        elseif newWdg ~= nil and type2 == "imagebox" then
+            newWdg.image = data[field]
         end
         
         for k,v in pairs(optionalWdgFeild) do
@@ -396,14 +401,15 @@ function new(args)
         end
         return newWdg
       end
+
+      local checkbox2 = (data.checked ~= nil) and checkbox or nil
       
-      local checkbox2 = (checked ~= nil) and checkbox or nil
-      
-      data.widgets.prefix = createWidget("prefix","textbox")
-      data.widgets.suffix = createWidget("suffix","textbox")
-      data.widgets.wdg    = createWidget("text","textbox")
-      
-      aWibox.widgets = {data.widgets.prefix,data.icon,data.widgets.wdg, {subArrow2,checkbox2,data.widgets.suffix, layout = widget2.layout.horizontal.rightleft}, layout = widget2.layout.horizontal.leftright}
+      data.widgets.prefix = createWidget("prefix","textbox"  )
+      data.widgets.suffix = createWidget("suffix","textbox"  )
+      data.widgets.wdg    = createWidget("text",  "textbox"  )
+      data.widgets.icon   = createWidget("icon",  "imagebox" )
+
+      aWibox.widgets = {{data.widgets.prefix,data.widgets.icon,data.widgets.wdg, {subArrow2,checkbox2,data.widgets.suffix, layout = widget2.layout.horizontal.rightleft},data.addwidgets, layout = widget2.layout.horizontal.leftright}, layout = widget2.layout.vertical.flex }
       
       local hideEverything = function () 
         self:toggle(false)

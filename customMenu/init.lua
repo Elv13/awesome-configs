@@ -5,6 +5,7 @@ require("customMenu.places")
 require("customMenu.tagOption")
 require("customMenu.clientMenu")
 require("customMenu.altTab")
+require("customMenu.aeroTag")
 require("customMenu.launcher")
 
 module("customMenu")
