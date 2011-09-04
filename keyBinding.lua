@@ -8,6 +8,7 @@ globalkeys = awful.util.table.join(
     awful.key({ modkey, "Shift"   }, "p"     , function () utils.keyFunctions.moveTagToScreen() end ),
     awful.key({ modkey,           }, "Tab"   , function () utils.keyFunctions.altTab()          end ),
     awful.key({ modkey, "Shift"   }, "Tab"   , function () utils.keyFunctions.altTabBack()      end ),
+    awful.key({ modkey, "Control" }, "Tab"   , function () customMenu.aeroTag()                 end ),
     awful.key({ modkey,           }, "w"     , function () main_menu:show(true)                 end ),
 
     -- Layout manipulation

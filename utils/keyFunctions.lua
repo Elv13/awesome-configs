@@ -28,7 +28,7 @@ function moveTagToScreen()
 end
 
 function altTab()
-    customMenu()
+    customMenu(nil,{leap = 1})
     
     if not capi.client.focus then
        return 
@@ -39,6 +39,7 @@ function altTab()
 end
 
 function altTabBack()
+    customMenu(nil,{leap = -1})
     if not capi.client.focus then
        return 
     end

@@ -114,10 +114,10 @@ function new(screen, args)
         
         itemCount = 1
         for k,v in ipairs(capi.client.get(screen)) do
-            local close = button_group({client = v,     width=5, field = "close",     focus = false, checked = false                            , onclick = function() v:kill() end                      })
-            local ontop = button_group({client = v,     width=5, field = "ontop",     focus = false, checked = function() return v.ontop end    , onclick = function() v.ontop = not v.ontop end         })
-            local floating = button_group({client = v,  width=5, field = "floating",  focus = false, checked = function() return v.floating end , onclick = function() v.floating = not v.floating end   })
-            local sticky = button_group({client = v,    width=5, field = "sticky",    focus = false, checked = function() return v.sticky end   , onclick = function() v.sticky = not v.sticky end       })
+            local close     = button_group({client = v, width=5, field = "close",     focus = false, checked = false                            , onclick = function() v:kill() end                      })
+            local ontop     = button_group({client = v, width=5, field = "ontop",     focus = false, checked = function() return v.ontop end    , onclick = function() v.ontop = not v.ontop end         })
+            local floating  = button_group({client = v, width=5, field = "floating",  focus = false, checked = function() return v.floating end , onclick = function() v.floating = not v.floating end   })
+            local sticky    = button_group({client = v, width=5, field = "sticky",    focus = false, checked = function() return v.sticky end   , onclick = function() v.sticky = not v.sticky end       })
             local maximized = button_group({client = v, width=5, field = "maximized", focus = false, checked = function() return v.maximized end, onclick = function() v.maximized = not v.maximized end })
            fkeyMapping[itemCount] = currentMenu:add_item({
                 prefix  = numberStyle.."[F".. itemCount .."]"..numberStyleEnd, 
@@ -150,7 +150,7 @@ function new(screen, args)
         currentMenu:highlight_item(currentIndex)
         isVisible = true
     else
-        keyboardNavigation(1)
+        keyboardNavigation(args.leap or 1)
     end
     
     return currentMenu

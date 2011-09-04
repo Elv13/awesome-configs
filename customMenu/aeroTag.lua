@@ -46,16 +46,17 @@ function new(screen, args)
 
         local menuX = ((screen or capi.screen[capi.mouse.screen]).geometry.width)/4
         local menuY = ((screen or capi.screen[capi.mouse.screen]).geometry.height - (beautiful.menu_height*#capi.client.get(screen)))/2
-        currentMenu = menu({x= menuX, y= menuY, filter = true, showfilter=true})
+        currentMenu = menu({x= menuX, y= menuY, filter = true, showfilter=true,noautohide=true})
         currentMenu:set_width(((screen or capi.screen[capi.mouse.screen]).geometry.width)/2)
         
         itemCount = 0
         for k,v in ipairs(capi.client.get(screen)) do
-            fkeyMapping[itemCount] = currentMenu:addItem({
+            fkeyMapping[itemCount] = currentMenu:add_item({
                 prefix  = numberStyle.."[F".. itemCount .."]"..numberStyleEnd, 
                 text    = v.name, 
-                onclick = function() capi.client.focus = v end, 
-                icon    = v.icon
+                onclick = function(menu,item) item:check(not item.checked) end, 
+                icon    = v.icon,
+                checked = true,
             })
             fkeyMapping[itemCount].c = v
             itemCount = itemCount + 1

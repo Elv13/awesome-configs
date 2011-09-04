@@ -99,14 +99,14 @@ end
 
 -- Individual menu function
 function new(args) 
-  local subArrow = capi.widget({type="imagebox"})
-  local checkbox = capi.widget({type="imagebox"})
-  checkbox.image = capi.image( config.data.iconPath .. "check.png" )
-  subArrow.image = capi.image( beautiful.menu_submenu_icon         )
+  local subArrow  = capi.widget({type="imagebox"                     } )
+  local checkbox  = capi.image ( config.data.iconPath .. "check.png"   )
+  local checkboxU = capi.image ( config.data.iconPath .. "uncheck.png" )
+  subArrow.image  = capi.image ( beautiful.menu_submenu_icon           )
   
   local function createMenu(args)
-    args = args or {}
-    local menu = { settings = { 
+    args          = args or {}
+    local menu    = { settings = { 
     -- Settings
     --PROPERTY          VALUE               BACKUP VLAUE         
     itemHeight    = args.itemHeight    or beautiful.menu_height , 
@@ -356,6 +356,13 @@ function new(args)
       table.insert(self.items, data)
       self:set_coords()
       
+      --Member functions
+      function data:check(value)
+          self.checked = (value == nil) and self.checked or value
+          self.widgets.checkbox = self.widgets.checkbox or capi.widget({type="imagebox"})
+          self.widgets.checkbox.image = (self.checked == true) and checkbox or checkboxU or nil
+      end
+      
       if data.subMenu ~= nil then
          subArrow2 = subArrow
          if type(data.subMenu) ~= "function" and data.subMenu.settings then
@@ -402,14 +409,14 @@ function new(args)
         return newWdg
       end
 
-      local checkbox2 = (data.checked ~= nil) and checkbox or nil
+      data:check()
       
       data.widgets.prefix = createWidget("prefix","textbox"  )
       data.widgets.suffix = createWidget("suffix","textbox"  )
       data.widgets.wdg    = createWidget("text",  "textbox"  )
       data.widgets.icon   = createWidget("icon",  "imagebox" )
 
-      aWibox.widgets = {{data.widgets.prefix,data.widgets.icon,data.widgets.wdg, {subArrow2,checkbox2,data.widgets.suffix, layout = widget2.layout.horizontal.rightleft},data.addwidgets, layout = widget2.layout.horizontal.leftright}, layout = widget2.layout.vertical.flex }
+      aWibox.widgets = {{data.widgets.prefix,data.widgets.icon,data.widgets.wdg, {subArrow2,data.widgets.checkbox,data.widgets.suffix, layout = widget2.layout.horizontal.rightleft},data.addwidgets, layout = widget2.layout.horizontal.leftright}, layout = widget2.layout.vertical.flex }
       
       local hideEverything = function () 
         self:toggle(false)
@@ -424,10 +431,10 @@ function new(args)
       end
       
       local clickCommon = function (index)
-          if data.noautohide ~= true then
-            if data["button"..index] ~= nil then
-              data["button"..index]()
-            end
+          if data["button"..index] ~= nil then
+              data["button"..index](self,data)
+          end
+          if args.noautohide == false then
             hideEverything()
           end
       end
@@ -448,6 +455,7 @@ function new(args)
       aWibox:add_signal("mouse::enter", function() toggleItem(true) end)
       aWibox:add_signal("mouse::leave", function() toggleItem(false) end)
       aWibox.visible = false
+      
       return data
     end
     return menu
