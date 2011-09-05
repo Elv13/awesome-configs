@@ -1,14 +1,15 @@
 local setmetatable = setmetatable
-local button = require("awful.button")
-local tag = require("awful.tag")
-local util = require("awful.util")
-local shifty = require("shifty")
-local beautiful = require("beautiful")
-local utils = require("utils.tools")
-local menu2 = require("customMenu.menu2")
-local capi = { image = image,
-               screen = screen,
-               widget = widget}
+local button       = require( "awful.button" )
+local tag          = require( "awful.tag"    )
+local util         = require( "awful.util"   )
+local shifty       = require( "shifty"       )
+local beautiful    = require( "beautiful"    )
+local utils        = require( "utils.tools"  )
+local menu         = require( "widgets.menu" )
+
+local capi = { image  = image  ,
+               screen = screen ,
+               widget = widget }
 
 module("customButton.tagmover")
 
@@ -20,29 +21,29 @@ local data = {}
 --     -direction (left or right) [REUQIRED]
 --     -icon an icon [optional]
 function new(screen, args)
-    local screen = screen or 1
-    local direction = args.direction or "left"
-    local icon = args.icon or nil
-    local id = screen..direction
-    local addOrSub = 0
-    local screenMenu = menu2()
+    local screen     = screen            or 1
+    local direction  = args.direction    or "left"
+    local icon       = args.icon         or nil
+    local id         = screen..direction --
+    local addOrSub   = 0                 --
+    local screenMenu = menu()            --
     
     
     if direction == "left" then
       addOrSub = -1
     elseif direction == "right" then
-      addOrSub = 1
+      addOrSub =  1
     else
       return nil
     end
     
     data[id] = {}
     if icon ~= nil then
-      data[id].widget = capi.widget({ type = "imagebox", align = "left" })
+      data[id].widget       = capi.widget({ type = "imagebox", align = "left" })
       data[id].widget.image = capi.image(icon)
     else
-      data[id].widget = capi.widget({ type = "textbox", align = "left" })
-      data[id].widget.text = direction
+      data[id].widget       = capi.widget({ type = "textbox",  align = "left" })
+      data[id].widget.text  = direction
     end
     
     if direction == "left" and screen == 1 then
@@ -54,10 +55,10 @@ function new(screen, args)
     end
     
     for i=1,capi.screen.count() do
-      screenMenu:addItem(i,nil,function() 
-                                utils.tag_to_screen(data[id].selected,i)
-                                screenMenu:toggle()
-                               end,nil)
+      screenMenu:add_item({text=i, onclick = function() 
+                                                utils.tag_to_screen(data[id].selected,i)
+                                                screenMenu:toggle()
+                                             end})
     end
     
     data[id].screen = screen

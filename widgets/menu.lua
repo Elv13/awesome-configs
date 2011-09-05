@@ -36,12 +36,12 @@ local function getFilterWidget(aMenu)
     local menu = aMenu or currentMenu or nil
     if menu.settings.showfilter == true then
         if menu.filterWidget == nil then
-            local textbox = capi.widget({type="textbox" })
-            textbox.text = menu.settings.filterprefix
-            local filterWibox = wibox({ position = "free", visible = false, ontop = true, border_width = 1, border_color = beautiful.border_normal })
-            filterWibox:buttons( util.table.join(button({},3,function() menu:toggle(false) end)))
+            local textbox       = capi.widget({type="textbox" })
+            textbox.text        = menu.settings.filterprefix
+            local filterWibox   = wibox({ position = "free", visible = false, ontop = true, border_width = 1, border_color = beautiful.border_normal })
             filterWibox.widgets = { textbox, layout = widget2.layout.horizontal.leftright }
-            menu.filterWidget = {textbox = textbox, widget = filterWibox, hidden = false, width = menu.settings.itemWidth, height = menu.settings.itemHeight}
+            menu.filterWidget   = {textbox = textbox, widget = filterWibox, hidden = false, width = menu.settings.itemWidth, height = menu.settings.itemHeight}
+            filterWibox:buttons( util.table.join(button({},3,function() menu:toggle(false) end)))
         end
         return menu.filterWidget
     end
@@ -136,10 +136,6 @@ function new(args)
     downOrUp      = 1
     -------------------------------------------------------------
     }
-    
-    menu.signalList["menu::hide"    ] = {}
-    menu.signalList["menu::show"    ] = {}
-    menu.signalList["menu::changed" ] = {}
 
     function menu:toggle(value)
       if self.settings.visible == false and value == false then return end
@@ -155,11 +151,7 @@ function new(args)
         end
       end
       
-      if self.settings.visible == false then
-          self:emit("menu::hide")
-      else
-          self:emit("menu::show")
-      end
+      self:emit((self.settings.visible == true) and "menu::show" or "menu::hide")
       
       if getFilterWidget(self) then
           menu.filterWidget.widget.visible = value
@@ -167,16 +159,6 @@ function new(args)
       
       activateKeyboard(self)
       self:set_coords()
-    end
-    
-    
-    function hightlight(aWibox, value)
-        if not aWibox or value == nil then return end
-        
-        aWibox.bg = ((value == true) and menu.settings.bg_focus or menu.settings.bg_normal) or ""
-        if value == true then
-            table.insert(menu.highlighted,aWibox)
-        end
     end
     
     function menu:rotate_selected(leap)
@@ -200,7 +182,7 @@ function new(args)
     function menu:highlight_item(index)
         if self.items[index] ~= nil then
             if self.items[index].widget ~= nil then
-                hightlight(self.items[index].widget,true)
+                self.items[index]:hightlight(true)
             end
         end
     end
@@ -208,7 +190,7 @@ function new(args)
     function menu:clear_highlight()
         if #(self.highlighted) > 0 then
             for k, v in pairs(self.highlighted) do
-                hightlight(v,false)
+                v:hightlight(false)
             end
             self.highlighted = {}
         end
@@ -297,9 +279,7 @@ function new(args)
     
     ---Possible signals = "menu::hide", "menu::show", "menu::resize"
     function menu:add_signal(name,func)
-        if self.signalList[name] == nil then
-            self.signalList[name] = {}
-        end
+        self.signalList[name] = self.signalList[name] or {}
         table.insert(self.signalList[name],func)
     end
     
@@ -358,9 +338,19 @@ function new(args)
       
       --Member functions
       function data:check(value)
-          self.checked = (value == nil) and self.checked or value
+          self.checked = (value == nil) and self.checked or value or nil
+          if self.checked == nil then return end
           self.widgets.checkbox = self.widgets.checkbox or capi.widget({type="imagebox"})
           self.widgets.checkbox.image = (self.checked == true) and checkbox or checkboxU or nil
+      end
+      
+      function data:hightlight(value)
+          if not self.widget or value == nil then return end
+
+          self.widget.bg = ((value == true) and menu.settings.bg_focus or menu.settings.bg_normal) or ""
+          if value == true then
+              table.insert(menu.highlighted,self)
+          end
       end
       
       if data.subMenu ~= nil then
@@ -374,7 +364,7 @@ function new(args)
       
       local function toggleItem(value)
           if data.nohighlight ~= true then
-              hightlight(aWibox,value)
+              data:hightlight(value)
           end
           if value == true then
             currentMenu = self
@@ -411,10 +401,10 @@ function new(args)
 
       data:check()
       
-      data.widgets.prefix = createWidget("prefix","textbox"  )
-      data.widgets.suffix = createWidget("suffix","textbox"  )
-      data.widgets.wdg    = createWidget("text",  "textbox"  )
-      data.widgets.icon   = createWidget("icon",  "imagebox" )
+      data.widgets.prefix = createWidget("prefix", "textbox"  )
+      data.widgets.suffix = createWidget("suffix", "textbox"  )
+      data.widgets.wdg    = createWidget("text"  , "textbox"  )
+      data.widgets.icon   = createWidget("icon"  , "imagebox" )
 
       aWibox.widgets = {{data.widgets.prefix,data.widgets.icon,data.widgets.wdg, {subArrow2,data.widgets.checkbox,data.widgets.suffix, layout = widget2.layout.horizontal.rightleft},data.addwidgets, layout = widget2.layout.horizontal.leftright}, layout = widget2.layout.vertical.flex }
       
@@ -434,7 +424,7 @@ function new(args)
           if data["button"..index] ~= nil then
               data["button"..index](self,data)
           end
-          if args.noautohide == false then
+          if data.noautohide == false then
             hideEverything()
           end
       end
@@ -455,7 +445,6 @@ function new(args)
       aWibox:add_signal("mouse::enter", function() toggleItem(true) end)
       aWibox:add_signal("mouse::leave", function() toggleItem(false) end)
       aWibox.visible = false
-      
       return data
     end
     return menu

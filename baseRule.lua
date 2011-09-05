@@ -201,7 +201,7 @@ shifty.config.apps = {
 {match = { "Kimberlite"    , "Kling"          , "Krong"     , "ktechlab_test"                      } , tag = "Test"               } ,
 {match = { "Opera"         , "Firefox"        , "ReKonq"    , "Dillo"        , "Arora"               ,                             --
            "Chromium"      , "nightly"        , "Nightly"   , "minefield"    , "Minefield"         } , tag = "Internet"           } ,
-{match = { "Thunar"        , "Konqueror"      , "Dolphin"   , "emelfm2"      , "Nautilus",         } , tag = "Files"              } ,
+{match = { "Thunar"        , "Konqueror"      , "Dolphin"   , "ark"          , "Nautilus",         } , tag = "Files"              } ,
 {match = { "Kate"          , "KDevelop"       , "Codeblocks", "Code::Blocks" , "DDD",              } , tag = "Develop"            } ,
 {match = { "KWrite"        , "GVim"           , "Emacs"     , "Code::Blocks" , "DDD"               } , tag = "Edit"               } , 
 {match = { "Xine"          , "xine Panel"     , "xine*"     , "MPlayer"      , "GMPlayer"            ,                             --

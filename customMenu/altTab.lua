@@ -73,25 +73,12 @@ local function button_group(args)
         wdg:buttons( util.table.join(
             button({ }, 1 , buttons[1])
         ))
---         local btn_t = tooltip({
---             objects = { wdg },
---             timeout = 5,
---         })
-        --btn_t:set_text(field)
-        --btn_t:add_to_object(wdg)
         return wdg
     end
     widget = wdg or createWidget()
     setImage()
     return widget
 end
-
-
-button_groups = { close_buttons,
-                  ontop_buttons,
-                  sticky_buttons,
-                  maximized_buttons,
-                  floating_buttons }
 
 function new(screen, args) 
     local numberStyle = "<span size='large' bgcolor='".. beautiful.fg_normal .."'color='".. beautiful.bg_normal .."'><tt><b>"
@@ -119,7 +106,7 @@ function new(screen, args)
             local floating  = button_group({client = v, width=5, field = "floating",  focus = false, checked = function() return v.floating end , onclick = function() v.floating = not v.floating end   })
             local sticky    = button_group({client = v, width=5, field = "sticky",    focus = false, checked = function() return v.sticky end   , onclick = function() v.sticky = not v.sticky end       })
             local maximized = button_group({client = v, width=5, field = "maximized", focus = false, checked = function() return v.maximized end, onclick = function() v.maximized = not v.maximized end })
-           fkeyMapping[itemCount] = currentMenu:add_item({
+            fkeyMapping[itemCount] = currentMenu:add_item({
                 prefix  = numberStyle.."[F".. itemCount .."]"..numberStyleEnd, 
                 text    = v.name, 
                 onclick = function() capi.client.focus = v end, 

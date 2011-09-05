@@ -1,5 +1,5 @@
 local setmetatable = setmetatable
-local menu2 = require("customMenu.menu2")
+local menu = require("widgets.menu")
 
 module("customMenu.clientMenu")
 
@@ -9,28 +9,18 @@ module("customMenu.clientMenu")
 
 local aClient
 
-function new(screen, args) 
-  local function createMenu()
-    local menu3 = { data = menu2() }
-    
-    function menu3:toggle(aClient2)
-      aClient = aClient2
-      menu3["data"]:toggle()
-    end
-    return menu3
-  end
+function new(screen, args)
   
-  mainMenu = createMenu()
-  
-  mainMenu["data"]:addItem("Visible",true,function()  end)
-  mainMenu["data"]:addItem("Sticky",true,function()  end)
-  mainMenu["data"]:addItem("Floating",true,function()  end)
-  mainMenu["data"]:addItem("Maximized",true,function()  end)
-  mainMenu["data"]:addItem("Master",true,function()  end)
-  mainMenu["data"]:addItem("Move to tag",true,function()  end)
-  mainMenu["data"]:addItem("Close",true,function()  end)
-  mainMenu["data"]:addItem("Send Signal",true,function()  end)
-  mainMenu["data"]:addItem("Renice",true,function()  end)
+  mainMenu = menu()
+  mainMenu:add_item({text="Visible"     , checked=true , onclick = function()  end})
+  mainMenu:add_item({text="Sticky"      , checked=true , onclick = function()  end})
+  mainMenu:add_item({text="Floating"    , checked=true , onclick = function()  end})
+  mainMenu:add_item({text="Maximized"   , checked=true , onclick = function()  end})
+  mainMenu:add_item({text="Master"      , checked=true , onclick = function()  end})
+  mainMenu:add_item({text="Move to tag" , checked=true , onclick = function()  end})
+  mainMenu:add_item({text="Close"       , checked=true , onclick = function()  end})
+  mainMenu:add_item({text="Send Signal" , checked=true , onclick = function()  end})
+  mainMenu:add_item({text="Renice"      , checked=true , onclick = function()  end})
 
   return mainMenu
 end

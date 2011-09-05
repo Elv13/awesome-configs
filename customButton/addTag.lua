@@ -1,11 +1,11 @@
 local setmetatable = setmetatable
 local next = next
 local button = require("awful.button")
-local beautiful = require("beautiful")
-local util = require("awful.util")
-local shifty = require("shifty")
-local config = require("config")
-local menu2 = require("customMenu.menu2")
+local beautiful = require( "beautiful"    )
+local util      = require( "awful.util"   )
+local shifty    = require( "shifty"       )
+local config    = require( "config"       )
+local menu      = require( "widgets.menu" )
 local capi = { image = image,
                widget = widget,
                mouse = mouse}
@@ -19,16 +19,16 @@ function update()
 end
 
 function new(screen, args) 
-  local addTag = capi.widget({ type = "imagebox", align = "left" })
-  addTag.image = capi.image(config.data.iconPath .. "tags/cross2.png")
-  local tagMenu = menu2()
+  local addTag  = capi.widget({ type = "imagebox", align = "left" })
+  addTag.image  = capi.image(config.data.iconPath .. "tags/cross2.png")
+  local tagMenu = menu()
 
   for v, i in next, shifty.config.tags do
-    tagMenu:addItem(v,nil,function() 
-                            shifty.add({name = v})
-                            tagMenu:toggle(false)
-                            delTag[capi.mouse.screen].visible = true
-                          end,nil)
+    tagMenu:add_item({text=v,onclick= function() 
+                                         shifty.add({name = v})
+                                         tagMenu:toggle(false)
+                                         delTag[capi.mouse.screen].visible = true
+                                      end})
   end
   
   addTag:buttons( util.table.join(
