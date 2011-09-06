@@ -79,7 +79,7 @@ applicationMenu        = customMenu.application   ( nil                         
 placesMenu             = customMenu.places        ( nil                                )
 
 -- Create the recent menu
-recentMenu             = customMenu.recent        ( nil                                )
+-- recentMenu             = customMenu.recent        ( nil                                )
 
 -- Call the laucher wibox
 launcher               = customMenu.launcher      ( nil                                )
@@ -266,7 +266,7 @@ for s = 1, screen.count() do
     --           RULES                                       WIDGET                FALLBACK
     ( s == 1                                           ) and applicationMenu        or nil,
     ( s == 1                                           ) and placesMenu             or nil,
-    --( s == 1                                           ) and recentMenu             or nil,
+    ( s == 1                                           ) and recentMenu             or nil,
     ( s == 1                                           ) and launcher               or nil,
     ( s == 1                                           ) and desktopPix             or nil,
     promptbox[s]                                                                    or nil,

@@ -5,21 +5,29 @@
 ---------------------------------------------------------------------------
 
 -- Grab environment we need
-local capi = { screen = screen,
-               image = image,
-               client = client }
-local ipairs = ipairs
-local type = type
-local print = print
+local capi = { screen       =      screen ,
+               image        =      image  ,
+               client       =      client ,
+               wibox        =      wibox  ,
+               mouse        =      mouse  ,
+               widget       =      widget ,
+               mousegrabber = mousegrabber}
+local ipairs       = ipairs
+local pairs        = pairs
+local type         = type
+local print        = print
 local setmetatable = setmetatable
-local table = table
-local common = require("awful.widget.common")
-local beautiful = require("beautiful")
-local client = require("awful.client")
-local util = require("awful.util")
-local tag = require("awful.tag")
-local layout = require("awful.widget.layout")
-local awButtons = require("awful.button")
+local table        = table
+local common       = require( "awful.widget.common" )
+local beautiful    = require( "beautiful"           )
+local client       = require( "awful.client"        )
+local wibox        = require( "awful.wibox"         )
+local util         = require( "awful.util"          )
+local tag          = require( "awful.tag"           )
+local layout       = require( "awful.widget.layout" )
+local awButtons    = require( "awful.button"        )
+local config       = require( "config"              )
+--local titlebar = require("widgets.titlebar")
 
 --- Tasklist widget module for awful
 module("widgets.tablist")
@@ -55,7 +63,7 @@ function widget_tasklist_label_common(tab, w)
     
     if not args then args = {} end
     local theme = beautiful.get()
-    return prefix..tab.pid.."["..tab.index.."]"..suffix, bg, nil, nil, bg
+    return prefix..tab.client.name..suffix, bg, nil, nil, bg
 end
 
 local function tasklist_update(tabs, w, buttons, label, data, widgets, tab)
@@ -87,15 +95,40 @@ function new(label, buttons)
     w.widgets = widgets
     local buttons2 = buttons or util.table.join(
                     awButtons({ }, 1, function (tab) 
-                                        
                                         for kt, t in ipairs(tabs) do
                                           t.selected = false
                                         end
                                         
                                         tab.selected = true 
-                                        util.spawn('dbus-send --type=method_call --dest=org.schmorp.urxvt /term/'..(tab.pid or 0)..'/control org.schmorp.urxvt.selectTab int32:'..tab.index)
+--                                         util.spawn('dbus-send --type=method_call --dest=org.schmorp.urxvt /term/'..(tab.title or 0)..'/control org.schmorp.urxvt.selectTab int32:'..tab.index)
                                         
                                         tasklist_update(tabs, w, buttons2, label2, data, widgets,tab)
+                                      end),
+                    awButtons({ }, 2, function (tab) 
+                                          local xpos  = capi.mouse.coords().x
+                                          local ypos  = capi.mouse.coords().y
+                                          local wb     = wibox({position="free",width=200,height=18,x=xpos-100,y=ypos-9,ontop=true})
+                                          local textb = capi.widget({type="textbox"})
+                                          textb.text  = tab.client.name
+                                          wb.widgets   = {textb, layout = layout.horizontal.leftright}
+                                          capi.mousegrabber.run(function(mouse)
+                                              if mouse.buttons[2] == false then 
+                                                  wb.visible = false
+                                                  wb = nil
+                                                  local obj = capi.mouse.object_under_pointer()
+                                                  if type(obj) == "wibox" then
+                                                      if obj.position ~= nil then
+                                                        if config.data.titlebars[obj] ~= nil then
+                                                           config.data.titlebars[obj]:add_tab(tab.client)
+                                                        end
+                                                      end
+                                                  end
+                                                  capi.mousegrabber.stop()
+                                                  return false 
+                                              end
+                                              wb:geometry({width=200,height=18,x=mouse.x-100,y=mouse.y-9})
+                                              return true
+                                          end,"fleur")--What is the second args beside flowers?
                                       end)
                     )
     local u = function () tasklist_update(tabs, w, buttons2, label2, data, widgets) end
@@ -121,8 +154,8 @@ function new(label, buttons)
 --     capi.client.add_signal("focus", u)
 --     capi.client.add_signal("unfocus", u)
     local index =0
-    function w:add_tab(pid)
-      local aTab = {name = "test2", index = index, pid = pid, selected = false}
+    function w:add_tab(c)
+      local aTab = {client = c, selected = false}
       table.insert(tabs, aTab)
       tasklist_update(tabs, w, buttons2, label2, data, widgets)
       index = index + 1

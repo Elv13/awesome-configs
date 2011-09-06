@@ -34,7 +34,7 @@ local client = require("awful.client")
 local layout = require("awful.widget.layout")
 local urxvtIntegration = require("utils.urxvtIntegration")
 local clientSwitcher =  require("utils.clientSwitcher")
-local tabList = require("widgets.tablist")
+local tabList = require("widgets.tablist_old")
 
 --- Titlebar module for awful
 module("widgets.tabbar")

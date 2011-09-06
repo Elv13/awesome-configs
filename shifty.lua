@@ -17,6 +17,7 @@ local button = button
 local mouse = mouse
 local beautiful = require("beautiful")
 local awful = require("awful")
+local titlebar = require("widgets.titlebar")
 local pairs = pairs
 local io = io
 local tonumber = tonumber
@@ -449,7 +450,7 @@ function match(c, startup)
           if a.dockable ~= nil then awful.client.dockable.set(c, a.dockable) end
           if a.urgent ~= nil then c.urgent = a.urgent end
           if a.opacity ~= nil then c.opacity = a.opacity end
-          if a.titlebar ~= nil then awful.titlebar.add(c, { modkey = modkey }) end
+          if a.titlebar ~= nil then titlebar.add(c, { modkey = modkey }) end
           if a.run ~= nil then run = a.run end
           if a.sticky ~= nil then c.sticky = a.sticky end
           if a.wfact ~= nil then wfact = a.wfact end
@@ -470,7 +471,7 @@ function match(c, startup)
   if float ~= nil then
     awful.client.floating.set(c, float) 
     if config.defaults.floatBars then       -- add a titlebar if requested in config.defaults
-      awful.titlebar.add( c, { modkey = modkey } )
+      titlebar.add( c, { modkey = modkey } )
     end
     awful.placement.centered(c, c.transient_for)
     awful.placement.no_offscreen(c) -- this always seems to stick the client at 0,0 (incl titlebar)

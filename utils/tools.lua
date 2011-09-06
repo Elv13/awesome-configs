@@ -8,12 +8,13 @@ local naughty = require("naughty")
 local tag = require("awful.tag")
 local layout = require("awful.layout")
 local client = require("awful.client")
-local titlebar = require("awful.titlebar")
+local titlebar = require("widgets.titlebar")
 local tabbar = require("widgets.tabbar")
 local config = require("config")
 local layoutmenu = require("customMenu.layoutmenu")
 local util = require("awful.util")
 local shifty = require("shifty")
+
 local capi = { image = image,
                mouse = mouse,
                client = client,

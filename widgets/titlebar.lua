@@ -5,25 +5,21 @@
 -- @copyright 2011 Emmanuel Lepage Vallee
 -- @release v4.0
 ---------------------------------------------------------------------------
-
--- Grab environment we need
 local math         = math
 local image        = image
 local pairs        = pairs
 local type         = type
 local setmetatable = setmetatable
+local debug        = debug
 local print        = print
 local table        = table
 local type         = type
-local capi = {
+local capi  = {
     awesome = awesome ,
     wibox   = wibox   ,
     image   = image   ,
     widget  = widget  ,
-    client  = client  ,
-    dbus    = dbus    ,
-    timer   = timer   }
-    
+    client  = client  }
 local abutton        = require( "awful.button"         )
 local beautiful      = require( "beautiful"            )
 local button         = require( "awful.button"         )
@@ -34,19 +30,12 @@ local client         = require( "awful.client"         )
 local layout         = require( "awful.widget.layout"  )
 local clientSwitcher = require( "utils.clientSwitcher" )
 local tabList        = require( "widgets.tablist"      )
+local config         = require( "config"               )
 
 module("widgets.titlebar")
 
 -- Privata data
 local data = setmetatable({}, { __mode = 'k' })
-
-local idxWdg = {}
-
-local numbers = {'①','②','③','④','⑤','⑥','⑦','⑧','⑨','⑩','⑪','⑫','⑬','⑭','⑮','⑯','⑰','⑱','⑲','⑳'}
-
--- Predeclaration for buttons
-local button_groups
-
 local function button_callback_focus_raise_move(w, t)
     capi.client.focus = t.client
     t.client:raise()
@@ -71,28 +60,25 @@ end
 -- fg_focus: the background color for focused window.
 -- width: the titlebar width
 function add(c, args)
+  if config.data.titlebars == nil then
+      config.data.titlebars = {}
+  end
   if c.titlebar == nil then
-    create(c,args)
+    local retval = create(c,args)
+    config.data.titlebars[retval.wibox] = retval.tablist
   else
     c.titlebar.visible = true
-    if idxWdg[c.titlebar] then
-      local theme = beautiful.get()
-      local numberStyle = "<span size='large' bgcolor='".. theme.fg_normal .."'color='".. theme.bg_normal .."'><tt><b>"--"<span size='x-large' bgcolor='".. theme.fg_normal .."'color='".. theme.bg_normal .."'><tt><b>"
-      local numberStyleEnd = "</b></tt></span>"--"</b></tt></span> "
-      idxWdg[c.titlebar].text = numberStyle .. (numbers[clientSwitcher.getIndex(c)] or "N/A") .. numberStyleEnd
-    end
   end
 end
 
 function create(c, args)
     local theme = beautiful.get()
-    local numberStyle = "<span  size='large'bgcolor='".. theme.fg_normal .."'color='".. theme.bg_normal .."'><tt><b>"--"<span size='x-large' bgcolor='".. theme.fg_normal .."'color='".. theme.bg_normal .."'><tt><b>"
-    local numberStyleEnd = "</b></tt></span>"--"</b></tt></span> "
+    local buttons = {}
     if not c or (c.type ~= "normal" and c.type ~= "dialog") then return end
     if not args then args = {} end
     if not args.height then args.height = capi.awesome.font_height * 1.5 end
-
     if not args.widget then customwidget = {} else customwidget = args.widget end
+    
     -- Store colors
     data[c] = {}
     data[c].fg       = args.fg       or theme.titlebar_fg_normal or theme.fg_normal
@@ -100,191 +86,137 @@ function create(c, args)
     data[c].fg_focus = args.fg_focus or theme.titlebar_fg_focus  or theme.fg_focus
     data[c].bg_focus = args.bg_focus or theme.titlebar_bg_focus  or theme.bg_focus
     data[c].font     = args.font     or theme.titlebar_font      or theme.font
-    data[c].width    = args.width
+    data[c].width    = args.width    --
     
+    local holder = data[c]
     --Buttons creation
-    function data[c]:button_group(args)
-        local c          = args.client or nil--will explode
-        local field      = args.field  or "" --will explode
-        local focus      = args.focus  or false
-        local checked    = args.checked or false
-        local widget     = nil
-        local onclick    = args.onclick or args.button1 or nil
-        local buttons    = {}
-        local wdgprop    = {}
-        wdgprop["width"] = args.width or 0
-        wdgprop["bg"]    = args.bg or nil
-        buttons[1]       = args.button1 or args.onclick or nil
+    function holder:button_group(args)
+        local data = {
+            field      = args.field   or ""                   , --will explode
+            focus      = args.focus   or false                ,
+            checked    = args.checked or false                ,
+            widget     = nil                                  ,
+            onclick    = args.onclick or args.button1 or nil  ,
+            mbuttons    = {                                   --
+                args.button1          or args.onclick or nil  ,
+            }                                                 ,
+            wdgprop    = {                                   --
+                width    = args.width or 0                    ,
+                bg       = args.bg    or nil                  ,
+            }                                                 ,
+        }
+        
         for i=2, 10 do
-            buttons[i]   = args["button"..i]
+            data.mbuttons[i]   = args["button"..i]
         end
         
-        local function setImage(hover)
-            local curfocus  = (hover == true) and "hover" or ((((type(focus) == "function") and focus() or focus) == true) and "focus" or "normal")
-            local curactive = ((((type(checked) == "function") and checked() or checked) == true) and "active" or "inactive")
-            widget.image    = capi.image( config.data.themePath.. "Icon/titlebar/" .. field .."_"..curfocus .."_"..curactive..".png"  )
+        function data:setImage(hover)
+            local curfocus    = (hover == true) and "hover" or ((((type(data.focus) == "function") and data.focus() or data.focus) == true) and "focus" or "normal")
+            local curactive   = ((((type(data.checked) == "function") and data.checked() or data.checked) == true) and "active" or "inactive")
+            data.widget.image = capi.image( config.data.themePath.. "Icon/titlebar/" .. data.field .."_"..curfocus .."_"..curactive..".png"  )
         end
         
-        local function createWidget()
+        function data:createWidget()
             local wdg = capi.widget({type="imagebox"})
-            for k,v in pairs(wdgprop) do
+            for k,v in pairs(data.wdgprop) do
                 wdg[k] = v
             end
             wdg:buttons( util.table.join(
-                button({ }, 1 , buttons[1])
+                button({ }, 1 , data.mbuttons[1 ]),
+                button({ }, 2 , data.mbuttons[2 ]),
+                button({ }, 3 , data.mbuttons[3 ]),
+                button({ }, 4 , data.mbuttons[4 ]),
+                button({ }, 5 , data.mbuttons[5 ]),
+                button({ }, 6 , data.mbuttons[6 ]),
+                button({ }, 7 , data.mbuttons[7 ]),
+                button({ }, 8 , data.mbuttons[8 ]),
+                button({ }, 9 , data.mbuttons[9 ]),
+                button({ }, 10, data.mbuttons[10])
             ))
             return wdg
         end
-        widget = wdg or createWidget()
-        setImage()
-        return widget
+        data.widget = wdg or data:createWidget()
+        data:setImage()
+        return data
     end
     
---     local close     = button_group({client = v, width=5, field = "close",     focus = false, checked = false                            , onclick = function() v:kill() end                      })
---     local ontop     = button_group({client = v, width=5, field = "ontop",     focus = false, checked = function() return v.ontop end    , onclick = function() v.ontop = not v.ontop end         })
---     local floating  = button_group({client = v, width=5, field = "floating",  focus = false, checked = function() return v.floating end , onclick = function() v.floating = not v.floating end   })
---     local sticky    = button_group({client = v, width=5, field = "sticky",    focus = false, checked = function() return v.sticky end   , onclick = function() v.sticky = not v.sticky end       })
---     local maximized = button_group({client = v, width=5, field = "maximized", focus = false, checked = function() return v.maximized end, onclick = function() v.maximized = not v.maximized end })
---     fkeyMapping[itemCount] = currentMenu:add_item({
---         prefix  = numberStyle.."[F".. itemCount .."]"..numberStyleEnd, 
---         text    = v.name, 
---         onclick = function() capi.client.focus = v end, 
---         icon    = v.icon,
---         addwidgets = {
---                         close,
---                         ontop, 
---                         maximized,
---                         sticky,
---                         floating,
---                         layout = widget2.layout.horizontal.rightleft
---                         }
---     })
---     fkeyMapping[itemCount].c = v
---     itemCount = itemCount + 1
-
-    --if not args.height then
+    buttons.close     = data[c]:button_group({width=5, field = "close",     focus = false, checked = false                             , onclick = function() c:kill()                      end })
+    buttons.ontop     = data[c]:button_group({width=5, field = "ontop",     focus = false, checked = function() return c.ontop     end , onclick = function() c.ontop     = not c.ontop     end })
+    buttons.floating  = data[c]:button_group({width=5, field = "floating",  focus = false, checked = function() return c.floating  end , onclick = function() c.floating  = not c.floating  end })
+    buttons.sticky    = data[c]:button_group({width=5, field = "sticky",    focus = false, checked = function() return c.sticky    end , onclick = function() c.sticky    = not c.sticky    end })
+    buttons.maximized = data[c]:button_group({width=5, field = "maximized", focus = false, checked = function() return c.maximized end , onclick = function() c.maximized = not c.maximized end })
+    
+    if not args.height then
       args.height = 16
-    --end
-    local tb = capi.wibox(args)
-
-    local title = capi.widget({ type = "textbox" })
-    if c.name then
-        title.text = "<span font_desc='" .. data[c].font .. "'> " ..
-                     util.escape(c.name) .. " </span>"
     end
+    
+    local tb = capi.wibox(args)
+    local tl = tabList.new(nil,nil)
 
     -- Redirect relevant events to the client the titlebar belongs to
     local bts = util.table.join(
-        abutton({ }, 1, button_callback_focus_raise_move),
-        abutton({ args.modkey }, 1, button_callback_move),
-        abutton({ args.modkey }, 3, button_callback_resize))
-    title:buttons(bts)
-
-    idxWdg[tb]       = capi.widget({ type = "textbox" })
-    idxWdg[tb].text  = numberStyle .. (numbers[clientSwitcher.getIndex(c)] or "N/A") .. numberStyleEnd
+        abutton({             }, 1, function()  button_callback_focus_raise_move(nil,tb) end ),
+        abutton({ args.modkey }, 1, function()  button_callback_move(nil,tb) end             ),
+        abutton({ args.modkey }, 3, function()  button_callback_resize(nil,tb) end           )
+    )
+    tb:buttons(bts)
+    tl:add_tab(c).selected = true
     
-    -- for each button group, call create for the client.
-    -- if a button set is created add the set to the
-    -- data[c].button_sets for late updates and add the
-    -- individual buttons to the array part of the widget
-    -- list
-    local widget_list = {
-        layout = layout.horizontal.rightleft
+    local appicon = capi.widget({type="imagebox"})
+    
+    tb.widgets = {                            --
+        {                                     --
+          appicon                              ,
+          layout = layout.horizontal.leftright ,
+        }                                      ,
+        buttons.close.widget                   ,
+        buttons.ontop.widget                   , 
+        buttons.maximized.widget               ,
+        buttons.sticky.widget                  ,
+        buttons.floating.widget                ,
+        layout = layout.horizontal.rightleft   ,
+        tl                                     ,
     }
-    local iw = 1
-    local is = 1
-    data[c].button_sets = {}
-    for i = 1, #button_groups do
-        local set = button_groups[i].create(c, args.modkey, theme)
-        if (set) then
-            data[c].button_sets[is] = set
-            is = is + 1
-            for n,b in pairs(set) do
-                widget_list[iw] = b
-                iw = iw + 1
+    
+    --- Update a titlebar. This should be called in some hooks.
+    -- @param c The client to update.
+    -- @param prop The property name which has changed.
+    function holder:update(c,event)
+        if c.titlebar and data[c] then
+            if event == 'focus' then
+                tl:focus2()
+            elseif event == 'unfocus' then
+                tl:unfocus2()
             end
+            
+            local widgets = c.titlebar.widgets
+            appicon.image = c.icon
+            
+            for k,v in pairs({close, ontop, floating, sticky, maximized}) do
+                v:setImage()
+            end
+            
+            c.titlebar.fg = (capi.client.focus == c) and data[c].fg_focus or data[c].fg
+            c.titlebar.bg = (capi.client.focus == c) and data[c].bg_focus or data[c].bg
         end
     end
-    
-    local aTabList = tabList.new(nil,nil)
-    aTabList:add_tab(c.window).selected = true
-    
-    tb.widgets = {
-        widget_list,
-        {
-          appicon,
-          idxWdg[tb],
-          layout = layout.horizontal.leftright
-        },
-        layout = layout.horizontal.rightleft,
-        aTabList,
-    }
-    
-    capi.client.add_signal("focus", function(c2)
-      if c == c2 then
-        aTabList:focus2()
-      end
-    end)
-    
-    capi.client.add_signal("unfocus",  function(c2)
-      if c == c2 then
-        aTabList:unfocus2()
-      end
-    end)
-
     c.titlebar = tb
-
-    c:add_signal("property::icon"                 , update)
-    c:add_signal("property::name"                 , update)
-    c:add_signal("property::sticky"               , update)
-    c:add_signal("property::floating"             , update)
-    c:add_signal("property::ontop"                , update)
-    c:add_signal("property::maximized_vertical"   , update)
-    c:add_signal("property::maximized_horizontal" , update)
-    update(c)
-end
-
---- Update a titlebar. This should be called in some hooks.
--- @param c The client to update.
--- @param prop The property name which has changed.
-function update(c)
-     if c.titlebar and data[c] then
-        local widgets = c.titlebar.widgets
-        if widgets[3].title then
-            widgets[3].title.text = "<span font_desc='" .. data[c].font ..
-            "'> ".. util.escape(c.name or "<unknown>") .. " </span>"
-        end
-        if widgets[3].appicon then
-            widgets[3].appicon.image = c.icon
-        end
-        
-        c.titlebar.fg = (capi.client.focus == c) and data[c].fg_focus or data[c].fg
-        c.titlebar.bg = (capi.client.focus == c) and data[c].bg_focus or data[c].bg
-
-        -- iterated of all registered button_sets and update
---         local sets = data[c].button_sets
---         for i = 1, #sets do
---             sets[i].update(c,prop)
---         end
+    for k,v in pairs({"icon","name","sticky","floating","ontop","maximized_vertical","maximized_horizontal"}) do
+        c:add_signal("property::"..v, function(c) holder:update(c) end)
     end
+    holder:update(c)
+    return {wibox = tb, tablist = tl}
 end
 
 --- Remove a titlebar from a client.
 -- @param c The client.
 function remove(c)
+    if not c.titlebar then return end
     c.titlebar.visible = false
-    --c.titlebar = nil --No more of that please
-    --data[c] = nil
 end
 
-button_groups = { close_buttons,
-                  ontop_buttons,
-                  sticky_buttons,
-                  maximized_buttons,
-                  floating_buttons }
-
 -- Register standards hooks
-capi.client.add_signal("focus"   , update)
-capi.client.add_signal("unfocus" , update)
+capi.client.add_signal("focus"   , function(c) if data[c] then data[c]:update(c,'focus'  ) end end)
+capi.client.add_signal("unfocus" , function(c) if data[c] then data[c]:update(c,'unfocus') end end)
 
 -- vim: filetype=lua:expandtab:shiftwidth=4:tabstop=8:softtabstop=4:encoding=utf-8:textwidth=80
