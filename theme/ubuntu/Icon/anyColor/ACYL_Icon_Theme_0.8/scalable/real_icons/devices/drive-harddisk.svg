@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   version="1.0"
+   width="48"
+   height="48"
+   id="svg2"
+   inkscape:version="0.47 r22583"
+   sodipodi:docname="drive-harddisk.svg">
+    
+  
+  
+  
+  
+  <filter>
+    </filter>
+  <linearGradient
+     id="linearGradient4321">
+    <stop
+       style="stop-color:#1577D3;stop-opacity:1.0;"
+       offset="0"
+       id="stop1" />
+    <stop
+       style="stop-color:#1577D3;stop-opacity:1.0;"
+       offset="1"
+       id="stop2" />
+  </linearGradient>
+  <linearGradient
+     inkscape:collect="always"
+     xlink:href="#linearGradient4321"
+     id="linearGradient1234"
+     x1="0%"
+     y1="50%"
+     x2="100%"
+     y2="50%" />
+<defs
+     id="defs4">
+  </defs>
+  <path
+     style="fill:url(#linearGradient1234);fill-opacity:1;stroke:none;filter:url(#filter1111)"
+     id="rect2162"
+     d="m 39.845159,1.9999998 -29.673897,0.011227 c -1.3294547,0 -2.3914266,1.0732015 -2.3914266,2.4026538 l 0,39.1834654 C 7.7798354,44.926801 8.841807,46 10.171262,46 l 29.651442,0 c 1.329452,0 2.402654,-1.073199 2.402654,-2.402654 l 0.04491,-39.1834654 c 0,-1.2744159 -1.050977,-2.4138812 -2.425108,-2.4138812 z m -7.522328,37.1625412 0.583823,0 0,1.773922 2.133197,0 0,-1.773922 0.583823,0 0,4.333759 -0.583823,0 0,-2.065833 -2.133197,0 0,2.065833 -0.583823,0 0,-4.333759 z m 4.479715,0 1.201327,0 c 0.84153,4e-6 1.458887,0.176728 1.852513,0.527686 0.393615,0.349025 0.595046,0.894614 0.59505,1.639194 -4e-6,0.748464 -0.199495,1.299459 -0.59505,1.650421 -0.395562,0.350961 -1.014859,0.516458 -1.852513,0.516458 l -1.201327,0 0,-4.333759 z m 0.583822,0.482777 0,3.368206 0.707323,0 c 0.599157,0 1.036319,-0.13272 1.313601,-0.404185 0.279214,-0.271461 0.426636,-0.694332 0.426639,-1.279918 -3e-6,-0.581703 -0.147425,-1.01039 -0.426639,-1.279919 -0.277285,-0.271457 -0.714448,-0.404181 -1.313601,-0.404184 l -0.707323,0 z" />
+</svg>

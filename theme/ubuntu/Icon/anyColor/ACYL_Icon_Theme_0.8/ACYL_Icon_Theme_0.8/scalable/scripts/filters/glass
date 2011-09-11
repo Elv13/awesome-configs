@@ -1,0 +1,109 @@
+#! usr/bin/bash
+echo '<filter
+     x="-0.25"
+     y="-0.25"
+     width="1.5"
+     height="1.5"
+     color-interpolation-filters="sRGB"
+     id="filter1111">
+    <feGaussianBlur
+       result="result1"
+       stdDeviation="0.8"
+       id="feGaussianBlur4501" />
+    <feGaussianBlur
+       result="result6"
+       stdDeviation="1.8"
+       id="feGaussianBlur4503"
+       in="SourceGraphic" />
+    <feComposite
+       in2="result1"
+       operator="atop"
+       in="result6"
+       result="result8"
+       id="feComposite4505" />
+    <feComposite
+       in2="result8"
+       operator="xor"
+       in="result6"
+       result="fbSourceGraphic"
+       id="feComposite4507" />
+    <feColorMatrix
+       values="0 0 0 -1 0 0 0 0 -1 0 0 0 0 -1 0 0 0 0 2 0 "
+       in="fbSourceGraphic"
+       result="fbSourceGraphicAlpha"
+       id="feColorMatrix4509" />
+    <feGaussianBlur
+       stdDeviation="1"
+       result="result0"
+       id="feGaussianBlur4511" />
+    <feSpecularLighting
+       in="result0"
+       result="result1"
+       lighting-color="#ffffff"
+       surfaceScale="-2"
+       specularConstant="1.5"
+       specularExponent="35"
+       id="feSpecularLighting4513">
+      <feDistantLight
+         elevation="60"
+         azimuth="230"
+         id="feDistantLight4515" />
+    </feSpecularLighting>
+    <feComposite
+       in2="fbSourceGraphicAlpha"
+       operator="in"
+       in="result1"
+       result="result2"
+       id="feComposite4517" />
+    <feComposite
+       in2="result2"
+       operator="arithmetic"
+       k1="0"
+       k2="0.5"
+       k3="0.7"
+       k4="0"
+       in="fbSourceGraphic"
+       result="result4"
+       id="feComposite4519" />
+    <feComposite
+       in2="result4"
+       operator="atop"
+       result="result91"
+       id="feComposite4521" />
+    <feBlend
+       in2="result91"
+       mode="normal"
+       id="feBlend4523"
+       result="result92" />
+    <feTurbulence
+       id="feTurbulence2856"
+       result="result93"
+       baseFrequency="0.073180873180873185"
+       type="fractalNoise"
+       numOctaves="1"
+       seed="0"
+       in="SourceGraphic" />
+    <feOffset
+       dx="0"
+       dy="0"
+       id="feOffset2910"
+       in="SourceGraphic"
+       result="result96" />
+    <feComposite
+       id="feComposite2914"
+       in2="result93"
+       operator="arithmetic"
+       k1="0.20"
+       k2="0.15"
+       k3="0" />
+    <feComposite
+       id="feComposite2858"
+       result="result94"
+       operator="in"
+       in2="SourceGraphic" />
+    <feComposite
+       id="feComposite2868"
+       in2="result92"
+       result="result95"
+       operator="xor" />
+  </filter>'

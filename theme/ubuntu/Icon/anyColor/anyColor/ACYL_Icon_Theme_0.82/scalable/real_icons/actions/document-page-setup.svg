@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+<svg
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   version="1.0"
+   width="48"
+   height="48"
+   id="svg249">
+        
+  
+  
+  
+  
+  
+  <filter>
+    </filter>
+  <linearGradient
+     id="linearGradient4321">
+    <stop
+       style="stop-color:#969487;stop-opacity:1.0;"
+       offset="0"
+       id="stop1" />
+    <stop
+       style="stop-color:#969487;stop-opacity:1.0;"
+       offset="1"
+       id="stop2" />
+  </linearGradient>
+  <linearGradient
+     inkscape:collect="always"
+     xlink:href="#linearGradient4321"
+     id="linearGradient1234"
+     x1="0%"
+     y1="50%"
+     x2="100%"
+     y2="50%" />
+<defs
+     id="defs3" />
+  <g
+     id="layer5"
+     style="display:inline">
+    <g
+       transform="matrix(1.15,0,0,1.15,-5,-3.6)"
+       id="layer1" />
+    <g
+       transform="matrix(0.9950291,0,0,0.9942953,-0.4623446,0.7406418)"
+       id="g5318" />
+    <path
+       d="M 38.1875,5 L 34.28125,9.5 L 33.65625,11.8125 L 24.90625,20.65625 L 20.4375,16.1875 C 21.870747,14.182446 21.485542,11.55731 19.6875,9.75 L 17.0625,7.125 C 15.084827,5.137133 11.911765,5.0897913 9.90625,7.03125 L 15.21875,12.3125 L 15.21875,14.4375 L 13.8125,15.84375 L 11.6875,15.84375 C 9.9474555,14.063059 8.1357064,12.347882 6.4375,10.53125 C 4.5059978,12.547101 4.5223262,15.730882 6.5,17.71875 L 9.15625,20.34375 C 10.954293,22.15106 13.536477,22.534385 15.53125,21.09375 L 20,25.59375 L 18.40625,27.21875 C 16.606332,25.963696 14.483696,25.82969 13.28125,27.03125 L 5.84375,34.46875 C 4.4309793,35.88048 4.8476637,38.567839 6.78125,40.5 L 7.5,41.21875 C 9.4335867,43.150911 12.14973,43.567979 13.5625,42.15625 L 20.96875,34.75 C 22.12294,33.596663 22.055614,31.562421 20.9375,29.8125 L 22.5625,28.1875 L 34.4375,40.125 C 35.318473,41.010512 36.71278,41.010514 37.59375,40.125 L 39.34375,38.375 C 40.224724,37.489487 40.224724,36.073014 39.34375,35.1875 L 27.46875,23.25 L 36.25,14.375 L 38.1875,14.15625 L 43,9.875 C 42.999998,9.8749994 38.1875,5 38.1875,5 z"
+       id="path5302"
+       style="fill:url(#linearGradient1234);filter:url(#filter1111);fill-opacity:1;stroke:none;stroke-width:0.99482697;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
+  </g>
+</svg>

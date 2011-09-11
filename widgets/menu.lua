@@ -247,11 +247,12 @@ function new(args)
         if type(wdg) ~= "function" and wdg.hidden == false then
             local geo = wdg.widget:geometry()
             wdg.x = self.settings.xPos
-            wdg.y = self.settings.yPos+(self.settings.itemHeight*counter)*self.downOrUp+yPadding
+            wdg.y = self.settings.yPos+yPadding
             if geo.x ~= wdg.x or geo.y ~= wdg.y or geo.width ~= wdg.width or geo.height ~= wdg.height then --moving is slow
                 wdg.widget:geometry({ width = wdg.width, height = wdg.height, y=wdg.y, x=wdg.x})
             end
             counter = counter +1
+            yPadding = yPadding + (wdg.height or self.settings.itemHeight)*self.downOrUp
             if type(wdg.subMenu) ~= "function" and wdg.subMenu ~= nil and wdg.subMenu.settings ~= nil then
                 wdg.subMenu.settings.x = wdg.x+wdg.width
                 wdg.subMenu.settings.y = wdg.y
@@ -312,8 +313,8 @@ function new(args)
         suffixwidth = args.suffixwidth or nil                      ,
         prefixbg    = args.prefixbg    or nil                      ,
         suffixbg    = args.suffixbg    or nil                      ,
-        width       = capi.width       or self.settings.itemWidth  , 
-        height      = capi.height      or self.settings.itemHeight , 
+        width       = args.width       or self.settings.itemWidth  , 
+        height      = args.height      or self.settings.itemHeight , 
         widget      = aWibox           or nil                      , 
         icon        = args.icon        or nil                      ,
         checked     = args.checked     or nil                      ,
@@ -446,6 +447,22 @@ function new(args)
       aWibox:add_signal("mouse::leave", function() toggleItem(false) end)
       aWibox.visible = false
       return data
+    end
+    
+    function menu:add_wibox(wibox,args)
+        local data = {
+            widget = wibox,
+            hidden = false,
+            width  = args.width  or self.settings.itemWidth  , 
+            height = args.height or self.settings.itemHeight , 
+        }
+            
+        function data:hightlight(value)
+            
+        end
+        
+        table.insert(self.items, data)
+        
     end
     return menu
   end

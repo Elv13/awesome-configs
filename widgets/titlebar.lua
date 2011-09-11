@@ -31,23 +31,24 @@ local data = setmetatable({}, { __mode = 'k' })
 
 local function create(c, args)
     if not c or (c.type ~= "normal" and c.type ~= "dialog") then return end
-    local theme   = beautiful.get()
-    local buttons = {}
-    args          = args or {}
-    args.height   = args.height or capi.awesome.font_height * 1.5
+    local theme        = beautiful.get()
+    local buttons      = {}
+    args               = args or {}
+    args.height        = args.height or capi.awesome.font_height * 1.5
     
     -- Store colors
-    data[c] = {}
-    data[c].fg       = args.fg       or theme.titlebar_fg_normal or theme.fg_normal
-    data[c].bg       = args.bg       or theme.titlebar_bg_normal or theme.bg_normal
-    data[c].fg_focus = args.fg_focus or theme.titlebar_fg_focus  or theme.fg_focus
-    data[c].bg_focus = args.bg_focus or theme.titlebar_bg_focus  or theme.bg_focus
-    data[c].font     = args.font     or theme.titlebar_font      or theme.font
-    data[c].width    = args.width    --
+    local titlebar     = {}
+    titlebar.client    = c
+    titlebar.fg        = args.fg       or theme.titlebar_fg_normal or theme.fg_normal
+    titlebar.bg        = args.bg       or theme.titlebar_bg_normal or theme.bg_normal
+    titlebar.fg_focus  = args.fg_focus or theme.titlebar_fg_focus  or theme.fg_focus
+    titlebar.bg_focus  = args.bg_focus or theme.titlebar_bg_focus  or theme.bg_focus
+    titlebar.font      = args.font     or theme.titlebar_font      or theme.font
+    titlebar.width     = args.width    --
+    data[c]            = titlebar
     
-    local holder = data[c]
     --Buttons creation
-    function holder:button_group(args)
+    function titlebar:button_group(args)
         local data = {
             field      = args.field   or ""                   , --will explode
             focus      = args.focus   or false                ,
@@ -66,9 +67,11 @@ local function create(c, args)
         end
         
         function data:setImage(hover)
-            local curfocus    = (hover == true) and "hover" or ((((type(data.focus) == "function") and data.focus() or data.focus) == true) and "focus" or "normal")
+            local curfocus    = (((type(data.focus) == "function") and data.focus() or data.focus) == true) and "focus" or "normal"
             local curactive   = ((((type(data.checked) == "function") and data.checked() or data.checked) == true) and "active" or "inactive")
-            data.widget.image = capi.image( config.data.themePath.. "Icon/titlebar/" .. data.field .."_"..curfocus .."_"..curactive..".png"  )
+            
+--             data.widget.image = capi.image( config.data.themePath.. "Icon/titlebar/" .. data.field .."_"..curfocus .."_"..curactive..".png"  )
+            data.widget.image = capi.image( '/home/lepagee/.config/awesome/theme/ubuntu/'.. "Icon/titlebar/" .. data.field .."_"..curfocus .."_"..curactive.. ((hover == true) and "_hover" or "")..".png"  )
         end
         
         function data:createWidget()
@@ -88,6 +91,10 @@ local function create(c, args)
                 button({ }, 9 , data.mbuttons[9 ]),
                 button({ }, 10, data.mbuttons[10])
             ))
+            
+            wdg:add_signal("mouse::enter", function() self:setImage(true) end)
+            wdg:add_signal("mouse::leave", function() self:setImage(false) end)
+      
             return wdg
         end
         data.widget = wdg or data:createWidget()
@@ -95,11 +102,11 @@ local function create(c, args)
         return data
     end
     
-    buttons.close     = data[c]:button_group({width=5, field = "close",     focus = false, checked = false                             , onclick = function() c:kill()                      end })
-    buttons.ontop     = data[c]:button_group({width=5, field = "ontop",     focus = false, checked = function() return c.ontop     end , onclick = function() c.ontop     = not c.ontop     end })
-    buttons.floating  = data[c]:button_group({width=5, field = "floating",  focus = false, checked = function() return c.floating  end , onclick = function() c.floating  = not c.floating  end })
-    buttons.sticky    = data[c]:button_group({width=5, field = "sticky",    focus = false, checked = function() return c.sticky    end , onclick = function() c.sticky    = not c.sticky    end })
-    buttons.maximized = data[c]:button_group({width=5, field = "maximized", focus = false, checked = function() return c.maximized end , onclick = function() c.maximized = not c.maximized end })
+    buttons.close     = titlebar:button_group({width=5, field = "close",     focus = false, checked = false                             , onclick = function() c:kill()                      end })
+    buttons.ontop     = titlebar:button_group({width=5, field = "ontop",     focus = false, checked = function() return c.ontop     end , onclick = function() c.ontop     = not c.ontop     end })
+    buttons.floating  = titlebar:button_group({width=5, field = "floating",  focus = false, checked = function() return c.floating  end , onclick = function() c.floating  = not c.floating  end })
+    buttons.sticky    = titlebar:button_group({width=5, field = "sticky",    focus = false, checked = function() return c.sticky    end , onclick = function() c.sticky    = not c.sticky    end })
+    buttons.maximized = titlebar:button_group({width=5, field = "maximized", focus = false, checked = function() return c.maximized end , onclick = function() c.maximized = not c.maximized end })
     
     if not args.height then
       args.height = 16
@@ -136,8 +143,8 @@ local function create(c, args)
         tl                                     ,
     }
     
-    function holder:update(c,event)
-        if c.titlebar and data[c] then
+    function titlebar:update(c,event)
+        if c.titlebar and titlebar then
             if event     == 'focus'   then
                 tl:focus2()
             elseif event == 'unfocus' then
@@ -146,18 +153,18 @@ local function create(c, args)
             
             local widgets = c.titlebar.widgets
             appicon.image = c.icon
-            for k,v in pairs({"close", "ontop", "floating", "sticky", "maximized"}) do
-                buttons[v]:setImage()
+            for k,v in pairs(buttons) do
+                v:setImage()
             end
-            c.titlebar.fg = (capi.client.focus == c) and data[c].fg_focus or data[c].fg
-            c.titlebar.bg = (capi.client.focus == c) and data[c].bg_focus or data[c].bg
+            c.titlebar.fg = (capi.client.focus == c) and titlebar.fg_focus or titlebar.fg
+            c.titlebar.bg = (capi.client.focus == c) and titlebar.bg_focus or titlebar.bg
         end
     end
     c.titlebar = tb
     for k,v in pairs({"icon","name","sticky","floating","ontop","maximized_vertical","maximized_horizontal"}) do
-        c:add_signal("property::"..v, function(c) holder:update(c) end)
+        c:add_signal("property::"..v, function(c) titlebar:update(c) end)
     end
-    holder:update(c)
+    titlebar:update(c)
     return {wibox = tb, tablist = tl}
 end
 
@@ -173,8 +180,7 @@ function add(c, args)
   end
 end
 
---- Remove a titlebar from a client.
--- @param c The client.
+--TODO redo
 function remove(c)
     if not c.titlebar then return end
     c.titlebar.visible = false

@@ -1,0 +1,11 @@
+#!/usr/bin/env xdg-open
+
+[Desktop Entry]
+Name=Any Color You Like
+Exec=acyl
+Icon=colors
+Terminal=true
+Type=Application
+Categories=GNOME;Settings;
+Comment=A script for changing colors for the acyl icon-theme.
+Name[sv_SE]=acyl

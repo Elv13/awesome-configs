@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+<svg
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   version="1.0"
+   width="48"
+   height="48"
+   id="svg2383">
+        
+  
+  
+  
+  
+  <filter>
+    </filter>
+  <linearGradient
+     id="linearGradient4321">
+    <stop
+       style="stop-color:#1577D3;stop-opacity:1.0;"
+       offset="0"
+       id="stop1" />
+    <stop
+       style="stop-color:#1577D3;stop-opacity:1.0;"
+       offset="1"
+       id="stop2" />
+  </linearGradient>
+  <linearGradient
+     inkscape:collect="always"
+     xlink:href="#linearGradient4321"
+     id="linearGradient1234"
+     x1="0%"
+     y1="50%"
+     x2="100%"
+     y2="50%" />
+<defs
+     id="defs2385" />
+  <g
+     id="layer1">
+    <text
+       x="25.367456"
+       y="31.471378"
+       id="text5335"
+       xml:space="preserve"
+       style="font-size:4px;font-style:normal;font-weight:normal;fill:none;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;font-family:Bitstream Vera Sans"><tspan
+         x="25.367456"
+         y="31.471378"
+         id="tspan5337" /></text>
+    <path
+       d="M 19.6875,10 C 16.539156,10 14,12.539156 14,15.6875 L 14,20 L 23.40625,20 L 23.40625,10 L 19.6875,10 z M 24.40625,10 L 24.40625,20 L 34,20 L 34,15.6875 C 34,12.539156 31.460844,10 28.3125,10 L 24.40625,10 z M 14,21 L 14,34.3125 C 14,37.460844 16.539156,40 19.6875,40 L 28.3125,40 C 31.460844,40 34,37.460842 34,34.3125 L 34,21 L 14,21 z"
+       id="rect3277"
+       style="opacity:1;fill:url(#linearGradient1234);filter:url(#filter1111);fill-opacity:1;fill-rule:evenodd;stroke:none;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1" />
+  </g>
+</svg>

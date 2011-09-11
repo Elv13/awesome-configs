@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   version="1.0"
+   width="48"
+   height="48"
+   id="svg1315"
+   inkscape:version="0.47 r22583"
+   sodipodi:docname="gnome-dev-media-cf.svg">
+    
+  
+  
+  
+  
+  <filter>
+    </filter>
+  <linearGradient
+     id="linearGradient4321">
+    <stop
+       style="stop-color:#969487;stop-opacity:1.0;"
+       offset="0"
+       id="stop1" />
+    <stop
+       style="stop-color:#969487;stop-opacity:1.0;"
+       offset="1"
+       id="stop2" />
+  </linearGradient>
+  <linearGradient
+     inkscape:collect="always"
+     xlink:href="#linearGradient4321"
+     id="linearGradient1234"
+     x1="0%"
+     y1="50%"
+     x2="100%"
+     y2="50%" />
+<defs
+     id="defs1317">
+  </defs>
+  <path
+     style="fill:url(#linearGradient1234);fill-opacity:1;fill-rule:evenodd;stroke:none;filter:url(#filter1111)"
+     id="path1333"
+     d="M 5.53125,3 5.5,45 8.5625,45 9.5,44.0625 10.625,45 33.5,45 34.375,44.0625 35.5,45 l 4,0 0,-27 -1.1875,0 0,-2.84375 1.1875,0 0,-7.71875 L 34.03125,3 l -28.5,0 z m 2.5,0.46875 c 0,10e-8 2.96875,0 2.96875,0 L 11,12 c 0,0.819963 -0.648787,1.5 -1.46875,1.5 -0.8199632,0 -1.5,-0.680037 -1.5,-1.5 l 0,-8.53125 z m 4,0 c 0,10e-8 2.96875,0 2.96875,0 L 15,12 c 0,0.819963 -0.648787,1.5 -1.46875,1.5 -0.819963,0 -1.5,-0.680037 -1.5,-1.5 l 0,-8.53125 z m 4,0 c -1e-6,10e-8 2.96875,0 2.96875,0 L 19,12 c 0,0.819963 -0.648787,1.5 -1.46875,1.5 -0.819963,0 -1.5,-0.680037 -1.5,-1.5 l 0,-8.53125 z m 4,0 c -1e-6,10e-8 2.96875,0 2.96875,0 L 23,12 c 0,0.819963 -0.648787,1.5 -1.46875,1.5 -0.819963,0 -1.5,-0.680037 -1.5,-1.5 l 0,-8.53125 z m 4,0 c -1e-6,10e-8 2.96875,0 2.96875,0 L 27,12 c 0,0.819963 -0.648787,1.5 -1.46875,1.5 -0.819963,0 -1.5,-0.680037 -1.5,-1.5 l 0,-8.53125 z m 4,0 c -1e-6,10e-8 2.96875,0 2.96875,0 L 31,12 c 0,0.819963 -0.648787,1.5 -1.46875,1.5 -0.819963,0 -1.5,-0.680037 -1.5,-1.5 l 0,-8.53125 z" />
+</svg>

@@ -228,7 +228,7 @@ shifty.config.apps = {
 {match = { "sauer_client"  , "Cube 2$"        , "Cube 2: Sauerbraten"        ,                     } , tag = "Game"               } ,
 {match = { "Thunderbird"   , "kmail"          , "evolution" ,                                      } , tag = "Mail"               } ,         
 {match = { "ksnapshot"     , "pinentry"       , "gtksu"     , "kcalc"        , "xcalc"               ,                             --
-           "feh"           , "Gradient editor","About KDE"  , "Paste Special", "Background color"    ,                             --
+           "feh"           , "Gradient editor", "About KDE" , "Paste Special", "Background color"    ,                             --
            "kcolorchooser" ,                                                                       } , intrusive = true,          } ,
 {match = { "rssStock"      ,                                                                       } , tag = "RSS"                  , 
                                                                                                        honorsizehints = false     } ,       

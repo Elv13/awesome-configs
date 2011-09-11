@@ -1,0 +1,25 @@
+#!/bin/bash
+clear
+echo "Select the icon you want to change."
+echo "1. Folder icon."
+echo "2. Logo icon."
+echo "3. Back to main menu."
+
+read input
+if [ "$input" = "1" ]; then
+	clear
+	bash script_folder
+	exit
+fi
+if [ "$input" = "2" ]; then
+	clear
+	bash script_logos
+	exit
+fi
+if [ "$input" = "3" ]; then
+	bash script_menu
+	exit
+fi
+clear
+bash script_alt_icon
+exit

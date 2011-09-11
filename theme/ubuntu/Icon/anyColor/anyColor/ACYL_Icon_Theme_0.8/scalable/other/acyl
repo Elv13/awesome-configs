@@ -1,0 +1,3 @@
+#!/bin/bash
+cd ~/.icons/ACYL_Icon_Theme_0.8/
+bash script.sh

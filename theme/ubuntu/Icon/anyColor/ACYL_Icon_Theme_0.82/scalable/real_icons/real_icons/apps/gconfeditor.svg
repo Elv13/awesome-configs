@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   sodipodi:docname="gconfeditor.svg"
+   sodipodi:docbase="/home/dobey/Projects/gnome-icon-theme/scalable/categories"
+   inkscape:version="0.46"
+   sodipodi:version="0.32"
+   id="svg2963"
+   height="48px"
+   width="48px"
+   inkscape:output_extension="org.inkscape.output.svg.inkscape">
+  <sodipodi:namedview
+     inkscape:window-height="48"
+     inkscape:window-width="48"
+     inkscape:pageshadow="2"
+     inkscape:pageopacity="0.0"
+     guidetolerance="10.0"
+     gridtolerance="10.0"
+     objecttolerance="10.0"
+     borderopacity="1.0"
+     bordercolor="#666666"
+     pagecolor="#ffffff"
+     id="base"
+     showgrid="false"
+     inkscape:zoom="3.1666667"
+     inkscape:cx="-4.4854638"
+     inkscape:cy="27.835817"
+     inkscape:current-layer="layer1" />
+        
+  
+  
+  
+  
+  <filter>
+    </filter>
+  <linearGradient
+     id="linearGradient4321">
+    <stop
+       style="stop-color:#969487;stop-opacity:1.0;"
+       offset="0"
+       id="stop1" />
+    <stop
+       style="stop-color:#969487;stop-opacity:1.0;"
+       offset="1"
+       id="stop2" />
+  </linearGradient>
+  <linearGradient
+     inkscape:collect="always"
+     xlink:href="#linearGradient4321"
+     id="linearGradient1234"
+     x1="0%"
+     y1="50%"
+     x2="100%"
+     y2="50%" />
+<defs
+     id="defs3">
+    <inkscape:perspective
+       sodipodi:type="inkscape:persp3d"
+       inkscape:vp_x="0 : 24 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_z="48 : 24 : 1"
+       inkscape:persp3d-origin="24 : 16 : 1"
+       id="perspective14" />
+  </defs>
+  <g
+     inkscape:groupmode="layer"
+     inkscape:label="Layer 1"
+     id="layer1"
+     style="display:inline">
+    <path
+       style="fill:url(#linearGradient1234);filter:url(#filter1111);fill-opacity:1;stroke:none;stroke-width:1;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0.7;stroke-opacity:1"
+       d="M 41.146967,6.2555864 C 40.982756,6.126268 40.773482,6.0691818 40.567619,6.105364 C 40.361757,6.1415447 40.178803,6.2675712 40.06853,6.445133 L 36.767929,11.655916 L 34.599683,12.359395 L 32.821778,11.192801 L 32.476261,9.0046256 L 35.745562,3.7602661 C 35.878614,3.5548435 35.898272,3.3051597 35.80188,3.0801918 C 35.705491,2.855221 35.505714,2.6845249 35.265205,2.6391576 C 31.878753,2.1443745 28.225898,3.8520685 26.416986,6.7460729 C 24.608074,9.6400773 24.829393,12.672208 26.148089,15.343465 L 10.820769,39.359966 C 9.4945755,41.481692 10.136227,44.287556 12.257954,45.61375 C 14.37968,46.939944 17.219118,46.266988 18.545314,44.145265 L 33.805482,20.191366 C 36.797401,20.219055 39.782373,18.891405 41.48136,16.173268 C 43.407312,13.092015 43.231953,9.2508031 41.303475,6.4234666 C 41.260424,6.3596513 41.207611,6.3030013 41.146967,6.2555864 z"
+       id="path6722"
+       sodipodi:nodetypes="csccccccsczccsccssc" />
+  </g>
+</svg>

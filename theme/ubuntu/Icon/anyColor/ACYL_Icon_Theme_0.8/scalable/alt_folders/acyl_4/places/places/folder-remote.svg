@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="48"
+   height="48"
+   id="svg2"
+   sodipodi:version="0.32"
+   inkscape:version="0.47 r22583"
+   version="1.0"
+   sodipodi:docname="folder-remote.svg"
+   inkscape:output_extension="org.inkscape.output.svg.inkscape">
+      
+  
+  <filter>
+    </filter>
+  <linearGradient
+     id="linearGradient4321">
+    <stop
+       style="stop-color:#1577D3;stop-opacity:1.0;"
+       offset="0"
+       id="stop1" />
+    <stop
+       style="stop-color:#1577D3;stop-opacity:1.0;"
+       offset="1"
+       id="stop2" />
+  </linearGradient>
+  <linearGradient
+     inkscape:collect="always"
+     xlink:href="#linearGradient4321"
+     id="linearGradient1234"
+     x1="0%"
+     y1="50%"
+     x2="100%"
+     y2="50%" />
+<defs
+     id="defs4">
+  </defs>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <path
+       style="opacity:1;fill:url(#linearGradient1234);filter:url(#filter1111);fill-opacity:1;fill-rule:nonzero;stroke:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       d="M 10.5625 7.4375 C 8.0656798 7.4375 6.03125 8.8312773 6.03125 10.5625 L 39.71875 10.5625 C 39.71875 8.8312771 37.684319 7.4375 35.1875 7.4375 L 10.5625 7.4375 z M 6.78125 11.375 C 3.2933645 11.375 0.5 13.787868 0.5 16.78125 L 0.5 35.75 C 0.5 38.743382 3.2933645 41.156249 6.78125 41.15625 L 23.28125 41.15625 L 23.28125 42.6875 C 22.68005 42.95391 22.17781 43.447739 21.9375 44.0625 L 2.78125 44.0625 C 2.7500099 44.061035 2.71873 44.061034 2.6875 44.0625 C 2.1352099 44.088389 1.72411 44.572715 1.75 45.125 C 1.77589 45.677286 2.22896 46.088388 2.78125 46.0625 L 22.03125 46.0625 C 22.4375 46.894017 23.29402 47.468749 24.28125 47.46875 C 25.26848 47.468751 26.125 46.894016 26.53125 46.0625 L 45.75 46.0625 C 46.11063 46.067601 46.44319 45.873998 46.625 45.5625 C 46.8068 45.251003 46.8068 44.873997 46.625 44.5625 C 46.44319 44.251004 46.11063 44.0574 45.75 44.0625 L 26.625 44.0625 C 26.38469 43.44774 25.88244 42.953909 25.28125 42.6875 L 25.28125 41.15625 L 41.21875 41.15625 C 44.706635 41.15625 47.5 38.743382 47.5 35.75 L 47.5 16.78125 C 47.5 13.787868 44.706635 11.375 41.21875 11.375 L 6.78125 11.375 z "
+       id="rect3203" />
+  </g>
+</svg>

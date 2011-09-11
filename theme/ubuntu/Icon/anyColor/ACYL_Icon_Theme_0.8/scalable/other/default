@@ -1,0 +1,100 @@
+Global {
+     # screen edge  
+     # legal values are: left, right, top, bottom
+     edge = top
+
+     # allignment of a panel
+     # legal values are: left, right, center
+     allign = left
+
+     # length of margin (in pixels) 
+     # legal values are numbers
+     margin = 0
+
+     # widthtype specifies how panel width is calculated
+     # legal values are: request, pixel, percent
+     #   request - follow widgets' size requests. can shrink or grow dynamically
+     #   pixel   - ocupy fixed number of pixels, then 'width' variable holds a number
+     #   percent - be 'width' precent of an edge.
+     widthtype = percent
+
+     # numerical value of width (not applicable for 'request' widthtype)
+     # legal values are numbers
+     width = 0
+
+     # heighttype specifies how panel height is calculated
+     # legal values are: pixel
+     #   pixel   - ocupy fixed number of pixels, then 'height' variable holds a number
+     heighttype = pixel
+
+     # numerical value of height (if applicable)
+     # legal values are numbers
+     height = 0
+
+
+     # Identify panel window type as dock 
+     # legal values are boolean
+     SetDockType = true
+
+     # Reserve panel's space so that it will not be covered by maximazied windows
+     # legal values are boolean
+     # SetPartialStrut = true
+ 
+
+     # Transparency stuff: 
+     # TintColor is a color to composite on root background
+     # Alpha is transparency of the tint color.
+     # Transparent = true
+     # TintColor = 0xFFFFFFFF
+     # Alpha = 0
+}
+
+# 'icons' plugin lets you customize window icons. 
+# these changes applay to entire desktop.
+# this plugin has no gui (invisible)
+Plugin {
+    type = icons
+    config {
+application {
+            Image = ~/.icons/ACYL_Icon_Theme_0.8/scalable/apps/amule.svg
+            ClassName = Amule
+        }
+application {
+            Image = ~/.icons/ACYL_Icon_Theme_0.8/scalable/apps/smplayer.svg
+            ClassName = Smplayer
+        }
+application {
+            Image = ~/.icons/ACYL_Icon_Theme_0.8/scalable/apps/virtualbox.svg
+            ClassName = VirtualBox
+        }
+
+application {
+            Image = ~/.icons/ACYL_Icon_Theme_0.8/scalable/apps/pidgin.svg
+            ClassName = Pidgin
+        }
+application {
+            Image = ~/.icons/ACYL_Icon_Theme_0.8/scalable/apps/inkscape.svg
+            ClassName = Inkscape
+        }
+application {
+            Image = ~/.icons/ACYL_Icon_Theme_0.8/scalable/apps/deluge.svg
+            ClassName = Deluge
+        }
+application {
+            Image = ~/.icons/ACYL_Icon_Theme_0.8/scalable/apps/gimp.svg
+            ClassName = Gimp-2.6
+        }
+application {
+            Image = ~/.icons/ACYL_Icon_Theme_0.8/scalable/apps/synaptic.svg
+            ClassName = Synaptic
+        }
+application {
+            Image = ~/.icons/ACYL_Icon_Theme_0.8/scalable/apps/skype.svg
+            ClassName = Skype
+        }
+application {
+            Image = ~/.icons/ACYL_Icon_Theme_0.8/scalable/apps/firefox.svg
+            ClassName = Firefox
+        }
+    }
+}

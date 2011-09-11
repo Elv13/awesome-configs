@@ -1,0 +1,7 @@
+[Desktop Entry]
+Exec=fbpanel
+Type=Application
+Name=fbpanel
+X-GNOME-Autostart-enabled=true
+Encoding=UTF-8
+

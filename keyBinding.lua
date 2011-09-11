@@ -55,8 +55,6 @@ globalkeys = awful.util.table.join(
 
     --awful.keys.ignore_modifiers = { "Lock" }
     --              MODIFIERS         KEY                        ACTION                               
-    awful.key({                   }, "#86"   , function () awful.layout.inc(layouts,  1)        end ),
-    awful.key({                   }, "#85"   , function () awful.layout.inc(layouts, -1)        end ),
     awful.key({                   }, "#90"   , awful.tag.viewprev                                   ),
     awful.key({                   }, "#91"   , awful.tag.viewnext                                   ),
     awful.key({                   }, "#87"   , utils.keyFunctions.altTab                            ),

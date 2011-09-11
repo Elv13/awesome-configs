@@ -85,18 +85,32 @@ theme.tasklist_floating_icon = awful.util.getdir("config").."/default/tasklist/f
 -- }}}
 
 -- {{{ Layout
-theme.layout_tile       = awful.util.getdir("config").."/theme/lightburn/layouts/tile.png"
-theme.layout_tileleft   = awful.util.getdir("config").."/theme/lightburn/layouts/tileleft.png"
-theme.layout_tilebottom = awful.util.getdir("config").."/theme/lightburn/layouts/tilebottom.png"
-theme.layout_tiletop    = awful.util.getdir("config").."/theme/lightburn/layouts/tiletop.png"
-theme.layout_fairv      = awful.util.getdir("config").."/theme/lightburn/layouts/fairv.png"
-theme.layout_fairh      = awful.util.getdir("config").."/theme/lightburn/layouts/fairh.png"
-theme.layout_spiral     = awful.util.getdir("config").."/theme/lightburn/layouts/spiral.png"
-theme.layout_dwindle    = awful.util.getdir("config").."/theme/lightburn/layouts/dwindle.png"
-theme.layout_max        = awful.util.getdir("config").."/theme/lightburn/layouts/max.png"
-theme.layout_fullscreen = awful.util.getdir("config").."/theme/lightburn/layouts/fullscreen.png"
-theme.layout_magnifier  = awful.util.getdir("config").."/theme/lightburn/layouts/magnifier.png"
-theme.layout_floating   = awful.util.getdir("config").."/theme/lightburn/layouts/floating.png"
+theme.layout_tile         = awful.util.getdir("config").."/theme/lightburn/layouts/tile.png"
+theme.layout_tileleft     = awful.util.getdir("config").."/theme/lightburn/layouts/tileleft.png"
+theme.layout_tilebottom   = awful.util.getdir("config").."/theme/lightburn/layouts/tilebottom.png"
+theme.layout_tiletop      = awful.util.getdir("config").."/theme/lightburn/layouts/tiletop.png"
+theme.layout_fairv        = awful.util.getdir("config").."/theme/lightburn/layouts/fairv.png"
+theme.layout_fairh        = awful.util.getdir("config").."/theme/lightburn/layouts/fairh.png"
+theme.layout_spiral       = awful.util.getdir("config").."/theme/lightburn/layouts/spiral.png"
+theme.layout_dwindle      = awful.util.getdir("config").."/theme/lightburn/layouts/dwindle.png"
+theme.layout_max          = awful.util.getdir("config").."/theme/lightburn/layouts/max.png"
+theme.layout_fullscreen   = awful.util.getdir("config").."/theme/lightburn/layouts/fullscreen.png"
+theme.layout_magnifier    = awful.util.getdir("config").."/theme/lightburn/layouts/magnifier.png"
+theme.layout_floating     = awful.util.getdir("config").."/theme/lightburn/layouts/floating.png"
+
+
+theme.layout_tile_s       = awful.util.getdir("config").."/theme/lightburn/layouts/tile.png"
+theme.layout_tileleft_s   = awful.util.getdir("config").."/theme/lightburn/layouts/tileleft.png"
+theme.layout_tilebottom_s = awful.util.getdir("config").."/theme/lightburn/layouts/tilebottom.png"
+theme.layout_tiletop_s    = awful.util.getdir("config").."/theme/lightburn/layouts/tiletop.png"
+theme.layout_fairv_s      = awful.util.getdir("config").."/theme/lightburn/layouts/fairv.png"
+theme.layout_fairh_s      = awful.util.getdir("config").."/theme/lightburn/layouts/fairh.png"
+theme.layout_spiral_s     = awful.util.getdir("config").."/theme/lightburn/layouts/spiral.png"
+theme.layout_dwindle_s    = awful.util.getdir("config").."/theme/lightburn/layouts/dwindle.png"
+theme.layout_max_s        = awful.util.getdir("config").."/theme/lightburn/layouts/max.png"
+theme.layout_fullscreen_s = awful.util.getdir("config").."/theme/lightburn/layouts/fullscreen.png"
+theme.layout_magnifier_s  = awful.util.getdir("config").."/theme/lightburn/layouts/magnifier.png"
+theme.layout_floating_s   = awful.util.getdir("config").."/theme/lightburn/layouts/floating.png"
 -- }}}
 
 -- {{{ Titlebar
