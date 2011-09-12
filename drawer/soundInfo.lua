@@ -138,7 +138,7 @@ function new(mywibox3)
   data.wibox = wibox({ position = "free", screen = s})
   data.wibox.ontop = true
   data.wibox.visible = false
-  data.wibox:geometry({y = 20, x = capi.screen[capi.mouse.screen].geometry.width*2 - ( 212), width = 240, height = 300})
+  data.wibox:geometry({y = 20, x = capi.screen[capi.mouse.screen].geometry.width - 240 + capi.screen[capi.mouse.screen].geometry.x, width = 240, height = 300})
   soundInfo() 
   volumewidget = capi.widget({
       type = 'textbox',

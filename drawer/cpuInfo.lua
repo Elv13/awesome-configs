@@ -259,7 +259,7 @@ function new(screen, args)
   data.wibox.ontop = true
   data.wibox.visible = false
   local height = createDrawer() 
-  data.wibox:geometry({ width = 212, height = height, x = capi.screen[capi.mouse.screen].geometry.width*2 -  212, y = 20})
+  data.wibox:geometry({ width = 212, height = height, x = capi.screen[capi.mouse.screen].geometry.width - 212 + capi.screen[capi.mouse.screen].geometry.x, y = 20})
 
   cpulogo       = capi.widget({ type = "imagebox", align = "right" })
   cpulogo.image = capi.image(config.data.iconPath .. "brain.png")

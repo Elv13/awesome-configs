@@ -202,7 +202,7 @@ function new(screen, args)
   data.wibox.ontop = true
   data.wibox.visible = false
   createDrawer() 
-  data.wibox:geometry({ width = 147, height = 994, x = capi.screen[capi.mouse.screen].geometry.width*2 -  147, y = 20})
+  data.wibox:geometry({ width = 147, height = 994, x = capi.screen[capi.mouse.screen].geometry.width - 147 + capi.screen[capi.mouse.screen].geometry.x, y = 20})
   
   mytextclock = textclock({ align = "right" })
 

@@ -235,7 +235,6 @@ function new(args)
       end
       
       self.hasChanged = false
-      local counter = 0
       
       local yPadding = 0
       if #self.items*self.settings.itemHeight + self.settings["yPos"] > capi.screen[capi.mouse.screen].geometry.height then
@@ -251,7 +250,6 @@ function new(args)
             if geo.x ~= wdg.x or geo.y ~= wdg.y or geo.width ~= wdg.width or geo.height ~= wdg.height then --moving is slow
                 wdg.widget:geometry({ width = wdg.width, height = wdg.height, y=wdg.y, x=wdg.x})
             end
-            counter = counter +1
             yPadding = yPadding + (wdg.height or self.settings.itemHeight)*self.downOrUp
             if type(wdg.subMenu) ~= "function" and wdg.subMenu ~= nil and wdg.subMenu.settings ~= nil then
                 wdg.subMenu.settings.x = wdg.x+wdg.width

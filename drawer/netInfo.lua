@@ -312,7 +312,7 @@ function new(screen, args)
   data.wibox.ontop = true
   data.wibox.visible = false
   local height = createDrawer() 
-  data.wibox:geometry({ width = 240, height = height, x = capi.screen[capi.mouse.screen].geometry.width*2 -  240, y = 20})
+  data.wibox:geometry({ width = 240, height = height, x = capi.screen[capi.mouse.screen].geometry.width - 240 + capi.screen[capi.mouse.screen].geometry.x, y = 20})
 
   downlogo       = capi.widget({ type = "imagebox", align = "right" })
   downlogo.image = capi.image(config.data.iconPath .. "arrowDown.png")
