@@ -8,7 +8,8 @@ CONNECTED=`/bin/netstat --inet -avW --program 2> /dev/null | grep ESTABLISHED | 
 REPORT=" "
 PROTOCOLS_ARRAY=""
 COUNT=0
-echo "local connectionInfo = {}"
+TMP=""
+TMP=$TMP"\nlocal connectionInfo = {}"
 for LINE in $CONNECTED; do
     PROTOCOL=`echo $LINE | cut -d " " -f1 | cut -f2 -d ":"`
     if [ "`echo $PROTOCOL | grep -ve "[0-9]"`" == "" ];then
@@ -22,11 +23,12 @@ for LINE in $CONNECTED; do
       PID=`echo $LINE | cut -d " " -f2 | cut -d "/" -f1`
     fi
     SPACE="."
-    echo "connectionInfo[$COUNT] = {}"
-    echo "connectionInfo[$COUNT]['site'] = \"$SITE\""
-    echo "connectionInfo[$COUNT]['pid'] = \"$PID\""
-    echo "connectionInfo[$COUNT]['application'] = \"$APP\""
-    echo "connectionInfo[$COUNT]['protocol'] = \"${PROTOCOL}\""
+    TMP=$TMP"\nconnectionInfo[$COUNT] = {}"
+    TMP=$TMP"\nconnectionInfo[$COUNT]['site'] = \"$SITE\""
+    TMP=$TMP"\nconnectionInfo[$COUNT]['pid'] = \"$PID\""
+    TMP=$TMP"\nconnectionInfo[$COUNT]['application'] = \"$APP\""
+    TMP=$TMP"\nconnectionInfo[$COUNT]['protocol'] = \"${PROTOCOL}\""
     
     let COUNT=$COUNT+1
 done
+echo -e "$TMP" > /tmp/connectedHost.lua

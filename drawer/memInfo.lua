@@ -196,7 +196,7 @@ function repaint()
     
     mainMenu:add_wibox(processHeaderW,{height = 20 , width = 200})
     
-    for i = 0, #data.process or 0 do
+    for i = 0, #(data.process or {}) do
         if data.process[i]["name"] ~= nil then
             local processW = wibox({ position = "free", screen = s,ontop = true})
             processW.visible = false
