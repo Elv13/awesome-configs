@@ -79,7 +79,7 @@ applicationMenu        = customMenu.application   ( nil                         
 placesMenu             = customMenu.places        ( nil                                )
 
 -- Create the recent menu
--- recentMenu             = customMenu.recent        ( nil                                )
+-- recentMenu          = customMenu.recent        ( nil                                )
 
 -- Call the laucher wibox
 launcher               = customMenu.launcher      ( nil                                )
@@ -363,13 +363,13 @@ for s = 1, screen.count() do
       isPlayingMovie = false
       
       -- Run or raise options
-      if tag.name == "Files" then
+      if tag.name     == "Files"    then
         utils.tools.run_or_raise(filemanager.cmd, { class = filemanager.class })
       elseif tag.name == "Internet" then
         utils.tools.run_or_raise(webbrowser.cmd,  { class = webbrowser.class  })
-      elseif tag.name == "Develop" then
+      elseif tag.name == "Develop"  then
         utils.tools.run_or_raise(ide.cmd,         { class = ide.class         })
-      elseif tag.name == "Movie" then
+      elseif tag.name == "Movie"    then
         enableAmarokCtrl(false)
         musicBarVisibility   = wiboxTop3.visible
         volumepixmap.visible = false

@@ -8,6 +8,7 @@ local print        = print
 local beautiful    = require( "beautiful"    )
 local widget2      = require( "awful.widget" )
 local wibox        = require( "awful.wibox"  )
+local button       = require( "awful.button" )
 local vicious      = require( "vicious"      )
 local util         = require( "awful.util"   )
 local config       = require( "config"       )
@@ -315,30 +316,26 @@ function new(screen, args)
     end
 
     function show()
-        update() 
-        data.menu = repaint()
-        data.menu:toggle(true)
-    end
-    
-    function hide()
-        data.menu:toggle(false)
+        if not data.menu or data.menu.settings.visible == false then
+            update() 
+            data.menu = repaint()
+            data.menu:toggle(true)
+        else
+            data.menu:toggle(false)
+        end
     end
 
     netDownWidget.width = 55
     netUpWidget.width   = 55
-    uplogo.image        = capi.image(config.data.iconPath .. "arrowUp.png")
-    downlogo.image      = capi.image(config.data.iconPath .. "arrowDown.png")
+    uplogo.image        = capi.image(config.data.iconPath .. "arrowUp.png"      )
+    downlogo.image      = capi.image(config.data.iconPath .. "arrowDown.png"    )
     vicious.register(netUpWidget,   vicious.widgets.net, '${eth0 up_kb}KBs'   ,1)
     vicious.register(netDownWidget, vicious.widgets.net, '${eth0 down_kb}KBs' ,1) 
-        
-    downlogo:add_signal      ("mouse::enter", function () show() end)
-    netDownWidget:add_signal ("mouse::enter", function () show() end)
-    uplogo:add_signal        ("mouse::enter", function () show() end)
-    netUpWidget:add_signal   ("mouse::enter", function () show() end)
-    downlogo:add_signal      ("mouse::leave", function () hide() end)
-    netDownWidget:add_signal ("mouse::leave", function () hide() end)
-    uplogo:add_signal        ("mouse::leave", function () hide() end)
-    netUpWidget:add_signal   ("mouse::leave", function () hide() end)
+    
+    downlogo:buttons      (util.table.join(button({ }, 1, function () show() end)))
+    netDownWidget:buttons (util.table.join(button({ }, 1, function () show() end)))
+    uplogo:buttons        (util.table.join(button({ }, 1, function () show() end)))
+    netUpWidget:buttons   (util.table.join(button({ }, 1, function () show() end)))
     return {down_logo = downlogo, down_text = netDownWidget, up_logo = uplogo, up_text = netUpWidget}
 end
 

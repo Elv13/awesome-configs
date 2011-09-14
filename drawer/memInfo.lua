@@ -197,7 +197,7 @@ function repaint()
     mainMenu:add_wibox(processHeaderW,{height = 20 , width = 200})
     
     for i = 0, #(data.process or {}) do
-        if data.process[i]["name"] ~= nil then
+        if data.process ~= nil and data.process[i]["name"] ~= nil then
             local processW = wibox({ position = "free", screen = s,ontop = true})
             processW.visible = false
             local aProcess = capi.widget({type = "textbox"})
@@ -316,16 +316,18 @@ function new(s, args)
         toggleSensorBar()
     end)
     ))
+    
+    function toggle()
+        if not data.menu or data.menu.settings.visible == false then
+            refreshStat()
+            data.menu = repaint()
+            data.menu:toggle(true)
+        else
+            data.menu:toggle(false)
+        end
+    end
 
-    ramlogo:add_signal("mouse::enter", function ()
-        refreshStat()
-        data.menu = repaint()
-        data.menu:toggle(true)
-    end)
-
-    ramlogo:add_signal("mouse::leave", function ()
-        data.menu:toggle(false)
-    end)
+    
 
     memwidget = capi.widget({
         type  = 'textbox',
@@ -340,10 +342,9 @@ function new(s, args)
 
 
     vicious.register(memwidget, vicious.widgets.mem, '$1%')
-
-    memwidget:add_signal("mouse::enter", function ()
-        data.menu:toggle(true)
-    end)
+    
+    ramlogo:buttons   (util.table.join(button({ }, 1, function () toggle() end)))
+    memwidget:buttons (util.table.join(button({ }, 1, function () toggle() end)))
 
     memwidget:add_signal("mouse::leave", function ()
         data.menu:toggle(false)

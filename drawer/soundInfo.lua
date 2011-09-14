@@ -148,18 +148,15 @@ function new(mywibox3)
 
   --volumewidget.mouse_enter = function () soundInfo() end
 
-  volumewidget:add_signal("mouse::enter", function ()
+  volumewidget:buttons( util.table.join(button({ }, 1, function ()
       data.wibox.visible = true
-  end)
-
-  volumewidget:add_signal("mouse::leave", function ()
-    data.wibox.visible = false
-  end)
-
+  end)))
+  
   --volumewidget.mouse_leave = function () naughty.destroy(alsaInfo[3]) end
 
   volumewidget:buttons( util.table.join(
      button({ }, 1, function()
+          data.wibox.visible = not data.wibox.visible
 	  mywibox3.visible = not mywibox3.visible
 	  musicBarVisibility = true
 	  volumepixmap.visible = not volumepixmap.visible 
@@ -178,7 +175,8 @@ function new(mywibox3)
   volumepixmap.image = capi.image(config.data.iconPath .. "vol.png")
   volumepixmap:buttons( util.table.join(
       button({ }, 1, function()
-	  mywibox3.visible = not mywibox3.visible
+          data.wibox.visible = not data.wibox.visible
+	  --mywibox3.visible = not mywibox3.visible
 	  volumepixmap.visible = not volumepixmap.visible 
 	  volumewidget.visible = not volumewidget.visible 
       end),
@@ -190,13 +188,10 @@ function new(mywibox3)
       end)
   ))
 
-  volumepixmap:add_signal("mouse::enter", function ()
+  
+  volumepixmap:buttons( util.table.join(button({ }, 1, function ()
       data.wibox.visible = true
-  end)
-
-  volumepixmap:add_signal("mouse::leave", function ()
-    data.wibox.visible = false
-  end)
+  end)))
 
 
   vicious.register(volumewidget, amixer_volume_int, '$1%  | ')

@@ -28,8 +28,7 @@ local function stopGrabber()
     currentMenu:toggle(false)
     capi.keygrabber.stop()
     grabKeyboard = false
-    currentMenu  = nil
-    return false
+    currentMenu  = nil return false
 end
 
 local function getFilterWidget(aMenu)
@@ -299,6 +298,42 @@ function new(args)
       self.subMenu = aSubMenu
     end
     
+    local hideEverything = function () 
+        menu:toggle(false)
+        local aMenu = menu.settings.parent
+        while aMenu ~= nil do
+          aMenu:toggle(value)
+          aMenu = aMenu.settings.parent
+        end
+        if currentMenu == menu then
+            stopGrabber()
+        end
+      end
+      
+      local clickCommon = function (data, index)
+          if data["button"..index] ~= nil then
+              data["button"..index](self,data)
+          end
+          if data.noautohide == false then
+            hideEverything()
+          end
+      end
+      
+      function registerButton(aWibox,data)
+        aWibox:buttons( util.table.join(
+            button({ }, 1 , function() clickCommon(data,1 ) end),
+            button({ }, 2 , function() clickCommon(data,2 ) end),
+            button({ }, 3 , function() clickCommon(data,3 ) end),
+            button({ }, 4 , function() clickCommon(data,4 ) end),
+            button({ }, 5 , function() clickCommon(data,5 ) end),
+            button({ }, 6 , function() clickCommon(data,6 ) end),
+            button({ }, 7 , function() clickCommon(data,7 ) end),
+            button({ }, 8 , function() clickCommon(data,8 ) end),
+            button({ }, 9 , function() clickCommon(data,9 ) end),
+            button({ }, 10, function() clickCommon(data,10) end)
+        ))
+      end
+    
     function menu:add_item(args)
       local aWibox = wibox({ position = "free", visible = false, ontop = true, border_width = 1, border_color = beautiful.border_normal })
       local data = {
@@ -369,7 +404,7 @@ function new(args)
             currentMenu = self
             if type(data.subMenu) ~= "function" then
               self:toggle_sub_menu(data.subMenu,value,value)
-            elseif self.data.subMenu == nil then --Prevent memory leak
+            elseif data.subMenu == nil then --Prevent memory leak
               local aSubMenu = data.subMenu()
               aSubMenu.settings.x = self.settings["xPos"] + aSubMenu.settings.itemWidth
               aSubMenu.settings.y = self.settings["yPos"]
@@ -407,39 +442,7 @@ function new(args)
 
       aWibox.widgets = {{data.widgets.prefix,data.widgets.icon,data.widgets.wdg, {subArrow2,data.widgets.checkbox,data.widgets.suffix, layout = widget2.layout.horizontal.rightleft},data.addwidgets, layout = widget2.layout.horizontal.leftright}, layout = widget2.layout.vertical.flex }
       
-      local hideEverything = function () 
-        self:toggle(false)
-        local aMenu = self.settings.parent
-        while aMenu ~= nil do
-          aMenu:toggle(value)
-          aMenu = aMenu.settings.parent
-        end
-        if currentMenu == self then
-            stopGrabber()
-        end
-      end
-      
-      local clickCommon = function (index)
-          if data["button"..index] ~= nil then
-              data["button"..index](self,data)
-          end
-          if data.noautohide == false then
-            hideEverything()
-          end
-      end
-      
-      aWibox:buttons( util.table.join(
-        button({ }, 1 , function() clickCommon(1 ) end),
-        button({ }, 2 , function() clickCommon(2 ) end),
-        button({ }, 3 , function() clickCommon(3 ) end),
-        button({ }, 4 , function() clickCommon(4 ) end),
-        button({ }, 5 , function() clickCommon(5 ) end),
-        button({ }, 6 , function() clickCommon(6 ) end),
-        button({ }, 7 , function() clickCommon(7 ) end),
-        button({ }, 8 , function() clickCommon(8 ) end),
-        button({ }, 9 , function() clickCommon(9 ) end),
-        button({ }, 10, function() clickCommon(10) end)
-      ))
+      registerButton(aWibox, data)
       
       aWibox:add_signal("mouse::enter", function() toggleItem(true) end)
       aWibox:add_signal("mouse::leave", function() toggleItem(false) end)
@@ -448,16 +451,23 @@ function new(args)
     end
     
     function menu:add_wibox(wibox,args)
-        local data = {
-            widget = wibox,
-            hidden = false,
-            width  = args.width  or self.settings.itemWidth  , 
-            height = args.height or self.settings.itemHeight , 
+        local data     = {
+            widget     = wibox,
+            hidden     = false,
+            width      = args.width      or self.settings.itemWidth  , 
+            height     = args.height     or self.settings.itemHeight , 
+            button1    = args.onclick    or args.button1             ,
+            noautohide = args.noautohide or false                    ,
         }
+        for i=2, 10 do
+            data["button"..i] = args["button"..i]
+        end
             
         function data:hightlight(value)
             
         end
+        
+        registerButton(wibox,data)
         
         table.insert(self.items, data)
         

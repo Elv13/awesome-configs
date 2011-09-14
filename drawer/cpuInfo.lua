@@ -269,13 +269,6 @@ function new(screen, args)
     end)
   ))
 
-  cpulogo:add_signal("mouse::enter", function ()
-      data.wibox.visible = true
-  end)
-
-  cpulogo:add_signal("mouse::leave", function ()
-    data.wibox.visible = false
-  end)
 
   cpuwidget = capi.widget({
 		type = 'textbox',
@@ -291,13 +284,8 @@ function new(screen, args)
   
   vicious.register(cpuwidget, vicious.widgets.cpu,'$1%')
 
-  cpuwidget:add_signal("mouse::enter", function ()
-      data.wibox.visible = true
-  end)
-
-  cpuwidget:add_signal("mouse::leave", function ()
-    data.wibox.visible = false
-  end)
+  cpuwidget:buttons (util.table.join(button({ }, 1, function () data.wibox.visible = not data.wibox.visible end)))
+  cpulogo:buttons   (util.table.join(button({ }, 1, function () data.wibox.visible = not data.wibox.visible end)))
 	      
   cpugraphwidget = widget2.graph({ layout = widget2.layout.horizontal.rightleft })
   

@@ -1,19 +1,21 @@
 local setmetatable = setmetatable
-local io = io
-local os = os
-local string = string
-local beautiful = require("beautiful")
-local util = require("awful.util")
-local textclock = require("awful.widget.textclock")
-local margins = require("awful.widget.layout")
-local wibox = require("awful.wibox")
-local topbottom = require("awful.widget.layout.vertical")
-local vicious = require("vicious")
-local capi = { image = image,
-               screen = screen,
-               widget = widget,
-               mouse = mouse,
-               timer = timer}
+local io           = io
+local os           = os
+local string       = string
+local beautiful    = require( "beautiful"                    )
+local util         = require( "awful.util"                   )
+local textclock    = require( "awful.widget.textclock"       )
+local margins      = require( "awful.widget.layout"          )
+local wibox        = require( "awful.wibox"                  )
+local button       = require( "awful.button"                 )
+local topbottom    = require( "awful.widget.layout.vertical" )
+local vicious      = require( "vicious"                      )
+
+local capi = { image  = image  ,
+               screen = screen ,
+               widget = widget ,
+               mouse  = mouse  ,
+               timer  = timer  }
 
 module("drawer.dateinfo")
 
@@ -94,12 +96,12 @@ local function createDrawer()
       weatherInfo = f:read("*all")
       f:close()
     
-      weatherInfo = string.gsub(weatherInfo, "@cloud", "☁")
-      weatherInfo = string.gsub(weatherInfo, "@sun", "✸")
-      weatherInfo = string.gsub(weatherInfo, "@moon", "☪")
-      weatherInfo = string.gsub(weatherInfo, "@rain", "☔")--☂
-      weatherInfo = string.gsub(weatherInfo, "@snow", "❄")
-      weatherInfo = string.gsub(weatherInfo, "deg", "°")
+      weatherInfo = string.gsub(weatherInfo, "@cloud", "☁" )
+      weatherInfo = string.gsub(weatherInfo, "@sun", "✸"   )
+      weatherInfo = string.gsub(weatherInfo, "@moon", "☪"  )
+      weatherInfo = string.gsub(weatherInfo, "@rain", "☔"  )--☂
+      weatherInfo = string.gsub(weatherInfo, "@snow", "❄"  )
+      weatherInfo = string.gsub(weatherInfo, "deg", "°"    )
       weatherInfo2.text = weatherInfo or "N/A"
     end
   end
@@ -148,49 +150,49 @@ local function createDrawer()
   --testImage2.image = capi.image("/tmp/1600.jpg")
   margins.margins[testImage2] = {left = 5, right = 25}
   
-  testImage3       = capi.widget({ type = "imagebox"})
-  testImage3.image = capi.image("/tmp/flower_crop.jpg")
+  testImage3                  = capi.widget({ type = "imagebox"})
+  testImage3.image            = capi.image("/tmp/flower_crop.jpg")
   margins.margins[testImage3] = {left = 10, right = 25, top = 10}
   
+  local calendarHeader        = capi.widget({type = "textbox"})
+  calendarHeader.text         = " <span color='".. beautiful.bg_normal .."'><b><tt>CALENDAR</tt></b></span> "
+  calendarHeader.bg           = beautiful.fg_normal
+  calendarHeader.width        = 147
+  calendarHeader.height       = 21
+  
+  local internationalHeader   = capi.widget({type = "textbox"})
+  internationalHeader.text    = " <span color='".. beautiful.bg_normal .."'><b><tt>INTERNATIONAL</tt></b></span> "
+  internationalHeader.bg      = beautiful.fg_normal
+  internationalHeader.width   = 147
+  
+  local satelliteHeader       = capi.widget({type = "textbox"})
+  satelliteHeader.text        = " <span color='".. beautiful.bg_normal .."'><b><tt>SATELLITE</tt></b></span> "
+  satelliteHeader.bg          = beautiful.fg_normal
+  satelliteHeader.width       = 147
+  
+  local forecastHeader        = capi.widget({type = "textbox"})
+  forecastHeader.text         = " <span color='".. beautiful.bg_normal .."'><b><tt>FORCAST</tt></b></span> "
+  forecastHeader.bg           = beautiful.fg_normal
+  forecastHeader.width        = 147
+  
+  local spacer96              = capi.widget({type = "textbox"})
+  spacer96.text               = "\n\n"
+  spacer96.width              = 147
+  
   vicious.register(timeInfo,  testFunc, '$1',1)
-  
-  local calendarHeader = capi.widget({type = "textbox"})
-  calendarHeader.text = " <span color='".. beautiful.bg_normal .."'><b><tt>CALENDAR</tt></b></span> "
-  calendarHeader.bg = beautiful.fg_normal
-  calendarHeader.width = 147
-  calendarHeader.height = 21
-  
-  local internationalHeader = capi.widget({type = "textbox"})
-  internationalHeader.text = " <span color='".. beautiful.bg_normal .."'><b><tt>INTERNATIONAL</tt></b></span> "
-  internationalHeader.bg = beautiful.fg_normal
-  internationalHeader.width = 147
-  
-  local satelliteHeader = capi.widget({type = "textbox"})
-  satelliteHeader.text = " <span color='".. beautiful.bg_normal .."'><b><tt>SATELLITE</tt></b></span> "
-  satelliteHeader.bg = beautiful.fg_normal
-  satelliteHeader.width = 147
-  
-  local forecastHeader = capi.widget({type = "textbox"})
-  forecastHeader.text = " <span color='".. beautiful.bg_normal .."'><b><tt>FORCAST</tt></b></span> "
-  forecastHeader.bg = beautiful.fg_normal
-  forecastHeader.width = 147
-  
-  local spacer96 = capi.widget({type = "textbox"})
-  spacer96.text = "\n\n"
-  spacer96.width = 147
 
-  data.wibox.widgets = {
-      calendarHeader,
-      calInfo,
-      internationalHeader,
-      timeInfo,
-      satelliteHeader,
-      testImage2,
-      testImage3,
-      spacer96,
-      forecastHeader,
-      weatherInfo2,
-      layout = margins.vertical.topbottom
+  data.wibox.widgets =                    {
+      calendarHeader                      ,
+      calInfo                             ,
+      internationalHeader                 ,
+      timeInfo                            ,
+      satelliteHeader                     ,
+      testImage2                          ,
+      testImage3                          ,
+      spacer96                            ,
+      forecastHeader                      ,
+      weatherInfo2                        ,
+      layout = margins.vertical.topbottom ,
   }
 
   
@@ -206,9 +208,7 @@ function new(screen, args)
   
   mytextclock = textclock({ align = "right" })
 
-  mytextclock:add_signal("mouse::enter", function() data.wibox.visible = not data.wibox.visible end)
-
-  mytextclock:add_signal("mouse::leave", function() data.wibox.visible = not data.wibox.visible end)
+  mytextclock:buttons (util.table.join(button({ }, 1, function () data.wibox.visible = not data.wibox.visible end)))
   
   return mytextclock
 end
