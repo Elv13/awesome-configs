@@ -1,6 +1,7 @@
 local setmetatable = setmetatable
 local io           = io
 local pairs        = pairs
+local ipairs       = ipairs
 local print        = print
 local loadstring   = loadstring
 local next         = next
@@ -17,6 +18,7 @@ local util         = require("awful.util")
 local capi = { image  = image  ,
                screen = screen ,
                widget = widget ,
+               client = client ,
                mouse  = mouse  ,
 	       timer  = timer  }
 
@@ -208,15 +210,26 @@ function repaint()
             
             local aMem = capi.widget({type = "textbox"})
             aMem.text = data.process[i]["mem"]
-            aMem.width = 53
+            aMem.width = 70
             aMem.bg = "#0F2051"
             aMem.border_width = 1
             aMem.border_color = beautiful.bg_normal
+            aMem.align = "right"
+            
+            for k2,v2 in ipairs(capi.client.get()) do
+                if v2.class:lower() == data.process[i]["name"]:lower() or v2.name:lower():find(data.process[i]["name"]:lower()) ~= nil then
+                    aMem.bg_image = v2.icon
+                    break 
+                end
+            end
             
             testImage2       = capi.widget({ type = "imagebox"})
             testImage2.image = capi.image(config.data.iconPath .. "kill.png")
             
-            processW.widgets = {aMem, aProcess, {testImage2, layout = widget2.layout.horizontal.rightleft}, layout = widget2.layout.horizontal.leftright}
+            processW.widgets = {aMem, {testImage2, layout = widget2.layout.horizontal.rightleft}, layout = widget2.layout.horizontal.leftright,{
+                                aProcess , 
+                                layout = widget2.layout.horizontal.flex,
+                                }}
             mainMenu:add_wibox(processW,{height = 20, width = 200})
         end
     end
@@ -290,8 +303,8 @@ function new(s, args)
     
     ramW.widgets = {
                         {totalLabel,totalLabel,usedLabel,freeLabel, layout = widget2.layout.horizontal.leftright},
-                        {ramLabel,totalRam,usedRam,freeRam, layout = widget2.layout.horizontal.leftright},
-                        {swapLabel,totalSwap,usedSwap,freeSwap, layout = widget2.layout.horizontal.leftright},
+                        {ramLabel  ,totalRam  ,usedRam  ,freeRam  , layout = widget2.layout.horizontal.leftright},
+                        {swapLabel ,totalSwap ,usedSwap ,freeSwap , layout = widget2.layout.horizontal.leftright},
                         layout = widget2.layout.vertical.flex
                     }
                     

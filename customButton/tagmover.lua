@@ -56,7 +56,7 @@ function new(screen, args)
     
     for i=1,capi.screen.count() do
       screenMenu:add_item({text=i, onclick = function() 
-                                                utils.tag_to_screen(data[id].selected,i)
+                                                shifty.tagtoscr(i,data[id].selected)
                                                 screenMenu:toggle()
                                              end})
     end
@@ -80,7 +80,7 @@ function new(screen, args)
 	    if screen2 > capi.screen.count() then
 	      screen2 = 1
 	    end
-	    utils.tag_to_screen(data[id].selected, screen2)
+	    shifty.tagtoscr(screen2,data[id].selected)
 	    data[id].selected = tag.selected(screen)
 	  end
       end),
@@ -93,7 +93,7 @@ function new(screen, args)
 	    if screen2 > capi.screen.count() then
 	      screen2 = 1
 	    end
-	    utils.tag_to_screen(data[id].selected, screen2)
+	    shifty.tagtoscr(screen2,data[id].selected)
 	  end
       end),
       button({ }, 5, function()
@@ -102,7 +102,7 @@ function new(screen, args)
 	    if screen2 == 0 then
 	      screen2 = capi.screen.count()
 	    end
-	    utils.tools.tag_to_screen(data[id].selected, screen2)
+	    shifty.tagtoscr(screen2,data[id].selected)
 	  end
       end)
     ))

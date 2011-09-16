@@ -4,14 +4,14 @@ require( "beautiful"    )
 require( "naughty"      )
 require( "shifty"       )
 require( "vicious"      )
+require( "panel"        )
+require( "monkeyPatch"  )
+require( "config"       )
+require( "widgets"      )
+require( "drawer"       )
+require( "utils"        )
 require( "customMenu"   )
 require( "customButton" )
-require( "drawer"       )
-require( "widgets"      )
-require( "utils"        )
-require( "panel"        )
-require( "config"       )
-require( "monkeyPatch"  )
 
 -- Cache result for probe used more than once
 vicious.cache( vicious.widgets.net )
@@ -35,25 +35,32 @@ filemanager     = { cmd = "dolphin", class = "Dolphin" }
 modkey          = "Mod4"
 
 -- Various configuration options
-config.data = {
-  showTitleBar  = false,
-  themeName     = "darkBlue",
-  noNotifyPopup = true, --TODO
-  useListPrefix = true,
-  deviceOnDesk  = true, 
-  desktopIcon   = false, --TODO
-  advTermTB     = true, 
-  scriptPath    = awful.util.getdir("config") .. "/Scripts/",
-  listPrefix    = {'①','②','③','④','⑤','⑥','⑦','⑧','⑨','⑩','⑪','⑫','⑬','⑭','⑮','⑯','⑰','⑱','⑲','⑳'}
+config.data = {                                                                                      --
+  showTitleBar  = false                                                                               ,
+  themeName     = "darkBlue"                                                                          ,
+  noNotifyPopup = true                                                                                , --TODO
+  useListPrefix = true                                                                                ,
+  deviceOnDesk  = true                                                                                , 
+  desktopIcon   = false                                                                               , --TODO
+  advTermTB     = true                                                                                , 
+  scriptPath    = awful.util.getdir("config") .. "/Scripts/"                                          ,
+  listPrefix    = {'①','②','③','④','⑤','⑥','⑦','⑧','⑨','⑩','⑪','⑫','⑬','⑭','⑮','⑯','⑰','⑱','⑲','⑳'} ,
+  scr           = {                                                                                  --
+    pri         = 1                                                                                   ,
+    sec         = 2                                                                                   ,
+    music       = 3                                                                                   ,
+    media       = 4                                                                                   ,
+    irc         = 5                                                                                   ,
+  }                                                                                                   ,
 }
 
 -- Shifty config
 shifty.config.defaults = {
-  layout       = awful.layout.suit.tile,
-  ncol         = 1,
-  mwfact       = 0.60,
-  floatBars    = true,
+  layout       = awful.layout.suit.tile ,
+  ncol         = 1                      ,
+  mwfact       = 0.60                   ,
 }
+shifty.config.float_bars = true   
 
 -- Load the theme
 config.data.themePath = awful.util.getdir("config") .. "/theme/" .. config.data.themeName .. "/"
@@ -106,7 +113,7 @@ netinfo                = drawer.netInfo           ( nil                         
 soundWidget            = drawer.soundInfo         ( wiboxTop3                          )
 
 -- Create the keyboard layout switcher, feel free to add your contry and push it to master
-keyboardSwitcherWidget = widgets.keyboardSwitcher  ( nil                                )
+keyboardSwitcherWidget = widgets.keyboardSwitcher ( nil                                )
 
 -- Create a systray
 mysystray              = widget                   ( { type = "systray"               } )
@@ -225,60 +232,60 @@ for s = 1, screen.count() do
   -- Top wibox widgets
   wiboxTop[s].widgets = { 
       {
-      --    WIDGET                                                                 FALLBACK
-          mytaglist[s]                                                              or nil,
-          addTag                                                                    or nil,
-          delTag[s]                                                                 or nil,
-          movetagL[s]                                                               or nil,
-          movetagR[s]                                                               or nil,
-          layoutmenu[s]                                                             or nil,
-          layout = awful.widget.layout.horizontal.leftright                         -------
+      --    WIDGET                                                                                   FALLBACK
+          mytaglist  [s]                                                                              or nil,
+          addTag                                                                                      or nil,
+          delTag     [s]                                                                              or nil,
+          movetagL   [s]                                                                              or nil,
+          movetagR   [s]                                                                              or nil,
+          layoutmenu [s]                                                                              or nil,
+          layout = awful.widget.layout.horizontal.leftright                                           -------
       },
-      --           RULES                                       WIDGET              FALLBACK
-      ( s == 2 or screen.count() == 1                  ) and mytextclock            or nil,
-      ( s == 2 or screen.count() == 1                  ) and kgetwidget             or nil,
-      ( s == 2 or screen.count() == 1                  ) and kgetpixmap             or nil,
-      ((s == 2 or screen.count() == 1) and soundWidget ) and soundWidget.wid        or nil,
-      ((s == 2 or screen.count() == 1) and soundWidget ) and soundWidget.pix        or nil,
-      ( s == 2 or screen.count() == 1                  ) and spacer4                or nil,
-      ((s == 2 or screen.count() == 1) and netinfo     ) and netinfo.up_text        or nil,
-      ((s == 2 or screen.count() == 1) and netinfo     ) and netinfo.up_logo        or nil,
-      ((s == 2 or screen.count() == 1) and netinfo     ) and netinfo.down_text      or nil,
-      ((s == 2 or screen.count() == 1) and netinfo     ) and netinfo.down_logo      or nil,
-      ( s == 2 or screen.count() == 1                  ) and spacer2                or nil,
-      ((s == 2 or screen.count() == 1) and meminfo     ) and meminfo.bar            or nil,
-      ((s == 2 or screen.count() == 1) and meminfo     ) and meminfo.text           or nil,
-      ((s == 2 or screen.count() == 1) and meminfo     ) and meminfo.logo           or nil,
-      ( s == 2 or screen.count() == 1                  ) and spacer2                or nil,
-      ((s == 2 or screen.count() == 1) and cpuinto     ) and cpuinfo.graph          or nil,
-      ((s == 2 or screen.count() == 1) and cpuinfo     ) and cpuinfo.text           or nil,
-      ((s == 2 or screen.count() == 1) and cpuinfo     ) and cpuinfo.logo           or nil,
-      ( s == 2 or screen.count() == 1                  ) and spacer3                or nil,
-      layout = awful.widget.layout.horizontal.rightleft,                            ------
-      {                                                                             ------
-        notifibox[s]                                                                or nil,
-        layout = awful.widget.layout.horizontal.flex                                ------
-      },                                                                            ------
+      --                             RULES                      EXIST            WIDGET              FALLBACK
+      ( s == config.data.scr.sec or screen.count() == 1                  ) and mytextclock            or nil,
+      ( s == config.data.scr.sec or screen.count() == 1                  ) and kgetwidget             or nil,
+      ( s == config.data.scr.sec or screen.count() == 1                  ) and kgetpixmap             or nil,
+      ((s == config.data.scr.sec or screen.count() == 1) and soundWidget ) and soundWidget.wid        or nil,
+      ((s == config.data.scr.sec or screen.count() == 1) and soundWidget ) and soundWidget.pix        or nil,
+      ( s == config.data.scr.sec or screen.count() == 1                  ) and spacer4                or nil,
+      ((s == config.data.scr.sec or screen.count() == 1) and netinfo     ) and netinfo.up_text        or nil,
+      ((s == config.data.scr.sec or screen.count() == 1) and netinfo     ) and netinfo.up_logo        or nil,
+      ((s == config.data.scr.sec or screen.count() == 1) and netinfo     ) and netinfo.down_text      or nil,
+      ((s == config.data.scr.sec or screen.count() == 1) and netinfo     ) and netinfo.down_logo      or nil,
+      ( s == config.data.scr.sec or screen.count() == 1                  ) and spacer2                or nil,
+      ((s == config.data.scr.sec or screen.count() == 1) and meminfo     ) and meminfo.bar            or nil,
+      ((s == config.data.scr.sec or screen.count() == 1) and meminfo     ) and meminfo.text           or nil,
+      ((s == config.data.scr.sec or screen.count() == 1) and meminfo     ) and meminfo.logo           or nil,
+      ( s == config.data.scr.sec or screen.count() == 1                  ) and spacer2                or nil,
+      ((s == config.data.scr.sec or screen.count() == 1) and cpuinto     ) and cpuinfo.graph          or nil,
+      ((s == config.data.scr.sec or screen.count() == 1) and cpuinfo     ) and cpuinfo.text           or nil,
+      ((s == config.data.scr.sec or screen.count() == 1) and cpuinfo     ) and cpuinfo.logo           or nil,
+      ( s == config.data.scr.sec or screen.count() == 1                  ) and spacer3                or nil,
+      layout = awful.widget.layout.horizontal.rightleft,                                              ------
+      {                                                                                               ------
+        notifibox[s]                                                                                  or nil,
+        layout = awful.widget.layout.horizontal.flex                                                  ------
+      },                                                                                              ------
   }
   
   -- Bottom wibox widgets
   wiboxBot[s].widgets = {
     --           RULES                                       WIDGET                FALLBACK
-    ( s == 1                                           ) and applicationMenu        or nil,
-    ( s == 1                                           ) and placesMenu             or nil,
-    ( s == 1                                           ) and recentMenu             or nil,
-    ( s == 1                                           ) and launcher               or nil,
-    ( s == 1                                           ) and desktopPix             or nil,
-    promptbox[s]                                                                    or nil,
-    spacer3                                                                         or nil,
-    {                                                                               ------
-      (s == 1                                          ) and keyboardSwitcherWidget or nil,
-      spacer3                                                                       or nil,
-      (s == 1                                          ) and mysystray              or nil,
-      layout = awful.widget.layout.horizontal.rightleft,                            ------
-    },                                                                              ------
-    layout = awful.widget.layout.horizontal.leftright,                              ------
-    mytasklist[s]                                                                   or nil,
+    ( s == config.data.scr.pri                                           ) and applicationMenu        or nil,
+    ( s == config.data.scr.pri                                           ) and placesMenu             or nil,
+    ( s == config.data.scr.pri                                           ) and recentMenu             or nil,
+    ( s == config.data.scr.pri                                           ) and launcher               or nil,
+    ( s == config.data.scr.pri                                           ) and desktopPix             or nil,
+    promptbox[s]                                                                                      or nil,
+    spacer3                                                                                           or nil,
+    {                                                                                                 ------
+      (s == config.data.scr.pri                                          ) and keyboardSwitcherWidget or nil,
+      spacer3                                                                                         or nil,
+      (s == config.data.scr.pri                                          ) and mysystray              or nil,
+      layout = awful.widget.layout.horizontal.rightleft,                                              ------
+    },                                                                                                ------
+    layout = awful.widget.layout.horizontal.leftright,                                                ------
+    mytasklist[s]                                                                                     or nil,
   }  
 end
 

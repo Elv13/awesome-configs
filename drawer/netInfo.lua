@@ -27,6 +27,7 @@ module("drawer.netInfo")
 local data             = {}
 local connectionWidget = {}
 local protWidget       = {}
+local protCountWidget  = {}
 local appWidget        = {}
 local connectionInfo   = {}
 local protocolStat     = {}
@@ -128,10 +129,27 @@ local function repaint()
     if data.connectionInfo ~= nil then
         for i=0 , #(data.connectionInfo or {}) do
             if i < 10 then
-                connectionWidget[i].application.text = " [".. (data.connectionInfo[i]['protocol']    or "").."]"
-                connectionWidget[i].protocol.text    =        (data.connectionInfo[i]['application'] or "")
+                connectionWidget[i].application.text =        (data.connectionInfo[i]['protocol'] or "")
                 connectionWidget[i].address.text     = " " .. (data.connectionInfo[i]['site']        or "")
                 totalCount = totalCount +1
+                
+                local found = false
+                for k2,v2 in ipairs(capi.client.get()) do
+                    if v2.class:lower() == data.connectionInfo[i]['application']:lower() or v2.name:lower():find(data.connectionInfo[i]['application']:lower()) ~= nil then
+                        connectionWidget[i].protocol.bg_image = v2.icon
+                        connectionWidget[i].protocol.bg_resize = true
+                        found = true
+                        break 
+                    end
+                end
+                
+                if found == false then
+                    connectionWidget[i].protocol.text =  (data.connectionInfo[i]['application']    or "")
+                    connectionWidget[i].protocol.bg_image = nil
+                else
+                    connectionWidget[i].protocol.text = ""
+                end
+                
             end
             appStat[data.connectionInfo[i]['application'] ]   = (protocolStat[data.connectionInfo[i]['application'] ] or 0) + 1
             protocolStat[data.connectionInfo[i]['protocol'] ] = (protocolStat[data.connectionInfo[i]['protocol'   ] ] or 0) + 1
@@ -147,7 +165,8 @@ local function repaint()
     local count =1
     for v, i in next, protocolStat do
         if count < 10 then
-            protWidget[count].text = " " .. v.."("..i..")"
+            protCountWidget[count].text = "x"..i
+            protWidget[count].text = " " .. v
             mainMenu:add_wibox(protWidgetW[count],{height = 20, width = 200})
             count = count +1
         end
@@ -160,9 +179,9 @@ local function repaint()
         if count < 10 then
             appWidget[count].app2.text = " " .. v .."("..i..")"
             for k2,v2 in ipairs(capi.client.get()) do
-                print(v)
                 if v2.class:lower() == v:lower() or v2.name:lower():find(v:lower()) ~= nil then
                     appWidget[count].appIcon.bg_image = v2.icon
+                    appWidget[count].appIcon.bg_resize = true
                     break 
                 end
             end
@@ -266,12 +285,12 @@ function new(screen, args)
     
     for i=0 , 10 do
         local protocol             = capi.widget({type = "textbox"})
-        protocol.width             = 40
+        protocol.width             = 25
         protocol.bg                = "#0F2051"
         protocol.border_width      = 1
         protocol.border_color      = beautiful.bg_normal
         local application          = capi.widget({type = "textbox"})
-        application.width          = 25
+        application.width          = 40
         application.bg             = "#0F2051"
         application.border_width   = 1
         application.border_color   = beautiful.bg_normal
@@ -308,11 +327,14 @@ function new(screen, args)
     end
     
     for i=1 , 10 do
-        local protocol3        = capi.widget({type = "textbox"})
-        protWidget[i]          = protocol3
-        protWidgetW[i]         = wibox({ position = "free" , screen = s , ontop = true})
-        protWidgetW[i].visible = false
-        protWidgetW[i].widgets = {protocol3,layout = widget2.layout.horizontal.leftright}
+        local protocol3          = capi.widget({type = "textbox"})
+        protCountWidget[i]       = capi.widget({type = "textbox"})
+        protCountWidget[i].bg    = "#0F2051"
+        protCountWidget[i].width = 20
+        protWidget[i]            = protocol3
+        protWidgetW[i]           = wibox({ position = "free" , screen = s , ontop = true})
+        protWidgetW[i].visible   = false
+        protWidgetW[i].widgets   = {protCountWidget[i],protocol3,layout = widget2.layout.horizontal.leftright}
     end
 
     function show()
