@@ -8,6 +8,7 @@ local beautiful = require("beautiful")
 local util = require("awful.util")
 local config = require("config")
 local vicious = require("vicious")
+local desktopGrid = require("widgets.layout.desktopLayout")
 local capi = { image = image,
                widget = widget}
 local widget = require("awful.widget")
@@ -58,7 +59,8 @@ function add_device(args)
   
   local relY = 50 + 100 * (#devices)
   
-  mywibox19:geometry({ width = 230, height = 52, x =10, y = relY})
+  mywibox19:geometry({ width = 230, height = 52, x =10, y = 99})
+  desktopGrid.addWidget(mywibox19,{screen = 1, onclick = function() util.spawn("dolphin "..mountPoint) end})
   --mywibox19.free = true
   --awful.wibox.set_free(mywibox19,true)
   
@@ -73,12 +75,6 @@ function add_device(args)
   elseif devType == "home" then
     iconTest.image = capi.image(config.data.iconPath .. "home.png")
   end
-  
-  iconTest:buttons( util.table.join(
-    button({ }, 1, function()
-        util.spawn("dolphin "..mountPoint) 
-    end)
-  ))
   
   
   local iconTest1 = capi.widget({ type = "imagebox"})

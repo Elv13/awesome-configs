@@ -200,8 +200,8 @@ end
 
   
 function new(screen, args)
-  data.wibox = wibox({ position = "free", screen = capi.screen.count() })
-  data.wibox.ontop = true
+  data.wibox         = wibox({ position = "free", screen = capi.screen.count() })
+  data.wibox.ontop   = true
   data.wibox.visible = false
   createDrawer() 
   data.wibox:geometry({ width = 147, height = 994, x = capi.screen[capi.mouse.screen].geometry.width - 147 + capi.screen[capi.mouse.screen].geometry.x, y = 20})

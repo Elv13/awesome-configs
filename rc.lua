@@ -41,7 +41,7 @@ config.data = {                                                                 
   noNotifyPopup = true                                                                                , --TODO
   useListPrefix = true                                                                                ,
   deviceOnDesk  = true                                                                                , 
-  desktopIcon   = false                                                                               , --TODO
+  desktopIcon   = true                                                                                , 
   advTermTB     = true                                                                                , 
   scriptPath    = awful.util.getdir("config") .. "/Scripts/"                                          ,
   listPrefix    = {'①','②','③','④','⑤','⑥','⑦','⑧','⑨','⑩','⑪','⑫','⑬','⑭','⑮','⑯','⑰','⑱','⑲','⑳'} ,
@@ -78,6 +78,9 @@ shifty.modkey          = modkey
 
 -- Start the URXVT integration library watchdog
 --urxvtIntegration                                ( nil                                )
+
+-- Start the desktop layout manager
+desktopGrid            = widgets.layout.desktopLayout({padBottom=20,padTop=35,padDef=8})
 
 -- Create the application menu
 applicationMenu        = customMenu.application   ( nil                                )
@@ -293,6 +296,11 @@ end
 if config.data.deviceOnDesk == true then
   widgets.devices()
 end
+if config.data.desktopIcon == true then
+    for i=1,20 do
+        widgets.desktopIcon()
+    end
+end
 
 
 shifty.taglist = mytaglist
@@ -387,3 +395,5 @@ for s = 1, screen.count() do
     end
   end)
 end
+
+widgets.layout.desktopLayout.draw()

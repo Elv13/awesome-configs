@@ -8,6 +8,7 @@ local tag = require("awful.tag")
 local util = require("awful.util")
 local config = require("config")
 local vicious = require("vicious")
+local desktopGrid = require("widgets.layout.desktopLayout")
 local capi = { image = image,
                widget = widget,
                screen = screen}
@@ -33,6 +34,7 @@ function new(screen2, args)
 
   local aWibox = wibox({ position = "free", screen = s})
   aWibox:geometry({ width = 400, height = 200, x = xPos, y = 40})
+  desktopGrid.addCornerWidget(aWibox,config.data.scr.sec or config.data.scr.pri)
   --aWibox:rounded_corners(10)
   wibox.rounded_corners(aWibox,10)
   aWibox.bg = beautiful.bg_normal.."AA"
