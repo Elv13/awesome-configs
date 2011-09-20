@@ -59,6 +59,7 @@ shifty.config.defaults = {
   layout       = awful.layout.suit.tile ,
   ncol         = 1                      ,
   mwfact       = 0.60                   ,
+  floatBars    = true                   ,
 }
 shifty.config.float_bars = true   
 
