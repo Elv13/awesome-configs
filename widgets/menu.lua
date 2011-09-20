@@ -404,7 +404,7 @@ function new(args)
             currentMenu = self
             if type(data.subMenu) ~= "function" then
               self:toggle_sub_menu(data.subMenu,value,value)
-            elseif data.subMenu == nil then --Prevent memory leak
+            elseif data.subMenu ~= nil then
               local aSubMenu = data.subMenu()
               aSubMenu.settings.x = self.settings["xPos"] + aSubMenu.settings.itemWidth
               aSubMenu.settings.y = self.settings["yPos"]

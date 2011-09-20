@@ -267,11 +267,11 @@ shifty.config.apps = {
 { match = { "" }                                                                ,
   buttons = awful.util.table.join(                                             --
       awful.button({        }, 1, function (c) client.focus = c; c:raise() end) ,
-      awful.button({ modkey }, 1, awful.mouse.client.move)                      ,
-      awful.button({ modkey }, 3, awful.mouse.client.resize)                    ,
-      awful.button({ modkey }, 2, function (c) clientMenu:toggle(c) end)        ,
-      awful.button({ modkey }, 9, awful.mouse.client.move)                      ,
-      awful.button({ modkey }, 8, awful.mouse.client.resize))                   ,
+      awful.button({ modkey }, 1, awful.mouse.client.move                     ) ,
+      awful.button({ modkey }, 3, awful.mouse.client.resize                   ) ,
+      awful.button({ modkey }, 2, customMenu.clientMenu.toggle                ) ,
+      awful.button({ modkey }, 9, awful.mouse.client.move                     ) ,
+      awful.button({ modkey }, 8, awful.mouse.client.resize)                  ) ,
   titlebar = false                                                              ,
 }                                                                               ,
 ---------------------------------------------------------------------------------
