@@ -31,7 +31,7 @@ module("widgets.layout.desktopLayout")
 
 local function usableSpace(s)
     local h = capi.screen[(#capi.screen >= s) and s or 1].geometry.height - padding.top-padding.bottom
-    local w = capi.screen[(#capi.screen >= s) and s or 1].geometry.width-padding.left-padding.left
+    local w = capi.screen[(#capi.screen >= s) and s or 1].geometry.width  - padding.left-padding.left
     return {width = w, height = h}
 end
 

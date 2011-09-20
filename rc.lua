@@ -63,9 +63,10 @@ shifty.config.defaults = {
 shifty.config.float_bars = true   
 
 -- Load the theme
+config.load()
 config.data.themePath = awful.util.getdir("config") .. "/theme/" .. config.data.themeName .. "/"
-config.data.iconPath  = config.data.themePath .. "/Icon/"
-beautiful.init(config.data.themePath  .."/theme.lua")
+config.data.iconPath  = config.data.themePath       .. "/Icon/"
+beautiful.init(config.data.themePath                .. "/theme.lua")
   
 -- Create the panels
 for s = 1, screen.count() do
@@ -397,3 +398,4 @@ for s = 1, screen.count() do
 end
 
 widgets.layout.desktopLayout.draw()
+config.save()
