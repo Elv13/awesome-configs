@@ -36,7 +36,7 @@ modkey          = "Mod4"
 
 -- Various configuration options
 config.data = {                                                                                      --
-  showTitleBar  = false                                                                               ,
+  showTitleBar  = true                                                                                ,
   themeName     = "darkBlue"                                                                          ,
   noNotifyPopup = true                                                                                , --TODO
   useListPrefix = true                                                                                ,
@@ -275,7 +275,7 @@ for s = 1, screen.count() do
   
   -- Bottom wibox widgets
   wiboxBot[s].widgets = {
-    --           RULES                                       WIDGET                FALLBACK
+    --           RULES                                                         WIDGET                FALLBACK
     ( s == config.data.scr.pri                                           ) and applicationMenu        or nil,
     ( s == config.data.scr.pri                                           ) and placesMenu             or nil,
     ( s == config.data.scr.pri                                           ) and recentMenu             or nil,
@@ -293,6 +293,41 @@ for s = 1, screen.count() do
     mytasklist[s]                                                                                     or nil,
   }  
 end
+
+-- Titlebar widgets
+widgets.titlebar.add_signal("create",function(widgets,titlebar)
+    local menuTb = widget({type="textbox"})
+    menuTb.text  = "[MENU]"
+
+    widgets.wibox.widgets = {                                      --
+        {                                                          --
+          widgets.icon                                              ,
+          menuTb                                                    ,
+          layout = awful.widget.layout.horizontal.leftright         ,
+        }                                                           ,
+        widgets.buttons.close.widget                                ,
+        widgets.buttons.ontop.widget                                , 
+        widgets.buttons.maximized.widget                            ,
+        widgets.buttons.sticky.widget                               ,
+        widgets.buttons.floating.widget                             ,
+        layout = awful.widget.layout.horizontal.rightleft           ,
+        widgets.tabbar                                              ,
+    }
+          
+    local client = nil
+    titlebar:add_signal('client_changed', function (c)
+        client = c
+    end)
+    
+    menuTb:buttons( awful.util.table.join(
+    awful.button({ }, 1, function()
+        if client ~= nil then
+            customMenu.clientMenu.menu().settings.x = client:geometry().x
+            customMenu.clientMenu.menu().settings.y = client:geometry().y+16
+            customMenu.clientMenu.toggle(client)
+        end
+    end)))
+end)
 
 -- Add the drives list on the desktop
 if config.data.deviceOnDesk == true then

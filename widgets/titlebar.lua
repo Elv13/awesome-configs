@@ -27,7 +27,22 @@ local config         = require( "config"               )
 
 module("widgets.titlebar")
 
-local data = setmetatable({}, { __mode = 'k' })
+local data     = setmetatable({}, { __mode = 'k' })
+local leftW    = nil
+local rightW   = nil
+local buttonsA = nil
+local signals  = {}
+
+function add_signal(name,func)
+    if not signals[name] then
+        signals[name] = {}
+    end
+    table.insert(signals[name],func)
+end
+
+function buttons(args)
+    buttonsA = args
+end
 
 local function create(c, args)
     if not c or (c.type ~= "normal" and c.type ~= "dialog") then return end
@@ -46,6 +61,14 @@ local function create(c, args)
     titlebar.font      = args.font     or theme.titlebar_font      or theme.font
     titlebar.width     = args.width    --
     data[c]            = titlebar
+    
+    local dataSignals = {}
+    function titlebar:add_signal(name,func)
+        if not dataSignals[name] then
+            dataSignals[name] = {}
+        end
+        table.insert(dataSignals[name],func)
+    end
     
     --Buttons creation
     function titlebar:button_group(args)
@@ -129,19 +152,25 @@ local function create(c, args)
     
     local appicon = capi.widget({type="imagebox"})
     
-    tb.widgets = {                            --
-        {                                     --
-          appicon                              ,
-          layout = layout.horizontal.leftright ,
-        }                                      ,
-        buttons.close.widget                   ,
-        buttons.ontop.widget                   , 
-        buttons.maximized.widget               ,
-        buttons.sticky.widget                  ,
-        buttons.floating.widget                ,
-        layout = layout.horizontal.rightleft   ,
-        tl                                     ,
-    }
+    local userWidgets 
+    if #(signals['create'] or {}) > 0 then
+        userWidgets = signals['create'][1]({buttons=buttons,icon=appicon,tabbar=tl,wibox=tb},titlebar)
+    end
+    if not tb.widgets then
+        tb.widgets =                {             --
+            {                                     --
+            appicon                                ,
+            layout = layout.horizontal.leftright   ,
+            }                                      ,
+            buttons.close.widget                   ,
+            buttons.ontop.widget                   , 
+            buttons.maximized.widget               ,
+            buttons.sticky.widget                  ,
+            buttons.floating.widget                ,
+            layout = layout.horizontal.rightleft   ,
+            tl                                     ,
+        }
+    end
     
     function titlebar:update(c,event)
         if c.titlebar and titlebar then
@@ -160,6 +189,11 @@ local function create(c, args)
             c.titlebar.bg = (capi.client.focus == c) and titlebar.bg_focus or titlebar.bg
         end
     end
+        
+    for k,v in pairs(dataSignals['client_changed'] or {}) do
+        v(titlebar.client)
+    end
+    
     c.titlebar = tb
     for k,v in pairs({"icon","name","sticky","floating","ontop","maximized_vertical","maximized_horizontal"}) do
         c:add_signal("property::"..v, function(c) titlebar:update(c) end)

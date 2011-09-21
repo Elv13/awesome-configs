@@ -1,5 +1,5 @@
 local setmetatable = setmetatable
-local menu = require("widgets.menu")
+local menu2 = require("widgets.menu")
 local print = print
 
 module("customMenu.clientMenu")
@@ -13,7 +13,7 @@ local mainMenu
 
 function new(screen, args)
   
-  mainMenu = menu()
+  mainMenu = menu2()
   mainMenu:add_item({text="Visible"     , checked=true , onclick = function()  end})
   mainMenu:add_item({text="Sticky"      , checked=true , onclick = function()  end})
   mainMenu:add_item({text="Floating"    , checked=true , onclick = function()  end})
@@ -27,6 +27,10 @@ function new(screen, args)
     
 
   return mainMenu
+end
+
+function menu()
+    return mainMenu or new()
 end
 
 function toggle(c)
@@ -43,7 +47,7 @@ function toggle(c)
         
         function classMenu(c)
             print("In classMenu")
-            local classM = menu()
+            local classM = menu2()
             classM:add_item({text = c.name})
             return classM
         end
