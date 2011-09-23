@@ -296,8 +296,12 @@ end
 
 -- Titlebar widgets
 widgets.titlebar.add_signal("create",function(widgets,titlebar)
-    local menuTb = widget({type="textbox"})
-    menuTb.text  = "[MENU]"
+    local numberStyle    = "<span size='large' bgcolor='".. theme.fg_normal .."'color='".. theme.bg_normal .."'><tt><b>"
+    local numberStyleEnd = "</b></tt></span>"--"</b></tt></span> "
+    local menuTb         = widget({type="textbox"})
+    menuTb.text          = "<span color=\"".. beautiful.bg_normal .."\">[MENU]</span>"
+    menuTb.bg            = beautiful.fg_normal
+    widgets.icon.bg      = beautiful.fg_normal
 
     widgets.wibox.widgets = {                                      --
         {                                                          --
@@ -306,7 +310,7 @@ widgets.titlebar.add_signal("create",function(widgets,titlebar)
           layout = awful.widget.layout.horizontal.leftright         ,
         }                                                           ,
         widgets.buttons.close.widget                                ,
-        widgets.buttons.ontop.widget                                , 
+        widgets.buttons.ontop.widget                                ,
         widgets.buttons.maximized.widget                            ,
         widgets.buttons.sticky.widget                               ,
         widgets.buttons.floating.widget                             ,
@@ -316,17 +320,19 @@ widgets.titlebar.add_signal("create",function(widgets,titlebar)
           
     local client = nil
     titlebar:add_signal('client_changed', function (c)
-        client = c
+        client      = c
+        menuTb.text = numberStyle.. (config.data.listPrefix[utils.clientSwitcher.getIndex(c)] or config.data.listPrefix[1]) .. numberStyleEnd .."<span color=\"".. beautiful.bg_normal .."\">[MENU]</span>"
     end)
     
-    menuTb:buttons( awful.util.table.join(
+    local btn = awful.util.table.join(
     awful.button({ }, 1, function()
         if client ~= nil then
-            customMenu.clientMenu.menu().settings.x = client:geometry().x
-            customMenu.clientMenu.menu().settings.y = client:geometry().y+16
             customMenu.clientMenu.toggle(client)
         end
-    end)))
+    end))
+    
+    menuTb:buttons( btn )
+    widgets.icon:buttons( btn )
 end)
 
 -- Add the drives list on the desktop

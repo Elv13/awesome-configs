@@ -359,6 +359,8 @@ function new(args)
         noautohide  = args.noautohide  or false                    ,
         addwidgets  = args.addwidgets  or nil                      ,
         nofilter    = args.nofilter    or false                    ,
+        bg          = args.bg          or beautiful.bg_normal      ,
+        fg          = args.fg          or beautiful.fg_normal      ,
         widgets     = {}                                           ,
         ------------------------------------------------------------
       }
@@ -405,9 +407,10 @@ function new(args)
             if type(data.subMenu) ~= "function" then
               self:toggle_sub_menu(data.subMenu,value,value)
             elseif data.subMenu ~= nil then
+              print("Creating menu "..data.x.." "..data.y)
               local aSubMenu = data.subMenu()
-              aSubMenu.settings.x = self.settings["xPos"] + aSubMenu.settings.itemWidth
-              aSubMenu.settings.y = self.settings["yPos"]
+              aSubMenu.settings.x = data.x + aSubMenu.settings.itemWidth
+              aSubMenu.settings.y = data.y
               aSubMenu.settings.parent = self
               self:toggle_sub_menu(aSubMenu,value,value)
             end
@@ -439,6 +442,9 @@ function new(args)
       data.widgets.suffix = createWidget("suffix", "textbox"  )
       data.widgets.wdg    = createWidget("text"  , "textbox"  )
       data.widgets.icon   = createWidget("icon"  , "imagebox" )
+      
+      aWibox.bg = data.bg
+      data.widgets.wdg.text = "<span color=\"".. data.fg .."\" >"..(data.widgets.wdg.text or "").."</span>"
 
       aWibox.widgets = {{data.widgets.prefix,data.widgets.icon,data.widgets.wdg, {subArrow2,data.widgets.checkbox,data.widgets.suffix, layout = widget2.layout.horizontal.rightleft},data.addwidgets, layout = widget2.layout.horizontal.leftright}, layout = widget2.layout.vertical.flex }
       
@@ -448,6 +454,12 @@ function new(args)
       aWibox:add_signal("mouse::leave", function() toggleItem(false) end)
       aWibox.visible = false
       return data
+    end
+    
+    function menu:add_existing_item(item)
+        if not item then return end
+        registerButton(item.widget,item)
+        table.insert(self.items, item)
     end
     
     function menu:add_wibox(wibox,args)
