@@ -10,6 +10,7 @@ require( "widgets.tabbar"               )
 require( "widgets.titlebar"             )
 require( "widgets.menu"                 )
 require( "widgets.desktopIcon"          )
+require( "widgets.checkbox"             )
 require( "widgets.layout.desktopLayout" )
 
 module("widgets")

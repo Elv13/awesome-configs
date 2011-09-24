@@ -5,17 +5,18 @@ local next         = next
 local type         = type
 local print        = print
 local string       = string
-local button       = require( "awful.button" )
-local beautiful    = require( "beautiful"    )
-local widget2      = require( "awful.widget" )
-local config       = require( "config"       )
-local util         = require( "awful.util"   )
-local wibox        = require( "awful.wibox"  )
+local button       = require( "awful.button"     )
+local beautiful    = require( "beautiful"        )
+local widget2      = require( "awful.widget"     )
+local config       = require( "config"           )
+local util         = require( "awful.util"       )
+local wibox        = require( "awful.wibox"      )
+local checkbox     = require( "widgets.checkbox" )
 
 local capi = { image      = image      ,
                widget     = widget     ,
                mouse      = mouse      ,
-               screen     = screen     , 
+               screen     = screen     ,
                keygrabber = keygrabber }
 
 module("widgets.menu")
@@ -99,8 +100,6 @@ end
 -- Individual menu function
 function new(args) 
   local subArrow  = capi.widget({type="imagebox"                     } )
-  local checkbox  = capi.image ( config.data.iconPath .. "check.png"   )
-  local checkboxU = capi.image ( config.data.iconPath .. "uncheck.png" )
   subArrow.image  = capi.image ( beautiful.menu_submenu_icon           )
   
   local function createMenu(args)
@@ -377,7 +376,8 @@ function new(args)
           self.checked = (value == nil) and self.checked or value or nil
           if self.checked == nil then return end
           self.widgets.checkbox = self.widgets.checkbox or capi.widget({type="imagebox"})
-          self.widgets.checkbox.image = (self.checked == true) and checkbox or checkboxU or nil
+          self.widgets.checkbox.image = (self.checked == true) and checkbox.checked() or checkbox.unchecked() or nil
+          self.widgets.checkbox.bg = beautiful.bg_focus
       end
       
       function data:hightlight(value)
