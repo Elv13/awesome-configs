@@ -13,7 +13,6 @@ local pairs        = pairs
 local print        = print
 local button       = require( "awful.button" )
 local beautiful    = require( "beautiful"    )
-local naughty      = require( "naughty"      )
 local tag          = require( "awful.tag"    )
 local util         = require( "awful.util"   )
 

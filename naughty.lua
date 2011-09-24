@@ -21,6 +21,7 @@ local capi = { screen = screen,
                timer = timer }
 local button = require("awful.button")
 local util = require("awful.util")
+local tools = require("utils.tools")
 local tag = require("awful.tag")
 local bt = require("beautiful")
 local layout = require("awful.widget.layout")
@@ -232,11 +233,9 @@ local function getIcon(name)
 end
 
 function notify_hidden(pid,title,text)
-  print("\n\n\n\ncount"..capi.screen.count().." "..#tag.selected(1):clients().." pid:"..pid)
   local found = false
   for s =1,capi.screen.count() do
     for k,c in pairs(tag.selected(s):clients()) do
-      print(c.pid.."\n")
       if c.pid == pid then
         return
       end
@@ -327,6 +326,8 @@ function notify(args)
     if title then title = title .. "\n" else title = "" end
 
     -- hook destroy
+    local newTitle = tools.stripHtml(string.gsub(title, "\n", " - "))
+    local newText = tools.stripHtml(string.gsub(text, "\n", " - "))
     local die = function () 
                   destroy(notification) 
                   if #widgets > 0 then
@@ -334,17 +335,15 @@ function notify(args)
                         local timer_fade = capi.timer { timeout = 0.0333 } --30fps
                         timer_fade:add_signal("timeout", function () 
                                                 for k, w in ipairs(widgets) do
-                                                if (w.opacity < 100 and w.opacity ~= nil) then
-                                                    local newTitle = string.gsub(title, "\n", " - ")
-                                                    local newText = string.gsub(text, "\n", " - ")
-                                                    w.widget.text = string.format('<span rise="%s" font_desc="%s"><b>%s</b>%s</span>', 0-(w.opacity*100), font, newTitle, newText)
-                                                    w.opacity = w.opacity + 3
-                                                elseif timer_fade then
-                                                    w.widget.text = ""
-                                                    widgets[k] = nil
-                                                    timer_fade:stop()
-                                                    timer_fade = nil
-                                                end
+                                                    if (w.opacity < 100 and w.opacity ~= nil) then
+                                                        w.widget.text = string.format('<span rise="%s" font_desc="%s"><b>%s</b>%s</span>', 0-(w.opacity*100), font, newTitle, newText)
+                                                        w.opacity = w.opacity + 3
+                                                    elseif timer_fade then
+                                                        w.widget.text = ""
+                                                        --widgets[k] = nil
+                                                        timer_fade:stop()
+                                                        timer_fade = nil
+                                                    end
                                                 end
                                             end)
                         timer_fade:start()
@@ -381,24 +380,23 @@ function notify(args)
     -- show in existing widgets
     if args.noslider ~= true then
         for k, w in ipairs(widgets) do
-        w.text_real = text
-        w.opacity = 100
-        local timer_fade_in = capi.timer { timeout = 0.0333 } --30fps
-        timer_fade_in:add_signal("timeout", function () 
-                            for k, w in ipairs(widgets) do
-                            if (w.opacity > 0 and w.opacity ~= nil) then
-                                local newTitle = string.gsub(title, "\n", " - ")
-                                local newText = string.gsub(text, "\n", " - ")
-                                w.widget.text = string.format('<span rise="%s" font_desc="%s"><b>%s</b>%s</span>', (w.opacity*100), font, newTitle, newText)
-                                w.opacity = w.opacity - 3
-                            elseif timer_fade_in then
-                                timer_fade_in:stop()
-                                timer_fade_in = nil
-                            end
-                            end
-                        end)
-        timer_fade_in:start()
-        --w.widget.text = string.format('<span font_desc="%s"><b>%s</b>%s</span>', font, title, text)
+            w.text_real = text
+            w.opacity = 100
+            local timer_fade_in = capi.timer { timeout = 0.0333 } --30fps
+            timer_fade_in:add_signal("timeout", function () 
+                                for k, w in ipairs(widgets) do
+                                if (w.opacity > 0 and w.opacity ~= nil) then
+                                    w.widget.text = string.format('<span rise="%s" font_desc="%s"><b>%s</b>%s</span>', (w.opacity*100), font, newTitle, newText)
+                                    w.opacity = w.opacity - 3
+                                elseif timer_fade_in then
+                                    print("kill timer")
+                                    timer_fade_in:stop()
+                                    timer_fade_in = nil
+                                end
+                                end
+                            end)
+            timer_fade_in:start()
+            --w.widget.text = string.format('<span font_desc="%s"><b>%s</b>%s</span>', font, title, text)
         end
     end
     --if #widgets > 0 then
@@ -408,7 +406,7 @@ function notify(args)
     local textbox = capi.widget({ type = "textbox", align = "flex" })
     textbox:buttons(util.table.join(button({ }, 1, run), button({ }, 3, die)))
     layout.margins[textbox] = { right = margin, left = margin, bottom = margin, top = margin }
-    textbox.text = string.format('<span font_desc="%s"><b>%s</b>%s</span>', font, title, text)
+    textbox.text = string.format('<span font_desc="%s"><b>%s</b>%s</span>', font, newTitle, newText)
     textbox.valign = "middle"
 
     -- create iconbox
@@ -485,7 +483,9 @@ function notify(args)
     notification.idx = offset.idx
 
     -- populate widgets
-    notification.box.widgets = { iconbox, textbox, ["layout"] = layout.horizontal.leftright }
+    if not notification.box.widgets or #notification.box.widgets == 0 then
+        notification.box.widgets = { iconbox, textbox, ["layout"] = layout.horizontal.leftright }
+    end
 
     -- insert the notification to the table
     table.insert(notifications[screen][notification.position], notification)

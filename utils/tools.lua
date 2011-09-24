@@ -1,10 +1,10 @@
 local setmetatable = setmetatable
 local table = table
+local print = print
 local string = string
 local ipairs = ipairs
 local button = require("awful.button")
 local beautiful = require("beautiful")
-local naughty = require("naughty")
 local tag = require("awful.tag")
 local layout = require("awful.layout")
 local client = require("awful.client")
@@ -123,4 +123,24 @@ end
 
 function invertedIconPath(tagName)
     return config.data.iconPath .. (config.data.useListPrefix == true and "tags_invert/" or "tags/") .. tagName
+end
+
+function stripHtml(str)
+    local safeStr = ""
+    local isInTag = false
+    local skip = false
+    for i=1, str:len() do
+        if str:sub(i,i) == "<" then
+            isInTag = true
+        elseif str:sub(i,i) == ">" then
+            isInTag = false
+            skip = true
+        else
+            skip = false
+        end
+        if not isInTag and not skip then
+            safeStr = safeStr .. str:sub(i,i)
+        end
+    end
+    return safeStr
 end

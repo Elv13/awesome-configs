@@ -224,7 +224,6 @@ function create(c, args)
     addTab:buttons( util.table.join(
       button({ }, 1, function()
         local pid = c.window
-        print("test "..pid.."\n\n\n")
         util.spawn('dbus-send --type=method_call --dest=org.schmorp.urxvt /term/'..pid..'/control org.schmorp.urxvt.addTab', false)
         aTabList:add_tab(pid)
         urxvtIntegration.addTab(12)
