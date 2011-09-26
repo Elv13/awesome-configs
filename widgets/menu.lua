@@ -341,13 +341,14 @@ function new(args)
         hidden      = args.hidden      or false                    ,
         prefix      = args.prefix      or nil                      ,
         suffix      = args.suffix      or nil                      ,
+        align       = args.align       or "left"                   ,
         prefixwidth = args.prefixwidth or nil                      ,
         suffixwidth = args.suffixwidth or nil                      ,
         prefixbg    = args.prefixbg    or nil                      ,
         suffixbg    = args.suffixbg    or nil                      ,
-        width       = args.width       or self.settings.itemWidth  , 
-        height      = args.height      or self.settings.itemHeight , 
-        widget      = aWibox           or nil                      , 
+        width       = args.width       or self.settings.itemWidth  ,
+        height      = args.height      or self.settings.itemHeight ,
+        widget      = aWibox           or nil                      ,
         icon        = args.icon        or nil                      ,
         checked     = args.checked     or nil                      ,
         button1     = args.onclick     or args.button1             ,
@@ -383,7 +384,7 @@ function new(args)
       function data:hightlight(value)
           if not self.widget or value == nil then return end
 
-          self.widget.bg = ((value == true) and menu.settings.bg_focus or menu.settings.bg_normal) or ""
+          self.widget.bg = ((value == true) and menu.settings.bg_focus or data.bg) or ""
           if value == true then
               table.insert(menu.highlighted,self)
           end
@@ -392,7 +393,7 @@ function new(args)
       if data.subMenu ~= nil then
          subArrow2 = subArrow
          if type(data.subMenu) ~= "function" and data.subMenu.settings then
-           data.subMenu.settings.parent = self
+           data.subMenu.settings.parent = self --TODO dead code?
          end
       else
         subArrow2 = nil
@@ -409,6 +410,7 @@ function new(args)
             elseif data.subMenu ~= nil then
               print("Creating menu "..data.x.." "..data.y)
               local aSubMenu = data.subMenu()
+              if not aSubMenu then return end
               aSubMenu.settings.x = data.x + aSubMenu.settings.itemWidth
               aSubMenu.settings.y = data.y
               aSubMenu.settings.parent = self
@@ -445,7 +447,8 @@ function new(args)
       
       aWibox.bg = data.bg
       data.widgets.wdg.text = "<span color=\"".. data.fg .."\" >"..(data.widgets.wdg.text or "").."</span>"
-
+      data.widgets.wdg.align = data.align
+      --aWibox.widgets = {{data.widgets.prefix,data.widgets.icon, {subArrow2,data.widgets.checkbox,data.widgets.suffix, layout = widget2.layout.horizontal.rightleft},data.addwidgets, layout = widget2.layout.horizontal.leftright,{data.widgets.wdg, layout = widget2.layout.horizontal.flex}}, layout = widget2.layout.vertical.flex }
       aWibox.widgets = {{data.widgets.prefix,data.widgets.icon,data.widgets.wdg, {subArrow2,data.widgets.checkbox,data.widgets.suffix, layout = widget2.layout.horizontal.rightleft},data.addwidgets, layout = widget2.layout.horizontal.leftright}, layout = widget2.layout.vertical.flex }
       
       registerButton(aWibox, data)
