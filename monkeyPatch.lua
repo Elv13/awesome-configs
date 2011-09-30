@@ -29,6 +29,8 @@ awful.wibox.get_offset = function (position, wibox, screen)
   end
   return offset
 end
+awful.wibox.update_wiboxes_on_struts    = function () end
+awful.wibox.update_all_wiboxes_position = function () end
 
 awful.wibox.new = function (arg)
     local arg = arg or {}

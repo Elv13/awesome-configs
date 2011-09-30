@@ -2,6 +2,7 @@ local setmetatable = setmetatable
 local menu2        = require("widgets.menu")
 local beautiful    = require( "beautiful"                    )
 local shifty    = require( "shifty"       )
+local util    = require( "awful.util"                    )
 local print = print
 local ipairs = ipairs
 
@@ -73,8 +74,12 @@ local function signalMenu()
     
 end
 
+local sigMenu = nil
 local function singalMenu()
-    local sigMenu = menu2()
+    if sigMenu then
+        return sigMenu
+    end
+    sigMenu = menu2()
     sig0          = sigMenu:add_item({text="SIG0"             , onclick = function() util.spawn("kill -s 0       "..aClient.pid) end})
     sigalrm       = sigMenu:add_item({text="SIGALRM"          , onclick = function() util.spawn("kill -s ALRM    "..aClient.pid) end})
     sighup        = sigMenu:add_item({text="SIGHUP"           , onclick = function() util.spawn("kill -s HUP     "..aClient.pid) end})
@@ -108,7 +113,22 @@ local function singalMenu()
     sigbus        = sigMenu:add_item({text="SIGBUS"           , onclick = function() util.spawn("kill -s BUS     "..aClient.pid) end})
     sigxcpu       = sigMenu:add_item({text="SIGXCPU"          , onclick = function() util.spawn("kill -s XCPU    "..aClient.pid) end})
     sigxfsz       = sigMenu:add_item({text="SIGXFSZ"          , onclick = function() util.spawn("kill -s XFSZ    "..aClient.pid) end})
+    return sigMenu
+end
+
+local layer_m = nil
+function layerMenu()
+    if layer_m then
+        return layer_m
+    end
+    layer_m = menu2()
     
+    layer_m:add_item({text="Normal"      , checked=true , onclick = function()  end})
+    layer_m:add_item({text="Above"       , checked=true , onclick = function()  end})
+    layer_m:add_item({text="Below"       , checked=true , onclick = function()  end})
+    layer_m:add_item({text="On Top"      , checked=true , onclick = function()  end})
+    
+    return layer_m
 end
 
 function new(screen, args)
@@ -118,49 +138,15 @@ function new(screen, args)
   itemVSticky    = mainMenu:add_item({text="Sticky"      , checked= function() if aClient ~= nil then return aClient.sticky else return false end end , onclick = function()  end})
   itemVFloating  = mainMenu:add_item({text="Floating"    , checked=true , onclick = function()  end})
   itemMaximized  = mainMenu:add_item({text="Maximized"   , checked=true , onclick = function()  end})
-  --itemMaster     = mainMenu:add_item({text="Master"      , checked=true , onclick = function()  end})
+  itemMaster     = mainMenu:add_item({text="Master"      , checked=true , onclick = function()  end})
   itemMoveToTag  = mainMenu:add_item({text="Move to tag" , subMenu=listTags,})
   itemClose      = mainMenu:add_item({text="Close"       , onclick = function() if aClient ~= nil then  aClient:kill() end end})
-  itemSendSignal = mainMenu:add_item({text="Send Signal" , subMenu = function() if not sig0 then signalMenu() end
-        local sigMenu = menu2()
-        sigMenu:add_existing_item(sig0    )
-        sigMenu:add_existing_item(sigalrm )
-        sigMenu:add_existing_item(sighup  )
-        sigMenu:add_existing_item(sigint  )
-        sigMenu:add_existing_item(sigkill )
-        sigMenu:add_existing_item(sigpipe )
-        sigMenu:add_existing_item(sigpoll )
-        sigMenu:add_existing_item(sigprof )
-        sigMenu:add_existing_item(sigterm )
-        sigMenu:add_existing_item(sigusr1 )
-        sigMenu:add_existing_item(sigusr2 )
-        sigMenu:add_existing_item(sigsigvtalrm)
-        sigMenu:add_existing_item(sigstkflt)
-        sigMenu:add_existing_item(sigpwr  )
-        sigMenu:add_existing_item(sigwinch)
-        sigMenu:add_existing_item(sigchld )
-        sigMenu:add_existing_item(sigurg  )
-        sigMenu:add_existing_item(sigtstp )
-        sigMenu:add_existing_item(sigttin )
-        sigMenu:add_existing_item(sigttou )
-        sigMenu:add_existing_item(sigstop )
-        sigMenu:add_existing_item(sigcont )
-        sigMenu:add_existing_item(sigabrt )
-        sigMenu:add_existing_item(sigfpe  )
-        sigMenu:add_existing_item(sigill  )
-        sigMenu:add_existing_item(sigquit )
-        sigMenu:add_existing_item(sigsegv )
-        sigMenu:add_existing_item(sigtrap )
-        sigMenu:add_existing_item(sigsys  )
-        sigMenu:add_existing_item(sigemt  )
-        sigMenu:add_existing_item(sigbus  )
-        sigMenu:add_existing_item(sigxcpu )
-        sigMenu:add_existing_item(sigxfsz )
-        return sigMenu
-      
-  end, onclick = function()  end})
+  itemSendSignal = mainMenu:add_item({text="Send Signal" , subMenu = singalMenu(), onclick = function()  end})
   itemRenice     = mainMenu:add_item({text="Renice"      , checked=true , onclick = function()  end})
   itemNewTag     = mainMenu:add_item({text="Open in a new Tag"      , subMenu=createNewTag() , onclick = createNewTag_click})
+  
+  
+  itemLayer     = mainMenu:add_item({text="Layer"       , subMenu=layerMenu(), onclick = function()  end})
   
   mainMenu_per = menu2()
   itemVSticky_per    = mainMenu_per:add_item({text="Sticky"      , checked=true , onclick = function()  end})
@@ -184,6 +170,7 @@ function toggle(c)
     mainMenu2:add_existing_item( itemFloating   )
     mainMenu2:add_existing_item( itemMaximized  )
     mainMenu2:add_existing_item( itemMaster     )
+    mainMenu2:add_existing_item( itemLayer      )
     mainMenu2:add_existing_item( itemMoveToTag  )
     mainMenu2:add_existing_item( itemClose      )
     mainMenu2:add_existing_item( itemSendSignal )

@@ -31,6 +31,7 @@ local data     = setmetatable({}, { __mode = 'k' })
 local leftW    = nil
 local rightW   = nil
 local buttonsA = nil
+local hooks    = {}
 local signals  = {}
 
 function add_signal(name,func)
@@ -38,6 +39,10 @@ function add_signal(name,func)
         signals[name] = {}
     end
     table.insert(signals[name],func)
+end
+
+function registerCustomClass(className, func)
+    hooks[className] = func
 end
 
 function buttons(args)
@@ -152,8 +157,10 @@ local function create(c, args)
     
     local appicon = capi.widget({type="imagebox"})
     
-    local userWidgets 
-    if #(signals['create'] or {}) > 0 then
+    local userWidgets
+    if hooks[c.class] ~= nil then
+        userWidgets = hooks[c.class]({buttons=buttons,icon=appicon,tabbar=tl,wibox=tb},titlebar)
+    elseif #(signals['create'] or {}) > 0 then
         userWidgets = signals['create'][1]({buttons=buttons,icon=appicon,tabbar=tl,wibox=tb},titlebar)
     end
     if not tb.widgets then

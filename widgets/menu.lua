@@ -13,6 +13,8 @@ local util         = require( "awful.util"       )
 local wibox        = require( "awful.wibox"      )
 local checkbox     = require( "widgets.checkbox" )
 
+local profiler = require ( "profiler" )
+
 local capi = { image      = image      ,
                widget     = widget     ,
                mouse      = mouse      ,
@@ -136,6 +138,7 @@ function new(args)
     }
 
     function menu:toggle(value)
+      --profiler.start("/tmp/luaProf.txt")
       if self.settings.visible == false and value == false then return end
       
       self.settings.visible = value or not self.settings.visible
@@ -157,6 +160,7 @@ function new(args)
       
       activateKeyboard(self)
       self:set_coords()
+      --profiler.stop()
     end
     
     function menu:rotate_selected(leap)
@@ -245,8 +249,11 @@ function new(args)
             local geo = wdg.widget:geometry()
             wdg.x = self.settings.xPos
             wdg.y = self.settings.yPos+yPadding
-            if geo.x ~= wdg.x or geo.y ~= wdg.y or geo.width ~= wdg.width or geo.height ~= wdg.height then --moving is slow
-                wdg.widget:geometry({ width = wdg.width, height = wdg.height, y=wdg.y, x=wdg.x})
+            if wdg.widget.x ~= wdg.x or wdg.widget.y ~= wdg.y or wdg.widget.width ~= wdg.width or wdg.widget.height ~= wdg.height then
+                wdg.widget.x = wdg.x
+                wdg.widget.y = wdg.y
+                wdg.widget.height = wdg.height
+                wdg.widget.width = wdg.width
             end
             yPadding = yPadding + (wdg.height or self.settings.itemHeight)*self.downOrUp
             if type(wdg.subMenu) ~= "function" and wdg.subMenu ~= nil and wdg.subMenu.settings ~= nil then
