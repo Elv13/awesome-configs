@@ -88,7 +88,7 @@ function new(screen, args)
 
         local menuX = ((screen or capi.screen[capi.mouse.screen]).geometry.width)/4
         local menuY = ((screen or capi.screen[capi.mouse.screen]).geometry.height - (beautiful.menu_height*#capi.client.get(screen)))/2
-        currentMenu = menu({x= menuX, y= menuY, filter = true, showfilter=true})
+        currentMenu = menu({x= menuX, y= menuY, filter = true, showfilter=true, autodiscard = true})
         currentMenu:set_width(((screen or capi.screen[capi.mouse.screen]).geometry.width)/2)
         
         currentMenu:add_key_hook({}, "Tab", "press", function(menu)

@@ -13,8 +13,6 @@ local util         = require( "awful.util"       )
 local wibox        = require( "awful.wibox"      )
 local checkbox     = require( "widgets.checkbox" )
 
-local profiler = require ( "profiler" )
-
 local capi = { image      = image      ,
                widget     = widget     ,
                mouse      = mouse      ,
@@ -26,6 +24,20 @@ module("widgets.menu")
 -- Common function
 local grabKeyboard = false
 local currentMenu  = nil
+local discardedItems = {}
+
+local function getWibox()
+    if #discardedItems > 0 then
+        for k,v in pairs(discardedItems) do 
+            print("in dismiss")
+            local wb = v
+            discardedItems[k] = nil
+            return wb
+        end
+    else
+        return wibox({ position = "free", visible = false, ontop = true, border_width = 1, border_color = beautiful.border_normal })
+    end
+end
 
 local function stopGrabber()
     currentMenu:toggle(false)
@@ -109,15 +121,16 @@ function new(args)
     local menu    = { settings = { 
     -- Settings
     --PROPERTY          VALUE               BACKUP VLAUE         
-    itemHeight    = args.itemHeight    or beautiful.menu_height , 
+    itemHeight    = args.itemHeight    or beautiful.menu_height ,
     visible       = false                                       ,
-    itemWidth     = args.width         or beautiful.menu_width  , 
+    itemWidth     = args.width         or beautiful.menu_width  ,
     bg_normal     = args.bg_normal     or beautiful.bg_normal   ,
     bg_focus      = args.bg_focus      or beautiful.bg_focus    ,
     nokeyboardnav = args.nokeyboardnav or false                 ,
     filter        = args.filter        or false                 ,
     showfilter    = args.showfilter    or false                 ,
     filterprefix  = args.filterprefix  or "<b>Filter:</b>"      ,
+    autodiscard   = args.autodiscard   or false                 ,
     x             = args.x             or nil                   ,
     y             = args.y             or nil                   ,
     },-----------------------------------------------------------
@@ -138,7 +151,6 @@ function new(args)
     }
 
     function menu:toggle(value)
-      --profiler.start("/tmp/luaProf.txt")
       if self.settings.visible == false and value == false then return end
       
       self.settings.visible = value or not self.settings.visible
@@ -160,7 +172,16 @@ function new(args)
       
       activateKeyboard(self)
       self:set_coords()
-      --profiler.stop()
+      
+      if self.settings.autodiscard == true and self.settings.visible == false then
+          self:discard()
+      end
+    end
+    
+    function menu:discard()
+      for v, i in next, self.items do
+          i:discard()
+      end
     end
     
     function menu:rotate_selected(leap)
@@ -341,7 +362,7 @@ function new(args)
       end
     
     function menu:add_item(args)
-      local aWibox = wibox({ position = "free", visible = false, ontop = true, border_width = 1, border_color = beautiful.border_normal })
+      local aWibox = getWibox()
       local data = {
         --PROPERTY       VALUE                BACKUP VALUE          
         text        = args.text        or ""                       ,
@@ -395,6 +416,10 @@ function new(args)
           if value == true then
               table.insert(menu.highlighted,self)
           end
+      end
+      
+      function data:discard()
+          table.insert(discardedItems,aWibox)
       end
       
       if data.subMenu ~= nil then

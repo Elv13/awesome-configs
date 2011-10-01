@@ -23,7 +23,7 @@ local mainMenu
 
 local function listTags()
     function createTagList(aScreen)
-        local tagList = menu2()
+        local tagList = menu2({autodiscard = true})
         local count = 0
         for _, v in ipairs(capi.screen[aScreen]:tags()) do
             tagList:add_item({text = v.name})
@@ -34,7 +34,7 @@ local function listTags()
     if capi.screen.count() == 1 then
         return createTagList(1)
     else
-        local screenSelect = menu2()
+        local screenSelect = menu2(({autodiscard = true}))
         for i=1, capi.screen.count() do
             screenSelect:add_item({text="Screen "..i , subMenu = createTagList(i)})
         end
@@ -61,7 +61,7 @@ local function createNewTag()
         return nil
     else
         return function()
-            local screenSelect = menu2()
+            local screenSelect = menu2(({autodiscard = true}))
             for i=1, capi.screen.count() do
                 screenSelect:add_item({text="Screen "..i , onclick = function() createNewTag_click(nil,nil,nil,i) end})
             end

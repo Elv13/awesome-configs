@@ -62,7 +62,7 @@ function createMenu(center)
 
     table.sort(commandArray2, compare)
   
-    mainMenu = menu({filter = true, showfilter = true, filterprefix = "<b>Run: </b>", y = capi.screen[1].geometry.height - 18, x = 147})
+    mainMenu = menu({filter = true, showfilter = true, filterprefix = "<b>Run: </b>", y = capi.screen[1].geometry.height - 18, x = 147, autodiscard = true})
     mainMenu:set_width(((screen or capi.screen[capi.mouse.screen]).geometry.width)/2)
     
     mainMenu:add_key_hook({}, "Return", "press", function(menu)
