@@ -97,9 +97,10 @@ local function create(c, args)
         function data:setImage(hover)
             local curfocus    = (((type(data.focus) == "function") and data.focus() or data.focus) == true) and "focus" or "normal"
             local curactive   = ((((type(data.checked) == "function") and data.checked() or data.checked) == true) and "active" or "inactive")
-            
---             data.widget.image = capi.image( config.data.themePath.. "Icon/titlebar/" .. data.field .."_"..curfocus .."_"..curactive..".png"  )
-            data.widget.image = capi.image( '/home/lepagee/.config/awesome/theme/ubuntu/'.. "Icon/titlebar/" .. data.field .."_"..curfocus .."_"..curactive.. ((hover == true) and "_hover" or "")..".png"  )
+            data.widget.image = capi.image((beautiful["titlebar_"..data.field .."_button_"..curfocus .."_"..curactive.. ((hover == true) and "_hover" or "")]) 
+                or  (beautiful["titlebar_"..data.field .."_button_"..curfocus .. ((hover == true) and "_hover" or "")])
+                or  (beautiful["titlebar_"..data.field .."_button_"..curfocus.."_"..curactive])
+                or  (beautiful["titlebar_"..data.field .."_button_"..curfocus]))
         end
         
         function data:createWidget()
