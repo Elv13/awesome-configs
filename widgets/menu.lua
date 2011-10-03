@@ -28,8 +28,7 @@ local discardedItems = {}
 
 local function getWibox()
     if #discardedItems > 0 then
-        for k,v in pairs(discardedItems) do 
-            print("in dismiss")
+        for k,v in pairs(discardedItems) do
             local wb = v
             discardedItems[k] = nil
             return wb
@@ -53,13 +52,47 @@ local function getFilterWidget(aMenu)
             local textbox       = capi.widget({type="textbox" })
             textbox.text        = menu.settings.filterprefix
             local filterWibox   = wibox({ position = "free", visible = false, ontop = true, border_width = 1, border_color = beautiful.border_normal })
+            filterWibox.bg = beautiful.bg_highlight
             filterWibox.widgets = { textbox, layout = widget2.layout.horizontal.leftright }
             menu.filterWidget   = {textbox = textbox, widget = filterWibox, hidden = false, width = menu.settings.itemWidth, height = menu.settings.itemHeight}
             filterWibox:buttons( util.table.join(button({},3,function() menu:toggle(false) end)))
         end
+        table.insert(menu.otherwdg,menu.filterWidget)
         return menu.filterWidget
     end
     return nil
+end
+
+local function getScrollWdg_common(aMenu,widget,step)
+    local menu = aMenu or currentMenu or nil
+    if menu.settings.maxvisible ~= nil and #menu.items > menu.settings.maxvisible then
+        if not menu[widget] then
+            local arrow = capi.widget({type="imagebox"})
+            arrow.image = capi.image(beautiful.menu_submenu_icon)
+            local wb = getWibox()
+            wb.bg = beautiful.bg_highlight
+            wb:buttons( util.table.join(
+                        button({ }, 1 , function() menu:scroll(step) end),
+                        button({ }, 4 , function() menu:scroll(1) end),
+                        button({ }, 5 , function() menu:scroll(-1) end)
+                    ))
+            local test2 = capi.widget({type="textbox"})
+            test2.text = " "
+            wb.widgets = {test2,arrow,test2,layout = widget2.layout.horizontal.flex}
+            menu[widget] = {widget = wb, hidden = false, width = menu.settings.itemWidth, height = menu.settings.itemHeight}
+            table.insert(menu.otherwdg,menu[widget])
+        end
+        return menu[widget]
+    end
+    return nil
+end
+
+local function getScrollUpWdg(aMenu)
+    return getScrollWdg_common(aMenu,"scrollUpWdg",1)
+end
+
+local function getScrollDownWdg(aMenu)
+    return getScrollWdg_common(aMenu,"scrollDownWdg",-1)
 end
 
 local function activateKeyboard(curMenu)
@@ -113,8 +146,8 @@ end
 
 -- Individual menu function
 function new(args) 
-  local subArrow  = capi.widget({type="imagebox"                     } )
-  subArrow.image  = capi.image ( beautiful.menu_submenu_icon           )
+  local subArrow  = capi.widget({type="imagebox"             } )
+  subArrow.image  = capi.image ( beautiful.menu_submenu_icon   )
   
   local function createMenu(args)
     args          = args or {}
@@ -127,8 +160,10 @@ function new(args)
     bg_normal     = args.bg_normal     or beautiful.bg_normal   ,
     bg_focus      = args.bg_focus      or beautiful.bg_focus    ,
     nokeyboardnav = args.nokeyboardnav or false                 ,
+    noautohide    = args.noautohide    or false                 ,
     filter        = args.filter        or false                 ,
     showfilter    = args.showfilter    or false                 ,
+    maxvisible    = args.maxvisible    or nil                   ,
     filterprefix  = args.filterprefix  or "<b>Filter:</b>"      ,
     autodiscard   = args.autodiscard   or false                 ,
     x             = args.x             or nil                   ,
@@ -145,8 +180,12 @@ function new(args)
     keyShortcut   = {}                                          ,
     filterString  = ""                                          ,
     filterWidget  = nil                                         ,
+    scrollUpWdg   = nil                                         ,
+    scrollDownWdg = nil                                         ,
+    otherwdg      = {}                                          ,
     filterHooks   = {}                                          ,
-    downOrUp      = 1
+    downOrUp      = 1                                           ,
+    startat       = 1                                           ,
     -------------------------------------------------------------
     }
 
@@ -158,16 +197,20 @@ function new(args)
         self:toggle_sub_menu(nil,true,false)
       end
       
+      if menu.settings.maxvisible ~= nil and #menu.items > menu.settings.maxvisible then
+          menu:scroll(0,true)
+      end
+      
       for v, i in next, self.items do
         if type(i) ~= "function" and type(v) == "number" then
-          i.widget.visible = self.settings.visible and not i.hidden
+          i.widget.visible = self.settings.visible and not i.hidden and not i.off
         end
       end
       
       self:emit((self.settings.visible == true) and "menu::show" or "menu::hide")
       
-      if getFilterWidget(self) then
-          menu.filterWidget.widget.visible = value
+      for v, i in next, self.otherwdg do
+          i.widget.visible = value
       end
       
       activateKeyboard(self)
@@ -182,6 +225,26 @@ function new(args)
       for v, i in next, self.items do
           i:discard()
       end
+      for v, i in next, self.otherwdg do
+          --table.insert(discardedItems,i.widget) --TODO LEAK
+      end
+    end
+    
+    function menu:scroll(step,notoggle)
+        menu.startat = menu.startat + step
+        if menu.startat < 1 then
+            menu.startat = 1
+        elseif menu.startat > #menu.items - menu.settings.maxvisible then
+            menu.startat = #menu.items - menu.settings.maxvisible
+        end
+        local counter = 1
+        for v, i in next, self.items do
+            local tmp = i.off
+            i.off = ((counter < menu.startat) or (counter - menu.startat > menu.settings.maxvisible))
+            if not tmp == i.off then self.hasChanged = true end
+            counter = counter +1
+        end
+        if not notoggle then menu:toggle(true) end
     end
     
     function menu:rotate_selected(leap)
@@ -191,6 +254,9 @@ function new(args)
             self.currentIndex = #self.items
         else
             self.currentIndex = self.currentIndex + leap
+        end
+        if self.items[self.currentIndex].hidden == true or self.items[self.currentIndex].off == true then
+            self:rotate_selected((leap > 0) and 1 or -1)
         end
         self:clear_highlight()
         self:highlight_item(self.currentIndex) 
@@ -266,7 +332,8 @@ function new(args)
       end
             
       local set_geometry = function(wdg)
-        if type(wdg) ~= "function" and wdg.hidden == false then
+        if not wdg then return end
+        if type(wdg) ~= "function" and wdg.hidden == false and wdg.off ~= true then
             local geo = wdg.widget:geometry()
             wdg.x = self.settings.xPos
             wdg.y = self.settings.yPos+yPadding
@@ -284,17 +351,20 @@ function new(args)
         end
       end
       
-      if getFilterWidget() ~= nil and self.downOrUp == -1 then
-          set_geometry(getFilterWidget())
+      local function addWdg(tbl,order)
+        for i=(order == -1) and #tbl or 1, (order == -1) and 1 or #tbl, order do
+            set_geometry(tbl[i])
+        end
       end
       
+      local headerWdg = {getScrollUpWdg(self)}
+      local footerWdg = {getScrollDownWdg(self),getFilterWidget()}
+      
+      addWdg((self.downOrUp == -1) and footerWdg or headerWdg,self.downOrUp)
       for v, i in next, self.items do
         set_geometry(i)
       end
-      
-      if getFilterWidget() ~= nil and self.downOrUp == 1 then
-          set_geometry(getFilterWidget())
-      end
+      addWdg((self.downOrUp == 1) and footerWdg or headerWdg,self.downOrUp)
     end
     
     function menu:set_width(width)
@@ -341,8 +411,10 @@ function new(args)
           if data["button"..index] ~= nil then
               data["button"..index](self,data)
           end
-          if data.noautohide == false then
+          if menu.settings.noautohide == false and index ~= 4 and index ~= 5 then
             hideEverything()
+          elseif menu.settings.maxvisible and ( index == 4 or index == 5 ) and #menu.items > menu.settings.maxvisible then
+              menu:scroll((index == 4) and 1 or -1)
           end
       end
       
@@ -367,6 +439,7 @@ function new(args)
         --PROPERTY       VALUE                BACKUP VALUE          
         text        = args.text        or ""                       ,
         hidden      = args.hidden      or false                    ,
+        off         = false            or nil                      ,
         prefix      = args.prefix      or nil                      ,
         suffix      = args.suffix      or nil                      ,
         align       = args.align       or "left"                   ,
@@ -398,11 +471,12 @@ function new(args)
       self.hasChanged = true
       
       table.insert(self.items, data)
+      local pos = #self.items
       self:set_coords()
       
       --Member functions
       function data:check(value)
-          self.checked = (value == nil) and self.checked or value or nil
+          self.checked = (value == nil) and self.checked or ((value == false) and false or value) or nil
           if self.checked == nil then return end
           self.widgets.checkbox = self.widgets.checkbox or capi.widget({type="imagebox"})
           self.widgets.checkbox.image = (self.checked == true) and checkbox.checked() or checkbox.unchecked() or nil
@@ -425,7 +499,7 @@ function new(args)
       if data.subMenu ~= nil then
          subArrow2 = subArrow
          if type(data.subMenu) ~= "function" and data.subMenu.settings then
-           data.subMenu.settings.parent = self --TODO dead code?
+           data.subMenu.settings.parent = self
          end
       else
         subArrow2 = nil
@@ -437,10 +511,10 @@ function new(args)
           end
           if value == true then
             currentMenu = self
+            self.currentIndex = pos
             if type(data.subMenu) ~= "function" then
               self:toggle_sub_menu(data.subMenu,value,value)
             elseif data.subMenu ~= nil then
-              print("Creating menu "..data.x.." "..data.y)
               local aSubMenu = data.subMenu()
               if not aSubMenu then return end
               aSubMenu.settings.x = data.x + aSubMenu.settings.itemWidth
@@ -509,15 +583,11 @@ function new(args)
         for i=2, 10 do
             data["button"..i] = args["button"..i]
         end
-            
         function data:hightlight(value)
             
         end
-        
         registerButton(wibox,data)
-        
         table.insert(self.items, data)
-        
     end
     return menu
   end
