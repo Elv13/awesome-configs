@@ -4,6 +4,7 @@ local awful        = require( "awful"               )
 local beautiful    = require( 'beautiful'           )
 local config       = require( "config"              )
 local utils        = require( "utils"               )
+local customMenu   = require( "customMenu"          )
 local tablist_old  = require( "widgets.tablist_old" )
 
 local capi = { image      = image      ,

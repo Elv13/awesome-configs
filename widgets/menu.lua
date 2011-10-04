@@ -462,6 +462,8 @@ function new(args)
         nofilter    = args.nofilter    or false                    ,
         bg          = args.bg          or beautiful.bg_normal      ,
         fg          = args.fg          or beautiful.fg_normal      ,
+        x           = 0                                            ,
+        y           = 0                                            ,
         widgets     = {}                                           ,
         ------------------------------------------------------------
       }

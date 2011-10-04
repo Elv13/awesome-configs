@@ -47,15 +47,23 @@ function getIndex(c)
 end
 
 function setFavClient(idx,c)
-  data.fav[idx] = c
+  data.fav[idx] = function()
+    if c:tags()[1] ~= tag.selected(c.screen) then
+      tag.viewonly(c:tags()[1])
+    end
+    capi.client.focus = c
+  end
+end
+
+function setFavTag(idx,t)
+  data.fav[idx] = function()
+   tag.viewonly(t)
+  end
 end
 
 function selectFavClient(idx)
   if data.fav[idx] ~= nil then
-    if data.fav[idx]:tags()[1] ~= tag.selected(data.fav[idx].screen) then
-      tag.viewonly(data.fav[idx]:tags()[1])
-    end
-    capi.client.focus = data.fav[idx]
+      data.fav[idx]()
   end
 end
 

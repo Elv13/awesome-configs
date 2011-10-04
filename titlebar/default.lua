@@ -1,9 +1,10 @@
 local setmetatable = setmetatable
-local widgets      = require( "widgets"   )
-local awful        = require( "awful"     )
-local beautiful    = require( 'beautiful' )
-local config       = require( "config"    )
-local utils        = require( "utils"     )
+local widgets      = require( "widgets"    )
+local awful        = require( "awful"      )
+local beautiful    = require( 'beautiful'  )
+local config       = require( "config"     )
+local utils        = require( "utils"      )
+local customMenu   = require( "customMenu" )
 
 local capi = { image      = image      ,
                widget     = widget     ,

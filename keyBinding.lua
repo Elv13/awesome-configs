@@ -107,7 +107,16 @@ shifty.config.clientkeys = clientkeys
 for i=1, ( 4 ) do
   globalkeys = awful.util.table.join(globalkeys, awful.key({ }, "F"..i,
   function ()
-    local t = awful.tag.viewonly(shifty.getpos(i))
+    print("get fav")
+    utils.clientSwitcher.selectFavClient(i)
+  end))
+  globalkeys = awful.util.table.join(globalkeys, awful.key({ modkey }, "F"..i,
+  function ()
+    utils.clientSwitcher.setFavClient(i, client.focus)
+  end))
+  globalkeys = awful.util.table.join(globalkeys, awful.key({ "Control" }, "F"..i,
+  function ()
+    utils.clientSwitcher.setFavTag(i, awful.tag.selected(mouse.screen))
   end))
 end
 
@@ -119,8 +128,11 @@ for i=6, ( 8 ) do
   end))
   globalkeys = awful.util.table.join(globalkeys, awful.key({ modkey }, "F"..i,
   function ()
-    print("setfav")
     utils.clientSwitcher.setFavClient(i, client.focus)
+  end))
+  globalkeys = awful.util.table.join(globalkeys, awful.key({ "Control" }, "F"..i,
+  function ()
+    utils.clientSwitcher.setFavTag(i, awful.tag.selected(mouse.screen))
   end))
 end
 
