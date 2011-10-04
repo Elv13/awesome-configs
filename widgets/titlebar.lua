@@ -160,7 +160,7 @@ local function create(c, args)
     
     local userWidgets
     if hooks[c.class] ~= nil then
-        userWidgets = hooks[c.class]({buttons=buttons,icon=appicon,tabbar=tl,wibox=tb},titlebar)
+        userWidgets = hooks[c.class]({buttons=buttons,icon=appicon,tabbar=tl,wibox=tb},titlebar,c)
     elseif #(signals['create'] or {}) > 0 then
         userWidgets = signals['create'][1]({buttons=buttons,icon=appicon,tabbar=tl,wibox=tb},titlebar)
     end

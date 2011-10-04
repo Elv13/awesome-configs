@@ -12,6 +12,7 @@ require( "drawer"       )
 require( "utils"        )
 require( "customMenu"   )
 require( "customButton" )
+require( "titlebar"     )
 
 -- Cache result for probe used more than once
 vicious.cache( vicious.widgets.net )
@@ -293,47 +294,6 @@ for s = 1, screen.count() do
     mytasklist[s]                                                                                     or nil,
   }  
 end
-
--- Titlebar widgets
-widgets.titlebar.add_signal("create",function(widgets,titlebar)
-    local numberStyle    = "<span size='large' bgcolor='".. theme.fg_normal .."'color='".. theme.bg_normal .."'><tt><b>"
-    local numberStyleEnd = "</b></tt></span>"--"</b></tt></span> "
-    local menuTb         = widget({type="textbox"})
-    menuTb.text          = "<span color=\"".. beautiful.bg_normal .."\">[MENU]</span>"
-    menuTb.bg            = beautiful.fg_normal
-    widgets.icon.bg      = beautiful.fg_normal
-
-    widgets.wibox.widgets = {                                      --
-        {                                                          --
-          widgets.icon                                              ,
-          menuTb                                                    ,
-          layout = awful.widget.layout.horizontal.leftright         ,
-        }                                                           ,
-        widgets.buttons.close.widget                                ,
-        widgets.buttons.ontop.widget                                ,
-        widgets.buttons.maximized.widget                            ,
-        widgets.buttons.sticky.widget                               ,
-        widgets.buttons.floating.widget                             ,
-        layout = awful.widget.layout.horizontal.rightleft           ,
-        widgets.tabbar                                              ,
-    }
-          
-    local client = nil
-    titlebar:add_signal('client_changed', function (c)
-        client      = c
-        menuTb.text = numberStyle.. (config.data.listPrefix[utils.clientSwitcher.getIndex(c)] or config.data.listPrefix[1]) .. numberStyleEnd .."<span color=\"".. beautiful.bg_normal .."\">[MENU]</span>"
-    end)
-    
-    local btn = awful.util.table.join(
-    awful.button({ }, 1, function()
-        if client ~= nil then
-            customMenu.clientMenu.toggle(client)
-        end
-    end))
-    
-    menuTb:buttons( btn )
-    widgets.icon:buttons( btn )
-end)
 
 -- Add the drives list on the desktop
 if config.data.deviceOnDesk == true then

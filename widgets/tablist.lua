@@ -42,7 +42,7 @@ function widget_tasklist_label_common(tab, w)
     if w.focus == true then
       if tab.selected == false then
         prefix = "<span color='"..util.color_strip_alpha(beautiful.fg_normal).."'>"
-        bg = beautiful.bg_normal
+        bg = beautiful.bg_highlight
         suffix = "</span>"
       else
         bg = beautiful.bg_focus
