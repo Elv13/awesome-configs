@@ -478,7 +478,7 @@ function new(args)
       
       --Member functions
       function data:check(value)
-          self.checked = (value == nil) and self.checked or ((value == false) and false or value) or nil
+          self.checked = (value == nil) and self.checked or ((value == false) and false or value)
           if self.checked == nil then return end
           self.widgets.checkbox = self.widgets.checkbox or capi.widget({type="imagebox"})
           self.widgets.checkbox.image = (self.checked == true) and checkbox.checked() or checkbox.unchecked() or nil
@@ -591,6 +591,11 @@ function new(args)
         registerButton(wibox,data)
         table.insert(self.items, data)
     end
+
+    function menu:add_wibox(m,args)
+       m.isMenu = true
+    end  
+
     return menu
   end
   

@@ -71,9 +71,18 @@ local function createNewTag()
     end
 end
 
-local function signalMenu()
-    
+local function initConf()
+    if not config.persistent then config.persistent = {} end
+    if not config.persistent.flags then config.persistent.flags = {} end
+    if not config.persistent.flags.sticky    then config.persistent.flags.sticky    = {} end
+    if not config.persistent.flags.floating  then config.persistent.flags.floating  = {} end
+    if not config.persistent.flags.maximized then config.persistent.flags.maximized = {} end
+    if not config.persistent.flags.above     then config.persistent.flags.above     = {} end
+    if not config.persistent.flags.below     then config.persistent.flags.below     = {} end
+    if not config.persistent.flags.onTop     then config.persistent.flags.onTop     = {} end
+    if not config.persistent.flags.intrusive then config.persistent.flags.intrusive = {} end
 end
+
 
 local sigMenu = nil
 local function singalMenu()
@@ -133,7 +142,7 @@ function layerMenu()
 end
 
 function new(screen, args)
-  
+  initConf()
   mainMenu = menu2()
   itemVisible    = mainMenu:add_item({text="Visible"     , checked= function() if aClient ~= nil then return not aClient.hidden else return false end end, onclick = function()  end})
   itemVSticky    = mainMenu:add_item({text="Sticky"      , checked= function() if aClient ~= nil then return aClient.sticky else return false end end , onclick = function()  end})
@@ -146,15 +155,16 @@ function new(screen, args)
   itemRenice     = mainMenu:add_item({text="Renice"      , checked=true , onclick = function()  end})
   itemNewTag     = mainMenu:add_item({text="Open in a new Tag"      , subMenu=createNewTag() , onclick = createNewTag_click})
   
-  
   itemLayer     = mainMenu:add_item({text="Layer"       , subMenu=layerMenu(), onclick = function()  end})
   
   mainMenu_per = menu2()
-  itemVSticky_per    = mainMenu_per:add_item({text="Sticky"      , checked=true , onclick = function()  end})
-  itemVFloating_per  = mainMenu_per:add_item({text="Floating"    , checked=true , onclick = function()  end})
-  itemMaximized_per  = mainMenu_per:add_item({text="Maximized"   , checked=true , onclick = function()  end})
-  itemSendSignal_per = mainMenu_per:add_item({text="Send Signal" , checked=true , onclick = function()  end})
-  itemRenice_per     = mainMenu_per:add_item({text="Renice"      , checked=true , onclick = function()  end})
+  itemVSticky_per    = mainMenu_per:add_item({text="Sticky"      , checked= true , onclick = function() config.persistent.flags.sticky[aClient.class]   = not (config.persistent.flags.sticky[aClient.class]    or false) end})
+  itemVFloating_per  = mainMenu_per:add_item({text="Floating"    , checked= true , onclick = function() config.persistent.flags.floating[aClient.class] = not (config.persistent.flags.floating[aClient.class]  or false) end})
+  itemMaximized_per  = mainMenu_per:add_item({text="Maximized"   , checked= true , onclick = function() config.persistent.flags.maximized[aClient.class]= not (config.persistent.flags.maximized[aClient.class] or false) end})
+  itemAbove_per      = mainMenu_per:add_item({text="Above"       , checked= true , onclick = function() config.persistent.flags.above[aClient.class]    = not (config.persistent.flags.above[aClient.class]     or false) end})
+  itemBelow_per      = mainMenu_per:add_item({text="Below"       , checked= true , onclick = function() config.persistent.flags.below[aClient.class]    = not (config.persistent.flags.below[aClient.class]     or false) end})
+  itemOntop_per      = mainMenu_per:add_item({text="On Top"      , checked= true , onclick = function() config.persistent.flags.onTop[aClient.class]    = not (config.persistent.flags.onTop[aClient.class]     or false) end})
+  itemIntrusive_per  = mainMenu_per:add_item({text="Intrusive"   , checked= true , onclick = function() config.persistent.flags.intrusive[aClient.class]= not (config.persistent.flags.intrusive[aClient.class] or false) end})
 
   return mainMenu
 end
@@ -186,11 +196,20 @@ function toggle(c)
             classM:add_item({text = "Match to Tags" })
             classM:add_item({text = "Flags", subMenu = function()
                 local flagMenu = menu2()
+                itemVSticky_per  :check(config.persistent.flags.sticky[aClient.class]    or false)
+                itemVFloating_per:check(config.persistent.flags.floating[aClient.class]  or false)
+                itemMaximized_per:check(config.persistent.flags.maximized[aClient.class] or false)
+                itemAbove_per    :check(config.persistent.flags.above[aClient.class]     or false)
+                itemBelow_per    :check(config.persistent.flags.below[aClient.class]     or false)
+                itemOntop_per    :check(config.persistent.flags.onTop[aClient.class]     or false)
+                itemIntrusive_per:check(config.persistent.flags.intrusive[aClient.class] or false)
                 flagMenu:add_existing_item( itemVSticky_per    )
                 flagMenu:add_existing_item( itemVFloating_per  )
                 flagMenu:add_existing_item( itemMaximized_per  )
-                flagMenu:add_existing_item( itemSendSignal_per )
-                flagMenu:add_existing_item( itemRenice_per     )
+                flagMenu:add_existing_item( itemAbove_per      )
+                flagMenu:add_existing_item( itemBelow_per      )
+                flagMenu:add_existing_item( itemOntop_per      )
+                flagMenu:add_existing_item( itemIntrusive_per  )
                 return flagMenu
             end})
             return classM
