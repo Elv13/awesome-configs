@@ -183,7 +183,8 @@ function addWidget(wdg,args,reserved)
                                     if mouse.x ~= curX and mouse.y ~= curY then
                                         local height = wb:geometry().height
                                         local width  = wb:geometry().width
-                                        wb:geometry({x=mouse.x-(width/2),y=mouse.y-(height/2)})
+                                        wb.x = mouse.x-(width/2)
+                                        wb.y = mouse.y-(height/2)
                                         moved = true
                                     end
                                     return true
@@ -216,10 +217,16 @@ end
 function draw()
     registerSpace_real()
     for k,v in ipairs(reservedItem) do
-        v.wibox:geometry({x=v.x,y=v.y,width=v.width,height=v.height})
+        v.wibox.x = v.x
+        v.wibox.y = v.y
+        v.wibox.width = v.width
+        v.wibox.height=v.height
     end
     for k,v in ipairs(autoItems) do
-        v.wibox:geometry({x=v.x,y=v.y,width=v.width,height=v.height})
+        v.wibox.x = v.x
+        v.wibox.y = v.y
+        v.wibox.width = v.width
+        v.wibox.height=v.height
     end
 end
 

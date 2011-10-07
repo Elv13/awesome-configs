@@ -14,6 +14,8 @@ local capi = { image = image,
 
 module("customMenu.tagOption")
 
+local aTagMenu = nil
+
 local function hightlight(aWibox, value)
   aWibox.bg = (value == true) and beautiful.bg_focus or beautiful.bg_normal
 end
@@ -106,4 +108,12 @@ function new(screen, args)
   
   return mainMenu
 end
+
+function getMenu()
+    if not aTagMenu then
+        aTagMenu = new()
+    end
+    return aTagMenu
+end
+
 setmetatable(_M, { __call = function(_, ...) return new(...) end })

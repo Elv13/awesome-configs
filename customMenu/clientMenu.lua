@@ -175,6 +175,9 @@ end
 
 function toggle(c)
     aClient = c
+    if not itemVisible then
+        new()
+    end
     local mainMenu2 = menu2()
     mainMenu2:add_existing_item( itemVisible    )
     mainMenu2:add_existing_item( itemSticky     )

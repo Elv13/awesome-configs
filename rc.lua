@@ -91,9 +91,6 @@ applicationMenu        = customMenu.application   ( nil                         
 -- Create the place menu TODO use the KDE list instead of the hardcoded one
 placesMenu             = customMenu.places        ( nil                                )
 
--- Create the recent menu
--- recentMenu          = customMenu.recent        ( nil                                )
-
 -- Call the laucher wibox
 launcher               = customMenu.launcher      ( nil                                )
 
@@ -124,12 +121,6 @@ keyboardSwitcherWidget = widgets.keyboardSwitcher ( nil                         
 -- Create a systray
 mysystray              = widget                   ( { type = "systray"               } )
 
--- Create the tag right click menu [[In develpment]]
-tagMenu                = customMenu.tagOption     ( nil                                )
-
--- Create the mod4 + middle click menu on a client
-clientMenu             = customMenu.clientMenu    ( nil                                )
-
 -- Create the music panel
 --musicBar = panel.musicBar()
 
@@ -147,7 +138,7 @@ mytaglist.buttons = awful.util.table.join(
   awful.button({        }, 1, function (tag) awful.tag.viewonly(tag)               end ),
   awful.button({ modkey }, 1, awful.client.movetotag                                   ),
   awful.button({        }, 2, function (tag) shifty.rename(tag)                    end ),
-  awful.button({        }, 3, function (tag) tagMenu:toggle(tag)                   end ),
+  awful.button({        }, 3, function (tag) customMenu.tagOption.getMenu():toggle(tag) end ),
   awful.button({ modkey }, 3, awful.client.toggletag                                   ),
   awful.button({        }, 4, awful.tag.viewnext                                       ),
   awful.button({        }, 5, awful.tag.viewprev                                       )

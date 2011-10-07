@@ -72,10 +72,7 @@ local function executeAppsNew(screen, tagName , cmd)
     --end
 end
 
-function new(screen, args)
-  sensibleArea = wibox({ position = "free", screen = s, width = 1 })
-  sensibleArea.ontop = true
-  sensibleArea:geometry({ width = 1, height = capi.screen[1].geometry.height -100, x = 0, y = 50})
+local function create(screen, args)
   
   lauchBar = wibox({ position = "free", screen = s, width = 49 })
   lauchBar:geometry({ width = 40, height = capi.screen[1].geometry.height -100, x = 0, y = 50})
@@ -440,9 +437,25 @@ function new(screen, args)
       end
   end)
   ))
-  
-  sensibleArea:add_signal("mouse::enter", function() lauchBar.visible = true end)
   lauchBar:add_signal("mouse::leave", function() lauchBar.visible = false end)
+  return lauchBar
+end
+
+local l = nil
+
+local function getLauncher()
+    if not l then
+        l = create()
+    end
+    return l
+end
+  
+function new()
+  
+  sensibleArea = wibox({ position = "free", screen = s, width = 1 })
+  sensibleArea.ontop = true
+  sensibleArea:geometry({ width = 1, height = capi.screen[1].geometry.height -100, x = 0, y = 50})
+  sensibleArea:add_signal("mouse::enter", function() getLauncher().visible = true end)
   
   return launcherPix
 end
