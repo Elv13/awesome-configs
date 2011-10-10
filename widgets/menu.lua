@@ -389,8 +389,10 @@ function new(args)
       if (self.subMenu ~= nil) and (hideOld == true) then
         self.subMenu:toggle_sub_menu(nil,true,false)
         self.subMenu:toggle(false)
-      elseif aSubMenu ~= nil and aSubMenu.toggle ~= nil then
-        aSubMenu:toggle(forceValue or true)  
+      end
+      
+      if aSubMenu ~= nil and aSubMenu.toggle ~= nil then
+        aSubMenu:toggle(forceValue or true)
       end
       self.subMenu = aSubMenu
     end
@@ -465,16 +467,17 @@ function new(args)
         x           = 0                                            ,
         y           = 0                                            ,
         widgets     = {}                                           ,
+        pMenu       = self                                         ,
         ------------------------------------------------------------
       }
       for i=2, 10 do
           data["button"..i] = args["button"..i]
       end
-      self.hasChanged = true
+      data.pMenu.hasChanged = true
       
-      table.insert(self.items, data)
-      local pos = #self.items
-      self:set_coords()
+      table.insert(data.pMenu.items, data)
+      local pos = #data.pMenu.items
+      data.pMenu:set_coords() --TODO needed?
       
       --Member functions
       function data:check(value)
@@ -501,7 +504,7 @@ function new(args)
       if data.subMenu ~= nil then
          subArrow2 = subArrow
          if type(data.subMenu) ~= "function" and data.subMenu.settings then
-           data.subMenu.settings.parent = self
+           data.subMenu.settings.parent = data.pMenu
          end
       else
         subArrow2 = nil
@@ -512,17 +515,17 @@ function new(args)
               data:hightlight(value)
           end
           if value == true then
-            currentMenu = self
-            self.currentIndex = pos
+            currentMenu = data.pMenu
+            data.pMenu.currentIndex = pos
             if type(data.subMenu) ~= "function" then
-              self:toggle_sub_menu(data.subMenu,value,value)
+              data.pMenu:toggle_sub_menu(data.subMenu,value,value)
             elseif data.subMenu ~= nil then
               local aSubMenu = data.subMenu()
               if not aSubMenu then return end
               aSubMenu.settings.x = data.x + aSubMenu.settings.itemWidth
               aSubMenu.settings.y = data.y
-              aSubMenu.settings.parent = self
-              self:toggle_sub_menu(aSubMenu,value,value)
+              aSubMenu.settings.parent = data.pMenu
+              data.pMenu:toggle_sub_menu(aSubMenu,value,value)
             end
           end
       end
@@ -569,6 +572,7 @@ function new(args)
     
     function menu:add_existing_item(item)
         if not item then return end
+        item.pMenu = menu
         registerButton(item.widget,item)
         table.insert(self.items, item)
     end

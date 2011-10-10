@@ -36,7 +36,6 @@ end
 
 local function startTimer()
     if mytimer.started == true or autoSave == false then return end
-    print("AutoSave: ",autoSave)
     mytimer:add_signal("timeout", function()
         mytimer:stop()
         print("Serializing data")
@@ -46,7 +45,6 @@ local function startTimer()
 end
 
 function settable_eventW (table, key,value)
-                print("I am here2")
     local function digg(val,parent,k2,realT)
         if type(val) == "table" then
             rawset(parent,k2,{})
@@ -60,7 +58,6 @@ function settable_eventW (table, key,value)
             end
             
             local function mirrorW(table, key,value)
-                print("I am here")
                 if realT[k2][key] ~= value then
                     realT[k2][key] = value
                     startTimer()

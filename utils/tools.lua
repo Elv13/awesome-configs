@@ -62,8 +62,10 @@ function tag_to_screen(t, scr)
 
     if #ts:clients() > 0 then
         local c = ts:clients()[1]
-        client.focus = c
-        c:raise()
+        if c.filter ~= nil then
+            client.focus = c
+            c:raise()
+        end
     end
 end
 
