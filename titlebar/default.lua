@@ -40,7 +40,7 @@ widgets.titlebar.add_signal("create",function(widgets,titlebar)
     local client = nil
     titlebar:add_signal('client_changed', function (c)
         client      = c
-        menuTb.text = numberStyle.. (config.data.listPrefix[utils.clientSwitcher.getIndex(c)] or config.data.listPrefix[1]) .. numberStyleEnd .."<span color=\"".. beautiful.bg_normal .."\">[MENU]</span>"
+        menuTb.text = numberStyle.. (config.data().listPrefix[utils.clientSwitcher.getIndex(c)] or config.data().listPrefix[1] or 0) .. numberStyleEnd .."<span color=\"".. beautiful.bg_normal .."\">[MENU]</span>"
     end)
     
     local btn = awful.util.table.join(

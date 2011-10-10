@@ -34,7 +34,7 @@ function new(screen, args)
 
   mylauncher3text = capi.widget({ type = "textbox" })
   mylauncher3text.text = "       Recent |"
-  mylauncher3text.bg_image = capi.image(config.data.iconPath .. "tags/star2.png")
+  mylauncher3text.bg_image = capi.image(config.data().iconPath .. "tags/star2.png")
   mylauncher3text.bg_align = "left"
   mylauncher3text.bg_resize = true
   

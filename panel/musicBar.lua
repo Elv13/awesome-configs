@@ -38,7 +38,7 @@ local function percent_info(format)
             f = io.popen('echo `dbus-send --type=method_call --print-reply --dest=org.kde.amarok /Player org.freedesktop.MediaPlayer.GetMetadata | grep \'"mtime"\' --context=1 | tail -n 1 | awk \'{print $3 }\'` `dbus-send --type=method_call --print-reply --dest=org.kde.amarok /Player org.freedesktop.MediaPlayer.PositionGet | tail -n 1 | awk \'{print $2}\'` | awk \'{print $2/$1}\'')
             text2 = f:read()
         else
-            f = io.popen(config.data.scriptPath .. 'vlcInfo.sh percent')
+            f = io.popen(config.data().scriptPath .. 'vlcInfo.sh percent')
             text2 = f:read()
         end
         f:close()
@@ -78,10 +78,10 @@ local function total_info(format)
         local f
         local text2
         if isPlayingMovie == false then
-        f = io.popen(config.data.scriptPath .. 'amarokInfo2.sh remaining')
+        f = io.popen(config.data().scriptPath .. 'amarokInfo2.sh remaining')
         text2 = f:read()
         else
-        f = io.popen(config.data.scriptPath .. 'vlcInfo.sh remaining')
+        f = io.popen(config.data().scriptPath .. 'vlcInfo.sh remaining')
         text2 = f:read()
         end
         f:close()
@@ -91,7 +91,7 @@ end
 
 local function title_info(format)
     if mywibox3.visible == true then
-        local f = io.popen(config.data.scriptPath .. 'amarokInfo2.sh title')
+        local f = io.popen(config.data().scriptPath .. 'amarokInfo2.sh title')
         local text2 = f:read()
         f:close()
         return {text2}
@@ -106,7 +106,7 @@ local function elapsed_info(format)
         f = io.popen('dbus-send --type=method_call --print-reply --dest=org.kde.amarok /Player org.freedesktop.MediaPlayer.PositionGet | tail -n 1 | awk \'{print $2/1000}\' | cut -f 1 -d "."')
         text2 = f:read()
         else
-        f = io.popen(config.data.scriptPath .. 'vlcInfo.sh elapsed')
+        f = io.popen(config.data().scriptPath .. 'vlcInfo.sh elapsed')
         text2 = f:read()
         end
         f:close()
@@ -116,11 +116,11 @@ end
 
 local function toggleHeadPhone()
     if headphonecheck == true then
-        headphonecheckpix.image = capi.image(config.data.iconPath .. "uncheck.png")
+        headphonecheckpix.image = capi.image(config.data().iconPath .. "uncheck.png")
         util.spawn("amixer -c0 sset Front mute >/dev/null")
         headphonecheck = false
     else
-        headphonecheckpix.image = capi.image(config.data.iconPath .. "check.png")
+        headphonecheckpix.image = capi.image(config.data().iconPath .. "check.png")
         util.spawn("amixer -c0 sset Front unmute >/dev/null")
         headphonecheck = true
     end
@@ -136,11 +136,11 @@ end
 
 local function toggleSpeakers()
     if speakercheck == true then
-        speakercheckpix.image = capi.image(config.data.iconPath .. "uncheck.png")
+        speakercheckpix.image = capi.image(config.data().iconPath .. "uncheck.png")
         util.spawn("amixer -c0 sset Surround mute >/dev/null")
         speakercheck = false
     else
-        speakercheckpix.image = capi.image(config.data.iconPath .. "check.png")
+        speakercheckpix.image = capi.image(config.data().iconPath .. "check.png")
         util.spawn("amixer -c0 sset Surround unmute >/dev/null")
         speakercheck = true
     end
@@ -152,14 +152,14 @@ function new(screen, args)
     wibox.set_position(mywibox3,"top",1)
 
     previouspixmap       = capi.widget({ type = "imagebox", align = "left" })
-    previouspixmap.image = capi.image(config.data.iconPath .. "previous.png")
+    previouspixmap.image = capi.image(config.data().iconPath .. "previous.png")
 
     previouspixmap:add_signal("mouse::enter", function ()
-        previouspixmap.image = capi.image(config.data.iconPath .. "previous_light.png")
+        previouspixmap.image = capi.image(config.data().iconPath .. "previous_light.png")
     end)
 
     previouspixmap:add_signal("mouse::leave", function ()
-    previouspixmap.image = capi.image(config.data.iconPath .. "previous.png")
+    previouspixmap.image = capi.image(config.data().iconPath .. "previous.png")
     end)
 
     previouspixmap:buttons(util.table.join(
@@ -167,20 +167,20 @@ function new(screen, args)
             if isPlayingMovie == false then
                 util.spawn('dbus-send --type=method_call --dest=org.kde.amarok /Player org.freedesktop.MediaPlayer.Prev')
             else
-                util.spawn(config.data.scriptPath .. 'vlcPosition.sh p')
+                util.spawn(config.data().scriptPath .. 'vlcPosition.sh p')
             end
         end)
     ))
 
     playpixmap       = capi.widget({ type = "imagebox", align = "left" })
-    playpixmap.image = capi.image(config.data.iconPath .. "play.png")
+    playpixmap.image = capi.image(config.data().iconPath .. "play.png")
 
     playpixmap:add_signal("mouse::enter", function ()
-        playpixmap.image = capi.image(config.data.iconPath .. "play_light.png")
+        playpixmap.image = capi.image(config.data().iconPath .. "play_light.png")
     end)
 
     playpixmap:add_signal("mouse::leave", function ()
-    playpixmap.image = capi.image(config.data.iconPath .. "play.png")
+    playpixmap.image = capi.image(config.data().iconPath .. "play.png")
     end)
 
     playpixmap:buttons(util.table.join(
@@ -194,14 +194,14 @@ function new(screen, args)
     ))
 
     pausepixmap       = capi.widget({ type = "imagebox", align = "left" })
-    pausepixmap.image = capi.image(config.data.iconPath .. "pause.png")
+    pausepixmap.image = capi.image(config.data().iconPath .. "pause.png")
 
     pausepixmap:add_signal("mouse::enter", function ()
-        pausepixmap.image = capi.image(config.data.iconPath .. "pause_light.png")
+        pausepixmap.image = capi.image(config.data().iconPath .. "pause_light.png")
     end)
 
     pausepixmap:add_signal("mouse::leave", function ()
-    pausepixmap.image = capi.image(config.data.iconPath .. "pause.png")
+    pausepixmap.image = capi.image(config.data().iconPath .. "pause.png")
     end)
 
     pausepixmap:buttons(util.table.join(
@@ -215,14 +215,14 @@ function new(screen, args)
     ))
 
     stoppixmap       = capi.widget({ type = "imagebox", align = "left" })
-    stoppixmap.image = capi.image(config.data.iconPath .. "stop.png")
+    stoppixmap.image = capi.image(config.data().iconPath .. "stop.png")
 
     stoppixmap:add_signal("mouse::enter", function ()
-        stoppixmap.image = capi.image(config.data.iconPath .. "stop_light.png")
+        stoppixmap.image = capi.image(config.data().iconPath .. "stop_light.png")
     end)
 
     stoppixmap:add_signal("mouse::leave", function ()
-    stoppixmap.image = capi.image(config.data.iconPath .. "stop.png")
+    stoppixmap.image = capi.image(config.data().iconPath .. "stop.png")
     end)
 
     stoppixmap:buttons(util.table.join(
@@ -236,14 +236,14 @@ function new(screen, args)
     ))
 
     nextpixmap       = capi.widget({ type = "imagebox", align = "left" })
-    nextpixmap.image = capi.image(config.data.iconPath .. "next.png")
+    nextpixmap.image = capi.image(config.data().iconPath .. "next.png")
 
     nextpixmap:add_signal("mouse::enter", function ()
-        nextpixmap.image = capi.image(config.data.iconPath .. "next_light.png")
+        nextpixmap.image = capi.image(config.data().iconPath .. "next_light.png")
     end)
 
     nextpixmap:add_signal("mouse::leave", function ()
-    nextpixmap.image = capi.image(config.data.iconPath .. "next.png")
+    nextpixmap.image = capi.image(config.data().iconPath .. "next.png")
     end)
 
     nextpixmap:buttons(util.table.join(
@@ -251,7 +251,7 @@ function new(screen, args)
             if isPlayingMovie == false then
                 util.spawn('dbus-send --type=method_call --dest=org.kde.amarok /Player org.freedesktop.MediaPlayer.Next')
             else
-                util.spawn(config.data.scriptPath .. 'vlcPosition.sh f')
+                util.spawn(config.data().scriptPath .. 'vlcPosition.sh f')
             end
         end)
     ))
@@ -340,9 +340,9 @@ function new(screen, args)
 
     headphonecheckpix       = capi.widget({ type = "imagebox", align = "right" })
     if headphonecheck == true then
-    headphonecheckpix.image = capi.image(config.data.iconPath .. "check.png")
+    headphonecheckpix.image = capi.image(config.data().iconPath .. "check.png")
     else
-    headphonecheckpix.image = capi.image(config.data.iconPath .. "uncheck.png")
+    headphonecheckpix.image = capi.image(config.data().iconPath .. "uncheck.png")
     end
 
     headphonecheckpix:buttons(util.table.join(
@@ -374,9 +374,9 @@ function new(screen, args)
 
     speakercheckpix  = capi.widget({ type = "imagebox", align = "right" })
     if speakercheck == true then
-    speakercheckpix.image = capi.image(config.data.iconPath .. "check.png")
+    speakercheckpix.image = capi.image(config.data().iconPath .. "check.png")
     else
-    speakercheckpix.image = capi.image(config.data.iconPath .. "uncheck.png")
+    speakercheckpix.image = capi.image(config.data().iconPath .. "uncheck.png")
     end
 
     speakercheckpix:buttons(util.table.join(
@@ -455,7 +455,7 @@ function new(screen, args)
     end
 
     volumepixmap2       = capi.widget({ type = "imagebox", align = "right" })
-    volumepixmap2.image = capi.image(config.data.iconPath .. "vol.png")
+    volumepixmap2.image = capi.image(config.data().iconPath .. "vol.png")
     volumepixmap2:buttons(util.table.join(
         button({ }, 1, function()
             mywibox3.visible = not mywibox3.visible

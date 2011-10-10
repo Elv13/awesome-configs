@@ -62,7 +62,7 @@ local function button_group(args)
     local function setImage(hover)
         local curfocus  = (hover == true) and "hover" or ((((type(focus) == "function") and focus() or focus) == true) and "focus" or "normal")
         local curactive = ((((type(checked) == "function") and checked() or checked) == true) and "active" or "inactive")
-        widget.image    = capi.image( config.data.themePath.. "Icon/titlebar/" .. field .."_"..curfocus .."_"..curactive..".png"  )
+        widget.image    = capi.image( config.data().themePath.. "Icon/titlebar/" .. field .."_"..curfocus .."_"..curactive..".png"  )
     end
     
     local function createWidget()

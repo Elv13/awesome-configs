@@ -224,7 +224,7 @@ function repaint()
             end
             
             testImage2       = capi.widget({ type = "imagebox"})
-            testImage2.image = capi.image(config.data.iconPath .. "kill.png")
+            testImage2.image = capi.image(config.data().iconPath .. "kill.png")
             
             processW.widgets = {aMem, {testImage2, layout = widget2.layout.horizontal.rightleft}, layout = widget2.layout.horizontal.leftright,{
                                 aProcess , 
@@ -323,7 +323,7 @@ function new(s, args)
 --     mytimer:start()
 
     ramlogo       = capi.widget({ type = "imagebox", align = "right" })
-    ramlogo.image = capi.image(config.data.iconPath .. "cpu.png")
+    ramlogo.image = capi.image(config.data().iconPath .. "cpu.png")
     ramlogo:buttons( util.table.join(
     button({ }, 1, function()
         toggleSensorBar()

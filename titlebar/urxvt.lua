@@ -23,10 +23,10 @@ widgets.titlebar.registerCustomClass("URxvt",function(widgets,titlebar,c)
     menuTb.bg            = beautiful.fg_normal
     widgets.icon.bg      = beautiful.fg_normal
     local addTab         = capi.widget({ type = "imagebox"})
-    addTab.image         = capi.image(config.data.iconPath .. "addTabs.png")
+    addTab.image         = capi.image(config.data().iconPath .. "addTabs.png")
     
     local bell0          = capi.widget({ type = "imagebox"})
-    bell0.image          = capi.image(config.data.iconPath .. "bell2.png")
+    bell0.image          = capi.image(config.data().iconPath .. "bell2.png")
     
     local aTabList = tablist_old.new(nil,nil)
     aTabList:add_tab(c.window).selected = true

@@ -102,14 +102,14 @@ function string:split(sep)
 end
 
 function addTitleBar(screen)
-  local add_title = config.data.showTitleBar or false
+  local add_title = config.data().showTitleBar or false
   if layout.get(screen) == layout.suit.floating then
     add_title = true 
   end
   if tag.selected() ~= nil then
     for i, client2 in ipairs(tag.selected():clients()) do
       if client2 == nil or client2.class ~= "" or client2.floating ~= nil then
-        if (client2.class == "urxvt" or client2.class == "URxvt") and config.data.advTermTB == true then
+        if (client2.class == "urxvt" or client2.class == "URxvt") and config.data().advTermTB == true then
           tabbar.add(client2)
         elseif add_title == true or client.floating.get(client2) == true or layoutmenu.showTitle(tag.selected()) == true then
           titlebar.add(client2, { modkey = modkey })
@@ -122,7 +122,7 @@ function addTitleBar(screen)
 end
 
 function invertedIconPath(tagName)
-    return config.data.iconPath .. (config.data.useListPrefix == true and "tags_invert/" or "tags/") .. tagName
+    return config.data().iconPath .. (config.data().useListPrefix == true and "tags_invert/" or "tags/") .. tagName
 end
 
 function stripHtml(str)

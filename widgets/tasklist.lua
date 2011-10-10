@@ -117,11 +117,11 @@ local function widget_tasklist_label_common(c, args)
     end
     if capi.client.focus == c then
         bg = bg_focus
-        if config.data.useListPrefix == true then
+        if config.data().useListPrefix == true then
           if fg_focus then
-            text = text .. numberStyle..config.data.listPrefix[counter]..numberStyleEnd.."<span color='"..util.color_strip_alpha(fg_focus).."'>"..name.."</span>"
+            text = text .. numberStyle..config.data().listPrefix[counter]..numberStyleEnd.."<span color='"..util.color_strip_alpha(fg_focus).."'>"..name.."</span>"
           else
-            text = text .. numberStyle..config.data.listPrefix[counter]..numberStyleEnd..name
+            text = text .. numberStyle..config.data().listPrefix[counter]..numberStyleEnd..name
           end
         else
           if fg_focus then
@@ -137,14 +137,14 @@ local function widget_tasklist_label_common(c, args)
         bg = bg_minimize
         text = text .. "<span color='"..util.color_strip_alpha(fg_minimize).."'>"..name.."</span>"
     else
-      if config.data.useListPrefix == true then
-        text = text .. numberStyle..config.data.listPrefix[counter]..numberStyleEnd .. name
+      if config.data().useListPrefix == true then
+        text = text .. numberStyle..config.data().listPrefix[counter]..numberStyleEnd .. name
       else
         text = text .. name
       end
     end
     text = text .. "</span>"
-    return text, bg, status_image, c.icon, (config.data.useListPrefix == true and beautiful.fg_normal or bg)
+    return text, bg, status_image, c.icon, (config.data().useListPrefix == true and beautiful.fg_normal or bg)
 end
 
 --- Return labels for a tasklist widget with clients from all tags and screen.

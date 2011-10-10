@@ -23,7 +23,7 @@ function new(screen, args)
   aWibox:geometry({x=400,y=400,width = 230, height = 30})
   local textTest = capi.widget({type="textbox" })
   local icon     = capi.widget({type="imagebox"})
-  icon.image     = capi.image(config.data.iconPath .. "home.png")
+  icon.image     = capi.image(config.data().iconPath .. "home.png")
   textTest.text  = "   text"
   aWibox.widgets = {icon,textTest, layout = widget2.layout.horizontal.leftright }
   aWibox.bg      = "#ff000000"

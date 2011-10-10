@@ -36,23 +36,22 @@ filemanager     = { cmd = "dolphin", class = "Dolphin" }
 modkey          = "Mod4"
 
 -- Various configuration options
-config.data = {                                                                                      --
-  showTitleBar  = true                                                                                ,
-  themeName     = "darkBlue"                                                                          ,
-  noNotifyPopup = true                                                                                , --TODO
-  useListPrefix = true                                                                                ,
-  deviceOnDesk  = true                                                                                , 
-  desktopIcon   = true                                                                                , 
-  advTermTB     = true                                                                                , 
-  scriptPath    = awful.util.getdir("config") .. "/Scripts/"                                          ,
-  listPrefix    = {'①','②','③','④','⑤','⑥','⑦','⑧','⑨','⑩','⑪','⑫','⑬','⑭','⑮','⑯','⑰','⑱','⑲','⑳'} ,
-  scr           = {                                                                                  --
-    pri         = 1                                                                                   ,
-    sec         = 2                                                                                   ,
-    music       = 3                                                                                   ,
-    media       = 4                                                                                   ,
-    irc         = 5                                                                                   ,
-  }                                                                                                   ,
+config.disableAutoSave()
+config.data().showTitleBar  = true
+config.data().themeName     = "darkBlue"
+config.data().noNotifyPopup = true
+config.data().useListPrefix = true
+config.data().deviceOnDesk  = true
+config.data().desktopIcon   = true
+config.data().advTermTB     = true
+config.data().scriptPath    = awful.util.getdir("config") .. "/Scripts/"
+config.data().listPrefix    = {'①','②','③','④','⑤','⑥','⑦','⑧','⑨','⑩','⑪','⑫','⑬','⑭','⑮','⑯','⑰','⑱','⑲','⑳'}
+config.data().scr           = {
+    pri         = 1,
+    sec         = 2,
+    music       = 3,
+    media       = 4,
+    irc         = 5,
 }
 
 -- Shifty config
@@ -62,13 +61,13 @@ shifty.config.defaults = {
   mwfact       = 0.60                   ,
   floatBars    = true                   ,
 }
-shifty.config.float_bars = true   
+shifty.config.float_bars = true
 
 -- Load the theme
 config.load()
-config.data.themePath = awful.util.getdir("config") .. "/theme/" .. config.data.themeName .. "/"
-config.data.iconPath  = config.data.themePath       .. "/Icon/"
-beautiful.init(config.data.themePath                .. "/theme.lua")
+config.data().themePath = awful.util.getdir("config") .. "/theme/" .. config.data().themeName .. "/"
+config.data().iconPath  = config.data().themePath       .. "/Icon/"
+beautiful.init(config.data().themePath                .. "/theme.lua")
   
 -- Create the panels
 for s = 1, screen.count() do
@@ -223,8 +222,8 @@ for s = 1, screen.count() do
   mytasklist[s] = widgets.tasklist(function(c) return widgets.tasklist.label.currenttags(c, s) end, mytasklist.buttons)
   
   -- Create the button to move a tag the next screen
-  movetagL[s]   = customButton.tagmover(s,{ direction = "left",  icon = config.data.iconPath .. "tags/screen_left.png"  })
-  movetagR[s]   = customButton.tagmover(s,{ direction = "right", icon = config.data.iconPath .. "tags/screen_right.png" })
+  movetagL[s]   = customButton.tagmover(s,{ direction = "left",  icon = config.data().iconPath .. "tags/screen_left.png"  })
+  movetagR[s]   = customButton.tagmover(s,{ direction = "right", icon = config.data().iconPath .. "tags/screen_right.png" })
   
   -- Top wibox widgets
   wiboxTop[s].widgets = { 
@@ -239,25 +238,25 @@ for s = 1, screen.count() do
           layout = awful.widget.layout.horizontal.leftright                                           -------
       },
       --                             RULES                      EXIST            WIDGET              FALLBACK
-      ( s == config.data.scr.sec or screen.count() == 1                  ) and mytextclock            or nil,
-      ( s == config.data.scr.sec or screen.count() == 1                  ) and kgetwidget             or nil,
-      ( s == config.data.scr.sec or screen.count() == 1                  ) and kgetpixmap             or nil,
-      ((s == config.data.scr.sec or screen.count() == 1) and soundWidget ) and soundWidget.wid        or nil,
-      ((s == config.data.scr.sec or screen.count() == 1) and soundWidget ) and soundWidget.pix        or nil,
-      ( s == config.data.scr.sec or screen.count() == 1                  ) and spacer4                or nil,
-      ((s == config.data.scr.sec or screen.count() == 1) and netinfo     ) and netinfo.up_text        or nil,
-      ((s == config.data.scr.sec or screen.count() == 1) and netinfo     ) and netinfo.up_logo        or nil,
-      ((s == config.data.scr.sec or screen.count() == 1) and netinfo     ) and netinfo.down_text      or nil,
-      ((s == config.data.scr.sec or screen.count() == 1) and netinfo     ) and netinfo.down_logo      or nil,
-      ( s == config.data.scr.sec or screen.count() == 1                  ) and spacer2                or nil,
-      ((s == config.data.scr.sec or screen.count() == 1) and meminfo     ) and meminfo.bar            or nil,
-      ((s == config.data.scr.sec or screen.count() == 1) and meminfo     ) and meminfo.text           or nil,
-      ((s == config.data.scr.sec or screen.count() == 1) and meminfo     ) and meminfo.logo           or nil,
-      ( s == config.data.scr.sec or screen.count() == 1                  ) and spacer2                or nil,
-      ((s == config.data.scr.sec or screen.count() == 1) and cpuinto     ) and cpuinfo.graph          or nil,
-      ((s == config.data.scr.sec or screen.count() == 1) and cpuinfo     ) and cpuinfo.text           or nil,
-      ((s == config.data.scr.sec or screen.count() == 1) and cpuinfo     ) and cpuinfo.logo           or nil,
-      ( s == config.data.scr.sec or screen.count() == 1                  ) and spacer3                or nil,
+      ( s == config.data().scr.sec or screen.count() == 1                  ) and mytextclock            or nil,
+      ( s == config.data().scr.sec or screen.count() == 1                  ) and kgetwidget             or nil,
+      ( s == config.data().scr.sec or screen.count() == 1                  ) and kgetpixmap             or nil,
+      ((s == config.data().scr.sec or screen.count() == 1) and soundWidget ) and soundWidget.wid        or nil,
+      ((s == config.data().scr.sec or screen.count() == 1) and soundWidget ) and soundWidget.pix        or nil,
+      ( s == config.data().scr.sec or screen.count() == 1                  ) and spacer4                or nil,
+      ((s == config.data().scr.sec or screen.count() == 1) and netinfo     ) and netinfo.up_text        or nil,
+      ((s == config.data().scr.sec or screen.count() == 1) and netinfo     ) and netinfo.up_logo        or nil,
+      ((s == config.data().scr.sec or screen.count() == 1) and netinfo     ) and netinfo.down_text      or nil,
+      ((s == config.data().scr.sec or screen.count() == 1) and netinfo     ) and netinfo.down_logo      or nil,
+      ( s == config.data().scr.sec or screen.count() == 1                  ) and spacer2                or nil,
+      ((s == config.data().scr.sec or screen.count() == 1) and meminfo     ) and meminfo.bar            or nil,
+      ((s == config.data().scr.sec or screen.count() == 1) and meminfo     ) and meminfo.text           or nil,
+      ((s == config.data().scr.sec or screen.count() == 1) and meminfo     ) and meminfo.logo           or nil,
+      ( s == config.data().scr.sec or screen.count() == 1                  ) and spacer2                or nil,
+      ((s == config.data().scr.sec or screen.count() == 1) and cpuinto     ) and cpuinfo.graph          or nil,
+      ((s == config.data().scr.sec or screen.count() == 1) and cpuinfo     ) and cpuinfo.text           or nil,
+      ((s == config.data().scr.sec or screen.count() == 1) and cpuinfo     ) and cpuinfo.logo           or nil,
+      ( s == config.data().scr.sec or screen.count() == 1                  ) and spacer3                or nil,
       layout = awful.widget.layout.horizontal.rightleft,                                              ------
       {                                                                                               ------
         notifibox[s]                                                                                  or nil,
@@ -268,17 +267,17 @@ for s = 1, screen.count() do
   -- Bottom wibox widgets
   wiboxBot[s].widgets = {
     --           RULES                                                         WIDGET                FALLBACK
-    ( s == config.data.scr.pri                                           ) and applicationMenu        or nil,
-    ( s == config.data.scr.pri                                           ) and placesMenu             or nil,
-    ( s == config.data.scr.pri                                           ) and recentMenu             or nil,
-    ( s == config.data.scr.pri                                           ) and launcher               or nil,
-    ( s == config.data.scr.pri                                           ) and desktopPix             or nil,
+    ( s == config.data().scr.pri                                           ) and applicationMenu        or nil,
+    ( s == config.data().scr.pri                                           ) and placesMenu             or nil,
+    ( s == config.data().scr.pri                                           ) and recentMenu             or nil,
+    ( s == config.data().scr.pri                                           ) and launcher               or nil,
+    ( s == config.data().scr.pri                                           ) and desktopPix             or nil,
     promptbox[s]                                                                                      or nil,
     spacer3                                                                                           or nil,
     {                                                                                                 ------
-      (s == config.data.scr.pri                                          ) and keyboardSwitcherWidget or nil,
+      (s == config.data().scr.pri                                          ) and keyboardSwitcherWidget or nil,
       spacer3                                                                                         or nil,
-      (s == config.data.scr.pri                                          ) and mysystray              or nil,
+      (s == config.data().scr.pri                                          ) and mysystray              or nil,
       layout = awful.widget.layout.horizontal.rightleft,                                              ------
     },                                                                                                ------
     layout = awful.widget.layout.horizontal.leftright,                                                ------
@@ -287,10 +286,10 @@ for s = 1, screen.count() do
 end
 
 -- Add the drives list on the desktop
-if config.data.deviceOnDesk == true then
+if config.data().deviceOnDesk == true then
   widgets.devices()
 end
-if config.data.desktopIcon == true then
+if config.data().desktopIcon == true then
     for i=1,20 do
         widgets.desktopIcon()
     end
@@ -308,7 +307,7 @@ dofile(awful.util.getdir("config") .. "/keyBinding.lua")
 -- Hooks
 client.add_signal("manage", function (c, startup)
     -- Add a titlebar to floating clients
-    if awful.client.floating.get(c) == true or config.data.showTitleBar == true  then
+    if awful.client.floating.get(c) == true or config.data().showTitleBar == true  then
       if (not c.class == "^XMMS$" or not c.class == "Xine") then
 	awful.titlebar.add(c, { modkey = modkey })
       end
@@ -392,3 +391,4 @@ end
 
 widgets.layout.desktopLayout.draw()
 config.save()
+config.enableAutoSave()

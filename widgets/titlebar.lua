@@ -211,12 +211,12 @@ local function create(c, args)
 end
 
 function add(c, args)
-  if config.data.titlebars == nil then
-      config.data.titlebars = {}
+  if config.data().titlebars == nil then
+      config.data().titlebars = {}
   end
   if c.titlebar == nil then
     local retval = create(c,args)
-    config.data.titlebars[retval.wibox] = retval.tablist
+    config.data().titlebars[retval.wibox] = retval.tablist
   else
     c.titlebar.visible = true
   end

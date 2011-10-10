@@ -252,9 +252,9 @@ function new(screen, args)
     formatHeader(protHeader  ,"APPLICATIONS"  )
     formatHeader(appHeader   ,"PROTOCOLS"     )
     
-    uploadImg.image    = capi.image(config.data.iconPath .. "arrowUp.png"  )
+    uploadImg.image    = capi.image(config.data().iconPath .. "arrowUp.png"  )
     uploadImg.resize   = false
-    downloadImg.image  = capi.image(config.data.iconPath .. "arrowDown.png")
+    downloadImg.image  = capi.image(config.data().iconPath .. "arrowDown.png")
     downloadImg.resize = false
     netUsageUp.text    = "<b>Up: </b>"
     netSpacer1.text    = " "
@@ -316,7 +316,7 @@ function new(screen, args)
         appIcon.border_width   = 1
         local app2             = capi.widget({ type = "textbox"                                })
         testImage2             = capi.widget({ type = "imagebox"                               })
-        testImage2.image       = capi.image (config.data.iconPath .. "kill.png"                 )
+        testImage2.image       = capi.image (config.data().iconPath .. "kill.png"                 )
         appWidget[i]           = { appIcon=appIcon,app2=app2                                    }
         appWidgetW[i]          = wibox({ position = "free" , screen = s , ontop = true         })
         appWidgetW[i].visible  = false
@@ -355,8 +355,8 @@ function new(screen, args)
 
     netDownWidget.width = 55
     netUpWidget.width   = 55
-    uplogo.image        = capi.image(config.data.iconPath .. "arrowUp.png"           )
-    downlogo.image      = capi.image(config.data.iconPath .. "arrowDown.png"         )
+    uplogo.image        = capi.image(config.data().iconPath .. "arrowUp.png"           )
+    downlogo.image      = capi.image(config.data().iconPath .. "arrowDown.png"         )
     vicious.register(netUpWidget  , vicious.widgets.net   ,  '${eth0 up_kb}KBs'   ,1 )
     vicious.register(netDownWidget, vicious.widgets.net   ,  '${eth0 down_kb}KBs' ,1 ) 
     downlogo:buttons      (util.table.join(button({ }, 1, function () show() end))   )

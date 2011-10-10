@@ -29,7 +29,7 @@ end
 
 function new(screen, args) 
   data[screen] = capi.widget({ type = "imagebox", align = "left" })
-  data[screen].image = capi.image(config.data.iconPath .. "tags/minus2.png")
+  data[screen].image = capi.image(config.data().iconPath .. "tags/minus2.png")
   data[screen].visible = false
   
   data[screen]:buttons( util.table.join(

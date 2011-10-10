@@ -20,7 +20,7 @@ end
 
 function new(screen, args) 
   local addTag  = capi.widget({ type = "imagebox", align = "left" })
-  addTag.image  = capi.image(config.data.iconPath .. "tags/cross2.png")
+  addTag.image  = capi.image(config.data().iconPath .. "tags/cross2.png")
   local tagMenu = menu()
 
   for v, i in next, shifty.config.tags do

@@ -32,31 +32,31 @@ shifty.config.tags = {
                     exclusive   = true                                           ,
                     icon        = utils.tools.invertedIconPath("term.png")       ,
                     max_clients = 5                                              ,
-                    screen      = {config.data.scr.pri, config.data.scr.sec}     ,
+                    screen      = {config.data().scr.pri, config.data().scr.sec} ,
                     layout      = awful.layout.suit.tile                       } ,
 ["Internet"] =   {  init        = true                                           ,
                     position    = 2                                              ,
                     exclusive   = true                                           ,
                     icon        = utils.tools.invertedIconPath("net.png")        ,
-                    screen      = config.data.scr.pri                            ,
+                    screen      = config.data().scr.pri                            ,
                     layout      = awful.layout.suit.max                        } ,
 ["Files"] =      {  init        = true                                           ,
                     position    = 3                                              ,
                     exclusive   = true                                           ,
                     icon        = utils.tools.invertedIconPath("folder.png")     ,
                     max_clients = 5                                              ,
-                    screen      = config.data.scr.pri                            ,
+                    screen      = config.data().scr.pri                            ,
                     layout      = awful.layout.suit.tile                       } ,
 ["Develop"] =    {  init        = true                                           ,
                     position    = 4                                              ,
                     exclusive   = true                                           ,
-                    screen      = {config.data.scr.pri, config.data.scr.sec}     ,
+                    screen      = {config.data().scr.pri, config.data().scr.sec}     ,
                     icon        = utils.tools.invertedIconPath("bug.png")        ,
                     layout      = awful.layout.suit.max                        } ,
 ["Edit"] =       {  init        = true                                           ,
                     position    = 5                                              ,
                     exclusive   = true                                           ,
-                    screen      = {config.data.scr.pri, config.data.scr.sec}     ,
+                    screen      = {config.data().scr.pri, config.data().scr.sec}     ,
                     icon        = utils.tools.invertedIconPath("editor.png")     ,
                     max_clients = 5                                              ,
                     layout      = awful.layout.suit.tile.bottom                } ,
@@ -69,7 +69,7 @@ shifty.config.tags = {
                     position    = 7                                              ,
                     exclusive   = true                                           ,
                     icon        = utils.tools.invertedIconPath("info.png")       ,
-                    screen      = config.data.scr.music                          ,
+                    screen      = config.data().scr.music                          ,
                     layout      = awful.layout.suit.max                        } ,
 ----------------------------------------------------------------------------------
                     
@@ -103,7 +103,7 @@ shifty.config.tags = {
 ["Music"] =      {  init        = false                                          ,
                     position    = 10                                             ,
                     exclusive   = true                                           ,
-                    screen      = config.data.scr.music or config.data.scr.pri   ,
+                    screen      = config.data().scr.music or config.data().scr.pri   ,
                     icon        = utils.tools.invertedIconPath("media.png")      ,
                     layout      = awful.layout.suit.max                        } ,
 ["Down"] =       {  init        = false                                          ,
@@ -124,7 +124,7 @@ shifty.config.tags = {
 ["Chat"] =       {  init        = false                                          ,
                     position    = 10                                             ,
                     exclusive   = true                                           ,
-                    screen      = config.data.scr.sec or config.data.scr.sec     ,
+                    screen      = config.data().scr.sec or config.data().scr.sec     ,
                     icon        = utils.tools.invertedIconPath("chat.png")       ,
                     layout      = awful.layout.suit.tile                       } ,
 ["Burning"] =    {  init        = false                                          ,
@@ -135,13 +135,13 @@ shifty.config.tags = {
 ["Mail"] =       {  init        = false                                          ,
                     position    = 10                                             ,
                     exclusive   = true                                           ,
-                    screen      = config.data.scr.sec or config.data.scr.pri     ,
+                    screen      = config.data().scr.sec or config.data().scr.pri     ,
                     icon        = utils.tools.invertedIconPath("mail2.png")      ,
                     layout      = awful.layout.suit.max                        } ,
 ["IRC"] =        {  init        = false                                          ,
                     position    = 10                                             ,
                     exclusive   = true                                           ,
-                    screen      = config.data.scr.irc or config.data.scr.pri     ,
+                    screen      = config.data().scr.irc or config.data().scr.pri     ,
                     init        = true                                           ,
                     spawn       = "konversation"                                 ,
                     icon        = utils.tools.invertedIconPath("irc.png")        ,
@@ -149,7 +149,7 @@ shifty.config.tags = {
 ["Test"] =       {  init        = false                                          ,
                     position    = 99                                             ,
                     exclusive   = false                                          ,
-                    screen      = config.data.scr.sec or config.data.scr.pri     ,
+                    screen      = config.data().scr.sec or config.data().scr.pri     ,
                     leave_kills = true                                           ,
                     persist     = true                                           ,
                     icon        = utils.tools.invertedIconPath("tools.png")      ,
@@ -160,7 +160,7 @@ shifty.config.tags = {
                     icon        = utils.tools.invertedIconPath("tools.png")      ,
                     layout      = awful.layout.suit.max                        } ,
 ["Game"] =       {  init        = false                                          ,
-                    screen      = config.data.scr.pri                            ,
+                    screen      = config.data().scr.pri                            ,
                     position    = 10                                             ,
                     exclusive   = false                                          ,
                     icon        = utils.tools.invertedIconPath("game.png")       ,
@@ -186,15 +186,15 @@ shifty.config.tags = {
                     exclusive   = false                                          ,
                     icon        = utils.tools.invertedIconPath("video.png")      ,
                     max_clients = 5                                              ,
-                    screen      = config.data.scr.media or config.data.scr.pri   ,
+                    screen      = config.data().scr.media or config.data().scr.pri   ,
                     init        = "mythfrontend"                                 ,
                     layout      = awful.layout.suit.tile                       } ,
 ----------------------------------------------------------------------------------
 }
---shifty.config.tags = config.data.shifty_tags
+--shifty.config.tags = config.data().shifty_tags
 
 
-config.data.shifty_rules = {
+local shifty_rules = {
 -- Default tags
 --          APP1              APP2                APP3            APP4             APP5                      RULES                   
 {match = { "xterm"         , "urxvt"          , "aterm"     , "sauer_client" , "mythfrontend"      } , honorsizehints = false       ,
@@ -278,4 +278,8 @@ config.data.shifty_rules = {
 }                                                                               ,
 ---------------------------------------------------------------------------------
 }
-shifty.config.apps = config.data.shifty_rules
+
+--print("Test1: ",config.data().shifty_rules[1].match[1])
+--print("Test2: ",config.data().shifty_rules[config.data().shifty_rules-1].match[1])
+-- printsdfsdf()
+shifty.config.apps = shifty_rules

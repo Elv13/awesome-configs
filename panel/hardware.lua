@@ -58,7 +58,7 @@ function new()
     mywibox4 = wibox({ position = "bottom", screen = s, layout = layout.vertical.flex })
 
     cpuTempIcn       = capi.widget({ type = "imagebox", align = "left" })
-    cpuTempIcn.image = capi.image(config.data.iconPath .. "temp.png")
+    cpuTempIcn.image = capi.image(config.data().iconPath .. "temp.png")
 
     cpuTempLbl = capi.widget({
         type = 'textbox',
@@ -94,7 +94,7 @@ function new()
     cpuTempVal.text ="50C | "
 
     gpuTempIcn       = capi.widget({ type = "imagebox", align = "left" })
-    gpuTempIcn.image = capi.image(config.data.iconPath .. "temp.png")
+    gpuTempIcn.image = capi.image(config.data().iconPath .. "temp.png")
 
     gpuTempLbl = capi.widget({
         type = 'textbox',
@@ -128,7 +128,7 @@ function new()
     gpuTempVal.text ="50C | "
 
     hddTempIcn       = capi.widget({ type = "imagebox", align = "left" })
-    hddTempIcn.image = capi.image(config.data.iconPath .. "temp.png")
+    hddTempIcn.image = capi.image(config.data().iconPath .. "temp.png")
 
     hddTempLbl = capi.widget({
         type = 'textbox',
@@ -164,7 +164,7 @@ function new()
     vicious.register(hddTempVal, vicious.widgets.hddtemp, '${/dev/sda}°C | ', 20)
 
     ambTempIcn       = capi.widget({ type = "imagebox", align = "left" })
-    ambTempIcn.image = capi.image(config.data.iconPath .. "temp.png")
+    ambTempIcn.image = capi.image(config.data().iconPath .. "temp.png")
 
     ambTempLbl = capi.widget({
         type = 'textbox',
@@ -200,7 +200,7 @@ function new()
     vicious.register(ambTempVal, getTemp1, "$1°C | ", 10)
 
     cpuFanIcn       = capi.widget({ type = "imagebox", align = "left" })
-    cpuFanIcn.image = capi.image(config.data.iconPath .. "fan.png")
+    cpuFanIcn.image = capi.image(config.data().iconPath .. "fan.png")
 
     cpuFanLbl = capi.widget({
         type = 'textbox',
@@ -219,7 +219,7 @@ function new()
     vicious.register(cpuFanVal, getFan1, "$1rpm | ", 10)
 
     gpuFanIcn       = capi.widget({ type = "imagebox", align = "left" })
-    gpuFanIcn.image = capi.image(config.data.iconPath .. "fan.png")
+    gpuFanIcn.image = capi.image(config.data().iconPath .. "fan.png")
 
     gpuFanLbl = capi.widget({
         type = 'textbox',
@@ -301,7 +301,7 @@ function new()
     voltage.text ="| <b>Voltage: </b>"
 
     volt12Icn       = capi.widget({ type = "imagebox", align = "right" })
-    volt12Icn.image = capi.image(config.data.iconPath .. "volt.png")
+    volt12Icn.image = capi.image(config.data().iconPath .. "volt.png")
 
     volt12Lbl = capi.widget({
         type = 'textbox',
@@ -318,7 +318,7 @@ function new()
     volt12Val.text ="<small><i>11.2v</i></small> "
 
     volt5Icn       = capi.widget({ type = "imagebox", align = "right" })
-    volt5Icn.image = capi.image(config.data.iconPath .. "volt.png")
+    volt5Icn.image = capi.image(config.data().iconPath .. "volt.png")
 
     volt5Lbl = capi.widget({
         type = 'textbox',
@@ -335,7 +335,7 @@ function new()
     volt5Val.text ="<small><i>5.3v</i></small> "
 
     volt33Icn       = capi.widget({ type = "imagebox", align = "right" })
-    volt33Icn.image = capi.image(config.data.iconPath .. "volt.png")
+    volt33Icn.image = capi.image(config.data().iconPath .. "volt.png")
 
     volt33Lbl = capi.widget({
         type = 'textbox',

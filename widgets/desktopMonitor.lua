@@ -34,7 +34,7 @@ function new(screen2, args)
 
   local aWibox = wibox({ position = "free", screen = s})
   aWibox:geometry({ width = 400, height = 200, x = xPos, y = 40})
-  desktopGrid.addCornerWidget(aWibox,config.data.scr.sec or config.data.scr.pri)
+  desktopGrid.addCornerWidget(aWibox,config.data().scr.sec or config.data().scr.pri)
   --aWibox:rounded_corners(10)
   wibox.rounded_corners(aWibox,10)
   aWibox.bg = beautiful.bg_normal.."AA"
@@ -82,10 +82,10 @@ function new(screen2, args)
   netWdg.text = "  <b><u>Networking:</u></b>"
   
   local uploadImg = capi.widget({ type = "imagebox"})
-  uploadImg.image = capi.image(config.data.iconPath .. "arrowUp.png")
+  uploadImg.image = capi.image(config.data().iconPath .. "arrowUp.png")
   
   local downloadImg = capi.widget({ type = "imagebox"})
-  downloadImg.image = capi.image(config.data.iconPath .. "arrowDown.png")
+  downloadImg.image = capi.image(config.data().iconPath .. "arrowDown.png")
   
   local netUsageUp = capi.widget({ type = "textbox" })
   netUsageUp.text = "Upload: 10kbs"

@@ -69,23 +69,23 @@ function add_device(args)
   local iconTest = capi.widget({ type = "imagebox"})
   
   if devType == "hdd" then
-    iconTest.image = capi.image(config.data.iconPath .. "hdd.png")
+    iconTest.image = capi.image(config.data().iconPath .. "hdd.png")
   elseif devType == "net" then
-    iconTest.image = capi.image(config.data.iconPath .. "hddn.png")
+    iconTest.image = capi.image(config.data().iconPath .. "hddn.png")
   elseif devType == "home" then
-    iconTest.image = capi.image(config.data.iconPath .. "home.png")
+    iconTest.image = capi.image(config.data().iconPath .. "home.png")
   end
   
   
   local iconTest1 = capi.widget({ type = "imagebox"})
-  iconTest1.image = capi.image(config.data.iconPath .. "tags/eject.png")
+  iconTest1.image = capi.image(config.data().iconPath .. "tags/eject.png")
   
   iconTest1:add_signal("mouse::enter", function ()
-    iconTest1.image = capi.image(config.data.iconPath .. "tags/eject_over.png")
+    iconTest1.image = capi.image(config.data().iconPath .. "tags/eject_over.png")
   end)
 
   iconTest1:add_signal("mouse::leave", function ()
-    iconTest1.image = capi.image(config.data.iconPath .. "tags/eject.png")
+    iconTest1.image = capi.image(config.data().iconPath .. "tags/eject.png")
   end)
   
   local volSpacer = capi.widget({ type = "textbox" })

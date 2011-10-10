@@ -31,7 +31,7 @@ end
 local showTitleBar = {}
 
 local function enableTitleBar(value)
-  if tag.selected() ~= nil and config.data.advTermTB == true then
+  if tag.selected() ~= nil and config.data().advTermTB == true then
     for i, client in ipairs(tag.selected():clients()) do
       if value == true or client2.floating.get(client) == true then
 	titlebar.add(client)

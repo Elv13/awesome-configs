@@ -6,26 +6,96 @@ local setmetatable = setmetatable
 local loadstring   = loadstring
 local table        = table
 local io           = io
+local rawset       = rawset
 local type         = type
 local ipairs       = ipairs
 local string       = string
 local pairs        = pairs
 local print        = print
-local button       = require( "awful.button" )
-local beautiful    = require( "beautiful"    )
-local tag          = require( "awful.tag"    )
 local util         = require( "awful.util"   )
 
 -- C API
-local capi         = { image  = image  , 
-                       widget = widget , }
+local capi         = { image  = image  ,
+                       widget = widget ,
+                       timer  = timer  }
 
 module("config")
 
-data = {}
+local data2 = nil
+local autoSave = true
+local mytimer = capi.timer({ timeout = 2 })
 
-function update()
+local data3 = {}
+function settable_eventR (table, key)
+    return data2[key]
+end
 
+function settable_eventLen (table)
+    return #data2
+end
+
+local function startTimer()
+    if mytimer.started == true or autoSave == false then return end
+    print("AutoSave: ",autoSave)
+    mytimer:add_signal("timeout", function()
+        mytimer:stop()
+        print("Serializing data")
+        save()
+    end)
+    mytimer:start()
+end
+
+function settable_eventW (table, key,value)
+                print("I am here2")
+    local function digg(val,parent,k2,realT)
+        if type(val) == "table" then
+            rawset(parent,k2,{})
+            
+            local function mirrorR(table2, key3)
+                return realT[k2][key3]
+            end
+            
+            local function mirrorLen(table2)
+                return #realT[k2]
+            end
+            
+            local function mirrorW(table, key,value)
+                print("I am here")
+                if realT[k2][key] ~= value then
+                    realT[k2][key] = value
+                    startTimer()
+                    digg(value,parent[k2],key,realT[k2])
+                    return realT[k2][key]
+                end
+            end
+            
+            setmetatable(parent[k2], { __index = mirrorR, __newindex = mirrorW, __len =  mirrorLen})
+            for k,v in pairs(val) do
+                if type(v) == "table" then
+                    digg(v,parent[k2],k,realT[k2])
+                end
+            end
+        end
+    end
+    
+    if data2[key] ~= value then
+        startTimer()
+        data2[key] = value
+        digg(value,data3,key,data2)
+    end
+    return data2[key]
+end
+
+setmetatable(data3, { __index = settable_eventR, __newindex = settable_eventW, __len = settable_eventLen })
+
+function set(args) 
+    data2 = args
+end
+
+set({})
+
+function data()
+    return data3
 end
 
 local function genValidKey(key)
@@ -59,7 +129,10 @@ local function serialise(data)
     elseif type(data) == "table"    then
         serialisedData = "{\n"
         for k, v in pairs(data) do
-            serialisedData = serialisedData .. "  " .. genValidKey(k) .. " = " .. serialise(v) .. ",\n"
+            local serKey = genValidKey(k)
+            if serKey ~= nil then
+                serialisedData = serialisedData .. "  " ..serKey .. " = " .. serialise(v) .. ",\n"
+            end
         end
         serialisedData = serialisedData.."\n}"
     end
@@ -68,7 +141,7 @@ end
 
 local function unserialise(newData2,currentData2)
     if not newData2 then return end
-    local currentData = currentData2 or data
+    local currentData = currentData2 or data()
     local newData = newData2
     for k,v in pairs(newData) do
         if currentData[k] ~= nil and newData2[k] ~= nil then
@@ -85,7 +158,7 @@ end
 
 function save()
      local f = io.open(util.getdir("config") .. "/serialized.lua",'w')
-     f:write("return " .. serialise(data).." \n")
+     f:write("return " .. serialise(data2).." \n")
      f:close()
 end
 
@@ -103,9 +176,12 @@ function load()
     f:close()
 end
 
-function set(args) 
-  data = args
+function disableAutoSave()
+    autoSave = false
 end
 
+function enableAutoSave()
+    autoSave = true
+end
 
 setmetatable(_M, { __call = function(_, ...) return data end })

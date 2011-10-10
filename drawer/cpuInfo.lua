@@ -75,7 +75,7 @@ function new(screen, args)
     processWidgets[i].percent.align = "right"
     processWidgets[i].process       = capi.widget({ type = "textbox"  })
     processWidgets[i].kill          = capi.widget({ type = "imagebox"})
-    processWidgets[i].kill.image    = capi.image(config.data.iconPath .. "kill.png")
+    processWidgets[i].kill.image    = capi.image(config.data().iconPath .. "kill.png")
     
     topCpuW[i].widgets = {
                             processWidgets[i].percent, 
@@ -326,7 +326,7 @@ function new(screen, args)
         end
     end
     
-    cpulogo.image = capi.image(config.data.iconPath .. "brain.png")
+    cpulogo.image = capi.image(config.data().iconPath .. "brain.png")
     cpuwidget.width = 27
   vicious.register(cpuwidget, vicious.widgets.cpu,'$1%')
 

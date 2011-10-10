@@ -164,12 +164,12 @@ function label.all(t, args)
         end
     end
     if not tag.getproperty(t, "icon_only") then
-        if config.data.useListPrefix == true then
+        if config.data().useListPrefix == true then
           if fg_color then
-            text = text .. numberStyle..config.data.listPrefix[tag.getidx(t)]..numberStyleEnd.."<span color='"..util.color_strip_alpha(fg_color).."'>"
+            text = text .. numberStyle..config.data().listPrefix[tag.getidx(t)]..numberStyleEnd.."<span color='"..util.color_strip_alpha(fg_color).."'>"
             text = text .. " " .. (util.escape(t.name) or "") .." </span>"
           else
-            text = text .. numberStyle..config.data.listPrefix[tag.getidx(t)]..numberStyleEnd.. " " .. (util.escape(t.name) or "") .. " "
+            text = text .. numberStyle..config.data().listPrefix[tag.getidx(t)]..numberStyleEnd.. " " .. (util.escape(t.name) or "") .. " "
           end
         else
           if fg_color then
@@ -187,7 +187,7 @@ function label.all(t, args)
         icon = capi.image(tag.geticon(t))
     end
 
-    return text, bg_color, bg_image, icon, (config.data.useListPrefix == true and beautiful.fg_normal or bg_color)
+    return text, bg_color, bg_image, icon, (config.data().useListPrefix == true and beautiful.fg_normal or bg_color)
 end
 
 --- Return labels for a taglist widget with all *non empty* tags from screen.

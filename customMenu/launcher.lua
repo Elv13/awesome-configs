@@ -120,7 +120,7 @@ end
 function new(screen, args)
     local launcherText = capi.widget({ type = "textbox", align = "left" })
     launcherText.text  = "      Launch  |"
-    launcherText.bg_image = capi.image(config.data.iconPath .. "gearA2.png")
+    launcherText.bg_image = capi.image(config.data().iconPath .. "gearA2.png")
     launcherText.bg_resize = true
     
     launcherText:add_signal("mouse::enter", function()
