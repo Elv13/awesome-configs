@@ -63,7 +63,7 @@ function widget_tasklist_label_common(tab, w)
     
     if not args then args = {} end
     local theme = beautiful.get()
-    return prefix..tab.client.name..suffix, bg, nil, nil, bg
+    return prefix..(tab.client.name or "N/A")..suffix, bg, nil, nil, bg
 end
 
 local function tasklist_update(tabs, w, buttons, label, data, widgets, tab)

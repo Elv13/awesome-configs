@@ -5,22 +5,47 @@ return {
   themeName = "darkBlue",
   persistent = {
   flags = {
-  maximized = {
-  Dolphin = true,
+  fullscreen = {
 
 },
   intrusive = {
 
 },
-  above = {
-  Dolphin = true,
+  startup = {
 
 },
   floating = {
   Kate = true,
 
 },
-  sticky = {
+  opacity = {
+
+},
+  wfact = {
+
+},
+  props = {
+
+},
+  urgent = {
+
+},
+  nopopup = {
+
+},
+  kill = {
+
+},
+  float = {
+
+},
+  keys = {
+
+},
+  minimized = {
+
+},
+  slave = {
 
 },
   below = {
@@ -28,7 +53,54 @@ return {
   Kate = true,
 
 },
+  maximized = {
+  Dolphin = true,
+
+},
+  titlebar = {
+
+},
+  struts = {
+
+},
+  buttons = {
+
+},
+  ontop = {
+
+},
+  hidden = {
+
+},
+  run = {
+
+},
+  above = {
+  Dolphin = true,
+
+},
+  border_width = {
+
+},
   onTop = {
+
+},
+  honorsizehints = {
+
+},
+  skip_taskbar = {
+
+},
+  dockable = {
+
+},
+  sticky = {
+
+},
+  geometry = {
+
+},
+  nofocus = {
 
 },
 
@@ -40,8 +112,8 @@ return {
 },
   iconPath = "/home/lepagee/.config/awesome/theme/darkBlue//Icon/",
   scr = {
-  boo = "test",
   irc = 5,
+  boo = "test",
   media = 4,
   test = {
   [12] = {

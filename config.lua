@@ -47,7 +47,7 @@ end
 function settable_eventW (table, key,value)
     local function digg(val,parent,k2,realT)
         if type(val) == "table" then
-            rawset(parent,k2,{})
+            rawset(parent,k2,{["__real_table"]=realT[k2]})
             
             local function mirrorR(table2, key3)
                 return realT[k2][key3]
@@ -85,8 +85,18 @@ end
 
 setmetatable(data3, { __index = settable_eventR, __newindex = settable_eventW, __len = settable_eventLen })
 
+function get_real(t)
+    if t["__real_table"] ~= nil then
+        return t["__real_table"]
+    else
+        print("Invalid table")
+        return nil
+    end
+end
+
 function set(args) 
     data2 = args
+    rawset(data3,"__real_table",data2)
 end
 
 set({})

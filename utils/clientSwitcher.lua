@@ -9,6 +9,7 @@ local table = table
 local print = print
 local tag = require("awful.tag")
 local wibox = require("awful.wibox")
+local macro = require("utils.macro")
 local capi = { screen = screen,
                mouse = mouse,
                widget = widget,
@@ -62,6 +63,25 @@ function setFavTag(idx,t)
 end
 
 function selectFavClient(idx)
+  if data.fav[idx] ~= nil then
+      data.fav[idx]()
+  end
+end
+
+function setFavMacro(idx)
+    print("Set Macro")
+    local m = nil
+    macro.record(function(aMacro) m = aMacro; print("setting macro") end)
+    data.fav[idx] = function()
+        if m then
+            macro.play(m)
+        else
+            print("Nothing to playback")
+        end
+    end
+end
+
+function selectFavMacro(idx)
   if data.fav[idx] ~= nil then
       data.fav[idx]()
   end

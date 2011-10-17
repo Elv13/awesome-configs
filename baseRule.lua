@@ -278,8 +278,5 @@ local shifty_rules = {
 }                                                                               ,
 ---------------------------------------------------------------------------------
 }
-
---print("Test1: ",config.data().shifty_rules[1].match[1])
---print("Test2: ",config.data().shifty_rules[config.data().shifty_rules-1].match[1])
--- printsdfsdf()
+utils.persistent.loadClassesRules(shifty_rules)
 shifty.config.apps = shifty_rules

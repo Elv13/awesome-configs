@@ -118,6 +118,10 @@ for i=1, ( 4 ) do
   function ()
     utils.clientSwitcher.setFavTag(i, awful.tag.selected(mouse.screen))
   end))
+  globalkeys = awful.util.table.join(globalkeys, awful.key({ "Shift" }, "F"..i,
+  function ()
+    utils.clientSwitcher.setFavMacro(i)
+  end))
 end
 
 for i=6, ( 8 ) do

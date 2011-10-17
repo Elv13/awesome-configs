@@ -27,6 +27,8 @@ local function init()
     local size = beautiful.menu_height or 16
     checkedI    = capi.image.argb32(size, size, nil)
     notcheckedI = capi.image.argb32(size, size, nil)
+    checkedI:draw_rectangle(0, 0, size, size, true, beautiful.bg_normal)
+    notcheckedI:draw_rectangle(0, 0, size, size, true, beautiful.bg_normal)
     local sp = 3
     local rs = size - (2*sp)
     checkedI:draw_line    ( sp , sp , rs , sp , beautiful.fg_normal )
@@ -39,7 +41,7 @@ local function init()
     notcheckedI:draw_line ( sp , sp , rs , sp , beautiful.fg_normal )
     notcheckedI:draw_line ( sp , sp , sp , rs , beautiful.fg_normal )
     notcheckedI:draw_line ( sp , rs , rs , rs , beautiful.fg_normal )
-    notcheckedI:draw_line ( rs , sp , sp , rs , beautiful.fg_normal )
+    notcheckedI:draw_line ( rs , sp , rs , rs , beautiful.fg_normal )
     
     isinit = true
 end
