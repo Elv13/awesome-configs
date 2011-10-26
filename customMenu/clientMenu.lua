@@ -3,10 +3,11 @@ local menu2        = require("widgets.menu")
 local beautiful    = require( "beautiful"                    )
 local shifty    = require( "shifty"       )
 local util    = require( "awful.util"                    )
+local type = type
 local config = require("config")
 local print = print
 local ipairs = ipairs
-
+local pairs = pairs
 local capi = {
                mouse = mouse,
                screen = screen,
@@ -303,6 +304,24 @@ function toggle(c)
                 flagMenu:add_existing_item( itemSkip_taskbar_per   )
                 flagMenu:add_existing_item( itemProps_per          )
                 return flagMenu
+            end})
+            classM:add_item({text = "Tags", subMenu = function() 
+                local tagMenu = menu2()
+                for k,v in pairs(shifty.config.tags) do
+                    if type(k) == "string" then
+                        local check = false
+                        if config.data().persistent.tag and config.data().persistent.tag[k] and config.data().persistent.tag[k].class and config.data().persistent.tag[k].class[aClient.class] == true then
+                            check = true
+                        end
+                        tagMenu:add_item({text=k      , checked=check , onclick = function() 
+                            if not config.data().persistent.tag then config.data().persistent.tag = {} end
+                            if not config.data().persistent.tag[k] then config.data().persistent.tag[k] = {} end
+                            if not config.data().persistent.tag[k].class then config.data().persistent.tag[k].class = {} end
+                            config.data().persistent.tag[k].class[aClient.class] = not config.data().persistent.tag[k].class[aClient.class] or false
+                        end})
+                    end
+                end
+                return tagMenu
             end})
             return classM
         end

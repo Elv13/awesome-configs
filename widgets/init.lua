@@ -13,5 +13,6 @@ require( "widgets.menu"                 )
 require( "widgets.desktopIcon"          )
 require( "widgets.checkbox"             )
 require( "widgets.layout.desktopLayout" )
+require( "widgets.radialSelect"         )
 
 module("widgets")

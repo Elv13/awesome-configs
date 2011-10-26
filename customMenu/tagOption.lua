@@ -104,6 +104,15 @@ function new(screen, args)
   f:close()
   mainMenu["data"]:add_item({text= "Set Icon", subMenu = mainMenu2["data"]})
   
+  mainMenu["data"]:add_item({text= "Layout", subMenu = function()
+  
+  end})
+  
+  mainMenu["data"]:add_item({text= "Flags", subMenu = function()
+  
+  end})
+  
+  
   --mainMenu["data"]:add_item("Advanced",nil,nil,mainMenu2["data"])
   
   return mainMenu

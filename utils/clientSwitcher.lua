@@ -3,21 +3,25 @@
 --Author: Emmanuel Lepage Vallee <elv1313@gmail.com>
 
 local setmetatable = setmetatable
-local io = io
+local io     = io
 local ipairs = ipairs
-local table = table
-local print = print
-local tag = require("awful.tag")
-local wibox = require("awful.wibox")
-local macro = require("utils.macro")
-local capi = { screen = screen,
-               mouse = mouse,
-               widget = widget,
-               client = client}
+local table  = table
+local math   = math
+local print  = print
+local util   = require( "awful.util"   )
+local button = require( "awful.button" )
+local tag    = require("awful.tag")
+local wibox  = require("awful.wibox")
+local macro  = require("utils.macro")
+local capi   = { screen = screen,
+                mouse  = mouse,
+                widget = widget,
+               mousegrabber = mousegrabber,
+                client = client}
 
 module("utils.clientSwitcher")
 
-local data = {client = {}, index = {}, wibox = {}, fav = {}}
+local data = {client = {}, index = {}, wibox = {}, fav = {}, layout = {}}
 
 function new(screen, args) 
   return --Nothing to do
@@ -97,6 +101,153 @@ end
 
 function reset()
   --data.client = {} --TODO restore this
+end
+
+local res = 20
+
+function approxPos(t)
+    data.layout[t.screen] = data.layout[t.screen] or {{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{},{}}
+    local xPad = 0
+    local yPad = 0
+    local screenWSection = capi.screen[t.screen].geometry.width  /res
+    local screenHSection = capi.screen[t.screen].geometry.height /res
+    for k,v in ipairs(t:clients()) do
+        local geo = v:geometry()
+        for i=1,res do --x
+            for j=1,res do --y
+            if j == res then print(geo.y + geo.height,(j-1)*screenHSection+1) end
+                if (i-1)*screenWSection+1 <= geo.x + geo.width and (j-1)*screenHSection+1 <= geo.y + geo.height then
+                    data.layout[t.screen][i][j] = v
+                    if j == res then print(data.layout[t.screen][i][j]) end
+                end
+            end
+        end
+    end
+    for i=1,res do --x
+        print(data.layout[t.screen][i][1],data.layout[t.screen][i][2],data.layout[t.screen][i][3],data.layout[t.screen][i][4],data.layout[t.screen][i][5],data.layout[t.screen][i][6],data.layout[t.screen][i][7],data.layout[t.screen][i][8],data.layout[t.screen][i][9],data.layout[t.screen][i][res])
+    end
+end
+tag.attached_add_signal(1, "property::selected", approxPos)
+tag.attached_add_signal(1, "property::layout"  , approxPos)
+--TODO a client was added/deleted
+
+local function moveFocus()
+    return {
+        xr = math.floor(((capi.client.focus:geometry().x + capi.client.focus:geometry().width)  / (capi.screen[capi.client.focus.screen].geometry.width /res))+1),
+        xl = math.floor(((capi.client.focus:geometry().x) / (capi.screen[capi.client.focus.screen].geometry.width /res))+1),
+        yt = math.floor(((capi.client.focus:geometry().y) / (capi.screen[capi.client.focus.screen].geometry.height/res))+1),
+        yb = math.floor(((capi.client.focus:geometry().y + capi.client.focus:geometry().height) / (capi.screen[capi.client.focus.screen].geometry.height/res))+1),
+    }
+end
+
+function focusLeft()
+    if not capi.client.focus then return end
+    local pos = moveFocus()
+    print("Case:"..pos.xl.." "..pos.yt)
+    pos.xl = pos.xl-1
+    if pos.xl <= 1 then
+        pos.xl = res
+    elseif pos.xl > res-1 then
+        pos.xl = 1
+    end
+    print("Case2:"..pos.xl.." "..pos.yt)
+    capi.client.focus = data.layout[capi.client.focus.screen][pos.xl][pos.yt+1]
+end
+
+function focusRight()
+    if not capi.client.focus then return end
+    local pos = moveFocus()
+    pos.xr = pos.xr+1
+    print("Case:"..pos.xr.." "..pos.yt)
+    if pos.xr == 1 then
+        pos.xr = res
+    elseif pos.xr > res-1 then
+        pos.xr = 1
+    end
+    print("Case2:"..pos.xr.." "..pos.yt)
+    capi.client.focus = data.layout[capi.client.focus.screen][pos.xr][pos.yt+1]
+    
+end
+
+function focusUp()
+    if not capi.client.focus then return end
+    local pos = moveFocus()
+    print("Case:"..pos.xl.." "..pos.yt)
+    pos.yt = pos.yt-1
+    if pos.yt <= 1 then
+        pos.yt = res
+    elseif pos.yt > res-1 then
+        pos.yt = 1
+    end
+    print("Case2:"..pos.xl.." "..pos.yt)
+    capi.client.focus = data.layout[capi.client.focus.screen][pos.xl+1][pos.yt]
+end
+
+function focusDown()
+    if not capi.client.focus then return end
+    local pos = moveFocus()
+    print("Case:"..pos.xl.." "..pos.yt)
+    pos.yb = pos.yb+1
+    if pos.yb <= 1 then
+        pos.yb = res
+    elseif pos.yb > res-1 then
+        pos.yb = 1
+    end
+    print("Case2:"..pos.xl.." "..pos.yb)
+    capi.client.focus = data.layout[capi.client.focus.screen][pos.xl+1][pos.yb]
+end
+
+function mergeHandle(t)
+    for k,v in ipairs(t:clients()) do
+        local w = wibox({position="free"})
+        w.ontop = true
+        w.width  = 60
+        w.height = 60
+        w.bg = "#00ff00"
+        local geo = v:geometry()
+        w.x = geo.x + geo.width  -60
+        w.y = geo.y + geo.height/2
+    end
+    
+end
+
+--It do work, but have too many problems, patches welcome
+function addResizeHandle(t)
+    for k,v in ipairs(t:clients()) do
+        local w = wibox({position="free"})
+        w.ontop = true
+        w.width  = 10
+        w.height = 10
+        w.bg = "#ff0000"
+        local geo = v:geometry()
+        w.x = geo.x + geo.width  -10
+        w.y = geo.y + geo.height -10
+        
+        w:buttons(util.table.join(
+        button({ }, 1 ,function (tab)
+                                local curX = capi.mouse.coords().x
+                                local curY = capi.mouse.coords().y
+                                local moved = false
+                                capi.mousegrabber.run(function(mouse)
+                                    if mouse.buttons[1] == false then 
+                                        if moved == false then
+                                            wdgSet.button1()
+                                        end
+                                        capi.mousegrabber.stop()
+                                        return false 
+                                    end
+                                    if mouse.x ~= curX and mouse.y ~= curY then
+                                        local height = w:geometry().height
+                                        local width  = w:geometry().width
+                                        w.x = mouse.x-(5)
+                                        w.y = mouse.y-(5)
+                                        v:geometry({width=mouse.x-geo.x,height=mouse.y-geo.y})
+                                        moved = true
+                                    end
+                                    return true
+                                end,"fleur")
+                        end)))
+    end
 end
 
 setmetatable(_M, { __call = function(_, ...) return new(...) end })

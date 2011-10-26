@@ -2,8 +2,10 @@
 globalkeys = awful.util.table.join(
     -- Basic
     --              MODIFIERS         KEY                        ACTION                               
-    awful.key({ modkey,           }, "Left"  , function () awful.tag.viewprev()                 end ),
-    awful.key({ modkey,           }, "Right" , function () awful.tag.viewnext()                 end ),
+    awful.key({ modkey,           }, "Left"  , function () utils.clientSwitcher.focusLeft()     end ),
+    awful.key({ modkey,           }, "Right" , function () utils.clientSwitcher.focusRight()    end ),
+    awful.key({ modkey,           }, "Up"    , function () utils.clientSwitcher.focusUp()       end ),
+    awful.key({ modkey,           }, "Down"  , function () utils.clientSwitcher.focusDown()     end ),
     awful.key({ modkey,           }, "Escape", function () awful.tag.history.restore()          end ),
     awful.key({ modkey, "Shift"   }, "p"     , function () utils.keyFunctions.moveTagToScreen() end ),
     awful.key({ modkey,           }, "Tab"   , function () utils.keyFunctions.altTab()          end ),
@@ -43,7 +45,7 @@ globalkeys = awful.util.table.join(
     awful.key({                   }, "#152"  , function () utils.mouseManager.switchTo(2)       end ),
     awful.key({                   }, "#190"  , function () utils.mouseManager.switchTo(3)       end ),
     awful.key({                   }, "#208"  , function () utils.mouseManager.switchTo(4)       end ),
-    awful.key({                   }, "#129"  , function () utils.mouseManager.switchTo(5)       end ),    
+    awful.key({                   }, "#129"  , function () utils.mouseManager.switchTo(5)       end ),
     
     --Switch client
     --              MODIFIERS         KEY                        ACTION                               
@@ -52,6 +54,7 @@ globalkeys = awful.util.table.join(
     awful.key({ "Control"         }, "#190"  , function () utils.clientSwitcher.switchTo(3)     end ),
     awful.key({ "Control"         }, "#208"  , function () utils.clientSwitcher.switchTo(4)     end ),
     awful.key({ "Control"         }, "#129"  , function () utils.clientSwitcher.switchTo(5)     end ),
+    awful.key({ modkey            }, "a"     , widgets.radialSelect.radial_client_select            ),
 
     --awful.keys.ignore_modifiers = { "Lock" }
     --              MODIFIERS         KEY                        ACTION                               
