@@ -260,6 +260,7 @@ function new(args)
         end
         self:clear_highlight()
         self:highlight_item(self.currentIndex) 
+        return self.items[self.currentIndex]
     end
 
     function menu:emit(signName)

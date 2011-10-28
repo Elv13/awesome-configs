@@ -92,7 +92,8 @@ function new(screen, args)
         currentMenu:set_width(((screen or capi.screen[capi.mouse.screen]).geometry.width)/2)
         
         currentMenu:add_key_hook({}, "Tab", "press", function(menu)
-            currentMenu:rotate_selected(1)
+            local item = currentMenu:rotate_selected(1)
+            item.button1()
             return true
         end)
         
@@ -109,7 +110,12 @@ function new(screen, args)
             fkeyMapping[itemCount] = currentMenu:add_item({
                 prefix  = numberStyle.."[F".. itemCount .."]"..numberStyleEnd, 
                 text    = v.name, 
-                onclick = function() capi.client.focus = v end, 
+                onclick = function() 
+                    if v:tags()[1].selected == false then
+                        tag.viewonly(v:tags()[1])
+                    end
+                    capi.client.focus = v 
+                end, 
                 icon    = v.icon,
                 addwidgets = {
                                 close,

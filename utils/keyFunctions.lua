@@ -34,21 +34,21 @@ function altTab()
        return 
     end
     
-    client.focus.byidx( 1)
+    --client.focus.byidx( 1)
     --if capi.client.focus then capi.client.focus:raise() end --TODO
 end
 
 function altTabBack()
     customMenu(nil,{leap = -1})
-    if not capi.client.focus then
-       return 
-    end
+    --if not capi.client.focus then
+    --   return 
+    --end
     
-    client.focus.byidx(-1)
+    --client.focus.byidx(-1)
     
-    if capi.client.focus then 
-        capi.client.focus:raise() 
-    end
+    --if capi.client.focus then 
+    --    capi.client.focus:raise() 
+    --end
 end
 
 function focusHistory()
