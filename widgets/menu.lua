@@ -116,8 +116,9 @@ local function activateKeyboard(curMenu)
                 end
             end
             
-            if (currentMenu.keyShortcut[{mod,key}] or key == 'Enter') and currentMenu.keyShortcut[{mod,key}].button1 then --TODO use a different function
-                currentMenu.keyShortcut[{mod,key}].button1()
+            if (currentMenu.keyShortcut[{mod,key}] or key == 'Return') and currentMenu.items[currentMenu.currentIndex] and currentMenu.items[currentMenu.currentIndex].button1 then
+                currentMenu.items[currentMenu.currentIndex].button1()
+                currentMenu:toggle(false)
             elseif key == 'Escape' or (key == 'Tab' and currentMenu.filterString == "") then 
                 stopGrabber()
             elseif (key == 'Up' and currentMenu.downOrUp == 1) or (key == 'Down' and currentMenu.downOrUp == -1) then 
