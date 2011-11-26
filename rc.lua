@@ -13,6 +13,7 @@ require( "utils"        )
 require( "customMenu"   )
 require( "customButton" )
 require( "titlebar"     )
+require( "ultiLayout"   )
 
 -- Cache result for probe used more than once
 vicious.cache( vicious.widgets.net )
