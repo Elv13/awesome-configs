@@ -42,10 +42,10 @@ return {
   keys = {
 
 },
-  minimized = {
+  slave = {
 
 },
-  slave = {
+  minimized = {
 
 },
   below = {
@@ -53,14 +53,13 @@ return {
   Kate = true,
 
 },
-  maximized = {
-  Dolphin = true,
+  dockable = {
 
 },
-  titlebar = {
+  hidden = {
 
 },
-  struts = {
+  onTop = {
 
 },
   buttons = {
@@ -69,7 +68,7 @@ return {
   ontop = {
 
 },
-  hidden = {
+  titlebar = {
 
 },
   run = {
@@ -82,7 +81,7 @@ return {
   border_width = {
 
 },
-  onTop = {
+  struts = {
 
 },
   honorsizehints = {
@@ -91,7 +90,8 @@ return {
   skip_taskbar = {
 
 },
-  dockable = {
+  maximized = {
+  Dolphin = true,
 
 },
   sticky = {

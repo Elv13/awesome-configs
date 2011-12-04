@@ -3,6 +3,7 @@ local table = table
 local pairs = pairs
 local print = print
 local debug = debug
+local rawset = rawset
 local ipairs = ipairs
 local button       = require( "awful.button" )
 local beautiful    = require( "beautiful"    )
@@ -17,7 +18,11 @@ module("ultiLayout.clientGroup")
 
 
 function new()
-    local data              = {width=0,height=0,x=0,y=0}
+    local data              = {}
+    local height = 0
+    local width  = 0
+    local x      = 0
+    local y      = 0
     local layout            = nil
     local client_group_list = {}
     local client            = nil
@@ -88,6 +93,7 @@ function new()
     end
     
     function data:attach(cg)
+        --self:add_signal("geometry::changed",function() cg:update() end)
         table.insert(childs_cg,cg)
         if layout then
             layout:add_child(cg)
@@ -117,44 +123,66 @@ function new()
         end
     end
     
-    local width_changed = {}
-    local height_changed = {}
-    local x_changed = {}
-    local y_changed = {}
+    local signals = {}
     
     function data:add_signal(name,func)
-    
-    end
-    
-    function data:height2(val)
-        if val ~= nil then
-            height = val
+        if not signals[name] then
+            signals[name] = {}
         end
-        return height
+        table.insert(signals[name],func)
     end
     
-    function data:width2(val)
-        if val ~= nil then
-            width = val
+    local function emit_signal(name,...)
+        for k,v in pairs(signals[name] or {}) do
+            v(data,...)
         end
-        return width
     end
     
-    function data:x2(val)
-        if val ~= nil then
-            x = val
+    --This will catch attemps to change geometry
+    local function catchGeoChange(table, key,value)
+        if key == "width" and value ~= width then
+            local prevWidth = width
+            width = value
+            emit_signal("width::changed",value-prevWidth)
+            emit_signal("geometry::changed")
+        elseif key == "height" and value ~= height then
+            local prevHeight = height
+            height = value
+            emit_signal("height::changed",value-prevHeight)
+            emit_signal("geometry::changed")
+        elseif key == "x" and value ~= x then
+            print("setting x",data)
+            local prevX = x
+            x = value
+            emit_signal("x::changed",data,value-prevX)
+            emit_signal("geometry::changed")
+        elseif key == "y" and value ~= y then
+            local prevY = y
+            y = value
+            emit_signal("y::changed",data,value-prevY)
+            emit_signal("geometry::changed")
+        else
+            rawset(data,key,value)
         end
-        return x
     end
     
-    function data:y2(val)
-        if val ~= nil then
-            y = val
+    --Emulate the geometry as part of data
+    function return_data(table, key)
+        if key == "width" then
+            return width
+        elseif key == "height" then
+            return height
+        elseif key == "x" then
+            return x
+        elseif key =="y" then
+            return y
+        else
+            return data[key]
         end
-        return y
     end
-    
+    setmetatable(data, { __index = return_data, __newindex = catchGeoChange, __len = function() return #data +4 end})
     return data
 end
 
-setmetatable(_M, { __call = function(_, ...) return new(...) end })
+
+setmetatable(_M, { __call = function(_, ...) return new(...) end , __index = return_data, __newindex = catchGeoChange, __len = function() return #data +4 end})
