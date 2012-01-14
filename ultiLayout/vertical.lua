@@ -1,5 +1,6 @@
 local setmetatable = setmetatable
 local ipairs       = ipairs
+local pairs        = pairs
 local table        = table
 local print        = print
 local button       = require( "awful.button"      )
@@ -17,6 +18,7 @@ module("ultiLayout.vertical")
 function new(cg) 
    local data = {}
    data.ratio = {}
+   local vertex = {}
    local nb =0
    
    local function make_room(percentage) --Between 0 and 1
@@ -27,14 +29,26 @@ function new(cg)
        end
    end
    
+   function data:show_splitters(show,horizontal,vertical)
+       print("Showing vertical splliter",show)
+   end
+   
     function data:gen_vertex(vertex_list)
         local prev = nil
         local nb2   = 0
         for k,v in ipairs(cg:childs()) do
             if prev and nb2 ~= nb then
-                local aVertex = common.create_vertex({x=v.x,y=cg.y,orientation="vertical",length=cg.height})
-                aVertex.cg1 = prev
-                aVertex.cg2 = v
+                if not vertex[prev] or not vertex[prev][v] then
+                    local aVertex = common.create_vertex({x=v.x,y=cg.y,orientation="vertical",length=cg.height})
+                    aVertex.cg1 = prev
+                    aVertex.cg2 = v
+                    vertex[prev] = vertex[prev] or {}
+                    vertex[prev][v] = aVertex
+                end
+                local aVertex = vertex[prev][v]
+                aVertex.length = cg.height
+                aVertex.x = v.x
+                aVertex.y = cg.y
                 table.insert(vertex_list,aVertex)
             end
             v:get_vertex(vertex_list)
@@ -52,6 +66,15 @@ function new(cg)
            v:repaint()
            relX     = relX + (cg.width*data.ratio[v])
 --            relY     = relY + (height*data.ratio[v])
+       end
+       for k,v in pairs(vertex) do
+               print('here344432423423444')
+           for k2,v2 in pairs(v) do
+               print('here344444')
+               v2.x = relX
+               v2.y = relY
+               v2.length = k2.height
+           end
        end
    end
    

@@ -30,6 +30,16 @@ function new(cg,orientation)
        end
    end
    
+   function data:show_splitters(show,horizontal,vertical)
+       print("Showing tile splliter",show)
+       if subCg then
+           subCg:show_splitters(show,false,true)
+       end
+       if mainCg then
+           mainCg:show_splitters(show,true,true)
+       end
+   end
+   
    function data:update(mainGeo,subGeo)
         if mainCg then
             mainCg:geometry(mainGeo)
@@ -57,6 +67,10 @@ function new(cg,orientation)
    
    function data:add_child(new_cg)
         print("Adding child to righttile")
+        local stack = clientGroup()
+        stack:set_layout(common.get_layout_list().stack(stack))
+        stack:attach(new_cg)
+        
         nb = nb + 1
         if nb > 1 then
             if not subCg then
@@ -64,20 +78,25 @@ function new(cg,orientation)
                 subCg:set_layout(common.get_layout_list()["horizontal"](subCg))
             end
             print("Adding to sub")
-            subCg:attach(new_cg)
+            subCg:attach(stack)
         else
             if not mainCg then
                 mainCg = clientGroup()
                 mainCg:set_layout(common.get_layout_list()["horizontal"](mainCg))
             end
             print("adding to main")
-            mainCg:attach(new_cg)
+            mainCg:attach(stack)
         end
         local percent = 1 / nb
-        data.ratio[new_cg] = percent
+        data.ratio[stack] = percent
+        return stack
    end
    
    function data:main()
+        if not mainCg then
+            mainCg = clientGroup()
+            mainCg:set_layout(common.get_layout_list()["horizontal"](mainCg))
+        end
        return mainCg
    end
    
@@ -89,46 +108,60 @@ function new(cg,orientation)
 end
 
 local function righttile(cg)
+    if not cg then return end
     local tile = new(cg,"vertical")
     local data={}
     function data:make_room(percentage) tile:make_room(percentage) end
-    function data:gen_vertex(vertex_list) return tile:gen_vertex(vertex_list,common.create_vertex({x=cg.x + tile:main().width,y=cg.y,orientation="vertical",length=cg.height})) end
+    local vertex = common.create_vertex({x=cg.x + tile:main().width,y=cg.y,orientation="vertical",length=cg.height})
+    function data:gen_vertex(vertex_list) 
+        vertex.x = cg.x + tile:main().width
+        return tile:gen_vertex(vertex_list,vertex) end
     function data:add_child(new_cg) tile:add_child(new_cg) end
     function data:update() tile:update({width  = cg.width*0.65, height = cg.height, x = cg.x, y = cg.y},{width  = cg.width*0.35, height = cg.height, x = cg.x+(cg.width*0.65), y = cg.y}) end
+    function data:show_splitters(show,horizontal,vertical) tile:show_splitters(show,horizontal,vertical) end
     return data
 end
 common.add_new_layout("righttile",righttile)
 
 local function lefttile(cg)
+    if not cg then return end
     local tile = new(cg,"vertical")
     local data={}
     function data:make_room(percentage) tile:make_room(percentage) end
-    function data:gen_vertex(vertex_list) return tile:gen_vertex(vertex_list,common.create_vertex({x=tile:main().x,y=cg.y,orientation="vertical",length=cg.height})) end
+    local vertex = common.create_vertex({x=tile:main().x,y=cg.y,orientation="vertical",length=cg.height})
+    function data:gen_vertex(vertex_list) return tile:gen_vertex(vertex_list,vertex) end
     function data:add_child(new_cg) tile:add_child(new_cg) end
     function data:update() tile:update({width  = cg.width*0.65, height = cg.height, x = cg.x+(cg.width*0.35), y = cg.y},{width  = cg.width*0.35, height = cg.height, x = cg.x, y = cg.y}) end
+    function data:show_splitters(show,horizontal,vertical) tile:show_splitters(show,horizontal,vertical) end
     return data
 end
 common.add_new_layout("lefttile",lefttile)
 
 local function toptile(cg)
+    if not cg then return end
     local tile = new(cg,"horizontal")
     local data={}
     function data:make_room(percentage) tile:make_room(percentage) end
-    function data:gen_vertex(vertex_list) return tile:gen_vertex(vertex_list,common.create_vertex({x=cg.x,y=cg.y + tile:main().height,orientation="horizontal",length=cg.width})) end
+    local vertex = common.create_vertex({x=cg.x,y=cg.y + tile:main().height,orientation="horizontal",length=cg.width})
+    function data:gen_vertex(vertex_list) return tile:gen_vertex(vertex_list,vertex) end
     function data:add_child(new_cg) tile:add_child(new_cg) end
     function data:update() tile:update({width  = cg.width, height = cg.height*0.65, x = cg.x, y = cg.y+(cg.height*0.35)},{width  = cg.width, height = cg.height*0.35, x = cg.x, y = cg.y}) end
+    function data:show_splitters(show,horizontal,vertical) tile:show_splitters(show,horizontal,vertical) end
     return data
 end
 common.add_new_layout("topttile",toptile)
 
 
 local function bottomtile(cg)
+    if not cg then return end
     local tile = new(cg,"horizontal")
     local data={}
     function data:make_room(percentage) tile:make_room(percentage) end
-    function data:gen_vertex(vertex_list) return tile:gen_vertex(vertex_list,common.create_vertex({x=cg.x,y=tile:main().y,orientation="horizontal",length=cg.width})) end
+    local vertex = common.create_vertex({x=cg.x,y=tile:main().y,orientation="horizontal",length=cg.width})
+    function data:gen_vertex(vertex_list) return tile:gen_vertex(vertex_list,vertex) end
     function data:add_child(new_cg) tile:add_child(new_cg) end
     function data:update() tile:update({width  = cg.width, height = cg.height*0.65, x = cg.x, y = cg.y},{width  = cg.width, height = cg.height*0.35, x = cg.x, y = cg.y+(cg.height*0.65)}) end
+    function data:show_splitters(show,horizontal,vertical) tile:show_splitters(show,horizontal,vertical) end
     return data
 end
 common.add_new_layout("bottomttile",bottomtile)

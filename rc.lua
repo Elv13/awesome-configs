@@ -291,9 +291,9 @@ if config.data().deviceOnDesk == true then
   widgets.devices()
 end
 if config.data().desktopIcon == true then
-    for i=1,20 do
-        widgets.desktopIcon()
-    end
+--     for i=1,20 do
+--         widgets.desktopIcon()
+--     end
 end
 
 

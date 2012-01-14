@@ -1,5 +1,6 @@
 local setmetatable = setmetatable
 local ipairs       = ipairs
+local pairs        = pairs
 local print        = print
 local table        = table
 local button       = require( "awful.button" )
@@ -18,6 +19,8 @@ function new(cg)
    local data = {}
    data.ratio = {}
    local nb =0
+   local vertex = {}
+   
    
    local function make_room(percentage) --Between 0 and 1
        local nb = #cg:childs()
@@ -27,15 +30,36 @@ function new(cg)
        end
    end
    
+   function data:show_splitters(show,horizontal,vertical)
+       print("Showing horizontal splliter",show)
+--        if horizontal then
+--            --ultiLayout.common.add_splitter_box()
+--        end
+--        if vertical then
+--             
+--        end
+       for k,v in ipairs(cg:childs()) do
+           v:show_splitters(show,horizontal,vertical)
+       end
+   end
+   
     function data:gen_vertex(vertex_list)
         local prev = nil
         local nb2   = 0
         for k,v in ipairs(cg:childs()) do
             if prev and nb2 ~= nb then
-                local aVertex = common.create_vertex({x=cg.x,y=v.y,orientation="horizontal",length=cg.width})
-                aVertex.cg1 = prev
-                aVertex.cg2 = v
-                table.insert(vertex_list,aVertex)
+                if not vertex[prev] or not vertex[prev][v] then
+                    local aVertex = common.create_vertex({x=cg.x,y=v.y,orientation="horizontal",length=cg.width})
+                    aVertex.cg1 = prev
+                    aVertex.cg2 = v
+                    vertex[prev] = vertex[prev] or {}
+                    vertex[prev][v] = aVertex
+                end
+                local aVertex = vertex[prev][v]
+                aVertex.length = cg.width
+                aVertex.x = cg.x
+                aVertex.y = v.y
+                table.insert(vertex_list,vertex[prev][v])
             end
             v:gen_vertex(vertex_list)
             prev = v
@@ -52,6 +76,15 @@ function new(cg)
            v:repaint()
            --relX     = relX + (width*data.ratio[v])
            relY     = relY + (cg.height*data.ratio[v])
+       end
+       for k,v in pairs(vertex) do
+               print("here1111")
+           for k2,v2 in pairs(v) do
+               print("here")
+               v2.x = relX
+               v2.y = relY
+               v2.length = k2.width
+           end
        end
    end
    

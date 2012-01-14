@@ -16,6 +16,9 @@ globalkeys = awful.util.table.join(
     -- Test and experimental stuff
     awful.key({ modkey, "Control" }, "a"     , function () ultiLayout.common.set_layout_by_name("righttile") end ),
     awful.key({ modkey, "Control" }, "s"     , function () ultiLayout.common.display_border() end ),
+    awful.key({ modkey, "Control" }, "d"     , function () ultiLayout.common.toggle_visibility() end ),
+    awful.key({ modkey, "Control" }, "f"     , function () ultiLayout.common.toggle_splitters() end ),
+    awful.key({ modkey, "Control" }, "g"     , function () ultiLayout.common.clear_splitter_box() end ),
 
     -- Layout manipulation
     --              MODIFIERS         KEY                        ACTION                               
