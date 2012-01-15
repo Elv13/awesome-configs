@@ -371,13 +371,15 @@ function set_layout_by_name(name,t)
     if layout_list[name] ~= nil then
         if top_level_cg[t] == nil then
             local aCG = clientGroup()
-            local coords = capi.screen[t.screen].geometry
+            local coords = capi.screen[t.screen].workarea
             for k,v in ipairs(t:clients()) do
                 local unit = wrap_client(v)
                 aCG:attach(unit)
             end
             aCG.width  = coords.width
             aCG.height = coords.height
+            aCG.x      = coords.x
+            aCG.y      = coords.y
             top_level_cg[t] = aCG
             top_level_cg[t]:add_signal("geometry::changed",function () repaint_border(t) end)
             aCG:repaint()

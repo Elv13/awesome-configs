@@ -34,7 +34,7 @@ function new(cg)
            else
                tb.wibox.visible=false
            end
-           v:geometry({width  = cg.width, height = cg.height-50, x = cg.x, y = cg.y+50})
+           v:geometry({width  = cg.width, height = cg.height-16, x = cg.x, y = cg.y+16})
            v:repaint()
        end
    end

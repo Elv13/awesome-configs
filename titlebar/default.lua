@@ -34,7 +34,7 @@ widgets.titlebar.add_signal("create",function(widgets,titlebar)
         widgets.buttons.sticky.widget                               ,
         widgets.buttons.floating.widget                             ,
         layout = awful.widget.layout.horizontal.rightleft           ,
-        widgets.tabbar                                              ,
+        widgets.tabbar.widgets_real                                 ,
     }
           
     local client = nil

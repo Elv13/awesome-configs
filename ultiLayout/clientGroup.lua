@@ -116,6 +116,7 @@ function new(parent)
         if parent ~= nil and #childs_cg == 0 then
             parent:detach(self)
             self = nil
+            return
         end
         self:repaint()
     end

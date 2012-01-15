@@ -349,7 +349,7 @@ function create_from_cg(cg, args)
             buttons.sticky.widget                  ,
             buttons.floating.widget                ,
             layout = layout.horizontal.rightleft   ,
-            tl                                     ,
+            tl.widgets_real                        ,
         }
     end
     

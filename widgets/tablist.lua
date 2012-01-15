@@ -35,7 +35,7 @@ module("widgets.tablist")
 -- Public structures
 label = {}
 
-function widget_tasklist_label_common(tab, w)
+function widget_tasklist_label_common(tab,w)
     local numberStyle = "<span size='x-large' bgcolor='".. beautiful.fg_normal .."'color='".. beautiful.bg_normal .."'><tt><b>"
     local numberStyleEnd = "</b></tt></span> "
     local suffix, prefix = "",""
@@ -94,6 +94,8 @@ function new(label, buttons,cg)
                        }
     w.widgets = widgets
     
+    w.widgets_real = {layout = layout.horizontal.flex}
+    
     function w:get_cg()
         return cg
     end
@@ -108,7 +110,7 @@ function new(label, buttons,cg)
                                         cg:set_active(tab.clientgroup)
 --                                         util.spawn('dbus-send --type=method_call --dest=org.schmorp.urxvt /term/'..(tab.title or 0)..'/control org.schmorp.urxvt.selectTab int32:'..tab.index)
                                         
-                                        tasklist_update(tabs, w, buttons2, label2, data, widgets,tab)
+                                        tasklist_update(tabs, w.widgets_real, buttons2, label2, data, widgets,tab)
                                       end),
                     awButtons({ }, 2, function (tab) 
                                           local xpos  = capi.mouse.coords().x
@@ -165,7 +167,7 @@ function new(label, buttons,cg)
       if not c then return end
       local aTab = {client = c, selected = false}
       table.insert(tabs, aTab)
-      tasklist_update(tabs, w, buttons2, label2, data, widgets)
+      tasklist_update(tabs, w.widgets_real, buttons2, label2, data, widgets)
       return aTab
     end
     
@@ -175,7 +177,7 @@ function new(label, buttons,cg)
       table.insert(tabs, aTab)
       
       --cg:attach(new_cg)
-      tasklist_update(tabs, w, buttons2, label2, data, widgets)
+      tasklist_update(tabs, w.widgets_real, buttons2, label2, data, widgets)
       return aTab
     end
     
@@ -188,7 +190,7 @@ function new(label, buttons,cg)
                 elseif k+1 < #tabs then
                     tabs[k+1].selected = true
                 end
-                tasklist_update(tabs, w, buttons2, label2, data, widgets)
+                tasklist_update(tabs, w.widgets_real, buttons2, label2, data, widgets)
                 return
             end
         end
@@ -196,16 +198,16 @@ function new(label, buttons,cg)
     
     function w:focus2()
       w.focus = true
-      tasklist_update(tabs, w, buttons2, label2, data, widgets)
+      tasklist_update(tabs, w.widgets_real, buttons2, label2, data, widgets)
     end
     
     function w:unfocus2()
       w.focus = false
-      tasklist_update(tabs, w, buttons2, label2, data, widgets)
+      tasklist_update(tabs, w.widgets_real, buttons2, label2, data, widgets)
     end
     
     function w:update()
-      tasklist_update(tabs, w, buttons2, label2, data, widgets)
+      tasklist_update(tabs, w.widgets_real, buttons2, label2, data, widgets)
     end
     u()
     return w
