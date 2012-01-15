@@ -192,7 +192,6 @@ function new(parent)
     
     local function change_visibility(value)
         for k,v in pairs(childs_cg) do
-            print("Forcing sub CG")
             v.visible = value
         end
     end
@@ -225,7 +224,6 @@ function new(parent)
             emit_signal("height::changed",value-prevHeight)
             emit_signal("geometry::changed")
         elseif key == "x" and value ~= x then
-            print("setting x",data)
             local prevX = x
             x = value
             needRepaint = true
@@ -252,7 +250,6 @@ function new(parent)
     --Emulate the geometry as part of data
     function return_data(table, key)
         if key == "width" then
-            print("yoppi")
             return width
         elseif key == "height" then
             return height

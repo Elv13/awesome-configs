@@ -31,7 +31,6 @@ function new(cg)
    end
    
    function data:show_splitters(show,horizontal,vertical)
-       print("Showing horizontal splliter",show)
 --        if horizontal then
 --            --ultiLayout.common.add_splitter_box()
 --        end
@@ -78,9 +77,7 @@ function new(cg)
            relY     = relY + (cg.height*data.ratio[v])
        end
        for k,v in pairs(vertex) do
-               print("here1111")
            for k2,v2 in pairs(v) do
-               print("here")
                v2.x = relX
                v2.y = relY
                v2.length = k2.width

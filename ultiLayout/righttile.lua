@@ -31,7 +31,6 @@ function new(cg,orientation)
    end
    
    function data:show_splitters(show,horizontal,vertical)
-       print("Showing tile splliter",show)
        if subCg then
            subCg:show_splitters(show,false,true)
        end
@@ -66,7 +65,6 @@ function new(cg,orientation)
     end
    
    function data:add_child(new_cg)
-        print("Adding child to righttile")
         local stack = clientGroup()
         stack:set_layout(common.get_layout_list().stack(stack))
         stack:attach(new_cg)
@@ -77,14 +75,12 @@ function new(cg,orientation)
                 subCg = clientGroup()
                 subCg:set_layout(common.get_layout_list()["horizontal"](subCg))
             end
-            print("Adding to sub")
             subCg:attach(stack)
         else
             if not mainCg then
                 mainCg = clientGroup()
                 mainCg:set_layout(common.get_layout_list()["horizontal"](mainCg))
             end
-            print("adding to main")
             mainCg:attach(stack)
         end
         local percent = 1 / nb

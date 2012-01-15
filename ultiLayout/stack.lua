@@ -51,11 +51,8 @@ function new(cg)
     end
     
     function data:set_active(sub_cg)
-        print("In set_active")
         for k,v in pairs(cg:childs()) do
-            print("In loop",v,sub_cg)
             if v == sub_cg then
-                print("Client group found, make it active")
                 v.visible = true
             else
                 v.visible = false

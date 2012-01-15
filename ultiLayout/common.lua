@@ -172,7 +172,6 @@ end
 --tag.attached_add_signal(1, "property::selected",toggle_visibility )
 
 local function repaint_border(t)
-    print("Repaint border enter")
     if not auto_display_border then return end
     local t = t or tag.selected(capi.mouse.screen)
     if top_level_cg[t] then
@@ -183,7 +182,6 @@ local function repaint_border(t)
             if w then
                 w.x = v.x
                 w.y = v.y
-                print("x,y",v.x,v.y)
                 if v.orientation == "horizontal" then
                     w.width = v.length
                     w.height = 2
@@ -198,9 +196,7 @@ end
 
 local function display_border_real(t)
     if not auto_display_border then return end
-    print("in border display")
     local t = t or tag.selected(capi.mouse.screen)
-    print("Showing border")
     if top_level_cg[t] then
         local vertex = {}
         top_level_cg[t]:gen_vertex(vertex)
@@ -213,7 +209,6 @@ local function display_border_real(t)
             --v.cg2:add_signal("x::changed", function(cg,delta)w.x = 100 end)
             --v.cg2:add_signal("y::changed", function(cg,delta)w.y = 100 end)
             if v.orientation == "horizontal" then
-                print("width is:",v.length,v.x,v.y)
                 w.width = v.length or 10
                 w.height = 2
                 curName = "sb_v_double_arrow"
@@ -239,19 +234,15 @@ local function display_border_real(t)
             
             local function resize(axe,length,mouse)
                 local d = (mouse[axe] - (v.cg1[length]+v.cg1[axe]))
-                print("cg1, cg2",w[axe],mouse[axe],v.cg2)
                 if v.cg1 then
                     v.cg1[length] = v.cg1[length] + d
-                    print("about to paint cg1",length,v.cg1[length] + d,v.cg1[axe])
                     v.cg1:repaint()
                 end
                 if v.cg2 then
-                    print("about to paint cg2",length,v.cg2[length] + d,v.cg2[axe])
                     v.cg2[length] = v.cg2[length] - d
                     v.cg2[axe] = v.cg2[axe] + d
                     v.cg2:repaint()
                 end
-                print(v.x,v.y)
 --                 w[axe] = mouse[axe]
             end
             
@@ -284,7 +275,6 @@ local function display_border_real(t)
                 w.bg = "#ff0000"
             end)
                     end
-        print("size",#vertex)
     else
         print("No layout")
     end
@@ -297,7 +287,6 @@ function display_border(t)
 end
 
 function display_resize_handle(s)
-    print("Repaint border enter")
     if not auto_display_border then return end
     local t = t or tag.selected(capi.mouse.screen)
     if top_level_cg[t] then

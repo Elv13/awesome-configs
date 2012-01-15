@@ -27,7 +27,6 @@ function new(cg,c)
     end
 
     function data:show_splitters(show,horizontal,vertical)
-        print("Showing unit splliter",show)
         if vertical then
             common.add_splitter_box(cg.x,cg.y+(cg.height/2)-25)
             common.add_splitter_box(cg.x+cg.width-50,cg.y+(cg.height/2)-25)
@@ -51,7 +50,6 @@ function new(cg,c)
     end
    
    cg:add_signal("visibility::changed",function(_cg,value)
-       print("I am here 3",value)
        c.hidden = not value
    end)
    return data

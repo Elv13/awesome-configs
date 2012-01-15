@@ -123,9 +123,6 @@ function approxPos(t)
             end
         end
     end
-    for i=1,res do --x
-        print(data.layout[t.screen][i][1],data.layout[t.screen][i][2],data.layout[t.screen][i][3],data.layout[t.screen][i][4],data.layout[t.screen][i][5],data.layout[t.screen][i][6],data.layout[t.screen][i][7],data.layout[t.screen][i][8],data.layout[t.screen][i][9],data.layout[t.screen][i][res])
-    end
 end
 tag.attached_add_signal(1, "property::selected", approxPos)
 tag.attached_add_signal(1, "property::layout"  , approxPos)

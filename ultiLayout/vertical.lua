@@ -68,9 +68,7 @@ function new(cg)
 --            relY     = relY + (height*data.ratio[v])
        end
        for k,v in pairs(vertex) do
-               print('here344432423423444')
            for k2,v2 in pairs(v) do
-               print('here344444')
                v2.x = relX
                v2.y = relY
                v2.length = k2.height
