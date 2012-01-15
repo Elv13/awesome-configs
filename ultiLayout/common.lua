@@ -206,29 +206,31 @@ local function display_border_real(t)
             local curName = nil
             w.x = v.x
             w.y = v.y
-            --v.cg2:add_signal("x::changed", function(cg,delta)w.x = 100 end)
-            --v.cg2:add_signal("y::changed", function(cg,delta)w.y = 100 end)
+--             v.cg2:add_signal("x::changed", function(cg,delta)w.x = 100 end)
+--             v.cg2:add_signal("y::changed", function(cg,delta)w.y = 100 end)
             if v.orientation == "horizontal" then
                 w.width = v.length or 10
                 w.height = 2
                 curName = "sb_v_double_arrow"
---                 v.cg2:add_signal("width::changed", function(cg,delta)w.width = v.cg2.width;print('test2 '..delta,w.width) end)
---                 v.cg2:add_signal("x::changed", function(cg,delta)
---                     v.x = v.x+delta
---                     w.x = v.x;print('test3 '..delta,w.x) 
---                     w.bg="#00ff00"
---                 end)
---                 v.cg2:add_signal("y::changed", function(cg,delta)
---                     v.y = v.y+delta
---                     w.y = v.y;print('test4 '..delta,w.y) 
---                     w.bg="#00ff00"
---                 end)
+                v.cg2:add_signal("width::changed", function(cg,delta)w.width = v.cg2.width;print('test2 '..delta,w.width) end)
             else --Handle any other value, even if vertical should be the only one
                 w.height = v.length
                 w.width = 2
                 curName = "sb_h_double_arrow"
-                --v.cg2:add_signal("height::changed", function(cg,delta)w.height = v.cg2.height;print("test "..delta,w.height) end)
+                v.cg2:add_signal("height::changed", function(cg,delta)w.height = v.cg2.height;print("test "..delta,w.height) end)
             end
+            
+            v.cg2:add_signal("x::changed", function(cg,delta)
+                v.x = v.cg1.x+v.cg1.width
+                w.x = v.x
+                w.bg="#00ff00"
+            end)
+            v.cg2:add_signal("y::changed", function(cg,delta)
+                v.y = v.cg1.y+v.cg1.height
+                w.y = v.y
+                w.bg="#00ff00"
+            end)
+            
             w.ontop = true
             w.bg = "#ff0000"
             
@@ -267,12 +269,12 @@ local function display_border_real(t)
                             return true
                         end,curName)
                 end)))
-                --w.bg = "#00ff00"
+                w.bg = "#00ffff"
             end)
 
             w:add_signal("mouse::leave", function ()
                 capi.root.cursor("left_ptr")
-                w.bg = "#ff0000"
+                w.bg = "#ff00ff"
             end)
                     end
     else

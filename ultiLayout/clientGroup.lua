@@ -77,12 +77,12 @@ function new(parent)
     function data:geometry(new,relative)
         --math.flgoor math.ce...
         if new ~= nil then
-            data.width = new.width
-            data.height = new.height
-            data.x = new.x
-            data.y = new.y
+            width = new.width
+            height = new.height
+            x = new.x
+            y = new.y
         end
-        return {width = data.width or 0, height = data.height or 0, x = data.x or 0, y = data.y or 0}
+        return {width = width or 0, height = height or 0, x = x or 0, y = y or 0}
     end
 
     function data:set_client(c)
@@ -227,22 +227,22 @@ function new(parent)
             local prevX = x
             x = value
             needRepaint = true
-            emit_signal("x::changed",data,value-prevX)
+            emit_signal("x::changed",value-prevX)
             emit_signal("geometry::changed")
         elseif key == "y" and value ~= y then
             local prevY = y
             y = value
             needRepaint = true
-            emit_signal("y::changed",data,value-prevY)
+            emit_signal("y::changed",value-prevY)
             emit_signal("geometry::changed")
         elseif key == "visible" --[[and value ~= visible]] then
             change_visibility(value)
             visible = value
             needRepaint = true
             emit_signal("visibility::changed",value)
-        elseif key == "title" and value ~= y then
+        elseif key == "title" and value ~= title then
             title = value
-        else
+        elseif key ~= "width" and key ~= "height" and key ~= "y" and key ~= "x" and key ~= "visible" and key ~= "title" then
             rawset(data,key,value)
         end
     end
