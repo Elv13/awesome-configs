@@ -20,10 +20,10 @@ module("ultiLayout.clientGroup")
 
 function new(parent)
     local data              = {}
-    local height = 0
-    local width  = 0
-    local x      = 0
-    local y      = 0
+    local height  = 0
+    local width   = 0
+    local x       = 0
+    local y       = 0
     local visible = true
     local needRepaint = false
     local layout            = nil
@@ -90,12 +90,15 @@ function new(parent)
     end
 
     function data:set_layout(l)
-        --TODO extract base cg from previous layout
-        layout = l
-        for k,v in ipairs(self:childs()) do
-            l:add_child(v)
+        if not l then
+            print("No layout to be set")
+        else
+            layout = l
+            for k,v in ipairs(self:childs()) do
+                l:add_child(v)
+            end
+            self:repaint()
         end
-        self:repaint()
     end
 
 --     function data:reparent(new_parent)
@@ -135,6 +138,7 @@ function new(parent)
     end
     
     function data:attach(cg)
+        print("here",self)
         if cg:get_parent() == self then return end
         if cg:get_parent() ~= nil then
             cg:get_parent():detach(cg)
@@ -147,9 +151,12 @@ function new(parent)
         
         if layout then
             table.insert(childs_cg,layout:add_child(cg) or cg)
+            print("Now host",#childs_cg,self,childs_cg)
         else
             table.insert(childs_cg,cg)
+            print("Now host",#childs_cg,self,childs_cg)
         end
+        --table.insert(childs_cg,cg)
         emit_signal("client::attached")
         self:repaint()
     end
@@ -185,15 +192,19 @@ function new(parent)
     end
     
     function data:repaint()
+        --print("Repainting",self,layout)
         if layout then
             layout:update()
         end
     end
     
     local function change_visibility(value)
+        print("In change_visibility",#childs_cg,data,childs_cg)
         for k,v in pairs(childs_cg) do
+            print("In for")
             v.visible = value
         end
+        visible = value
     end
     
     local function get_title()
@@ -237,8 +248,8 @@ function new(parent)
             emit_signal("geometry::changed")
         elseif key == "visible" --[[and value ~= visible]] then
             change_visibility(value)
-            visible = value
             needRepaint = true
+            print("Changing visibility")
             emit_signal("visibility::changed",value)
         elseif key == "title" and value ~= title then
             title = value

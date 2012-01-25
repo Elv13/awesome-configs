@@ -2,14 +2,14 @@ local setmetatable = setmetatable
 local ipairs       = ipairs
 local pairs        = pairs
 local print        = print
-local button       = require( "awful.button" )
-local beautiful    = require( "beautiful"    )
-local naughty      = require( "naughty"      )
-local tag          = require( "awful.tag"    )
-local util         = require( "awful.util"   )
-local wibox         = require( "awful.wibox"   )
+local button       = require( "awful.button"      )
+local beautiful    = require( "beautiful"         )
+local naughty      = require( "naughty"           )
+local tag          = require( "awful.tag"         )
+local util         = require( "awful.util"        )
+local wibox        = require( "awful.wibox"       )
 local common       = require( "ultiLayout.common" )
-local titlebar     = require( "widgets.titlebar" )
+local titlebar     = require( "widgets.titlebar"  )
 
 local capi = { image  = image  ,
                widget = widget }
@@ -27,12 +27,12 @@ function new(cg)
    function data:update()
        for k,v in ipairs(cg:childs()) do
            if tb and cg.width > 0 then
-               tb.wibox.x=cg.x
-               tb.wibox.y=cg.y
-               tb.wibox.width= cg.width
-               tb.wibox.visible=true
-           else
-               tb.wibox.visible=false
+               tb.wibox.x       = cg.x
+               tb.wibox.y       = cg.y
+               tb.wibox.width   = cg.width
+               tb.wibox.visible = true
+           elseif tb then
+               tb.wibox.visible = false
            end
            v:geometry({width  = cg.width, height = cg.height-16, x = cg.x, y = cg.y+16})
            v:repaint()
@@ -62,18 +62,27 @@ function new(cg)
     end
 
     function data:add_child(child_cg)
+        print("Stack is",self)
         --if not activeCg then
             activeCg = child_cg
         --end
         if not tb then
             tb = titlebar.create_from_cg(cg)
             tb.wibox.ontop = true
-            tb.wibox.bg = "#ff0000"
+            tb.wibox.bg    = "#ff0000"
         end
         tb.tablist:add_tab_cg(child_cg)
         nb = nb + 1
         local percent = 1 / nb
-        end
+    end
+    
+    cg:add_signal("visibility::changed",function(_cg,value)
+        print('####################changing tb visibility\n\n\n\n\n',value)
+       if tb then
+           tb.wibox.visible = value
+       end
+    end)
+   
     return data
 end
 

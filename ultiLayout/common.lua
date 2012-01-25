@@ -3,6 +3,7 @@ local table        = table
 local type         = type
 local ipairs       = ipairs
 local print        = print
+local math         = math
 local pairs        = pairs
 local debug        = debug
 local button       = require( "awful.button"           )
@@ -13,18 +14,19 @@ local tag          = require( "awful.tag"              )
 local clientGroup  = require( "ultiLayout.clientGroup" )
 local util         = require( "awful.util"             )
 
-local capi = { image  = image  ,
-               widget = widget,
-               mouse = mouse,
-               screen = screen,
-               root = root,
-               mousegrabber = mousegrabber}
+local capi = { image        = image        ,
+               widget       = widget       ,
+               mouse        = mouse        ,
+               screen       = screen       ,
+               root         = root         ,
+               mousegrabber = mousegrabber }
 
 module("ultiLayout.common")
 
-local layouts          = {} -- tag -> layout instance
+local layouts          = {} -- tag -> layout name -> top level CG
+local cur_layout_name  = {} -- tag -> name
 local top_level_cg     = {} -- tag -> cg
-local layout_list_idx  = {} -- int -> layout func
+-- local layout_list_idx  = {} -- int -> layout func
 local layout_list      = {} --string -> layout func
 local titlebars        = {} --cg -> titlebar
 local vertices         = {}
@@ -63,13 +65,13 @@ function get_titlebar(cg)
 end
 
 function add_splitter_box(x,y,direction,on_drop,on_hover)
-    local w =  wibox({position = "free"})
-    w.x = x
-    w.y = y
-    w.width =50
+    local w  =  wibox({position = "free"})
+    w.x      = x
+    w.y      = y
+    w.width  = 50
     w.height = 50
-    w.ontop=true
-    w.bg = "#00ff00"
+    w.ontop  = true
+    w.bg     = "#00ff00"
     table.insert(active_splitters,w)
 end
 
@@ -80,13 +82,13 @@ function clear_splitter_box()
     active_splitters = {}
 end
 
-function create_client_group(c,args)
-    local cg = ultiLayout.clientGroup()
-    local l  = args.layout or args.layout_idx or layout_list_idx[1]
-    cg:add_client(c)
-    cg:set_layout(l)
-    return cg
-end
+-- function create_client_group(c,args)
+--     local cg = ultiLayout.clientGroup()
+--     local l  = args.layout or args.layout_idx or layout_list_idx[1]
+--     cg:add_client(c)
+--     cg:set_layout(l)
+--     return cg
+-- end
 
 function merge_client_group(cg1,cg2,layout,args)
     local newCg = ultiLayout.clientGroup()
@@ -125,10 +127,10 @@ function match_closest_vertex()
 end
 
 function resize_closest()
-    local v = match_closest_vertex()
+    local v      = match_closest_vertex()
     local coords = capi.mouse.coords
-    local vx1 = v.x1
-    local vy1 = v.y1
+    local vx1    = v.x1
+    local vy1    = v.y1
     capi.mousegrabber.run(function(mouse)
                                     if mouse.buttons[1] == false and mouse.buttons[3] == false then
                                         return false
@@ -149,14 +151,14 @@ end
 
 function display_visual_hits(s)
     for k,v in ipairs(t:clients()) do
-        local w = wibox({position="free"})
-        w.ontop = true
-        w.width  = 60
-        w.height = 60
-        w.bg = "#00ff00"
+        local w   = wibox({position="free"})
+        w.ontop   = true
+        w.width   = 60
+        w.height  = 60
+        w.bg      = "#00ff00"
         local geo = v:geometry()
-        w.x = geo.x + geo.width  -60
-        w.y = geo.y + geo.height/2
+        w.x       = geo.x + geo.width  -60
+        w.y       = geo.y + geo.height/2
     end
 end
 
@@ -164,6 +166,7 @@ function toggle_visibility(t,value)
     local t = t or tag.selected(capi.mouse.screen)
     if top_level_cg[t] then
         local cg = top_level_cg[t]
+        print("Changinf visibility",cg.visible,"to",not cg.visible,cg)
         cg.visible =  not cg.visible
     else
         print("No layout")
@@ -209,40 +212,40 @@ local function display_border_real(t)
 --             v.cg2:add_signal("x::changed", function(cg,delta)w.x = 100 end)
 --             v.cg2:add_signal("y::changed", function(cg,delta)w.y = 100 end)
             if v.orientation == "horizontal" then
-                w.width = v.length or 10
+                w.width  = v.length or 10
                 w.height = 2
-                curName = "sb_v_double_arrow"
+                curName  = "sb_v_double_arrow"
                 v.cg2:add_signal("width::changed", function(cg,delta)w.width = v.cg2.width;print('test2 '..delta,w.width) end)
             else --Handle any other value, even if vertical should be the only one
                 w.height = v.length
-                w.width = 2
-                curName = "sb_h_double_arrow"
+                w.width  = 2
+                curName  = "sb_h_double_arrow"
                 v.cg2:add_signal("height::changed", function(cg,delta)w.height = v.cg2.height;print("test "..delta,w.height) end)
             end
             
             v.cg2:add_signal("x::changed", function(cg,delta)
-                v.x = v.cg1.x+v.cg1.width
-                w.x = v.x
-                w.bg="#00ff00"
+                v.x  = v.cg1.x+v.cg1.width
+                w.x  = v.x
+                w.bg ="#00ff00"
             end)
             v.cg2:add_signal("y::changed", function(cg,delta)
-                v.y = v.cg1.y+v.cg1.height
-                w.y = v.y
-                w.bg="#00ff00"
+                v.y  = v.cg1.y+v.cg1.height
+                w.y  = v.y
+                w.bg ="#00ff00"
             end)
             
             w.ontop = true
             w.bg = "#ff0000"
             
             local function resize(axe,length,mouse)
-                local d = (mouse[axe] - (v.cg1[length]+v.cg1[axe]))
+                local d = mouse[axe] - (v.cg1[length]+v.cg1[axe])
                 if v.cg1 then
-                    v.cg1[length] = v.cg1[length] + d
+                    v.cg1[ length ] = v.cg1[ length ] + d
                     v.cg1:repaint()
                 end
                 if v.cg2 then
-                    v.cg2[length] = v.cg2[length] - d
-                    v.cg2[axe] = v.cg2[axe] + d
+                    v.cg2[ length ] = v.cg2[ length ] - d
+                    v.cg2[ axe    ] = v.cg2[ axe    ] + d
                     v.cg2:repaint()
                 end
 --                 w[axe] = mouse[axe]
@@ -302,9 +305,9 @@ function display_resize_handle(s)
                 table.insert(vertexV,v)
             end
         end
-        for k,v in ipairs(vertexV) do
+        --for k,v in ipairs(vertexV) do
             
-        end
+        --end
     end
 --     for k,v in ipairs(t:clients()) do
 --         local w = wibox({position="free"})
@@ -353,17 +356,41 @@ end
 function wrap_client(c)
     local aCG = clientGroup()
     aCG:geometry(c:geometry())
-    aCG:set_layout(layout_list["unit"](aCG,c))
+    aCG:set_layout(layout_list.unit(aCG,c))
     return aCG
+end
+
+local function get_layout_name_list()
+    local list = {}
+    for k,v in pairs(layout_list) do
+        table.insert(list,k)
+    end
+    return list
+end
+
+local function layout_name_to_idx(name)
+    local layout_array = ordered or get_layout_name_list()
+    for k,v in pairs(layout_array) do
+        if v == name then
+            return k
+        end
+    end
+    return nil
 end
 
 function set_layout_by_name(name,t)
     local t = t or tag.selected(capi.mouse.screen)
-    if layout_list[name] ~= nil then
-        if top_level_cg[t] == nil then
+    if not layouts[t] then layouts[t] = {} end
+    if layout_list[name] ~= nil and (not layouts[t][name]) then
+        if top_level_cg[t] == nil or (top_level_cg[t] ~= nil and cur_layout_name[t] ~= name) then
+            print("\n\nSetting main")
             local aCG = clientGroup()
             local coords = capi.screen[t.screen].workarea
+        aCG:set_layout( layout_list[name](aCG))
+        cur_layout_name[t] = name
+        layouts[t][name] = aCG
             for k,v in ipairs(t:clients()) do
+                print("---------In loop")
                 local unit = wrap_client(v)
                 aCG:attach(unit)
             end
@@ -371,26 +398,52 @@ function set_layout_by_name(name,t)
             aCG.height = coords.height
             aCG.x      = coords.x
             aCG.y      = coords.y
+            aCG:add_signal("geometry::changed",function () repaint_border(t) end)
+            if top_level_cg[t] then
+                top_level_cg[t].visible = false
+            end
             top_level_cg[t] = aCG
-            top_level_cg[t]:add_signal("geometry::changed",function () repaint_border(t) end)
+            aCG.visible = true
             aCG:repaint()
+            print("\n\nSetting as main",aCG)
         end
-        top_level_cg[t]:set_layout( layout_list[name](top_level_cg[t]))
+    elseif layouts[t][name] then
+        print("Using existing ".. name .." layout")
+        top_level_cg[t].visible = false
+        top_level_cg[t] = layouts[t][name]
+        top_level_cg[t].visible = true
+        cur_layout_name[t] = name
+        --top_level_cg[t]:repaint()
+        layouts[t][name]:repaint()
     else
-        print("layout not found")
+        print("layout".. name .. " not found")
     end
 end
 
-function set_layout_by_id(t,id)
-    
+function rotate_layout(inc,t)
+    local inc = inc or 1
+    local t = t or tag.selected(capi.mouse.screen)
+    local layout_array = ordered or get_layout_name_list()
+    local current_index = layout_name_to_idx(cur_layout_name[t]) or 1
+    local new_index = (current_index+inc > #layout_array) and current_index+inc-#layout_array or current_index+inc
+    --print("old idx",current_index,new_index,cur_layout_name[t],layouts[t][name])
+    if layout_array[new_index] == "unit" then
+        rotate_layout(inc+(inc/math.abs(inc)),t)
+    else
+        set_layout_by_name(layout_array[new_index],t)
+    end
 end
+
+-- function set_layout_by_id(t,id)
+--     
+-- end
 
 function get_current_layout_name(s)
     
 end
 
-function get_current_layout_id(s)
-    
-end
+-- function get_current_layout_id(s)
+--     
+-- end
 
 setmetatable(_M, { __call = function(_, ...) return new(...) end })

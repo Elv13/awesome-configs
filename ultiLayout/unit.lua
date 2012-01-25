@@ -19,6 +19,7 @@ function new(cg,c)
     cg:set_client(c)
     
     function data:update()
+        c.hidden = not cg.visible
         c:geometry({x = cg.x, y = cg.y, width = cg.width, height = cg.height})
     end
 

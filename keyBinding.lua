@@ -19,6 +19,7 @@ globalkeys = awful.util.table.join(
     awful.key({ modkey, "Control" }, "d"     , function () ultiLayout.common.toggle_visibility() end ),
     awful.key({ modkey, "Control" }, "f"     , function () ultiLayout.common.toggle_splitters() end ),
     awful.key({ modkey, "Control" }, "g"     , function () ultiLayout.common.clear_splitter_box() end ),
+    awful.key({ modkey, "Control" }, "h"     , function () ultiLayout.common.rotate_layout(1) end ),
 
     -- Layout manipulation
     --              MODIFIERS         KEY                        ACTION                               
