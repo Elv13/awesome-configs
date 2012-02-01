@@ -8,7 +8,6 @@ local pairs        = pairs
 local debug        = debug
 local button       = require( "awful.button"           )
 local beautiful    = require( "beautiful"              )
-local naughty      = require( "naughty"                )
 local wibox        = require( "awful.wibox"            )
 local tag          = require( "awful.tag"              )
 local clientGroup  = require( "ultiLayout.clientGroup" )
@@ -103,6 +102,10 @@ end
 function move_client_group(cg,new_host,args)
     cg:get_parent():detach(cg)
     new_host:reparent(cg)
+end
+
+function swap_client_group(cg1,cg2)
+    cg1:swap(cg2)
 end
 
 -- vertex = {orientation = "v" or "h", x1:x2,y1:y2, affected = {type="cg" or "c", item = nil}}

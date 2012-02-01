@@ -42,23 +42,23 @@ return {
   float = {
 
 },
-  maximized = {
-  Dolphin = true,
+  dockable = {
 
 },
-  dockable = {
+  maximized = {
+  Dolphin = true,
 
 },
   honorsizehints = {
 
 },
-  slave = {
-
-},
-  struts = {
+  minimized = {
 
 },
   onTop = {
+
+},
+  struts = {
 
 },
   buttons = {
@@ -70,7 +70,7 @@ return {
   run = {
 
 },
-  hidden = {
+  titlebar = {
 
 },
   above = {
@@ -80,7 +80,7 @@ return {
   border_width = {
 
 },
-  titlebar = {
+  hidden = {
 
 },
   below = {
@@ -91,7 +91,7 @@ return {
   skip_taskbar = {
 
 },
-  minimized = {
+  slave = {
 
 },
   sticky = {

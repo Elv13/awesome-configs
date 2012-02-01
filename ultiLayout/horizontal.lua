@@ -5,7 +5,6 @@ local print        = print
 local table        = table
 local button       = require( "awful.button" )
 local beautiful    = require( "beautiful"    )
-local naughty      = require( "naughty"      )
 local tag          = require( "awful.tag"    )
 local util         = require( "awful.util"   )
 local common       = require( "ultiLayout.common" )

@@ -8,7 +8,6 @@ local rawget = rawget
 local ipairs = ipairs
 local button       = require( "awful.button" )
 local beautiful    = require( "beautiful"    )
-local naughty      = require( "naughty"      )
 local tag          = require( "awful.tag"    )
 local util         = require( "awful.util"   )
 
@@ -18,16 +17,19 @@ local capi = { image  = image  ,
 module("ultiLayout.clientGroup")
 
 
+local client_to_cg          = {}
+
+
 function new(parent)
     local data              = {}
-    local height  = 0
-    local width   = 0
-    local x       = 0
-    local y       = 0
-    local visible = true
-    local needRepaint = false
+    local height            = 0
+    local width             = 0
+    local x                 = 0
+    local y                 = 0
+    local visible           = true
+    local needRepaint       = false
     local layout            = nil
-    local client_group_list = {}
+    --local client_group_list = {}
     local client            = nil
     local parent            = parent or nil
     local childs_cg         = {}
@@ -87,6 +89,15 @@ function new(parent)
 
     function data:set_client(c)
         client = c
+        --client_to_cg[c] = self
+        if not client_to_cg[c] then
+            client_to_cg[c] = {}
+        end
+        table.insert(client_to_cg[c],self)
+    end
+    
+    function get_cg_from_client(c)
+        return client_to_cg[c]
     end
 
     function data:set_layout(l)
@@ -122,6 +133,28 @@ function new(parent)
             return
         end
         self:repaint()
+    end
+    
+    --It is not called swap because it only do half of the operation
+    function data:replace(old_cg,new_cg)
+        for k,v in pairs(childs_cg) do
+            if v == old_cg then
+                childs_cg[k] = new_cg
+                self:repaint()
+                return
+            end
+        end
+    end
+    
+    function data:swap(new_cg)
+        if parent ~= nil and new_cg:get_parent() ~= nil then
+            local cur_parent   = parent
+            local other_parent = new_cg:get_parent()
+            parent:replace(self,new_cg)
+            other_parent:replace(new_cg,self)
+            self:set_parent(other_parent)
+            new_cg:set_parent(cur_parent)
+        end
     end
     
     function data:show_splitters(horizontal,vertical)

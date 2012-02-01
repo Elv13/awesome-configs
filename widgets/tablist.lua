@@ -27,6 +27,8 @@ local tag          = require( "awful.tag"           )
 local layout       = require( "awful.widget.layout" )
 local awButtons    = require( "awful.button"        )
 local config       = require( "config"              )
+local ultilayoutCG = require( "ultiLayout.clientGroup" )
+local ultilayoutC  = require( "ultiLayout.common"   )
 --local titlebar = require("widgets.titlebar")
 
 --- Tasklist widget module for awful
@@ -131,6 +133,11 @@ function new(label, buttons,cg)
                                                            config.data().titlebars[obj]:get_cg():attach(tab.clientgroup)
                                                            --config.data().titlebars[obj]:add_tab_cg(tab.clientgroup)
                                                         end
+                                                      end
+                                                  elseif type(obj) == "client" then
+                                                      local possibilities = ultilayoutCG.get_cg_from_client(obj)
+                                                      if possibilities ~= nil then
+                                                          ultilayoutC.swap_client_group(tab.clientgroup,possibilities[1])
                                                       end
                                                   end
                                                   capi.mousegrabber.stop()
