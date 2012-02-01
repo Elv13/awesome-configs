@@ -138,7 +138,6 @@ function new(parent)
     end
     
     function data:attach(cg)
-        print("here",self)
         if cg:get_parent() == self then return end
         if cg:get_parent() ~= nil then
             cg:get_parent():detach(cg)
@@ -151,10 +150,8 @@ function new(parent)
         
         if layout then
             table.insert(childs_cg,layout:add_child(cg) or cg)
-            print("Now host",#childs_cg,self,childs_cg)
         else
             table.insert(childs_cg,cg)
-            print("Now host",#childs_cg,self,childs_cg)
         end
         --table.insert(childs_cg,cg)
         emit_signal("client::attached")
@@ -199,9 +196,7 @@ function new(parent)
     end
     
     local function change_visibility(value)
-        print("In change_visibility",#childs_cg,data,childs_cg)
         for k,v in pairs(childs_cg) do
-            print("In for")
             v.visible = value
         end
         visible = value

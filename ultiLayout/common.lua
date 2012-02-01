@@ -166,7 +166,6 @@ function toggle_visibility(t,value)
     local t = t or tag.selected(capi.mouse.screen)
     if top_level_cg[t] then
         local cg = top_level_cg[t]
-        print("Changinf visibility",cg.visible,"to",not cg.visible,cg)
         cg.visible =  not cg.visible
     else
         print("No layout")
@@ -383,14 +382,12 @@ function set_layout_by_name(name,t)
     if not layouts[t] then layouts[t] = {} end
     if layout_list[name] ~= nil and (not layouts[t][name]) then
         if top_level_cg[t] == nil or (top_level_cg[t] ~= nil and cur_layout_name[t] ~= name) then
-            print("\n\nSetting main")
             local aCG = clientGroup()
             local coords = capi.screen[t.screen].workarea
         aCG:set_layout( layout_list[name](aCG))
         cur_layout_name[t] = name
         layouts[t][name] = aCG
             for k,v in ipairs(t:clients()) do
-                print("---------In loop")
                 local unit = wrap_client(v)
                 aCG:attach(unit)
             end
@@ -405,7 +402,6 @@ function set_layout_by_name(name,t)
             top_level_cg[t] = aCG
             aCG.visible = true
             aCG:repaint()
-            print("\n\nSetting as main",aCG)
         end
     elseif layouts[t][name] then
         print("Using existing ".. name .." layout")
@@ -445,5 +441,23 @@ end
 -- function get_current_layout_id(s)
 --     
 -- end
+
+local currentTag = nil
+local function switch_on_tag_change(t)
+    local t = t or tag.selected(capi.mouse.screen)
+    if currentTag ~= nil then
+        currentTag.visible = false
+    end
+    if top_level_cg[t] then
+        top_level_cg[t].visible = true
+        top_level_cg[t]:repaint()
+    else
+        --set_layout_by_name("righttile",t)
+    end
+    currentTag = top_level_cg[t]
+end
+
+tag.attached_add_signal(screen, "property::selected", switch_on_tag_change)
+-- tag.attached_add_signal(screen, "property::layout", switch_on_tag_change)
 
 setmetatable(_M, { __call = function(_, ...) return new(...) end })

@@ -115,10 +115,10 @@ function approxPos(t)
         local geo = v:geometry()
         for i=1,res do --x
             for j=1,res do --y
-            if j == res then print(geo.y + geo.height,(j-1)*screenHSection+1) end
+            --if j == res then print(geo.y + geo.height,(j-1)*screenHSection+1) end
                 if (i-1)*screenWSection+1 <= geo.x + geo.width and (j-1)*screenHSection+1 <= geo.y + geo.height then
                     data.layout[t.screen][i][j] = v
-                    if j == res then print(data.layout[t.screen][i][j]) end
+                    --if j == res then print(data.layout[t.screen][i][j]) end
                 end
             end
         end

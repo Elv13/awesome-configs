@@ -62,7 +62,6 @@ function new(cg)
     end
 
     function data:add_child(child_cg)
-        print("Stack is",self)
         --if not activeCg then
             activeCg = child_cg
         --end
@@ -77,7 +76,6 @@ function new(cg)
     end
     
     cg:add_signal("visibility::changed",function(_cg,value)
-        print('####################changing tb visibility\n\n\n\n\n',value)
        if tb then
            tb.wibox.visible = value
        end
