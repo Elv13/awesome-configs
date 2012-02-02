@@ -107,12 +107,30 @@ function new(label, buttons,cg)
                                         for kt, t in ipairs(tabs) do
                                           t.selected = false
                                         end
-                                        
-                                        tab.selected = true 
+                                        tab.selected = true
                                         cg:set_active(tab.clientgroup)
---                                         util.spawn('dbus-send --type=method_call --dest=org.schmorp.urxvt /term/'..(tab.title or 0)..'/control org.schmorp.urxvt.selectTab int32:'..tab.index)
-                                        
                                         tasklist_update(tabs, w.widgets_real, buttons2, label2, data, widgets,tab)
+                                        
+                                        --Drag and drop
+                                        local cur = capi.mouse.coords()
+                                        local moved = false
+                                        capi.mousegrabber.run(function(mouse)
+                                            if mouse.buttons[1] == false then
+                                                --if not moved then
+                                                --    
+                                                --end
+                                                capi.mousegrabber.stop()
+                                                return false
+                                            end
+                                            if mouse.x ~= cur.x and mouse.y ~= cur.y then
+                                                --moved = true
+                                                cg.x = cg.x + (mouse.x-cur.x)
+                                                cg.y = cg.y + (mouse.y-cur.y)
+                                                cur = {x=mouse.x,y=mouse.y}
+                                                cg:repaint()
+                                            end
+                                            return true
+                                        end,"fleur")
                                       end),
                     awButtons({ }, 2, function (tab) 
                                           local xpos  = capi.mouse.coords().x
@@ -207,7 +225,6 @@ function new(label, buttons,cg)
         for k,v in pairs(tabs) do
             if v.clientgroup == old_cg then
                 v.clientgroup = new_cg
-                print("\n\n\n\n\n\n\nI am here\n\n\n\n\n",self,old_cg.title,new_cg.title)
                 tasklist_update(tabs, w.widgets_real, buttons2, label2, data, widgets)
                 return
             end
