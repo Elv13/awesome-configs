@@ -45,6 +45,16 @@ function new(parent)
         table.insert(signals[name],func)
     end
     
+    function data:remove_signal(name,func)
+        for k,v in pairs(signals[name] or {}) do
+            if v == func then
+                signals[name][k] = nil
+                return true
+            end
+        end
+        return false
+    end
+    
     local function emit_signal(name,...)
         for k,v in pairs(signals[name] or {}) do
             v(data,...)
@@ -152,8 +162,8 @@ function new(parent)
             local other_parent = new_cg:get_parent()
             parent:replace(self,new_cg)
             other_parent:replace(new_cg,self)
-            self:set_parent(other_parent)
-            new_cg:set_parent(cur_parent)
+            self:set_parent(other_parent,true,new_cg)
+            new_cg:set_parent(cur_parent,true,self)
         end
     end
     
@@ -209,8 +219,13 @@ function new(parent)
         return parent
     end
     
-    function data:set_parent(new_parent)
+    function data:set_parent(new_parent,emit_swapped,other_cg)
+        local old_parent = parent
         parent = new_parent
+        if emit_swapped == true then
+            --print("\n\n\n\n\nHERE\n\n\n\n",self.title)
+            emit_signal("cg::swapped",other_cg,old_parent)
+        end
     end
     
     function data:gen_vertex(vertex_list)

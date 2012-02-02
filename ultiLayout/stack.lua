@@ -16,10 +16,11 @@ local capi = { image  = image  ,
 module("ultiLayout.stack")
 
 function new(cg) 
-   local data = {}
-   local nb =0
+   local cg       = cg or nil
+   local data     = {}
+   local nb       = 0
    local activeCg = nil
-   local tb = nil
+   local tb       = nil
    --cg:add_signal("client::attached",function() print("\n\n\n\n\nclient attaced\n\n\n\n\n") end)
    --cg:add_signal("client::attached", function()  print("new client\n\n\n\n\n");tb.tl:add_tab_cg(cg);asjkghfdaksjhd() end)
    
@@ -70,15 +71,27 @@ function new(cg)
             tb.wibox.bg    = "#ff0000"
         end
         tb.tablist:add_tab_cg(child_cg)
+        
+        local function swap(_cg,other_cg,old_parent)
+            if _cg:get_parent() ~= cg then
+                _cg:remove_signal("cg::swapped",swap) --TODO name changed
+                tb.tablist:replace_tab_cg(_cg,other_cg)
+                other_cg:add_signal("cg::swapped",swap)
+            end
+        end
+        child_cg:add_signal("cg::swapped",swap)
         nb = nb + 1
         local percent = 1 / nb
     end
     
-    cg:add_signal("visibility::changed",function(_cg,value)
+    local function visibility_changed(_cg,value)
        if tb then
            tb.wibox.visible = value
        end
-    end)
+    end
+    cg:add_signal("visibility::changed",visibility_changed)
+    
+    
    
     return data
 end

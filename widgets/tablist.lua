@@ -203,6 +203,17 @@ function new(label, buttons,cg)
         end
     end
     
+    function w:replace_tab_cg(old_cg,new_cg)
+        for k,v in pairs(tabs) do
+            if v.clientgroup == old_cg then
+                v.clientgroup = new_cg
+                print("\n\n\n\n\n\n\nI am here\n\n\n\n\n",self,old_cg.title,new_cg.title)
+                tasklist_update(tabs, w.widgets_real, buttons2, label2, data, widgets)
+                return
+            end
+        end
+    end
+    
     function w:focus2()
       w.focus = true
       tasklist_update(tabs, w.widgets_real, buttons2, label2, data, widgets)
