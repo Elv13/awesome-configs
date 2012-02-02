@@ -38,7 +38,7 @@ modkey          = "Mod4"
 
 -- Various configuration options
 config.disableAutoSave()
-config.data().showTitleBar  = true
+config.data().showTitleBar  = false
 config.data().themeName     = "darkBlue"
 config.data().noNotifyPopup = true
 config.data().useListPrefix = true

@@ -35,6 +35,7 @@ function new(parent)
     local childs_cg         = {}
     local show_splitters    = false
     local title             = nil
+    local floating          = false
     
     local signals = {}
     
@@ -116,7 +117,11 @@ function new(parent)
         else
             layout = l
             for k,v in ipairs(self:childs()) do
-                l:add_child(v)
+                if not v.floating then
+                    l:add_child(v)
+                else
+                    --TODO Is there something to do here? z-index?
+                end
             end
             self:repaint()
         end
@@ -191,7 +196,7 @@ function new(parent)
             cg:add_signal("geometry::changed",function() emit_signal("geometry::changed") end)
         end
         
-        if layout then
+        if layout and cg.floating == false then
             table.insert(childs_cg,layout:add_child(cg) or cg)
         else
             table.insert(childs_cg,cg)
@@ -296,7 +301,9 @@ function new(parent)
             emit_signal("visibility::changed",value)
         elseif key == "title" and value ~= title then
             title = value
-        elseif key ~= "width" and key ~= "height" and key ~= "y" and key ~= "x" and key ~= "visible" and key ~= "title" then
+        elseif key == "floating" and value ~= floating then
+            floating = value
+        elseif key ~= "width" and key ~= "height" and key ~= "y" and key ~= "x" and key ~= "visible" and key ~= "title" and key ~= "floating" then
             rawset(data,key,value)
         end
     end
@@ -315,6 +322,8 @@ function new(parent)
             return visible
         elseif key == "title" then
             return get_title()
+        elseif key == "floating" then
+            return floating
         else
             return rawget(table,key)
         end

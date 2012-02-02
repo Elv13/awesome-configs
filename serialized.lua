@@ -1,5 +1,5 @@
 return {
-  showTitleBar = true,
+  showTitleBar = false,
   noNotifyPopup = true,
   useListPrefix = true,
   themeName = "darkBlue",
@@ -42,23 +42,23 @@ return {
   float = {
 
 },
-  dockable = {
-
-},
   maximized = {
   Dolphin = true,
+
+},
+  dockable = {
 
 },
   honorsizehints = {
 
 },
-  minimized = {
-
-},
-  onTop = {
+  slave = {
 
 },
   struts = {
+
+},
+  onTop = {
 
 },
   buttons = {
@@ -70,7 +70,7 @@ return {
   run = {
 
 },
-  titlebar = {
+  hidden = {
 
 },
   above = {
@@ -80,7 +80,7 @@ return {
   border_width = {
 
 },
-  hidden = {
+  titlebar = {
 
 },
   below = {
@@ -91,7 +91,7 @@ return {
   skip_taskbar = {
 
 },
-  slave = {
+  minimized = {
 
 },
   sticky = {

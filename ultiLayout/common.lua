@@ -12,6 +12,7 @@ local wibox        = require( "awful.wibox"            )
 local tag          = require( "awful.tag"              )
 local clientGroup  = require( "ultiLayout.clientGroup" )
 local util         = require( "awful.util"             )
+local client       = require( "awful.client"           )
 
 local capi = { image        = image        ,
                widget       = widget       ,
@@ -359,7 +360,17 @@ function wrap_client(c)
     local aCG = clientGroup()
     aCG:geometry(c:geometry())
     aCG:set_layout(layout_list.unit(aCG,c))
-    return aCG
+    
+    if client.floating.get(c) == false then
+        return aCG
+    elseif client.floating.get(c) == true then
+        local aStack = clientGroup()
+        aStack:geometry(c:geometry())
+        aStack:set_layout(layout_list.stack(aStack))
+        aStack:attach(aCG)
+        aStack.floating = true
+        return aStack
+    end
 end
 
 local function get_layout_name_list()
