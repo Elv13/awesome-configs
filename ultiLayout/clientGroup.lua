@@ -21,7 +21,7 @@ local client_to_cg          = {}
 
 
 function new(parent)
-    local data              = {}
+    local data              = { swapable = false }
     local height            = 0
     local width             = 0
     local x                 = 0
@@ -150,13 +150,32 @@ function new(parent)
         self:repaint()
     end
     
+    local function cg_to_idx(cg)
+        for k,v in ipairs(childs_cg) do
+            if v == cg then
+                return k
+            end
+        end
+        return nil
+    end
+    
     --It is not called swap because it only do half of the operation
     function data:replace(old_cg,new_cg)
-        for k,v in pairs(childs_cg) do
-            if v == old_cg then
-                childs_cg[k] = new_cg
+        if old_cg:get_parent() ~= new_cg:get_parent() then
+            for k,v in pairs(childs_cg) do
+                if v == old_cg then
+                    childs_cg[k] = new_cg
+                    self:repaint()
+                    return
+                end
+            end
+        else --This avoid swaping CG back to original state if they are in the same parent CG
+            local old_cg_idx, new_cg_idx = cg_to_idx(old_cg), cg_to_idx(new_cg)
+            if old_cg_idx ~= nil and new_cg_idx ~= nil then
+                childs_cg[ old_cg_idx ] = new_cg
+                childs_cg[ new_cg_idx ] = old_cg
+                emit_signal("cg::swapped",other_cg,old_parent)
                 self:repaint()
-                return
             end
         end
     end
@@ -165,8 +184,12 @@ function new(parent)
         if parent ~= nil and new_cg:get_parent() ~= nil then
             local cur_parent   = parent
             local other_parent = new_cg:get_parent()
-            parent:replace(self,new_cg)
-            other_parent:replace(new_cg,self)
+            if cur_parent ~= other_parent then
+                parent:replace(self,new_cg)
+                other_parent:replace(new_cg,self)
+            else
+                parent:replace(self,new_cg)
+            end
             self:set_parent(other_parent,true,new_cg)
             new_cg:set_parent(cur_parent,true,self)
         end
@@ -225,8 +248,10 @@ function new(parent)
     end
     
     function data:set_parent(new_parent,emit_swapped,other_cg)
-        local old_parent = parent
-        parent = new_parent
+        if new_parent ~= parent then
+            local old_parent = parent
+            parent = new_parent
+        end
         if emit_swapped == true then
             --print("\n\n\n\n\nHERE\n\n\n\n",self.title)
             emit_signal("cg::swapped",other_cg,old_parent)

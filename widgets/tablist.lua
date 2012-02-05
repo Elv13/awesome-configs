@@ -132,6 +132,42 @@ function new(label, buttons,cg)
                                                 end
                                                 return true
                                             end,"fleur")
+                                        else
+                                            local cur = capi.mouse.coords()
+                                            local moved = false
+                                            local aWb = wibox({position="free"})
+                                            aWb.width  = 200
+                                            aWb.height = 200
+                                            aWb.x = cur.x+10
+                                            aWb.y = cur.y+10
+                                            
+                                            aWb.ontop = true
+                                            capi.mousegrabber.run(function(mouse)
+                                                if mouse.buttons[1] == false then
+                                                    --if not moved then
+                                                    --    
+                                                    --end
+                                                    aWb.visible = false
+                                                    aWb = nil
+                                                    local obj = capi.mouse.object_under_pointer()
+                                                    if type(obj) == "client" then
+                                                        local possibilities = ultilayoutCG.get_cg_from_client(obj)
+                                                        if possibilities ~= nil then
+                                                            ultilayoutC.swap_client_group(cg,possibilities[1])
+                                                        end
+                                                    end
+                                                    capi.mousegrabber.stop()
+                                                    return false
+                                                end
+                                                if mouse.x ~= cur.x and mouse.y ~= cur.y then
+                                                    --moved = true
+                                                    aWb.x = mouse.x+10
+                                                    aWb.y = mouse.y+10
+                                                    cur = {x=mouse.x,y=mouse.y}
+                                                    cg:repaint()
+                                                end
+                                                return true
+                                            end,"fleur")
                                         end
                                       end),
                     awButtons({ }, 2, function (tab) 
@@ -157,7 +193,7 @@ function new(label, buttons,cg)
                                                   elseif type(obj) == "client" then
                                                       local possibilities = ultilayoutCG.get_cg_from_client(obj)
                                                       if possibilities ~= nil then
-                                                          ultilayoutC.swap_client_group(tab.clientgroup,possibilities[1])
+                                                          ultilayoutC.swap_client_group(tab.clientgroup,possibilities[1],true)
                                                       end
                                                   end
                                                   capi.mousegrabber.stop()

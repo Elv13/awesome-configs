@@ -21,6 +21,7 @@ function new(cg)
    local nb       = 0
    local activeCg = nil
    local tb       = nil
+   cg.swapable    = true
    --cg:add_signal("client::attached",function() print("\n\n\n\n\nclient attaced\n\n\n\n\n") end)
    --cg:add_signal("client::attached", function()  print("new client\n\n\n\n\n");tb.tl:add_tab_cg(cg);asjkghfdaksjhd() end)
    

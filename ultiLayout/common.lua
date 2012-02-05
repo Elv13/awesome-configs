@@ -105,8 +105,28 @@ function move_client_group(cg,new_host,args)
     new_host:reparent(cg)
 end
 
-function swap_client_group(cg1,cg2)
-    cg1:swap(cg2)
+function swap_client_group(cg1,cg2,force)
+    if force == true then
+        cg1:swap(cg2)
+    else
+        print("in swap")
+        local swapable1, swapable2 = cg1,cg2
+        
+        while swapable1 ~= nil and swapable1.swapable == false do
+            swapable1 = swapable1:get_parent()
+        end
+        
+        while swapable2 ~= nil and swapable2.swapable == false do
+            swapable2 = swapable2:get_parent()
+        end
+        
+        if swapable1 ~= nil and swapable2 ~= nil then
+            print("Ready")
+            swapable1:swap(swapable2)
+        else
+            print("Clients can not be swapped",swapable1,swapable2)
+        end
+    end
 end
 
 -- vertex = {orientation = "v" or "h", x1:x2,y1:y2, affected = {type="cg" or "c", item = nil}}
