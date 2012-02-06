@@ -30,13 +30,21 @@ function new(cg)
    local nb       = 0
    local vertex   = {}
    
-   
-   local function make_room(percentage) --Between 0 and 1
-       local nb = #cg:childs()
-       local shrinking_factor = 1 - percentage
+   local function get_average()
+       if #cg:childs() == 0 then return 1 end
+       local ratio = 0
        for k,v in ipairs(cg:childs()) do
-           data.ratio[k] = (data.ratio[k] or 1)*shrinking_factor
+           ratio = ratio + (data.ratio[k] or 1)
        end
+       return (ratio / #cg:childs()) or 1
+   end
+   
+   local function ratio_to_percent(ratio)
+       local sumratio = 0
+       for k,v in ipairs(cg:childs()) do
+           sumratio = sumratio + data.ratio[k]
+       end
+       return ratio / sumratio
    end
    
    function data:show_splitters(show,horizontal,vertical)
@@ -80,14 +88,13 @@ function new(cg)
        local relX   = cg.x
        local relY   = cg.y
        for k,v in ipairs(cg:childs()) do
-           print(#cg:childs(),v)
            v:geometry({width  = cg.width                ,
-                       height = cg.height*data.ratio[k] ,
+                       height = cg.height*ratio_to_percent(data.ratio[k]) ,
                        x      = relX                    ,
                        y      = relY                   })
            v:repaint()
            --relX     = relX + (width*data.ratio[v])
-           relY     = relY + (cg.height*data.ratio[k])
+           relY     = relY + (cg.height*ratio_to_percent(data.ratio[k]))
        end
        for k,v in pairs(vertex) do
            for k2,v2 in pairs(v) do
@@ -100,26 +107,21 @@ function new(cg)
    
        
     local function swap(_cg,other_cg,old_parent)
-        print("here")
         if _cg:get_parent() ~= cg then
             _cg:remove_signal("cg::swapped",swap)
             other_cg:add_signal("cg::swapped",swap)
         elseif _cg:get_parent() == cg and other_cg:get_parent() == cg then
-            print("BEGIN")
             local cg_idx, other_cg_idx = cg_to_idx(cg:childs(),_cg),cg_to_idx(cg:childs(),other_cg)
             local buf = data.ratio[cg_idx]
             data.ratio[cg_idx] = data.ratio[other_cg_idx]
             data.ratio[other_cg_idx] = buf
-            print("in swap",cg_idx,other_cg_idx)
         end
     end
         
    function data:add_child(child_cg)
-       nb = nb + 1
-       local percent = 1 / nb
-       make_room(percent)
-       --local idx = cg_to_idx(,child_cg)
-       data.ratio[#cg:childs()+1] = percent
+        nb = nb + 1
+        local percent = 1 / nb
+        data.ratio[#cg:childs()+1] = get_average()
         child_cg:add_signal("cg::swapped",swap)
    end
    

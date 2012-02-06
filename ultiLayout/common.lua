@@ -110,7 +110,6 @@ function swap_client_group(cg1,cg2,force)
     if force == true then
         cg1:swap(cg2)
     else
-        print("in swap")
         local swapable1, swapable2 = cg1,cg2
         
         while swapable1 ~= nil and swapable1.swapable == false do
@@ -122,7 +121,6 @@ function swap_client_group(cg1,cg2,force)
         end
         
         if swapable1 ~= nil and swapable2 ~= nil then
-            print("Ready")
             swapable1:swap(swapable2)
         else
             print("Clients can not be swapped",swapable1,swapable2)

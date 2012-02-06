@@ -137,7 +137,6 @@ function new(parent)
 --     end
 
     function data:detach(child)
-        print("\n\n\nIn detach")
         for k,v in pairs(childs_cg) do
             if v == child then
                 table.remove(childs_cg,k)
@@ -325,7 +324,6 @@ function new(parent)
         elseif key == "visible" --[[and value ~= visible]] then
             change_visibility(value)
             needRepaint = true
-            print("Changing visibility")
             emit_signal("visibility::changed",value)
         elseif key == "title" and value ~= title then
             title = value
