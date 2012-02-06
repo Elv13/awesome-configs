@@ -137,12 +137,15 @@ function new(parent)
 --     end
 
     function data:detach(child)
+        print("\n\n\nIn detach")
         for k,v in pairs(childs_cg) do
             if v == child then
-                childs_cg[k] = nil
+                table.remove(childs_cg,k)
+                --childs_cg[k] = nil
             end
         end
         if parent ~= nil and #childs_cg == 0 then
+            emit_signal("destroyed")
             parent:detach(self)
             self = nil
             return

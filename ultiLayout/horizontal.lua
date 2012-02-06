@@ -80,6 +80,7 @@ function new(cg)
        local relX   = cg.x
        local relY   = cg.y
        for k,v in ipairs(cg:childs()) do
+           print(#cg:childs(),v)
            v:geometry({width  = cg.width                ,
                        height = cg.height*data.ratio[k] ,
                        x      = relX                    ,

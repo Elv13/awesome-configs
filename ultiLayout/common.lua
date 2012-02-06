@@ -1,3 +1,11 @@
+local capi = { image        = image        ,
+               widget       = widget       ,
+               mouse        = mouse        ,
+               screen       = screen       ,
+               root         = root         ,
+               client       = client       ,
+               mousegrabber = mousegrabber }
+
 local setmetatable = setmetatable
 local table        = table
 local type         = type
@@ -13,13 +21,6 @@ local tag          = require( "awful.tag"              )
 local clientGroup  = require( "ultiLayout.clientGroup" )
 local util         = require( "awful.util"             )
 local client       = require( "awful.client"           )
-
-local capi = { image        = image        ,
-               widget       = widget       ,
-               mouse        = mouse        ,
-               screen       = screen       ,
-               root         = root         ,
-               mousegrabber = mousegrabber }
 
 module("ultiLayout.common")
 
@@ -90,20 +91,20 @@ end
 --     return cg
 -- end
 
-function merge_client_group(cg1,cg2,layout,args)
-    local newCg = ultiLayout.clientGroup()
-    newCg:set_layout(layout)
-    for _k,cg in ipairs({cg1,cg2}) do
-        for k,v in pairs(cg:clients()) do
-            newCg:add_client(v)
-        end
-    end
-end
+-- function merge_client_groups(cg1,cg2,layout,args)
+--     local newCg = ultiLayout.clientGroup()
+--     newCg:set_layout(layout)
+--     for _k,cg in ipairs({cg1,cg2}) do
+--         for k,v in pairs(cg:clients()) do
+--             newCg:add_client(v)
+--         end
+--     end
+-- end
 
-function move_client_group(cg,new_host,args)
-    cg:get_parent():detach(cg)
-    new_host:reparent(cg)
-end
+-- function move_client_group(cg,new_host,args)
+--     cg:get_parent():detach(cg)
+--     new_host:reparent(cg)
+-- end
 
 function swap_client_group(cg1,cg2,force)
     if force == true then
@@ -493,5 +494,12 @@ end
 
 tag.attached_add_signal(screen, "property::selected", switch_on_tag_change)
 -- tag.attached_add_signal(screen, "property::layout", switch_on_tag_change)
+
+capi.client.add_signal("unmanage", function (c, startup) 
+    local units = clientGroup.get_cg_from_client(c)
+    for k,v in pairs(units) do
+        v:get_parent():detach(v)
+    end
+end)
 
 setmetatable(_M, { __call = function(_, ...) return new(...) end })

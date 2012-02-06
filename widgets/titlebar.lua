@@ -327,7 +327,7 @@ function create_from_cg(cg, args)
         button({ args.modkey }, 3, function() --[[return mouse.client.resize(tb.client)]]    end )
     )
     tb:buttons(bts)
-    tl:add_tab(cg).selected = true
+    --tl:add_tab(cg).selected = true
     
     local appicon = capi.widget({type="imagebox"})
     

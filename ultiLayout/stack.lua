@@ -92,7 +92,12 @@ function new(cg)
     end
     cg:add_signal("visibility::changed",visibility_changed)
     
-    
+    cg:add_signal("destroyed",function()
+        tb.wibox.visible = false
+        tb.wibox = nil
+        tb.tablist = nil
+        tb = nil
+    end)
    
     return data
 end
