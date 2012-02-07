@@ -102,7 +102,7 @@ end
 -- end
 
 -- function move_client_group(cg,new_host,args)
---     cg:get_parent():detach(cg)
+--     cg.parent:detach(cg)
 --     new_host:reparent(cg)
 -- end
 
@@ -113,11 +113,11 @@ function swap_client_group(cg1,cg2,force)
         local swapable1, swapable2 = cg1,cg2
         
         while swapable1 ~= nil and swapable1.swapable == false do
-            swapable1 = swapable1:get_parent()
+            swapable1 = swapable1.parent
         end
         
         while swapable2 ~= nil and swapable2.swapable == false do
-            swapable2 = swapable2:get_parent()
+            swapable2 = swapable2.parent
         end
         
         if swapable1 ~= nil and swapable2 ~= nil then
@@ -503,7 +503,7 @@ tag.attached_add_signal(screen, "property::selected", switch_on_tag_change)
 capi.client.add_signal("unmanage", function (c, startup) 
     local units = clientGroup.get_cg_from_client(c)
     for k,v in pairs(units) do
-        v:get_parent():detach(v)
+        v.parent:detach(v)
     end
 end)
 

@@ -173,7 +173,7 @@ function new(parent)
     
     --It is not called swap because it only do half of the operation
     function data:replace(old_cg,new_cg)
-        if old_cg:get_parent() ~= new_cg:get_parent() then
+        if old_cg.parent ~= new_cg.parent then
             for k,v in pairs(childs_cg) do
                 if v == old_cg then
                     childs_cg[k] = new_cg
@@ -193,9 +193,9 @@ function new(parent)
     end
     
     function data:swap(new_cg)
-        if parent ~= nil and new_cg:get_parent() ~= nil then
+        if parent ~= nil and new_cg.parent ~= nil then
             local cur_parent   = parent
-            local other_parent = new_cg:get_parent()
+            local other_parent = new_cg.parent
             if cur_parent ~= other_parent then
                 parent:replace(self,new_cg)
                 other_parent:replace(new_cg,self)
@@ -221,9 +221,9 @@ function new(parent)
     end
     
     function data:attach(cg)
-        if cg:get_parent() == self then return end
-        if cg:get_parent() ~= nil then
-            cg:get_parent():detach(cg)
+        if cg.parent == self then return end
+        if cg.parent ~= nil then
+            cg.parent:detach(cg)
         end
         cg:set_parent(data)
         --self:add_signal("geometry::changed",function() print("test",debug.traceback());cg:repaint() end)
@@ -253,10 +253,6 @@ function new(parent)
             end
         end
         print("Child client group not found")
-    end
-
-    function data:get_parent()
-        return parent
     end
     
     function data:set_parent(new_parent,emit_swapped,other_cg)
@@ -339,7 +335,9 @@ function new(parent)
             title = value
         elseif key == "floating" and value ~= floating then
             floating = value
-        elseif key ~= "width" and key ~= "height" and key ~= "y" and key ~= "x" and key ~= "visible" and key ~= "title" and key ~= "floating" then
+        elseif key == "parent" and value ~= parent then
+            data:set_parent(value)
+        elseif key ~= "width" and key ~= "height" and key ~= "y" and key ~= "x" and key ~= "visible" and key ~= "title" and key ~= "floating" and key ~= "parent" then
             rawset(data,key,value)
         end
     end
@@ -360,6 +358,8 @@ function new(parent)
             return get_title()
         elseif key == "floating" then
             return floating
+        elseif key == "parent" then
+            return parent
         else
             return rawget(table,key)
         end

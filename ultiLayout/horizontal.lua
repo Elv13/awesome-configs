@@ -107,10 +107,10 @@ function new(cg)
    
        
     local function swap(_cg,other_cg,old_parent)
-        if _cg:get_parent() ~= cg then
+        if _cg.parent ~= cg then
             _cg:remove_signal("cg::swapped",swap)
             other_cg:add_signal("cg::swapped",swap)
-        elseif _cg:get_parent() == cg and other_cg:get_parent() == cg then
+        elseif _cg.parent == cg and other_cg.parent == cg then
             local cg_idx, other_cg_idx = cg_to_idx(cg:childs(),_cg),cg_to_idx(cg:childs(),other_cg)
             local buf = data.ratio[cg_idx]
             data.ratio[cg_idx] = data.ratio[other_cg_idx]

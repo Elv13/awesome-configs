@@ -74,7 +74,7 @@ function new(cg)
         tb.tablist:add_tab_cg(child_cg)
         
         local function swap(_cg,other_cg,old_parent)
-            if _cg:get_parent() ~= cg then
+            if _cg.parent ~= cg then
                 _cg:remove_signal("cg::swapped",swap) --TODO name changed
                 tb.tablist:replace_tab_cg(_cg,other_cg)
                 other_cg:add_signal("cg::swapped",swap)
