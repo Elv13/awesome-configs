@@ -12,7 +12,7 @@ local common       = require( "ultiLayout.common" )
 local capi = { image  = image  ,
                widget = widget }
 
-module("ultiLayout.horizontal")
+module("ultiLayout.linear")
 
 
 local function cg_to_idx(list,cg)
@@ -24,11 +24,12 @@ local function cg_to_idx(list,cg)
     return nil
 end
 
-function new(cg) 
+local function new(cg,orientation) 
    local data     = {}
    data.ratio     = {}
    local nb       = 0
    local vertex   = {}
+   local orientation = orientation
    
    local function get_average()
        if #cg:childs() == 0 then return 1 end
@@ -73,8 +74,13 @@ function new(cg)
                 end
                 local aVertex = vertex[prev][v]
                 aVertex.length = cg.width
-                aVertex.x = cg.x
-                aVertex.y = v.y
+                if orientation == "horizontal" then
+                    aVertex.x = cg.x
+                    aVertex.y = v.y
+                else
+                    aVertex.x = v.x
+                    aVertex.y = cg.y
+                end
                 table.insert(vertex_list,vertex[prev][v])
             end
             v:gen_vertex(vertex_list)
@@ -88,19 +94,33 @@ function new(cg)
        local relX   = cg.x
        local relY   = cg.y
        for k,v in ipairs(cg:childs()) do
-           v:geometry({width  = cg.width                ,
-                       height = cg.height*ratio_to_percent(data.ratio[k]) ,
-                       x      = relX                    ,
-                       y      = relY                   })
-           v:repaint()
-           --relX     = relX + (width*data.ratio[v])
-           relY     = relY + (cg.height*ratio_to_percent(data.ratio[k]))
+            if orientation == "horizontal" then
+                v:geometry({width  = cg.width                ,
+                            height = cg.height*ratio_to_percent(data.ratio[k]) ,
+                            x      = relX                    ,
+                            y      = relY                   })
+            else
+                v:geometry({width  = cg.width*ratio_to_percent(data.ratio[k])  ,
+                            height = cg.height ,
+                            x      = relX                    ,
+                            y      = relY                   })
+            end
+            v:repaint()
+            if orientation == "horizontal" then
+                relY     = relY + (cg.height*ratio_to_percent(data.ratio[k]))
+            else
+                relX     = relX + (cg.width*ratio_to_percent(data.ratio[k]))
+            end
        end
        for k,v in pairs(vertex) do
            for k2,v2 in pairs(v) do
                v2.x = relX
                v2.y = relY
-               v2.length = k2.width
+               if orientation == "horizontal" then
+                    v2.length = k2.width
+               else
+                   v2.length = k2.height
+               end
            end
        end
    end
@@ -128,6 +148,7 @@ function new(cg)
    return data
 end
 
-common.add_new_layout("horizontal",new)
+common.add_new_layout("horizontal",function(cg) return new(cg,"horizontal") end)
+common.add_new_layout("vertical",function(cg) return new(cg,"vertical") end)
 
 setmetatable(_M, { __call = function(_, ...) return new(...) end })
