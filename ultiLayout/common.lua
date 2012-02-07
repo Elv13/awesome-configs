@@ -439,7 +439,14 @@ function set_layout_by_name(name,t)
     elseif layouts[t][name] then
         print("Using existing ".. name .." layout")
         top_level_cg[t].visible = false
-        top_level_cg[t] = layouts[t][name]
+        local aCG = layouts[t][name]
+        top_level_cg[t] = aCG
+        for k,v in pairs(t:clients()) do
+            if not aCG:has_client(v) then
+                local unit = wrap_client(v)
+                aCG:attach(unit)
+            end
+        end
         top_level_cg[t].visible = true
         cur_layout_name[t] = name
         --top_level_cg[t]:repaint()
@@ -497,6 +504,16 @@ capi.client.add_signal("unmanage", function (c, startup)
     local units = clientGroup.get_cg_from_client(c)
     for k,v in pairs(units) do
         v:get_parent():detach(v)
+    end
+end)
+
+capi.client.add_signal("manage", function (c, startup)
+    local t = t or tag.selected(capi.mouse.screen)
+    local cg = top_level_cg[t]
+    if cg then
+        local unit = wrap_client(c)
+        cg:attach(unit)
+        cg:repaint()
     end
 end)
 

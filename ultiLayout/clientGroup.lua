@@ -86,6 +86,16 @@ function new(parent)
         end
         return all_c
     end
+    
+    function data:has_client(c)
+        local clients = data:all_clients()
+        for k,v in pairs(clients) do
+            if v == c then
+                return true
+            end
+        end
+        return false
+    end
 
     function data:geometry(new,relative)
         --math.flgoor math.ce...
