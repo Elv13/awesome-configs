@@ -29,7 +29,6 @@ local function new(cg,orientation)
    data.ratio     = {}
    local nb       = 0
    local vertex   = {}
-   local orientation = orientation
    
    local function get_average()
        if #cg:childs() == 0 then return 1 end

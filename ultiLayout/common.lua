@@ -27,9 +27,8 @@ module("ultiLayout.common")
 local layouts          = {} -- tag -> layout name -> top level CG
 local cur_layout_name  = {} -- tag -> name
 local top_level_cg     = {} -- tag -> cg
--- local layout_list_idx  = {} -- int -> layout func
-local layout_list      = {} --string -> layout func
-local titlebars        = {} --cg -> titlebar
+local layout_list      = {} -- string -> layout func
+local titlebars        = {} -- cg -> titlebar
 local vertices         = {}
 local borderW          = {}
 local active_splitters = {}

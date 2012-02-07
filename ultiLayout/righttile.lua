@@ -22,6 +22,7 @@ function new(cg,orientation)
    local subCg = nil
    local mainCg = nil
    
+   local oposite = (orientation == "vertical") and "horizontal" or "vertical"
    
 --    local function nb()
 --         if subCg and mainCg then
@@ -81,13 +82,13 @@ function new(cg,orientation)
         if nb > 1 then
             if not subCg then
                 subCg = clientGroup()
-                subCg:set_layout(common.get_layout_list()["horizontal"](subCg))
+                subCg:set_layout(common.get_layout_list()[oposite](subCg))
             end
             subCg:attach(stack)
         else
             if not mainCg then
                 mainCg = clientGroup()
-                mainCg:set_layout(common.get_layout_list()["horizontal"](mainCg))
+                mainCg:set_layout(common.get_layout_list()[oposite](mainCg))
             end
             mainCg:attach(stack)
         end
@@ -99,7 +100,7 @@ function new(cg,orientation)
    function data:main()
         if not mainCg then
             mainCg = clientGroup()
-            mainCg:set_layout(common.get_layout_list()["horizontal"](mainCg))
+            mainCg:set_layout(common.get_layout_list()[oposite](mainCg))
         end
        return mainCg
    end
