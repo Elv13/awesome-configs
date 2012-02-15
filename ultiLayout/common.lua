@@ -12,6 +12,8 @@ local type         = type
 local ipairs       = ipairs
 local print        = print
 local math         = math
+local rawset       = rawset
+local rawget       = rawget
 local pairs        = pairs
 local debug        = debug
 local button       = require( "awful.button"           )
@@ -24,34 +26,16 @@ local client       = require( "awful.client"           )
 
 module("ultiLayout.common")
 
-local layouts          = {} -- tag -> layout name -> top level CG
-local cur_layout_name  = {} -- tag -> name
-local top_level_cg     = {} -- tag -> cg
-local layout_list      = {} -- string -> layout func
-local titlebars        = {} -- cg -> titlebar
-local vertices         = {}
-local borderW          = {}
-local active_splitters = {}
-local auto_display_border = false
+local layouts             = {} -- tag -> layout name -> top level CG
+local cur_layout_name     = {} -- tag -> name
+local top_level_cg        = {} -- tag -> cg
+local layout_list         = {} -- string -> layout func
+local titlebars           = {} -- cg -> titlebar
+local vertices            = {}
+local borderW             = {}
+local active_splitters    = {}
+local auto_display_border = true
 
-function create_vertex(args)
-    local data        = {}
-    local attached_cg = {}
-    data.orientation  = args.orientation or "horizontal"
-    data.x            = args.x           or 0
-    data.y            = args.y           or 0
-    data.length       = args.length      or 0
-    data.cg1          = args.cg1         or nil
-    data.cg2          = args.cg2         or nil
-    function data:set_x     (val) data.x      = val end
-    function data:set_y     (val) data.y      = val end
-    function data:set_length(val) data.length = val end
-    function data:attach(cg)
-        table.insert(attached_cg,cg)
-    end
-    function data:attached() return attached_cg end
-    return data
-end
 
 function add_new_layout(name, func)
     layout_list[name] = func
@@ -104,6 +88,69 @@ end
 --     cg.parent:detach(cg)
 --     new_host:reparent(cg)
 -- end
+
+function drag_cg_under_cursor(c)
+    local cg = (clientGroup.get_cg_from_client(c) or {})[1]
+    if cg == nil then return end
+    if cg.floating == true then
+        local cur = capi.mouse.coords()
+        local moved = false
+        capi.mousegrabber.run(function(mouse)
+            if mouse.buttons[1] == false then
+                --if not moved then
+                --    
+                --end
+                capi.mousegrabber.stop()
+                return false
+            end
+            if mouse.x ~= cur.x and mouse.y ~= cur.y then
+                --moved = true
+                cg.x = cg.x + (mouse.x-cur.x)
+                cg.y = cg.y + (mouse.y-cur.y)
+                cur = {x=mouse.x,y=mouse.y}
+                cg:repaint()
+            end
+            return true
+        end,"fleur")
+    else
+    print("I am here4")
+        local cur = capi.mouse.coords()
+        local moved = false
+        local aWb = wibox({position="free"})
+        aWb.width  = 200
+        aWb.height = 200
+        aWb.x = cur.x+10
+        aWb.y = cur.y+10
+        
+        aWb.ontop = true
+        capi.mousegrabber.run(function(mouse)
+            if mouse.buttons[1] == false then
+                --if not moved then
+                --    
+                --end
+                aWb.visible = false
+                aWb = nil
+                local obj = capi.mouse.object_under_pointer()
+                if type(obj) == "client" then
+                    local possibilities = clientGroup.get_cg_from_client(obj)
+                    if possibilities ~= nil then
+                        swap_client_group(cg,possibilities[1])
+                    end
+                end
+                capi.mousegrabber.stop()
+                return false
+            end
+            if mouse.x ~= cur.x and mouse.y ~= cur.y then
+                --moved = true
+                aWb.x = mouse.x+10
+                aWb.y = mouse.y+10
+                cur = {x=mouse.x,y=mouse.y}
+                --cg:repaint()
+            end
+            return true
+        end,"fleur")
+    end
+end
 
 function swap_client_group(cg1,cg2,force)
     if force == true then
@@ -224,83 +271,83 @@ local function display_border_real(t)
     if top_level_cg[t] then
         local vertex = {}
         top_level_cg[t]:gen_vertex(vertex)
-        for k,v in ipairs(vertex) do
-            local w = borderW[v] or wibox({position = 'free'})
-            borderW[v] = w
-            local curName = nil
-            w.x = v.x
-            w.y = v.y
---             v.cg2:add_signal("x::changed", function(cg,delta)w.x = 100 end)
---             v.cg2:add_signal("y::changed", function(cg,delta)w.y = 100 end)
-            if v.orientation == "horizontal" then
-                w.width  = v.length or 10
-                w.height = 2
-                curName  = "sb_v_double_arrow"
-                v.cg2:add_signal("width::changed", function(cg,delta)w.width = v.cg2.width;print('test2 '..delta,w.width) end)
-            else --Handle any other value, even if vertical should be the only one
-                w.height = v.length
-                w.width  = 2
-                curName  = "sb_h_double_arrow"
-                v.cg2:add_signal("height::changed", function(cg,delta)w.height = v.cg2.height;print("test "..delta,w.height) end)
-            end
+--        for k,v in ipairs(vertex) do
+--             local w = borderW[v] or wibox({position = 'free'})
+--             borderW[v] = w
+--             local curName = nil
+--             w.x = v.x
+--             w.y = v.y
+-- --             v.cg2:add_signal("x::changed", function(cg,delta)w.x = 100 end)
+-- --             v.cg2:add_signal("y::changed", function(cg,delta)w.y = 100 end)
+--             if v.orientation == "horizontal" then
+--                 w.width  = v.length or 10
+--                 w.height = 2
+--                 curName  = "sb_v_double_arrow"
+--                 v.cg2:add_signal("width::changed", function(cg,delta)w.width = v.cg2.width;print('test2 '..delta,w.width) end)
+--             else --Handle any other value, even if vertical should be the only one
+--                 w.height = v.length
+--                 w.width  = 2
+--                 curName  = "sb_h_double_arrow"
+--                 v.cg2:add_signal("height::changed", function(cg,delta)w.height = v.cg2.height;print("test "..delta,w.height) end)
+--             end
+--             
+--             v.cg2:add_signal("x::changed", function(cg,delta)
+--                 v.x  = v.cg1.x+v.cg1.width
+--                 w.x  = v.x
+--                 w.bg ="#00ff00"
+--             end)
+--             v.cg2:add_signal("y::changed", function(cg,delta)
+--                 v.y  = v.cg1.y+v.cg1.height
+--                 w.y  = v.y
+--                 w.bg ="#00ff00"
+--             end)
+--             
+--             w.ontop = true
+--             w.bg = "#ff0000"
             
-            v.cg2:add_signal("x::changed", function(cg,delta)
-                v.x  = v.cg1.x+v.cg1.width
-                w.x  = v.x
-                w.bg ="#00ff00"
-            end)
-            v.cg2:add_signal("y::changed", function(cg,delta)
-                v.y  = v.cg1.y+v.cg1.height
-                w.y  = v.y
-                w.bg ="#00ff00"
-            end)
-            
-            w.ontop = true
-            w.bg = "#ff0000"
-            
-            local function resize(axe,length,mouse)
-                local d = mouse[axe] - (v.cg1[length]+v.cg1[axe])
-                if v.cg1 then
-                    v.cg1[ length ] = v.cg1[ length ] + d
-                    v.cg1:repaint()
-                end
-                if v.cg2 then
-                    v.cg2[ length ] = v.cg2[ length ] - d
-                    v.cg2[ axe    ] = v.cg2[ axe    ] + d
-                    v.cg2:repaint()
-                end
---                 w[axe] = mouse[axe]
-            end
-            
-            w:add_signal("mouse::enter", function ()
-                capi.root.cursor("left_ptr")
-                if v.orientation == "vertical" then
-                    capi.root.cursor("sb_h_double_arrow") --double_arrow
-                else
-                    capi.root.cursor("sb_v_double_arrow")
-                end
-                w:buttons(util.table.join(
-                    button({ }, 1 ,function (tab)
-                        capi.mousegrabber.run(function(mouse)
-                            if mouse.buttons[1] == false then
-                                return false
-                            end
-                            if v.orientation == "horizontal" then
-                                resize("y","height",mouse)
-                            else --Handle any other value, even if vertical should be the only one
-                                resize("x","width",mouse)
-                            end
-                            return true
-                        end,curName)
-                end)))
-                w.bg = "#00ffff"
-            end)
-
-            w:add_signal("mouse::leave", function ()
-                capi.root.cursor("left_ptr")
-                w.bg = "#ff00ff"
-            end)
-                    end
+--             local function resize(axe,length,mouse)
+--                 local d = mouse[axe] - (v.cg1[length]+v.cg1[axe])
+--                 if v.cg1 then
+--                     v.cg1[ length ] = v.cg1[ length ] + d
+--                     v.cg1:repaint()
+--                 end
+--                 if v.cg2 then
+--                     v.cg2[ length ] = v.cg2[ length ] - d
+--                     v.cg2[ axe    ] = v.cg2[ axe    ] + d
+--                     v.cg2:repaint()
+--                 end
+-- --                 w[axe] = mouse[axe]
+--             end
+--             
+--             w:add_signal("mouse::enter", function ()
+--                 capi.root.cursor("left_ptr")
+--                 if v.orientation == "vertical" then
+--                     capi.root.cursor("sb_h_double_arrow") --double_arrow
+--                 else
+--                     capi.root.cursor("sb_v_double_arrow")
+--                 end
+--                 w:buttons(util.table.join(
+--                     button({ }, 1 ,function (tab)
+--                         capi.mousegrabber.run(function(mouse)
+--                             if mouse.buttons[1] == false then
+--                                 return false
+--                             end
+--                             if v.orientation == "horizontal" then
+--                                 resize("y","height",mouse)
+--                             else --Handle any other value, even if vertical should be the only one
+--                                 resize("x","width",mouse)
+--                             end
+--                             return true
+--                         end,curName)
+--                 end)))
+--                 w.bg = "#00ffff"
+--             end)
+-- 
+--             w:add_signal("mouse::leave", function ()
+--                 capi.root.cursor("left_ptr")
+--                 w.bg = "#ff00ff"
+--             end)
+--                     end
     else
         print("No layout")
     end

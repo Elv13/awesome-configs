@@ -1,4 +1,5 @@
 require("ultiLayout.clientGroup")
+require("ultiLayout.vertex")
 require("ultiLayout.common")
 require("ultiLayout.linear")
 require("ultiLayout.righttile")

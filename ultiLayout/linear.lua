@@ -8,6 +8,7 @@ local beautiful    = require( "beautiful"         )
 local tag          = require( "awful.tag"         )
 local util         = require( "awful.util"        )
 local common       = require( "ultiLayout.common" )
+local vertex2      = require( "ultiLayout.vertex"      )
 
 local capi = { image  = image  ,
                widget = widget }
@@ -30,21 +31,30 @@ local function new(cg,orientation)
    local nb       = 0
    local vertex   = {}
    
+   local function sum_ratio()
+        local sumratio = 0
+        for k,v in ipairs(cg:childs()) do
+            sumratio = sumratio + (data.ratio[k] or 1)
+        end
+        return sumratio
+   end
+   
    local function get_average()
        if #cg:childs() == 0 then return 1 end
-       local ratio = 0
-       for k,v in ipairs(cg:childs()) do
-           ratio = ratio + (data.ratio[k] or 1)
-       end
-       return (ratio / #cg:childs()) or 1
+       return (sum_ratio() / #cg:childs()) or 1
    end
    
    local function ratio_to_percent(ratio)
-       local sumratio = 0
+       return ratio / sum_ratio()
+   end
+   
+   local function get_cg_idx(child)
        for k,v in ipairs(cg:childs()) do
-           sumratio = sumratio + data.ratio[k]
+           if v == child then
+               return k
+           end
        end
-       return ratio / sumratio
+       return nil
    end
    
    function data:show_splitters(show,horizontal,vertical)
@@ -65,11 +75,23 @@ local function new(cg,orientation)
         for k,v in ipairs(cg:childs()) do
             if prev and nb2 ~= nb then
                 if not vertex[prev] or not vertex[prev][v] then
-                    local aVertex = common.create_vertex({x=cg.x,y=v.y,orientation="horizontal",length=cg.width})
+                    local aVertex = vertex2({x=cg.x,y=v.y,orientation="horizontal",length=cg.width})
+                    aVertex:add_signal("distance::changed",function(_v, delta)
+                        if _v.cg1.parent == cg and _v.cg2.parent == cg then
+                            local cg1_ratio_k, cg2_ratio_k = get_cg_idx(_v.cg1),get_cg_idx(_v.cg2)
+                            local diff = (sum_ratio()/cg[(orientation == "horizontal") and "height" or "width"])*delta
+                            data.ratio[cg1_ratio_k] = data.ratio[cg1_ratio_k] + diff
+                            data.ratio[cg2_ratio_k] = data.ratio[cg2_ratio_k] - diff
+                            self:update()
+                        end
+                    end)
                     aVertex.cg1     = prev
                     aVertex.cg2     = v
                     vertex[prev]    = vertex[prev] or {}
                     vertex[prev][v] = aVertex
+                    aVertex:add_signal("distance::changed",function(delta)
+                        
+                    end)
                 end
                 local aVertex = vertex[prev][v]
                 aVertex.length = cg.width
@@ -113,12 +135,15 @@ local function new(cg,orientation)
        end
        for k,v in pairs(vertex) do
            for k2,v2 in pairs(v) do
-               v2.x = relX
-               v2.y = relY
+               --v2.x = relX
+               --v2.y = relY
                if orientation == "horizontal" then
-                    v2.length = k2.width
+                   print("here4444")
+                   --v2:raw_set({x=relX,y=relY,length=k2.width}) --TODO
+                    --v2.length = k2.width
                else
-                   v2.length = k2.height
+                   --v2:raw_set({x=relX,y=relY,length=k2.height}) --TODO
+                   --v2.length = k2.height
                end
            end
        end
@@ -136,13 +161,15 @@ local function new(cg,orientation)
             data.ratio[other_cg_idx] = buf
         end
     end
-        
+    
    function data:add_child(child_cg)
         nb = nb + 1
         local percent = 1 / nb
-        data.ratio[#cg:childs()+1] = get_average()
+        data.ratio[#cg:childs()+1] = child_cg.default_percent and (child_cg.default_percent*sum_ratio()) or get_average()
         child_cg:add_signal("cg::swapped",swap)
    end
+   
+   --function data:ajust_child_ratio_by_pixel()
    
    return data
 end

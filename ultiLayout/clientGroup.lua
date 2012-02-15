@@ -1,11 +1,11 @@
 local setmetatable = setmetatable
-local table = table
-local pairs = pairs
-local print = print
-local debug = debug
-local rawset = rawset
-local rawget = rawget
-local ipairs = ipairs
+local table        = table
+local pairs        = pairs
+local print        = print
+local debug        = debug
+local rawset       = rawset
+local rawget       = rawget
+local ipairs       = ipairs
 local button       = require( "awful.button" )
 local beautiful    = require( "beautiful"    )
 local tag          = require( "awful.tag"    )
@@ -120,6 +120,12 @@ function new(parent)
     function get_cg_from_client(c)
         return client_to_cg[c]
     end
+    
+--     function ajust_child_ratio_by_pixel(child1,child2,new_ratio)
+--         if child1.parent == child2.parent then
+--             
+--         end
+--     end
 
     function data:set_layout(l)
         if not l then
