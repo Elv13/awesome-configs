@@ -83,6 +83,7 @@ function new(cg)
         child_cg:add_signal("cg::swapped",swap)
         nb = nb + 1
         local percent = 1 / nb
+        return child_cg
     end
     
     local function visibility_changed(_cg,value)

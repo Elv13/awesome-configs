@@ -72,6 +72,28 @@ function new(parent)
     function data:childs()
         return childs_cg
     end
+    
+    function data:visible_childs()
+        local to_return = {}
+        for k,v in pairs(self:childs()) do
+            if v.visible == true and (#v:visible_childs() > 0 or client ~= nil) then
+                table.insert(to_return,v)
+            end
+        end
+        return to_return
+    end
+    
+    function data:all_childs()
+        local to_return = {}
+        for k,v in pairs(self:childs()) do
+            local child_childs = v:all_childs()
+            for k2,v2 in pairs(child_childs) do
+                table.insert(to_return,v2)
+            end
+            table.insert(to_return,v)
+        end
+        return to_return
+    end
 
     function data:all_clients()
         if client ~= nil then
@@ -88,6 +110,9 @@ function new(parent)
     end
     
     function data:has_client(c)
+        if not c then
+            return (client ~= nil) and true or false
+        end
         local clients = data:all_clients()
         for k,v in pairs(clients) do
             if v == c then
@@ -141,6 +166,10 @@ function new(parent)
             end
             self:repaint()
         end
+    end
+    
+    function data:get_layout()
+        return layout
     end
 
 --     function data:reparent(new_parent)
@@ -227,7 +256,15 @@ function new(parent)
     end
     
     function data:attach(cg)
-        if cg.parent == self then return end
+        --Check if the CG is not already a child of self
+        print("here2,",#data:all_childs())
+        for k,v in pairs(data:all_childs()) do
+            if v == cg then
+                print("Trying to add a clientgroup that is already a child of self")
+                return 
+            end
+        end
+        if cg.parent == self or cg == self then return end
         if cg.parent ~= nil then
             cg.parent:detach(cg)
         end
@@ -238,7 +275,10 @@ function new(parent)
         end
         
         if layout and cg.floating == false then
-            table.insert(childs_cg,layout:add_child(cg) or cg)
+            cg = layout:add_child(cg)
+            if cg then
+                table.insert(childs_cg,cg)
+            end
         else
             table.insert(childs_cg,cg)
         end

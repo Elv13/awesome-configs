@@ -31,21 +31,23 @@ local function new(cg,orientation)
    local nb       = 0
    local vertex   = {}
    
-   local function sum_ratio()
+   local function sum_ratio(only_visible)
         local sumratio = 0
         for k,v in ipairs(cg:childs()) do
-            sumratio = sumratio + (data.ratio[k] or 1)
+            if (only_visible == true and v.visible ~= false and (#v:childs() > 0 or v:has_client() == true)) or only_visible ~= true then --TODO visible childs
+                sumratio = sumratio + (data.ratio[k] or 1)
+            end
         end
         return sumratio
    end
    
-   local function get_average()
+   local function get_average(only_visible)
        if #cg:childs() == 0 then return 1 end
-       return (sum_ratio() / #cg:childs()) or 1
+       return (sum_ratio(only_visible) / #((only_visible == true) and cg:visible_childs() or cg:childs())) or 1
    end
    
    local function ratio_to_percent(ratio)
-       return ratio / sum_ratio()
+       return (ratio or get_average(true)) / sum_ratio(true)
    end
    
    local function get_cg_idx(child)
@@ -115,30 +117,31 @@ local function new(cg,orientation)
        local relX   = cg.x
        local relY   = cg.y
        for k,v in ipairs(cg:childs()) do
-            if orientation == "horizontal" then
-                v:geometry({width  = cg.width                ,
-                            height = cg.height*ratio_to_percent(data.ratio[k]) ,
-                            x      = relX                    ,
-                            y      = relY                   })
-            else
-                v:geometry({width  = cg.width*ratio_to_percent(data.ratio[k])  ,
-                            height = cg.height ,
-                            x      = relX                    ,
-                            y      = relY                   })
-            end
-            v:repaint()
-            if orientation == "horizontal" then
-                relY     = relY + (cg.height*ratio_to_percent(data.ratio[k]))
-            else
-                relX     = relX + (cg.width*ratio_to_percent(data.ratio[k]))
-            end
+           if v.visible ~= false and (#v:childs() > 0 or v:has_client() == true) then --TODO visible childs
+                if orientation == "horizontal" then
+                    v:geometry({width  = cg.width                ,
+                                height = cg.height*ratio_to_percent(data.ratio[k]) ,
+                                x      = relX                    ,
+                                y      = relY                   })
+                else
+                    v:geometry({width  = cg.width*ratio_to_percent(data.ratio[k])  ,
+                                height = cg.height ,
+                                x      = relX                    ,
+                                y      = relY                   })
+                end
+                v:repaint()
+                if orientation == "horizontal" then
+                    relY     = relY + (cg.height*ratio_to_percent(data.ratio[k]))
+                else
+                    relX     = relX + (cg.width*ratio_to_percent(data.ratio[k]))
+                end
+           end
        end
        for k,v in pairs(vertex) do
            for k2,v2 in pairs(v) do
                --v2.x = relX
                --v2.y = relY
                if orientation == "horizontal" then
-                   print("here4444")
                    --v2:raw_set({x=relX,y=relY,length=k2.width}) --TODO
                     --v2.length = k2.width
                else
@@ -167,6 +170,7 @@ local function new(cg,orientation)
         local percent = 1 / nb
         data.ratio[#cg:childs()+1] = child_cg.default_percent and (child_cg.default_percent*sum_ratio()) or get_average()
         child_cg:add_signal("cg::swapped",swap)
+        return child_cg
    end
    
    --function data:ajust_child_ratio_by_pixel()
