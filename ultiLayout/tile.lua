@@ -11,7 +11,7 @@ local function create_cg(parent, layout, tile_layout)
     return tile
 end
 
-function tile(cg,main_layout_name,sub_layout_name,right)
+local function tile(cg,main_layout_name,sub_layout_name,right)
     local layout = common.get_layout_list()[main_layout_name](cg)
     local main_tile,second_tile
     if right == true then
@@ -26,6 +26,10 @@ function tile(cg,main_layout_name,sub_layout_name,right)
     end 
     
     return layout
+end
+
+local function grid(cg,main_layout_name,sub_layout_name)
+    
 end
 
 common.add_new_layout("righttile"   , function(cg) return tile(cg,"vertical"   , "horizontal" ,true  ) end)

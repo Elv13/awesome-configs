@@ -1,11 +1,5 @@
 --This is the smallest component of a layout. It handle titlebars and (optionally) some other goodies
-local setmetatable = setmetatable
 local print        = print
-local debug        = debug
-local button       = require( "awful.button" )
-local beautiful    = require( "beautiful"    )
-local tag          = require( "awful.tag"    )
-local util         = require( "awful.util"   )
 local common       = require( "ultiLayout.common" )
 
 local capi = { image  = image  ,
@@ -41,13 +35,9 @@ function new(cg,c)
         c.focus = c
     end
    
-    function data:add_child()
-        return false --Unit can't have childs
-    end
+    function data:add_child() end
 
-    function data:add_client(c)
-        
-    end
+    function data:add_client(c) end
    
    cg:add_signal("visibility::changed",function(_cg,value)
        c.hidden = not value
@@ -56,5 +46,3 @@ function new(cg,c)
 end
 
 common.add_new_layout("unit",new)
-
-setmetatable(_M, { __call = function(_, ...) return new(...) end })

@@ -1,17 +1,9 @@
-local setmetatable = setmetatable
 local ipairs       = ipairs
 local pairs        = pairs
 local print        = print
-local button       = require( "awful.button"      )
-local beautiful    = require( "beautiful"         )
-local tag          = require( "awful.tag"         )
-local util         = require( "awful.util"        )
 local wibox        = require( "awful.wibox"       )
 local common       = require( "ultiLayout.common" )
 local titlebar     = require( "widgets.titlebar"  )
-
-local capi = { image  = image  ,
-               widget = widget }
 
 module("ultiLayout.stack")
 
@@ -22,8 +14,6 @@ function new(cg)
    local activeCg = nil
    local tb       = nil
    cg.swapable    = true
-   --cg:add_signal("client::attached",function() print("\n\n\n\n\nclient attaced\n\n\n\n\n") end)
-   --cg:add_signal("client::attached", function()  print("new client\n\n\n\n\n");tb.tl:add_tab_cg(cg);asjkghfdaksjhd() end)
    
    function data:update()
        for k,v in ipairs(cg:childs()) do
@@ -47,9 +37,7 @@ function new(cg)
         return vertex_list
     end
    
-    function data:show_splitters(show,horizontal,vertical)
-        print("Showing stack splliter",show)
-    end
+    function data:show_splitters(show,horizontal,vertical) end
     
     function data:set_active(sub_cg)
         for k,v in pairs(cg:childs()) do
@@ -63,9 +51,7 @@ function new(cg)
     end
 
     function data:add_child(child_cg)
-        --if not activeCg then
-            activeCg = child_cg
-        --end
+        activeCg = child_cg
         if not tb then
             tb = titlebar.create_from_cg(cg)
             tb.wibox.ontop = true
@@ -104,5 +90,3 @@ function new(cg)
 end
 
 common.add_new_layout("stack",new)
-
-setmetatable(_M, { __call = function(_, ...) return new(...) end })

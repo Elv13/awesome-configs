@@ -6,19 +6,10 @@ local debug        = debug
 local rawset       = rawset
 local rawget       = rawget
 local ipairs       = ipairs
-local button       = require( "awful.button" )
-local beautiful    = require( "beautiful"    )
-local tag          = require( "awful.tag"    )
-local util         = require( "awful.util"   )
-
-local capi = { image  = image  ,
-               widget = widget }
 
 module("ultiLayout.clientGroup")
 
-
 local client_to_cg          = {}
-
 
 function new(parent)
     local data              = { swapable = false }

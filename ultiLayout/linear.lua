@@ -1,14 +1,9 @@
-local setmetatable = setmetatable
 local ipairs       = ipairs
 local pairs        = pairs
 local print        = print
 local table        = table
-local button       = require( "awful.button"      )
-local beautiful    = require( "beautiful"         )
-local tag          = require( "awful.tag"         )
-local util         = require( "awful.util"        )
 local common       = require( "ultiLayout.common" )
-local vertex2      = require( "ultiLayout.vertex"      )
+local vertex2      = require( "ultiLayout.vertex" )
 
 local capi = { image  = image  ,
                widget = widget }
@@ -77,7 +72,7 @@ local function new(cg,orientation)
         for k,v in ipairs(cg:childs()) do
             if prev and nb2 ~= nb then
                 if not vertex[prev] or not vertex[prev][v] then
-                    local aVertex = vertex2({x=cg.x,y=v.y,orientation="horizontal",length=cg.width})
+                    local aVertex = vertex2({x=cg.x,y=v.y,orientation=(orientation == "horizontal") and "horizontal" or "vertical",length=(orientation == "horizontal") and cg.width or cg.height})
                     aVertex:add_signal("distance::changed",function(_v, delta)
                         if _v.cg1.parent == cg and _v.cg2.parent == cg then
                             local cg1_ratio_k, cg2_ratio_k = get_cg_idx(_v.cg1),get_cg_idx(_v.cg2)
@@ -178,7 +173,5 @@ local function new(cg,orientation)
    return data
 end
 
-common.add_new_layout("horizontal",function(cg) return new(cg,"horizontal") end)
-common.add_new_layout("vertical",function(cg) return new(cg,"vertical") end)
-
-setmetatable(_M, { __call = function(_, ...) return new(...) end })
+common.add_new_layout( "horizontal", function(cg) return new(cg,"horizontal" ) end)
+common.add_new_layout( "vertical"  , function(cg) return new(cg,"vertical"   ) end)
