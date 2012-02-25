@@ -344,6 +344,13 @@ function wrap_client(c)
     end
 end
 
+function wrap_stack(new_cg)
+    local stack = clientGroup()
+    stack:set_layout(get_layout_list().stack(stack))
+    stack:attach(new_cg)
+    return stack
+end
+
 local function get_layout_name_list()
     local list = {}
     for k,v in pairs(layout_list) do

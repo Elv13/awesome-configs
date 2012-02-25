@@ -4,6 +4,7 @@ local print        = print
 local table        = table
 local common       = require( "ultiLayout.common" )
 local vertex2      = require( "ultiLayout.vertex" )
+local clientGroup  = require( "ultiLayout.clientGroup" )
 
 local capi = { image  = image  ,
                widget = widget }
@@ -167,8 +168,6 @@ local function new(cg,orientation)
         child_cg:add_signal("cg::swapped",swap)
         return child_cg
    end
-   
-   --function data:ajust_child_ratio_by_pixel()
    
    return data
 end
