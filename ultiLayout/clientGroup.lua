@@ -276,6 +276,7 @@ function new(parent)
         --table.insert(childs_cg,cg)
         emit_signal("client::attached")
         self:repaint()
+        return cg
     end
     
     function data:raise()

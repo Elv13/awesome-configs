@@ -52,9 +52,29 @@ local function grid(cg,main_layout_name,sub_layout_name)
     return layout
 end
 
-common.add_new_layout("righttile"   , function(cg) return tile(cg,"vertical"   , "horizontal" ,true  ) end)
-common.add_new_layout("lefttile"    , function(cg) return tile(cg,"vertical"   , "horizontal" ,false ) end)
-common.add_new_layout("topttile"    , function(cg) return tile(cg,"horizontal" , "vertical"   ,true  ) end)
-common.add_new_layout("bottomttile" , function(cg) return tile(cg,"horizontal" , "vertical"   ,false ) end)
-common.add_new_layout("topgrid"     , function(cg) return grid(cg,"horizontal" , "vertical"          ) end)
-common.add_new_layout("leftgrid"    , function(cg) return grid(cg,"vertical"   , "horizontal"        ) end)
+local function spiral(cg,main_layout_name)
+    local layout = common.get_layout_list()[(main_layout_name == "horizontal") and "vertical" or "horizontal"](cg)
+    local current_orientation = main_layout_name
+    local current_level = create_cg(cg,layout,main_layout_name)
+    
+    layout.add_child = function(self,new_cg)
+        if #current_level:childs() >= 1 then
+            current_orientation = (current_orientation == "horizontal") and "vertical" or "horizontal"
+            local tmpCg = clientGroup()
+            tmpCg:set_layout(common.get_layout_list()[current_orientation](tmpCg))
+            current_level:attach(tmpCg)
+            current_level = tmpCg
+        end
+        current_level:attach(new_cg)
+    end
+    return layout
+end
+
+common.add_new_layout("righttile"       , function(cg) return tile   ( cg, "vertical"   , "horizontal" ,true  ) end)
+common.add_new_layout("lefttile"        , function(cg) return tile   ( cg, "vertical"   , "horizontal" ,false ) end)
+common.add_new_layout("topttile"        , function(cg) return tile   ( cg, "horizontal" , "vertical"   ,true  ) end)
+common.add_new_layout("bottomttile"     , function(cg) return tile   ( cg, "horizontal" , "vertical"   ,false ) end)
+common.add_new_layout("verticalgrid"    , function(cg) return grid   ( cg, "horizontal" , "vertical"          ) end)
+common.add_new_layout("horizontalgrid"  , function(cg) return grid   ( cg, "vertical"   , "horizontal"        ) end)
+common.add_new_layout("horizontalspiral", function(cg) return spiral ( cg, "horizontal"                       ) end)
+common.add_new_layout("verticalspiral"  , function(cg) return spiral ( cg, "vertical"                         ) end)
