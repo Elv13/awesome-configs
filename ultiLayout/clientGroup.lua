@@ -133,15 +133,27 @@ function new(parent)
         table.insert(client_to_cg[c],self)
     end
     
-    function get_cg_from_client(c)
-        return client_to_cg[c]
+    function data:has_indirect_parent(cg)
+        local current_depth = data
+        while current_depth ~= nil do
+            if current_depth == cg then return true end
+            current_depth = current_depth.parent
+        end
+        return false
     end
     
---     function ajust_child_ratio_by_pixel(child1,child2,new_ratio)
---         if child1.parent == child2.parent then
---             
---         end
---     end
+    function get_cg_from_client(c,parent)
+        --TODO find a way to check  if it is check of parent
+        if not parent then
+            return client_to_cg[c]
+        else
+            for k,v in pairs(client_to_cg[c]) do
+                if data:has_indirect_parent(parent) == true then
+                    return v
+                end
+            end
+        end
+    end
 
     function data:set_layout(l)
         if not l then

@@ -117,6 +117,7 @@ function drag_cg_under_cursor(c)
         local cur = capi.mouse.coords()
         local moved = false
         local aWb = wibox({position="free"})
+        aWb.visible = false
         aWb.width  = 200
         aWb.height = 200
         aWb.x = cur.x+10
@@ -132,15 +133,16 @@ function drag_cg_under_cursor(c)
                 aWb = nil
                 local obj = capi.mouse.object_under_pointer()
                 if type(obj) == "client" then
-                    local possibilities = clientGroup.get_cg_from_client(obj)
+                    local possibility = clientGroup.get_cg_from_client(obj,top_level_cg[tag.selected(capi.mouse.screen)])
                     if possibilities ~= nil then
-                        swap_client_group(cg,possibilities[1])
+                        swap_client_group(cg,possibility)
                     end
                 end
                 capi.mousegrabber.stop()
                 return false
             end
             if mouse.x ~= cur.x and mouse.y ~= cur.y then
+                aWb.visible = true
                 --moved = true
                 aWb.x = mouse.x+10
                 aWb.y = mouse.y+10

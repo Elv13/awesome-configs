@@ -1,6 +1,7 @@
 local ipairs       = ipairs
 local pairs        = pairs
 local print        = print
+local debug        = debug
 local table        = table
 local common       = require( "ultiLayout.common" )
 local vertex2      = require( "ultiLayout.vertex" )
@@ -149,23 +150,26 @@ local function new(cg,orientation)
    end
    
        
-    local function swap(_cg,other_cg,old_parent)
-        if _cg.parent ~= cg then
-            _cg:remove_signal("cg::swapped",swap)
-            other_cg:add_signal("cg::swapped",swap)
-        elseif _cg.parent == cg and other_cg.parent == cg then
-            local cg_idx, other_cg_idx = cg_to_idx(cg:childs(),_cg),cg_to_idx(cg:childs(),other_cg)
-            local buf = data.ratio[cg_idx]
-            data.ratio[cg_idx] = data.ratio[other_cg_idx]
-            data.ratio[other_cg_idx] = buf
-        end
-    end
+--     local function swap(_cg,other_cg,old_parent)
+--         print("...")
+--         debug.traceback()
+--         print("...")
+--         if _cg.parent ~= cg then
+--             _cg:remove_signal("cg::swapped",swap)
+--             other_cg:add_signal("cg::swapped",swap)
+--         elseif _cg.parent == cg and other_cg.parent == cg then
+--             local cg_idx, other_cg_idx = cg_to_idx(cg:childs(),_cg),cg_to_idx(cg:childs(),other_cg)
+--             local buf = data.ratio[cg_idx]
+--             data.ratio[cg_idx] = data.ratio[other_cg_idx]
+--             data.ratio[other_cg_idx] = buf
+--         end
+--     end
     
    function data:add_child(child_cg)
         nb = nb + 1
         local percent = 1 / nb
         data.ratio[#cg:childs()+1] = child_cg.default_percent and (child_cg.default_percent*sum_ratio()) or get_average()
-        child_cg:add_signal("cg::swapped",swap)
+        --child_cg:add_signal("cg::swapped",swap)
         return child_cg
    end
    
