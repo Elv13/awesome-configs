@@ -20,7 +20,6 @@ function new(parent)
     local visible           = true
     local needRepaint       = false
     local layout            = nil
-    --local client_group_list = {}
     local client            = nil
     local parent            = parent or nil
     local childs_cg         = {}

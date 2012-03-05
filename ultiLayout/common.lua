@@ -233,20 +233,20 @@ local function repaint_border(t)
     if top_level_cg[t] then
         local vertex = {}
         top_level_cg[t]:gen_vertex(vertex)
-        for k,v in ipairs(vertex) do
-            local w = borderW[v]
-            if w then
-                w.x = v.x
-                w.y = v.y
-                if v.orientation == "horizontal" then
-                    w.width = v.length
-                    w.height = 2
-                else
-                    w.height = v.length
-                    w.width = 2
-                end
-            end
-        end
+--         for k,v in ipairs(vertex) do
+--             local w = borderW[v]
+--             if w then
+--                 w.x = v.x
+--                 w.y = v.y
+--                 if v.orientation == "horizontal" then
+--                     w.width = v.length
+--                     w.height = 2
+--                 else
+--                     w.height = v.length
+--                     w.width = 2
+--                 end
+--             end
+--         end
     end
 end
 
@@ -285,41 +285,6 @@ function display_resize_handle(s)
             
         --end
     end
---     for k,v in ipairs(t:clients()) do
---         local w = wibox({position="free"})
---         w.ontop = true
---         w.width  = 10
---         w.height = 10
---         w.bg = "#ff0000"
---         local geo = v:geometry()
---         w.x = geo.x + geo.width  -10
---         w.y = geo.y + geo.height -10
---         
---         w:buttons(util.table.join(
---         button({ }, 1 ,function (tab)
---                                 local curX = capi.mouse.coords().x
---                                 local curY = capi.mouse.coords().y
---                                 local moved = false
---                                 capi.mousegrabber.run(function(mouse)
---                                     if mouse.buttons[1] == false then 
---                                         if moved == false then
---                                             wdgSet.button1()
---                                         end
---                                         capi.mousegrabber.stop()
---                                         return false 
---                                     end
---                                     if mouse.x ~= curX and mouse.y ~= curY then
---                                         local height = w:geometry().height
---                                         local width  = w:geometry().width
---                                         w.x = mouse.x-(5)
---                                         w.y = mouse.y-(5)
---                                         v:geometry({width=mouse.x-geo.x,height=mouse.y-geo.y})
---                                         moved = true
---                                     end
---                                     return true
---                                 end,"fleur")
---                         end)))
---     end
 end
 
 function toggle_splitters(t)
