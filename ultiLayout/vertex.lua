@@ -92,39 +92,46 @@ function create_vertex(args)
         end
     end
     
+    local function warn_invalid()
+        print("This is not a setter")
+        debug.traceback()
+    end
+    
+    local get_map = {
+        x           = function () return private_data.cg2.x                                                                       end,
+        y           = function () return private_data.cg2.y                                                                       end,
+        cg1         = function () return private_data.cg1                                                                         end,
+        cg2         = function () return private_data.cg2                                                                         end,
+        orientation = function () return (private_data.cg1.x == private_data.cg2.x) and "horizontal" or "vertical"                end,
+        length      = function () return (data.orientation == "horizontal") and private_data.cg1.width or private_data.cg1.height end,
+        wibox       = function () return private_data.wibox                                                                       end,
+    }
+    
+    local set_map = {
+        wibox = function (value) private_data.wibox = value end,
+        cg1   = function (value) private_data.cg1 = value end,
+        cg2   = function (value) 
+                    private_data.cg2 = value
+                    private_data.cg2:add_signal("geometry::changed", dsfsdfdsfds)
+                    update_wibox(data)
+                end,
+    }
+    for k,v in pairs({"x","y","length","orientation"}) do
+        set_map[v] = warn_invalid
+    end
+    
     local function return_data(table, key)
-        if     key == "x" then
-            return private_data.cg2.x
-        elseif key == "y" then
-            return private_data.cg2.y
-        elseif key == "cg1" then
-            return private_data.cg1
-        elseif key == "cg2" then
-            return private_data.cg2
-        elseif key == "orientation" then
-            return (private_data.cg1.x == private_data.cg2.x) and "horizontal" or "vertical"
-        elseif key == "length" then
-            return (data.orientation == "horizontal") and private_data.cg1.width or private_data.cg1.height
-        elseif key == "wibox" then
-            return private_data.wibox
+        if get_map[key] ~= nil then
+            return get_map[key]()
         else
             return rawget(table,key)
         end
     end
     
     local function catchGeoChange(table, key,value)
-        if key == "x" or key == "y" or key == "length" then
-            print("This is not a setter")
-            debug.traceback()
-        elseif key == "wibox" and value ~= private_data.wibox then
-            private_data.wibox = value
-        elseif key == "cg1" and value ~= private_data.wibox then
-            private_data.cg1 = value
-        elseif key == "cg2" and value ~= private_data.wibox then
-            private_data.cg2 = value
-            private_data.cg2:add_signal("geometry::changed", dsfsdfdsfds)
-            update_wibox(data)
-        elseif key ~= "x" and key ~= "y" and key ~= "length" and key ~= "wibox" and key ~= "cg1" and key ~= "cg2" then
+        if private_data[key] ~= value and set_map[key] ~= nil then
+            set_map[key](value)
+        elseif set_map[key] == nil then
             rawset(data,key,value)
         end
     end

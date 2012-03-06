@@ -13,19 +13,20 @@ local client_to_cg          = {}
 
 function new(parent)
     local data              = { swapable = false }
-    local height            = 0
-    local width             = 0
-    local x                 = 0
-    local y                 = 0
-    local visible           = true
-    local needRepaint       = false
     local layout            = nil
     local client            = nil
     local parent            = parent or nil
     local childs_cg         = {}
     local show_splitters    = false
     local title             = nil
-    local floating          = false
+    local private_data = {
+        floating = false,
+        height   = 0    ,
+        width    = 0    ,
+        x        = 0    ,
+        y        = 0    ,
+        visible  = true,
+    }
     
     local signals = {}
     
@@ -51,13 +52,6 @@ function new(parent)
             v(data,...)
         end
     end
-    
---     function data:clients(list) --TODO That make no sense
---         if list ~= nil then
---             client_list = list
---         end
---         return client_list
---     end
     
     function data:childs()
         return childs_cg
@@ -113,22 +107,17 @@ function new(parent)
     end
 
     function data:geometry(new,relative)
-        --math.flgoor math.ce...
         if new ~= nil then
-            width = new.width
-            height = new.height
-            x = new.x
-            y = new.y
+            for k,v in ipairs({"x","y","width","height"}) do
+                private_data[v] = new[v] or 0
+            end
         end
-        return {width = width or 0, height = height or 0, x = x or 0, y = y or 0}
+        return {width = private_data.width or 0, height = private_data.height or 0, x = private_data.x or 0, y = private_data.y or 0}
     end
 
     function data:set_client(c)
         client = c
-        --client_to_cg[c] = self
-        if not client_to_cg[c] then
-            client_to_cg[c] = {}
-        end
+        client_to_cg[c] = client_to_cg[c] or {}
         table.insert(client_to_cg[c],self)
     end
     
@@ -174,20 +163,10 @@ function new(parent)
         return layout
     end
 
---     function data:reparent(new_parent)
---         if parent --[[and needRepaint == true]] then
---             parent:detach(self)
---             parent = new_parent
---             parent:attach(self)
---         end
---         needRepaint = false
---     end
-
     function data:detach(child)
         for k,v in pairs(childs_cg) do
             if v == child then
                 table.remove(childs_cg,k)
-                --childs_cg[k] = nil
             end
         end
         if parent ~= nil and #childs_cg == 0 then
@@ -259,7 +238,6 @@ function new(parent)
     
     function data:attach(cg)
         --Check if the CG is not already a child of self
-        print("here2,",#data:all_childs())
         for k,v in pairs(data:all_childs()) do
             if v == cg then
                 print("Trying to add a clientgroup that is already a child of self")
@@ -310,7 +288,6 @@ function new(parent)
             parent = new_parent
         end
         if emit_swapped == true then
-            --print("\n\n\n\n\nHERE\n\n\n\n",self.title)
             emit_signal("cg::swapped",other_cg,old_parent)
         end
     end
@@ -324,7 +301,6 @@ function new(parent)
     end
     
     function data:repaint()
-        --print("Repainting",self,layout)
         if layout then
             layout:update()
         end
@@ -334,7 +310,7 @@ function new(parent)
         for k,v in pairs(childs_cg) do
             v.visible = value
         end
-        visible = value
+        private_data.visible = value
     end
     
     local function get_title()
@@ -350,65 +326,42 @@ function new(parent)
         end
     end
     
-    --This will catch attemps to change geometry
+    local function change_geo(var,new_value)
+        local prev = private_data[var]
+        private_data[var] = new_value
+        emit_signal(var.."::changed",new_value-prev)
+        emit_signal("geometry::changed")
+    end
+    
+    local set_map = {
+        floating = function(value) private_data.floating = value end,
+        parent   = function(value) data:set_parent(value) end,
+        title    = function(value) title = value end,
+        visible  = function(value) change_visibility(value); emit_signal("visibility::changed",value) end,
+    }
+    for k,v in pairs({"height", "width","y","x"}) do
+        set_map[v] =  function (value) change_geo(v,value) end
+    end
+    
     local function catchGeoChange(table, key,value)
-        if key == "width" and value ~= width then
-            local prevWidth = width
-            width = value
-            needRepaint = true
-            emit_signal("width::changed",value-prevWidth)
-            emit_signal("geometry::changed")
-        elseif key == "height" and value ~= height then
-            local prevHeight = height
-            height = value
-            needRepaint = true
-            emit_signal("height::changed",value-prevHeight)
-            emit_signal("geometry::changed")
-        elseif key == "x" and value ~= x then
-            local prevX = x
-            x = value
-            needRepaint = true
-            emit_signal("x::changed",value-prevX)
-            emit_signal("geometry::changed")
-        elseif key == "y" and value ~= y then
-            local prevY = y
-            y = value
-            needRepaint = true
-            emit_signal("y::changed",value-prevY)
-            emit_signal("geometry::changed")
-        elseif key == "visible" --[[and value ~= visible]] then
-            change_visibility(value)
-            needRepaint = true
-            emit_signal("visibility::changed",value)
-        elseif key == "title" and value ~= title then
-            title = value
-        elseif key == "floating" and value ~= floating then
-            floating = value
-        elseif key == "parent" and value ~= parent then
-            data:set_parent(value)
-        elseif key ~= "width" and key ~= "height" and key ~= "y" and key ~= "x" and key ~= "visible" and key ~= "title" and key ~= "floating" and key ~= "parent" then
+        if set_map[key] ~= nil and (data[key] ~= value or key == "visible") then
+            set_map[key](value)
+        else
             rawset(data,key,value)
         end
     end
     
-    --Emulate the geometry as part of data
-    function return_data(table, key)
-        if key == "width" then
-            return width
-        elseif key == "height" then
-            return height
-        elseif key == "x" then
-            return x
-        elseif key =="y" then
-            return y
-        elseif key == "visible" then
-            return visible
-        elseif key == "title" then
-            return get_title()
-        elseif key == "floating" then
-            return floating
-        elseif key == "parent" then
-            return parent
+    local get_map = {
+        parent = function() return parent end,
+        title             = function() return get_title() end,
+    }
+    for k,v in pairs(private_data) do
+        get_map[k] = function() return private_data[k] end
+    end
+    
+    local function return_data(table, key)
+        if get_map[key] ~= nil then
+            return get_map[key]()
         else
             return rawget(table,key)
         end
@@ -416,6 +369,5 @@ function new(parent)
     setmetatable(data, { __index = return_data, __newindex = catchGeoChange, __len = function() return #data +4 end})
     return data
 end
-
 
 setmetatable(_M, { __call = function(_, ...) return new(...) end , __index = return_data, __newindex = catchGeoChange, __len = function() return #data +4 end})

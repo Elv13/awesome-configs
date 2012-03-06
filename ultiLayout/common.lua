@@ -66,14 +66,6 @@ function clear_splitter_box()
     active_splitters = {}
 end
 
--- function create_client_group(c,args)
---     local cg = ultiLayout.clientGroup()
---     local l  = args.layout or args.layout_idx or layout_list_idx[1]
---     cg:add_client(c)
---     cg:set_layout(l)
---     return cg
--- end
-
 -- function merge_client_groups(cg1,cg2,layout,args)
 --     local newCg = ultiLayout.clientGroup()
 --     newCg:set_layout(layout)
@@ -82,11 +74,6 @@ end
 --             newCg:add_client(v)
 --         end
 --     end
--- end
-
--- function move_client_group(cg,new_host,args)
---     cg.parent:detach(cg)
---     new_host:reparent(cg)
 -- end
 
 function drag_cg_under_cursor(c)
@@ -113,7 +100,6 @@ function drag_cg_under_cursor(c)
             return true
         end,"fleur")
     else
-    print("I am here4")
         local cur = capi.mouse.coords()
         local moved = false
         local aWb = wibox({position="free"})
@@ -233,20 +219,6 @@ local function repaint_border(t)
     if top_level_cg[t] then
         local vertex = {}
         top_level_cg[t]:gen_vertex(vertex)
---         for k,v in ipairs(vertex) do
---             local w = borderW[v]
---             if w then
---                 w.x = v.x
---                 w.y = v.y
---                 if v.orientation == "horizontal" then
---                     w.width = v.length
---                     w.height = 2
---                 else
---                     w.height = v.length
---                     w.width = 2
---                 end
---             end
---         end
     end
 end
 
@@ -400,9 +372,9 @@ end
 --     
 -- end
 
-function get_current_layout_name(s)
-    
-end
+-- function get_current_layout_name(s)
+--     
+-- end
 
 -- function get_current_layout_id(s)
 --     

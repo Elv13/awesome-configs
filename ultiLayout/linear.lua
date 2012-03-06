@@ -1,19 +1,14 @@
 local ipairs       = ipairs
-local pairs        = pairs
 local print        = print
-local debug        = debug
 local table        = table
 local common       = require( "ultiLayout.common" )
 local vertex2      = require( "ultiLayout.vertex" )
-local clientGroup  = require( "ultiLayout.clientGroup" )
 
 module("ultiLayout.linear")
 
 local function cg_to_idx(list,cg)
     for k,v in ipairs(list) do
-        if v == cg then
-            return k
-        end
+        if v == cg then return k end
     end
     return nil
 end
@@ -86,26 +81,18 @@ local function new(cg,orientation)
     end
    
    function data:update()
-       local relX   = cg.x
-       local relY   = cg.y
+       local relX,relY   = cg.x,cg.y
        for k,v in ipairs(cg:childs()) do
            if v.visible ~= false and (#v:childs() > 0 or v:has_client() == true) then --TODO visible childs
-                local width_multiplier  = ( orientation == "horizontal" ) and 1 or ratio_to_percent(data.ratio[k])
-                local height_multiplier = ( orientation == "vertical"   ) and 1 or ratio_to_percent(data.ratio[k])
-                v:geometry({width  = cg.width*width_multiplier   ,
-                            height = cg.height*height_multiplier ,
-                            x      = relX                        ,
-                            y      = relY                       })
+                local w_mul = ( orientation == "horizontal" ) and 1 or ratio_to_percent(data.ratio[k])
+                local h_mul = ( orientation == "vertical"   ) and 1 or ratio_to_percent(data.ratio[k])
+                v:geometry({width = cg.width*w_mul, height = cg.height*h_mul, x = relX, y = relY })
                 v:repaint()
                 relY     = relY + (( orientation == "horizontal" ) and (cg.height*ratio_to_percent(data.ratio[k])) or 0)
                 relX     = relX + (( orientation == "vertical"   ) and (cg.width*ratio_to_percent(data.ratio[k]))  or 0)
            end
        end
    end
-   
---     local function swap(_cg,other_cg,old_parent)
---         
---     end
     
    function data:add_child(child_cg)
         data.ratio[#cg:childs()+1] = child_cg.default_percent and (child_cg.default_percent*sum_ratio()) or get_average()

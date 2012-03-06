@@ -2,9 +2,6 @@
 local print        = print
 local common       = require( "ultiLayout.common" )
 
-local capi = { image  = image  ,
-               widget = widget }
-
 module("ultiLayout.unit")
 
 function new(cg,c)
@@ -20,16 +17,7 @@ function new(cg,c)
         return vertex_list
     end
 
-    function data:show_splitters(show,horizontal,vertical)
-        if vertical then
-            common.add_splitter_box(cg.x,cg.y+(cg.height/2)-25)
-            common.add_splitter_box(cg.x+cg.width-50,cg.y+(cg.height/2)-25)
-        end
-        if horizontal then
-            common.add_splitter_box(cg.x+(cg.width/2)-25,cg.y)
-            common.add_splitter_box(cg.x+(cg.width/2)-25,cg.y+cg.height-50)
-        end
-    end
+    function data:show_splitters(show,horizontal,vertical) end
     
     function data:set_active(sub_cg)
         c.focus = c
