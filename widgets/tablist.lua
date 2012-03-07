@@ -111,64 +111,7 @@ function new(label, buttons,cg)
                                         cg:set_active(tab.clientgroup)
                                         tasklist_update(tabs, w.widgets_real, buttons2, label2, data, widgets,tab)
                                         
-                                        --Drag and drop
-                                        if cg.floating == true then
-                                            local cur = capi.mouse.coords()
-                                            local moved = false
-                                            capi.mousegrabber.run(function(mouse)
-                                                if mouse.buttons[1] == false then
-                                                    --if not moved then
-                                                    --    
-                                                    --end
-                                                    capi.mousegrabber.stop()
-                                                    return false
-                                                end
-                                                if mouse.x ~= cur.x and mouse.y ~= cur.y then
-                                                    --moved = true
-                                                    cg.x = cg.x + (mouse.x-cur.x)
-                                                    cg.y = cg.y + (mouse.y-cur.y)
-                                                    cur = {x=mouse.x,y=mouse.y}
-                                                    cg:repaint()
-                                                end
-                                                return true
-                                            end,"fleur")
-                                        else
-                                            local cur = capi.mouse.coords()
-                                            local moved = false
-                                            local aWb = wibox({position="free"})
-                                            aWb.width  = 200
-                                            aWb.height = 200
-                                            aWb.x = cur.x+10
-                                            aWb.y = cur.y+10
-                                            
-                                            aWb.ontop = true
-                                            capi.mousegrabber.run(function(mouse)
-                                                if mouse.buttons[1] == false then
-                                                    --if not moved then
-                                                    --    
-                                                    --end
-                                                    aWb.visible = false
-                                                    aWb = nil
-                                                    local obj = capi.mouse.object_under_pointer()
-                                                    if type(obj) == "client" then
-                                                        local possibilities = ultilayoutCG.get_cg_from_client(obj)
-                                                        if possibilities ~= nil then
-                                                            ultilayoutC.swap_client_group(cg,possibilities[1])
-                                                        end
-                                                    end
-                                                    capi.mousegrabber.stop()
-                                                    return false
-                                                end
-                                                if mouse.x ~= cur.x and mouse.y ~= cur.y then
-                                                    --moved = true
-                                                    aWb.x = mouse.x+10
-                                                    aWb.y = mouse.y+10
-                                                    cur = {x=mouse.x,y=mouse.y}
-                                                    cg:repaint()
-                                                end
-                                                return true
-                                            end,"fleur")
-                                        end
+                                        ultilayoutC.drag_cg(cg)
                                       end),
                     awButtons({ }, 2, function (tab) 
                                           local xpos  = capi.mouse.coords().x

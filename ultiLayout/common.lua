@@ -23,7 +23,6 @@ local cur_layout_name     = {} -- tag -> name
 local top_level_cg        = {} -- tag -> cg
 local layout_list         = {} -- string -> layout func
 local vertices            = {}
-local borderW             = {}
 local active_splitters    = {}
 local auto_display_border = true
 
@@ -59,68 +58,70 @@ end
 --     end
 -- end
 
-function drag_cg_under_cursor(c)
-    local cg = (clientGroup.get_cg_from_client(c) or {})[1]
-    if cg == nil then return end
-    if cg.floating == true then
-        local cur = capi.mouse.coords()
+local function abstract_drag(cg,on_drag_f,on_drop_f,on_click_f)
+    local cur = capi.mouse.coords()
         local moved = false
         capi.mousegrabber.run(function(mouse)
             if mouse.buttons[1] == false then
-                --if not moved then
-                --    
-                --end
-                capi.mousegrabber.stop()
-                return false
-            end
-            if mouse.x ~= cur.x and mouse.y ~= cur.y then
-                --moved = true
-                cg.x = cg.x + (mouse.x-cur.x)
-                cg.y = cg.y + (mouse.y-cur.y)
-                cur = {x=mouse.x,y=mouse.y}
-                cg:repaint()
-            end
-            return true
-        end,"fleur")
-    else
-        local cur = capi.mouse.coords()
-        local moved = false
-        local aWb = wibox({position="free"})
-        aWb.visible = false
-        aWb.width  = 200
-        aWb.height = 200
-        aWb.x = cur.x+10
-        aWb.y = cur.y+10
-        
-        aWb.ontop = true
-        capi.mousegrabber.run(function(mouse)
-            if mouse.buttons[1] == false then
-                --if not moved then
-                --    
-                --end
-                aWb.visible = false
-                aWb = nil
-                local obj = capi.mouse.object_under_pointer()
-                if type(obj) == "client" then
-                    local possibility = clientGroup.get_cg_from_client(obj,top_level_cg[tag.selected(capi.mouse.screen)])
-                    if possibilities ~= nil then
-                        swap_client_group(cg,possibility)
-                    end
+                if not moved and type(on_click_f) == "function" then
+                    on_click_f()
+                end
+                if type(on_drop_f) == "function" then
+                    on_drop_f(mouse,cur)
                 end
                 capi.mousegrabber.stop()
                 return false
             end
             if mouse.x ~= cur.x and mouse.y ~= cur.y then
-                aWb.visible = true
-                --moved = true
-                aWb.x = mouse.x+10
-                aWb.y = mouse.y+10
-                cur = {x=mouse.x,y=mouse.y}
-                --cg:repaint()
+                moved = true
+                if type(on_drag_f) == "function" then
+                    on_drag_f(mouse,cur)
+                end
+                cur.x,cur.y = mouse.x,mouse.y
+                cg:repaint()
             end
             return true
         end,"fleur")
+end
+
+function drag_cg(cg,on_click_f)
+    if cg.floating == true then
+        abstract_drag(cg,function(mouse,cur)
+            cg.x = cg.x + (mouse.x-cur.x)
+            cg.y = cg.y + (mouse.y-cur.y)
+        end,nil,on_click_f)
+    else
+        local aWb = wibox({position="free"})
+        aWb.width  = 200
+        aWb.height = 200
+        aWb.x = capi.mouse.coords().x+10
+        aWb.y = capi.mouse.coords().y+10
+        aWb.ontop = true
+        aWb.visible = false
+        
+        abstract_drag(cg,function(mouse,cur)
+            aWb.visible = true
+            aWb.x = mouse.x+10
+            aWb.y = mouse.y+10
+        end,
+        function(mouse,cur)
+            aWb.visible = false
+            aWb = nil
+            local obj = capi.mouse.object_under_pointer()
+            if type(obj) == "client" then
+                local possibilities = clientGroup.get_cg_from_client(obj)
+                if possibilities ~= nil then
+                    swap_client_group(cg,possibilities[1])
+                end
+            end
+        end, on_click_f)
     end
+end
+
+function drag_cg_under_cursor(c)
+    local cg = clientGroup.get_cg_from_client(c, top_level_cg[tag.selected(capi.mouse.screen)])
+    print(cg)
+    drag_cg(cg)
 end
 
 function swap_client_group(cg1,cg2,force)
