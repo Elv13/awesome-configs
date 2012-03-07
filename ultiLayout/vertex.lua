@@ -4,13 +4,11 @@ local capi = { root         = root         ,
 local setmetatable = setmetatable
 local table        = table
 local print        = print
-local rawset       = rawset
-local rawget       = rawget
 local pairs        = pairs
-local debug        = debug
 local button       = require( "awful.button" )
 local wibox        = require( "awful.wibox"  )
 local util         = require( "awful.util"   )
+local object_model = require( "ultiLayout.object_model" )
 
 module("ultiLayout.vertex")
 local auto_display_border = true
@@ -66,36 +64,6 @@ function create_vertex(args)
     local private_data    = { wibox = args.wibox ,
                               cg1   = args.cg1   ,
                               cg2   = args.cg2   }
-        
-    local signals = {}
-    
-    function data:add_signal(name,func)
-        if not signals[name] then
-            signals[name] = {}
-        end
-        table.insert(signals[name],func)
-    end
-    
-    function data:remove_signal(name,func)
-        for k,v in pairs(signals[name] or {}) do
-            if v == func then
-                signals[name][k] = nil
-                return true
-            end
-        end
-        return false
-    end
-    
-    function data:emit_signal(name,...)
-        for k,v in pairs(signals[name] or {}) do
-            v(data,...)
-        end
-    end
-    
-    local function warn_invalid()
-        print("This is not a setter")
-        debug.traceback()
-    end
     
     local get_map = {
         x           = function () return private_data.cg2.x                                                                       end,
@@ -120,22 +88,7 @@ function create_vertex(args)
         set_map[v] = warn_invalid
     end
     
-    local function return_data(table, key)
-        if get_map[key] ~= nil then
-            return get_map[key]()
-        else
-            return rawget(table,key)
-        end
-    end
-    
-    local function catchGeoChange(table, key,value)
-        if private_data[key] ~= value and set_map[key] ~= nil then
-            set_map[key](value)
-        elseif set_map[key] == nil then
-            rawset(data,key,value)
-        end
-    end
-    setmetatable(data, { __index = return_data, __newindex = catchGeoChange, __len = function() return #data + #private_data end})
+    object_model(data,get_map,set_map,private_data)
     
     if private_data.wibox == nil and auto_display_border == true then
         create_border(data)

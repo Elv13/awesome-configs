@@ -6,6 +6,7 @@ local debug        = debug
 local rawset       = rawset
 local rawget       = rawget
 local ipairs       = ipairs
+local object_model = require( "ultiLayout.object_model" )
 
 module("ultiLayout.clientGroup")
 
@@ -27,31 +28,6 @@ function new(parent)
         y        = 0    ,
         visible  = true,
     }
-    
-    local signals = {}
-    
-    function data:add_signal(name,func)
-        if not signals[name] then
-            signals[name] = {}
-        end
-        table.insert(signals[name],func)
-    end
-    
-    function data:remove_signal(name,func)
-        for k,v in pairs(signals[name] or {}) do
-            if v == func then
-                signals[name][k] = nil
-                return true
-            end
-        end
-        return false
-    end
-    
-    local function emit_signal(name,...)
-        for k,v in pairs(signals[name] or {}) do
-            v(data,...)
-        end
-    end
     
     function data:childs()
         return childs_cg
@@ -170,7 +146,7 @@ function new(parent)
             end
         end
         if parent ~= nil and #childs_cg == 0 then
-            emit_signal("destroyed")
+            data:emit_signal("destroyed")
             parent:detach(self)
             self = nil
             return
@@ -202,7 +178,7 @@ function new(parent)
             if old_cg_idx ~= nil and new_cg_idx ~= nil then
                 childs_cg[ old_cg_idx ] = new_cg
                 childs_cg[ new_cg_idx ] = old_cg
-                emit_signal("cg::swapped",other_cg,old_parent)
+                data:emit_signal("cg::swapped",other_cg,old_parent)
                 self:repaint()
             end
         end
@@ -251,7 +227,7 @@ function new(parent)
         cg:set_parent(data)
         --self:add_signal("geometry::changed",function() print("test",debug.traceback());cg:repaint() end)
         if cg ~= self then
-            cg:add_signal("geometry::changed",function() emit_signal("geometry::changed") end)
+            cg:add_signal("geometry::changed",function() data:emit_signal("geometry::changed") end)
         end
         
         if layout and cg.floating == false then
@@ -263,7 +239,7 @@ function new(parent)
             table.insert(childs_cg,cg)
         end
         --table.insert(childs_cg,cg)
-        emit_signal("client::attached")
+        data:emit_signal("client::attached")
         self:repaint()
         return cg
     end
@@ -288,7 +264,7 @@ function new(parent)
             parent = new_parent
         end
         if emit_swapped == true then
-            emit_signal("cg::swapped",other_cg,old_parent)
+            data:emit_signal("cg::swapped",other_cg,old_parent)
         end
     end
     
@@ -329,44 +305,29 @@ function new(parent)
     local function change_geo(var,new_value)
         local prev = private_data[var]
         private_data[var] = new_value
-        emit_signal(var.."::changed",new_value-prev)
-        emit_signal("geometry::changed")
+        data:emit_signal(var.."::changed",new_value-prev)
+        data:emit_signal("geometry::changed")
     end
     
     local set_map = {
         floating = function(value) private_data.floating = value end,
         parent   = function(value) data:set_parent(value) end,
         title    = function(value) title = value end,
-        visible  = function(value) change_visibility(value); emit_signal("visibility::changed",value) end,
+        visible  = function(value) change_visibility(value); data:emit_signal("visibility::changed",value) end,
     }
     for k,v in pairs({"height", "width","y","x"}) do
         set_map[v] =  function (value) change_geo(v,value) end
     end
     
-    local function catchGeoChange(table, key,value)
-        if set_map[key] ~= nil and (data[key] ~= value or key == "visible") then
-            set_map[key](value)
-        else
-            rawset(data,key,value)
-        end
-    end
-    
     local get_map = {
         parent = function() return parent end,
-        title             = function() return get_title() end,
+        title  = function() return get_title() end,
     }
     for k,v in pairs(private_data) do
         get_map[k] = function() return private_data[k] end
     end
     
-    local function return_data(table, key)
-        if get_map[key] ~= nil then
-            return get_map[key]()
-        else
-            return rawget(table,key)
-        end
-    end
-    setmetatable(data, { __index = return_data, __newindex = catchGeoChange, __len = function() return #data +4 end})
+    object_model(data,get_map,set_map,private_data,{visible = true})
     return data
 end
 
