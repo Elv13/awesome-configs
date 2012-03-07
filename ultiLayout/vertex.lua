@@ -41,18 +41,12 @@ local function create_border(vertex)
     end)))
     
     w:add_signal("mouse::enter", function ()
-        --capi.root.cursor("left_ptr")
-        --if v.orientation == "vertical" then
-        --    capi.root.cursor("sb_h_double_arrow") --double_arrow
-        --else
-        --    capi.root.cursor("sb_v_double_arrow")
-        --end
-        
+        capi.root.cursor((vertex.orientation == "vertical") and "sb_h_double_arrow" or "sb_v_double_arrow")
         w.bg = "#00ffff"
     end)
 
     w:add_signal("mouse::leave", function ()
-        --capi.root.cursor("left_ptr")
+        capi.root.cursor("left_ptr")
         w.bg = "#ff00ff"
     end)
     vertex.wibox = w

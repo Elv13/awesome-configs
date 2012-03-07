@@ -41,11 +41,7 @@ function new(cg)
     
     function data:set_active(sub_cg)
         for k,v in pairs(cg:childs()) do
-            if v == sub_cg then
-                v.visible = true
-            else
-                v.visible = false
-            end
+            v.visible = v == sub_cg
         end
         activeCg = sub_cg
     end

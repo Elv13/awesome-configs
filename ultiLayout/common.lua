@@ -1,8 +1,5 @@
-local capi = { image        = image        ,
-               widget       = widget       ,
-               mouse        = mouse        ,
+local capi = { mouse        = mouse        ,
                screen       = screen       ,
-               root         = root         ,
                client       = client       ,
                mousegrabber = mousegrabber }
 
@@ -12,16 +9,11 @@ local type         = type
 local ipairs       = ipairs
 local print        = print
 local math         = math
-local rawset       = rawset
-local rawget       = rawget
 local pairs        = pairs
-local debug        = debug
 local button       = require( "awful.button"           )
-local beautiful    = require( "beautiful"              )
 local wibox        = require( "awful.wibox"            )
 local tag          = require( "awful.tag"              )
 local clientGroup  = require( "ultiLayout.clientGroup" )
-local util         = require( "awful.util"             )
 local client       = require( "awful.client"           )
 
 module("ultiLayout.common")
@@ -30,22 +22,13 @@ local layouts             = {} -- tag -> layout name -> top level CG
 local cur_layout_name     = {} -- tag -> name
 local top_level_cg        = {} -- tag -> cg
 local layout_list         = {} -- string -> layout func
-local titlebars           = {} -- cg -> titlebar
 local vertices            = {}
 local borderW             = {}
 local active_splitters    = {}
 local auto_display_border = true
 
-
 function add_new_layout(name, func)
     layout_list[name] = func
-end
-
-function get_titlebar(cg)
-    if not titlebars[cg] then
-        titlebars[cg] = widgets.titlebar.create(cg)
-    end
-    return titlebars[cg]
 end
 
 function add_splitter_box(x,y,direction,on_drop,on_hover)
@@ -368,17 +351,9 @@ function rotate_layout(inc,t)
     end
 end
 
--- function set_layout_by_id(t,id)
---     
--- end
-
--- function get_current_layout_name(s)
---     
--- end
-
--- function get_current_layout_id(s)
---     
--- end
+function get_current_layout_name(s)
+    return cur_layout_name[tag.selected(s or capi.mouse.screen)]
+end
 
 local currentTag = nil
 local function switch_on_tag_change(t)

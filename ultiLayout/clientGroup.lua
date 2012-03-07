@@ -2,9 +2,6 @@ local setmetatable = setmetatable
 local table        = table
 local pairs        = pairs
 local print        = print
-local debug        = debug
-local rawset       = rawset
-local rawget       = rawget
 local ipairs       = ipairs
 local object_model = require( "ultiLayout.object_model" )
 
