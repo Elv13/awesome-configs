@@ -2,7 +2,7 @@ local ipairs       = ipairs
 local print        = print
 local table        = table
 local common       = require( "ultiLayout.common" )
-local edge2      = require( "ultiLayout.edge" )
+local edge         = require( "ultiLayout.edge" )
 
 module("ultiLayout.layouts.linear")
 
@@ -15,7 +15,7 @@ end
 
 local function new(cg,orientation)
    local data     = { ratio = {} }
-   local edge   = {}
+   local edges   = {}
    
    local function sum_ratio(only_visible)
         local sumratio = 0
@@ -55,9 +55,9 @@ local function new(cg,orientation)
         local prev = nil
         for k,v in ipairs(cg:childs()) do
             if prev  then
-                if not edge[prev] or not edge[prev][v] then
-                    local aEdge = edge2({})
-                    aEdge:add_signal("distance_change::request",function(_v, delta)
+                if not edges[prev] or not edges[prev][v] then
+                    local anEdge = edge({})
+                    anEdge:add_signal("distance_change::request",function(_v, delta)
                         if _v.cg1.parent == cg and _v.cg2.parent == cg and orientation == _v.orientation then
                             local cg1_ratio_k, cg2_ratio_k = get_cg_idx(_v.cg1),get_cg_idx(_v.cg2)
                             local diff = (sum_ratio()/cg[(orientation == "horizontal") and "height" or "width"])*delta
@@ -66,13 +66,13 @@ local function new(cg,orientation)
                             self:update()
                         end
                     end)
-                    aEdge.cg1     = prev
-                    aEdge.cg2     = v
-                    edge[prev]    = edge[prev] or {}
-                    edge[prev][v] = aEdge
+                    anEdge.cg1     = prev
+                    anEdge.cg2     = v
+                    edges[prev]    = edges[prev] or {}
+                    edges[prev][v] = anEdge
                 end
-                local aEdge = edge[prev][v]
-                table.insert(edge_list,edge[prev][v])
+                local anEdge = edges[prev][v]
+                table.insert(edge_list,edges[prev][v])
             end
             v:gen_edge(edge_list)
             prev = v

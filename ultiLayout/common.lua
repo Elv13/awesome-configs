@@ -15,6 +15,8 @@ local wibox        = require( "awful.wibox"            )
 local tag          = require( "awful.tag"              )
 local clientGroup  = require( "ultiLayout.clientGroup" )
 local client       = require( "awful.client"           )
+local thumbnail    = require( "ultiLayout.widgets.thumbnail")
+local splitter     = require("ultiLayout.widgets.splitter")
 
 module("ultiLayout.common")
 
@@ -31,13 +33,7 @@ function add_new_layout(name, func)
 end
 
 function add_splitter_box(x,y,direction,on_drop,on_hover)
-    local w  =  wibox({position = "free"})
-    w.x      = x
-    w.y      = y
-    w.width  = 50
-    w.height = 50
-    w.ontop  = true
-    w.bg     = "#00ff00"
+    local w  =  splitter()
     table.insert(active_splitters,w)
 end
 
@@ -60,28 +56,28 @@ end
 
 local function abstract_drag(cg,on_drag_f,on_drop_f,on_click_f)
     local cur = capi.mouse.coords()
-        local moved = false
-        capi.mousegrabber.run(function(mouse)
-            if mouse.buttons[1] == false then
-                if not moved and type(on_click_f) == "function" then
-                    on_click_f()
-                end
-                if type(on_drop_f) == "function" then
-                    on_drop_f(mouse,cur)
-                end
-                capi.mousegrabber.stop()
-                return false
+    local moved = false
+    capi.mousegrabber.run(function(mouse)
+        if mouse.buttons[1] == false then
+            if not moved and type(on_click_f) == "function" then
+                on_click_f()
             end
-            if mouse.x ~= cur.x and mouse.y ~= cur.y then
-                moved = true
-                if type(on_drag_f) == "function" then
-                    on_drag_f(mouse,cur)
-                end
-                cur.x,cur.y = mouse.x,mouse.y
-                cg:repaint()
+            if type(on_drop_f) == "function" then
+                on_drop_f(mouse,cur)
             end
-            return true
-        end,"fleur")
+            capi.mousegrabber.stop()
+            return false
+        end
+        if mouse.x ~= cur.x and mouse.y ~= cur.y then
+            moved = true
+            if type(on_drag_f) == "function" then
+                on_drag_f(mouse,cur)
+            end
+            cur.x,cur.y = mouse.x,mouse.y
+            cg:repaint()
+        end
+        return true
+    end,"fleur")
 end
 
 function drag_cg(cg,on_click_f)
@@ -91,13 +87,7 @@ function drag_cg(cg,on_click_f)
             cg.y = cg.y + (mouse.y-cur.y)
         end,nil,on_click_f)
     else
-        local aWb = wibox({position="free"})
-        aWb.width  = 200
-        aWb.height = 200
-        aWb.x = capi.mouse.coords().x+10
-        aWb.y = capi.mouse.coords().y+10
-        aWb.ontop = true
-        aWb.visible = false
+        local aWb = thumbnail(cg)
         
         abstract_drag(cg,function(mouse,cur)
             aWb.visible = true
@@ -145,12 +135,12 @@ function swap_client_group(cg1,cg2,force)
     end
 end
 
-function match_closest_edge()
+function get_closest_vertex(point)
     
 end
 
 function resize_closest()
-    local v      = match_closest_edge()
+    local v      = get_closest_vertex()
     local coords = capi.mouse.coords
     local vx1    = v.x1
     local vy1    = v.y1
@@ -170,39 +160,6 @@ end
 
 function get_layout_list()
     return layout_list
-end
-
-function display_visual_hits(s)
-    for k,v in ipairs(t:clients()) do
-        local w   = wibox({position="free"})
-        w.ontop   = true
-        w.width   = 60
-        w.height  = 60
-        w.bg      = "#00ff00"
-        local geo = v:geometry()
-        w.x       = geo.x + geo.width  -60
-        w.y       = geo.y + geo.height/2
-    end
-end
-
-function toggle_visibility(t,value)
-    local t = t or tag.selected(capi.mouse.screen)
-    if top_level_cg[t] then
-        local cg = top_level_cg[t]
-        cg.visible =  not cg.visible
-    else
-        print("No layout")
-    end
-end
---tag.attached_add_signal(1, "property::selected",toggle_visibility )
-
-local function repaint_border(t)
-    if not auto_display_border then return end
-    local t = t or tag.selected(capi.mouse.screen)
-    if top_level_cg[t] then
-        local edge = {}
-        top_level_cg[t]:gen_edge(edge)
-    end
 end
 
 local function display_border_real(t)
@@ -309,7 +266,6 @@ function set_layout_by_name(name,t)
             aCG.height = coords.height
             aCG.x      = coords.x
             aCG.y      = coords.y
-            aCG:add_signal("geometry::changed",function () repaint_border(t) end)
             if top_level_cg[t] then
                 top_level_cg[t].visible = false
             end
@@ -330,7 +286,6 @@ function set_layout_by_name(name,t)
         end
         top_level_cg[t].visible = true
         cur_layout_name[t] = name
-        --top_level_cg[t]:repaint()
         layouts[t][name]:repaint()
     else
         print("layout".. name .. " not found")
@@ -343,7 +298,6 @@ function rotate_layout(inc,t)
     local layout_array = ordered or get_layout_name_list()
     local current_index = layout_name_to_idx(cur_layout_name[t]) or 1
     local new_index = (current_index+inc > #layout_array) and current_index+inc-#layout_array or current_index+inc
-    --print("old idx",current_index,new_index,cur_layout_name[t],layouts[t][name])
     if layout_array[new_index] == "unit" then
         rotate_layout(inc+(inc/math.abs(inc)),t)
     else
