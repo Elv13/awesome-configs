@@ -3,7 +3,7 @@ local pairs        = pairs
 local table        = table
 local common       = require( "ultiLayout.common"      )
 local clientGroup  = require( "ultiLayout.clientGroup" )
-module("ultiLayout.tile")
+module("ultiLayout.layouts.tile")
 
 local function create_cg(parent, layout, tile_layout)
     local tile = clientGroup()

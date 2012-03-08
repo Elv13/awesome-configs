@@ -4,7 +4,7 @@ local table        = table
 local common       = require( "ultiLayout.common" )
 local edge2      = require( "ultiLayout.edge" )
 
-module("ultiLayout.linear")
+module("ultiLayout.layouts.linear")
 
 local function cg_to_idx(list,cg)
     for k,v in ipairs(list) do

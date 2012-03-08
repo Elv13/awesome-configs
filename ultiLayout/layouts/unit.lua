@@ -2,7 +2,7 @@
 local print        = print
 local common       = require( "ultiLayout.common" )
 
-module("ultiLayout.unit")
+module("ultiLayout.layouts.unit")
 
 function new(cg,c)
     local data = {titlebar = nil, client = c,x=0,y=0,width=0,height=0}

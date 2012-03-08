@@ -5,7 +5,7 @@ local wibox        = require( "awful.wibox"       )
 local common       = require( "ultiLayout.common" )
 local titlebar     = require( "widgets.titlebar"  )
 
-module("ultiLayout.stack")
+module("ultiLayout.layouts.stack")
 
 function new(cg) 
    local cg       = cg or nil
