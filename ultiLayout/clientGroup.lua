@@ -265,9 +265,9 @@ function new(parent)
         end
     end
     
-    function data:gen_vertex(vertex_list)
+    function data:gen_edge(edge_list)
         if layout then
-            return layout:gen_vertex(vertex_list)
+            return layout:gen_edge(edge_list)
         else
             print("layout not set")
         end

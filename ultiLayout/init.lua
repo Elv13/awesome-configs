@@ -1,6 +1,6 @@
 require("ultiLayout.object_model")
 require("ultiLayout.clientGroup")
-require("ultiLayout.vertex")
+require("ultiLayout.edge")
 require("ultiLayout.common")
 require("ultiLayout.linear")
 require("ultiLayout.tile")

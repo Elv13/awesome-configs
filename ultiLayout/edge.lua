@@ -10,20 +10,20 @@ local wibox        = require( "awful.wibox"  )
 local util         = require( "awful.util"   )
 local object_model = require( "ultiLayout.object_model" )
 
-module("ultiLayout.vertex")
+module("ultiLayout.edge")
 local auto_display_border = true
 
-local function update_wibox(vertex)
-    if vertex.wibox ~= nil then
-        vertex.wibox.x                                                           = vertex.x
-        vertex.wibox.y                                                           = vertex.y
-        vertex.wibox[vertex.orientation == "vertical" and "width"  or "height" ] = 3
-        vertex.wibox[vertex.orientation == "vertical" and "height" or "width"  ] = vertex.length
+local function update_wibox(edge)
+    if edge.wibox ~= nil then
+        edge.wibox.x                                                           = edge.x
+        edge.wibox.y                                                           = edge.y
+        edge.wibox[edge.orientation == "vertical" and "width"  or "height" ] = 3
+        edge.wibox[edge.orientation == "vertical" and "height" or "width"  ] = edge.length
     end
-    vertex.wibox.visible=true
+    edge.wibox.visible=true
 end
 
-local function create_border(vertex)
+local function create_border(edge)
     local w = wibox({position = "free"})
     w.ontop = true
     w.bg = "#ff0000"
@@ -33,15 +33,15 @@ local function create_border(vertex)
                 if mouse.buttons[1] == false then
                     return false
                 end
-                local x_or_y = vertex.orientation == "horizontal" and "y" or "x"
-                vertex:emit_signal("distance_change::request",mouse[x_or_y] - vertex[x_or_y])
-                update_wibox(vertex)
+                local x_or_y = edge.orientation == "horizontal" and "y" or "x"
+                edge:emit_signal("distance_change::request",mouse[x_or_y] - edge[x_or_y])
+                update_wibox(edge)
                 return true
             end,"fleur")
     end)))
     
     w:add_signal("mouse::enter", function ()
-        capi.root.cursor((vertex.orientation == "vertical") and "sb_h_double_arrow" or "sb_v_double_arrow")
+        capi.root.cursor((edge.orientation == "vertical") and "sb_h_double_arrow" or "sb_v_double_arrow")
         w.bg = "#00ffff"
     end)
 
@@ -49,11 +49,11 @@ local function create_border(vertex)
         capi.root.cursor("left_ptr")
         w.bg = "#ff00ff"
     end)
-    vertex.wibox = w
+    edge.wibox = w
     return w
 end
 
-function create_vertex(args)
+function create_edge(args)
     local data            = {}
     local private_data    = { wibox = args.wibox ,
                               cg1   = args.cg1   ,
@@ -89,4 +89,4 @@ function create_vertex(args)
     end
     return data
 end
-setmetatable(_M, { __call = function(_, ...) return create_vertex(...) end })
+setmetatable(_M, { __call = function(_, ...) return create_edge(...) end })

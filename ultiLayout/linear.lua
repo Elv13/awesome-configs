@@ -2,7 +2,7 @@ local ipairs       = ipairs
 local print        = print
 local table        = table
 local common       = require( "ultiLayout.common" )
-local vertex2      = require( "ultiLayout.vertex" )
+local edge2      = require( "ultiLayout.edge" )
 
 module("ultiLayout.linear")
 
@@ -15,7 +15,7 @@ end
 
 local function new(cg,orientation)
    local data     = { ratio = {} }
-   local vertex   = {}
+   local edge   = {}
    
    local function sum_ratio(only_visible)
         local sumratio = 0
@@ -51,13 +51,13 @@ local function new(cg,orientation)
        end
    end
    
-    function data:gen_vertex(vertex_list)
+    function data:gen_edge(edge_list)
         local prev = nil
         for k,v in ipairs(cg:childs()) do
             if prev  then
-                if not vertex[prev] or not vertex[prev][v] then
-                    local aVertex = vertex2({})
-                    aVertex:add_signal("distance_change::request",function(_v, delta)
+                if not edge[prev] or not edge[prev][v] then
+                    local aEdge = edge2({})
+                    aEdge:add_signal("distance_change::request",function(_v, delta)
                         if _v.cg1.parent == cg and _v.cg2.parent == cg and orientation == _v.orientation then
                             local cg1_ratio_k, cg2_ratio_k = get_cg_idx(_v.cg1),get_cg_idx(_v.cg2)
                             local diff = (sum_ratio()/cg[(orientation == "horizontal") and "height" or "width"])*delta
@@ -66,18 +66,18 @@ local function new(cg,orientation)
                             self:update()
                         end
                     end)
-                    aVertex.cg1     = prev
-                    aVertex.cg2     = v
-                    vertex[prev]    = vertex[prev] or {}
-                    vertex[prev][v] = aVertex
+                    aEdge.cg1     = prev
+                    aEdge.cg2     = v
+                    edge[prev]    = edge[prev] or {}
+                    edge[prev][v] = aEdge
                 end
-                local aVertex = vertex[prev][v]
-                table.insert(vertex_list,vertex[prev][v])
+                local aEdge = edge[prev][v]
+                table.insert(edge_list,edge[prev][v])
             end
-            v:gen_vertex(vertex_list)
+            v:gen_edge(edge_list)
             prev = v
         end
-        return vertex_list
+        return edge_list
     end
    
    function data:update()

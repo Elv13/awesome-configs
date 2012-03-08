@@ -120,7 +120,6 @@ end
 
 function drag_cg_under_cursor(c)
     local cg = clientGroup.get_cg_from_client(c, top_level_cg[tag.selected(capi.mouse.screen)])
-    print(cg)
     drag_cg(cg)
 end
 
@@ -146,12 +145,12 @@ function swap_client_group(cg1,cg2,force)
     end
 end
 
-function match_closest_vertex()
+function match_closest_edge()
     
 end
 
 function resize_closest()
-    local v      = match_closest_vertex()
+    local v      = match_closest_edge()
     local coords = capi.mouse.coords
     local vx1    = v.x1
     local vy1    = v.y1
@@ -201,8 +200,8 @@ local function repaint_border(t)
     if not auto_display_border then return end
     local t = t or tag.selected(capi.mouse.screen)
     if top_level_cg[t] then
-        local vertex = {}
-        top_level_cg[t]:gen_vertex(vertex)
+        local edge = {}
+        top_level_cg[t]:gen_edge(edge)
     end
 end
 
@@ -210,8 +209,8 @@ local function display_border_real(t)
     if not auto_display_border then return end
     local t = t or tag.selected(capi.mouse.screen)
     if top_level_cg[t] then
-        local vertex = {}
-        top_level_cg[t]:gen_vertex(vertex)
+        local edge = {}
+        top_level_cg[t]:gen_edge(edge)
     else
         print("No layout")
     end
@@ -227,17 +226,17 @@ function display_resize_handle(s)
     if not auto_display_border then return end
     local t = t or tag.selected(capi.mouse.screen)
     if top_level_cg[t] then
-        local vertexH = {}
-        local vertexV = {}
-        top_level_cg[t]:gen_vertex(vertex)
-        for k,v in ipairs(vertex) do
+        local edgeH = {}
+        local edgeV = {}
+        top_level_cg[t]:gen_edge(edge)
+        for k,v in ipairs(edge) do
             if v.orientation == "horizontal" then
-                table.insert(vertexH,v)
+                table.insert(edgeH,v)
             else
-                table.insert(vertexV,v)
+                table.insert(edgeV,v)
             end
         end
-        --for k,v in ipairs(vertexV) do
+        --for k,v in ipairs(edgeV) do
             
         --end
     end

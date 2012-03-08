@@ -13,8 +13,8 @@ function new(cg,c)
         c:geometry({x = cg.x, y = cg.y, width = cg.width, height = cg.height})
     end
 
-    function data:gen_vertex(vertex_list)
-        return vertex_list
+    function data:gen_edge(edge_list)
+        return edge_list
     end
 
     function data:show_splitters(show,horizontal,vertical) end

@@ -30,11 +30,11 @@ function new(cg)
        end
    end
    
-    function data:gen_vertex(vertex_list)
+    function data:gen_edge(edge_list)
         if activeCg then
-            activeCg:gen_vertex(vertex_list)
+            activeCg:gen_edge(edge_list)
         end
-        return vertex_list
+        return edge_list
     end
    
     function data:show_splitters(show,horizontal,vertical) end
