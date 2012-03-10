@@ -24,6 +24,7 @@ local layouts             = {} -- tag -> layout name -> top level CG
 local cur_layout_name     = {} -- tag -> name
 local top_level_cg        = {} -- tag -> cg
 local layout_list         = {} -- string -> layout func
+local wibox_to_cg         = {}
 local vertices            = {}
 local active_splitters    = {}
 local auto_display_border = true
@@ -54,11 +55,17 @@ end
 --     end
 -- end
 
-local function abstract_drag(cg,on_drag_f,on_drop_f,on_click_f)
+function register_wibox(w, cg, on_drop_f)
+    if not w then return end
+    wibox_to_cg[w] = {cg=cg,on_drop_f=on_drop_f}
+end
+
+local function abstract_drag(cg,on_drag_f,on_drop_f,on_click_f,args)
     local cur = capi.mouse.coords()
+    local args = args
     local moved = false
     capi.mousegrabber.run(function(mouse)
-        if mouse.buttons[1] == false then
+        if mouse.buttons[args.button or 1] == false then
             if not moved and type(on_click_f) == "function" then
                 on_click_f()
             end
@@ -80,14 +87,15 @@ local function abstract_drag(cg,on_drag_f,on_drop_f,on_click_f)
     end,"fleur")
 end
 
-function drag_cg(cg,on_click_f)
+function drag_cg(cg,on_click_f,args)
+    local args = args or {}
     if cg.floating == true then
         abstract_drag(cg,function(mouse,cur)
             cg.x = cg.x + (mouse.x-cur.x)
             cg.y = cg.y + (mouse.y-cur.y)
         end,nil,on_click_f)
     else
-        local aWb = thumbnail(cg)
+        local aWb = args.wibox or thumbnail(cg)
         
         abstract_drag(cg,function(mouse,cur)
             aWb.visible = true
@@ -103,8 +111,10 @@ function drag_cg(cg,on_click_f)
                 if possibilities ~= nil then
                     swap_client_group(cg,possibilities[1])
                 end
+            elseif type(obj) == "wibox" and wibox_to_cg[obj] ~= nil and type(wibox_to_cg[obj].on_drop_f) == "function" then
+                wibox_to_cg[obj].on_drop_f(cg)
             end
-        end, on_click_f)
+        end, on_click_f,args)
     end
 end
 

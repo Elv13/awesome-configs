@@ -1,10 +1,11 @@
-local setmetatable = setmetatable
-local widgets      = require( "widgets"    )
-local awful        = require( "awful"      )
-local beautiful    = require( 'beautiful'  )
-local config       = require( "config"     )
-local utils        = require( "utils"      )
-local customMenu   = require( "customMenu" )
+local setmetatable  = setmetatable
+local widgets       = require( "widgets"    )
+local awful         = require( "awful"      )
+local beautiful     = require( 'beautiful'  )
+local config        = require( "config"     )
+local utils         = require( "utils"      )
+local customMenu    = require( "customMenu" )
+local ulti_titlebar = require( "ultiLayout.widgets.titlebar" )
 
 local capi = { image      = image      ,
                widget     = widget     ,
@@ -14,7 +15,7 @@ local capi = { image      = image      ,
 
 module("titlebar.default")
 
-widgets.titlebar.add_signal("create",function(widgets,titlebar)
+ulti_titlebar.add_signal("create",function(widgets,titlebar)
     local numberStyle    = "<span size='large' bgcolor='".. beautiful.fg_normal .."'color='".. beautiful.bg_normal .."'><tt><b>"
     local numberStyleEnd = "</b></tt></span>"--"</b></tt></span> "
     local menuTb         = capi.widget({type="textbox"})

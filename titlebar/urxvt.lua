@@ -6,6 +6,7 @@ local config       = require( "config"              )
 local utils        = require( "utils"               )
 local customMenu   = require( "customMenu"          )
 local tablist_old  = require( "widgets.tablist_old" )
+local ulti_titlebar = require( "ultiLayout.widgets.titlebar" )
 
 local capi = { image      = image      ,
                widget     = widget     ,

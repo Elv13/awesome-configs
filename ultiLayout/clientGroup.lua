@@ -259,6 +259,9 @@ function new(parent)
         if new_parent ~= parent then
             local old_parent = parent
             parent = new_parent
+            if old_parent ~= nil then
+                old_parent:emit_signal("detached",data)
+            end
         end
         if emit_swapped == true then
             data:emit_signal("cg::swapped",other_cg,old_parent)
