@@ -9,17 +9,33 @@ local capi = { mouse        =      mouse  ,
                widget       =      widget }
 local ipairs       = ipairs
 local pairs        = pairs
+local print        = print
 local setmetatable = setmetatable
 local table        = table
-local common       = require( "awful.widget.common" )
-local beautiful    = require( "beautiful"           )
-local wibox        = require( "awful.wibox"         )
-local util         = require( "awful.util"          )
-local layout       = require( "awful.widget.layout" )
-local awButtons    = require( "awful.button"        )
-local ultilayoutC  = require( "ultiLayout.common"   )
+local common       = require( "awful.widget.common"     )
+local beautiful    = require( "beautiful"               )
+local wibox        = require( "awful.wibox"             )
+local util         = require( "awful.util"              )
+local layout       = require( "awful.widget.layout"     )
+local awButtons    = require( "awful.button"            )
+local ultilayoutC  = require( "ultiLayout.common"       )
+local object_model = require( "ultiLayout.object_model" )
 
 module("ultiLayout.widgets.tablist")
+
+local function create_tab(no_focus)
+    local tab = {}
+    local private_data = {clientgroup = new_cg, selected = no_focus or true}
+    local get_map, set_map = {},{}
+    object_model(tab,get_map,set_map,private_data,{
+        autogen_getmap  = true,
+        autogen_signals = true,
+        force_private   = {
+            clientgroup = true,
+            selected    = true}
+    })
+    return tab
+end
 
 local function gen_style(fg,bg)
     return "<span color='"..util.color_strip_alpha(beautiful[fg]).."'>",beautiful[bg]
@@ -55,20 +71,14 @@ local function create_dnd_widget(title)
     return wb
 end
 
-local function tasklist_update(tabs, w, buttons, label, data, widgets, tab)
-  common.list_update(w, buttons, label, data, widgets, tabs)
-end
-
 --- Create a new tasklist widget.
 -- @param label Label function to use.
 -- @param buttons A table with buttons binding to set.
 function new(label, buttons,cg)
-    local tabs = {}
-    local w = {}
+    local tabs,w,private_data = {},{},{focus = false}
+    
     local data = setmetatable({}, { __mode = 'k' })
-    local label2 = label or function (tab) 
-                                        return widget_tasklist_label_common(tab,w)
-                                      end
+    local label2 = label or function(tab) return widget_tasklist_label_common(tab,w) end
     local widgets = { }
     widgets.imagebox = { }
     widgets.textbox  = { margin    = { left  = 2,
@@ -79,55 +89,52 @@ function new(label, buttons,cg)
     
     w.widgets_real = {layout = layout.horizontal.flex}
     
-    local u = function () tasklist_update(tabs, w.widgets_real, buttons2, label2, data, widgets) end
-    
     local buttons2 = buttons or util.table.join(
-                    awButtons({ }, 1, function (tab)
-                                        cg:set_active(tab.clientgroup)
-                                        ultilayoutC.drag_cg(cg)
-                                      end),
-                    awButtons({ }, 2, function (tab)
-                                          local wb = create_dnd_widget(cg.title or  "N/A2")
-                                          ultilayoutC.drag_cg(tab.clientgroup,nil,{wibox = wb, button = 2})
-                                      end)
-                    )
-    cg:add_signal("active::changed",u)
+        awButtons({ }, 1, function (tab)
+            cg:set_active(tab.clientgroup)
+            ultilayoutC.drag_cg(cg)
+        end),
+        awButtons({ }, 2, function (tab)
+            local wb = create_dnd_widget(cg.title or  "N/A2")
+            ultilayoutC.drag_cg(tab.clientgroup,nil,{wibox = wb, button = 2})
+        end)
+    )
     
-    function w:add_tab_cg(new_cg, no_focus)
-      if not new_cg then return end
-      local aTab = {clientgroup = new_cg, selected = no_focus or true}
-      table.insert(tabs, aTab)
-      tasklist_update(tabs, w.widgets_real, buttons2, label2, data, widgets)
-      return aTab
+    local function tasklist_update()
+        common.list_update(w.widgets_real, buttons2, label2, data, widgets, tabs)
+    end
+    
+    object_model(w,{},{},private_data,{
+        autogen_getmap  = true,
+        autogen_signals = true,
+        force_private   = {focus=true}
+    })
+    
+    w:add_signal("focus::changed",function() fsdfsdfs() end)
+    cg:add_signal("active::changed",tasklist_update)
+    
+    function w:add_tab(new_cg, no_focus)
+        if not new_cg then return end
+        local aTab = create_tab(no_focus)
+        aTab:add_signal( "selected::changed"    ,tasklist_update)
+        aTab:add_signal( "clientgroup::changed" ,tasklist_update)
+        aTab.clientgroup = new_cg
+        table.insert(tabs, aTab)
+        tasklist_update()
+        return aTab
     end
     
     function w:remove_tab(tab)
         for k,v in pairs(tabs) do
             if v == tab then
                 tabs[k] = nil
-                tasklist_update(tabs, w.widgets_real, buttons2, label2, data, widgets)
+                tasklist_update()
                 return
             end
         end
     end
     
-    function w:focus2()
-      w.focus = true
-      tasklist_update(tabs, w.widgets_real, buttons2, label2, data, widgets)
-    end
-    
-    function w:unfocus2()
-      w.focus = false
-      tasklist_update(tabs, w.widgets_real, buttons2, label2, data, widgets)
-    end
-    
-    function w:update()
-      tasklist_update(tabs, w.widgets_real, buttons2, label2, data, widgets)
-    end
     u()
     return w
 end
-
 setmetatable(_M, { __call = function(_, ...) return new(...) end })
-
--- vim: filetype=lua:expandtab:shiftwidth=4:tabstop=8:softtabstop=4:encoding=utf-8:textwidth=80

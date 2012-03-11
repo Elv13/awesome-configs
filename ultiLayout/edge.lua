@@ -15,11 +15,8 @@ local function create_edge(args)
     local get_map = {
         x           = function () return private_data.cg2.x                                                                       end,
         y           = function () return private_data.cg2.y                                                                       end,
-        cg1         = function () return private_data.cg1                                                                         end,
-        cg2         = function () return private_data.cg2                                                                         end,
         orientation = function () return (private_data.cg1.x == private_data.cg2.x) and "horizontal" or "vertical"                end,
         length      = function () return (data.orientation == "horizontal") and private_data.cg1.width or private_data.cg1.height end,
-        wibox       = function () return private_data.wibox                                                                       end,
     }
     
     local set_map = {
@@ -32,10 +29,10 @@ local function create_edge(args)
                 end,
     }
     for k,v in pairs({"x","y","length","orientation"}) do
-        set_map[v] = warn_invalid
+        set_map[v] = false
     end
     
-    object_model(data,get_map,set_map,private_data)
+    object_model(data,get_map,set_map,private_data,{autogen_getmap = true,autogen_signals = true})
     
     if private_data.wibox == nil and auto_display_border == true then
         border.create(data)

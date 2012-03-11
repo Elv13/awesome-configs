@@ -323,11 +323,8 @@ function new(parent)
         parent = function() return parent end,
         title  = function() return get_title() end,
     }
-    for k,v in pairs(private_data) do
-        get_map[k] = function() return private_data[k] end
-    end
     
-    object_model(data,get_map,set_map,private_data,{visible = true})
+    object_model(data,get_map,set_map,private_data,{always_handle = {visible = true},autogen_getmap = true})
     return data
 end
 

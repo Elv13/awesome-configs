@@ -1,9 +1,9 @@
 ---------------------------------------------------------------------------
--- @author Emmanuel Lepage Vallee &lt;elv1313@gmail.com&gt;
--- @author Julien Danjou &lt;julien@danjou.info&gt;
--- @copyright 2008 Julien Danjou
--- @copyright 2011-2012 Emmanuel Lepage Vallee
--- @release v4.0
+-- @author Emmanuel Lepage Vallee &lt;elv1313@gmail.com&gt;                
+-- @author Julien Danjou &lt;julien@danjou.info&gt;                        
+-- @copyright 2008 Julien Danjou                                           
+-- @copyright 2011-2012 Emmanuel Lepage Vallee                             
+-- @release v4.0                                                           
 ---------------------------------------------------------------------------
 
 local capi  = {
@@ -25,6 +25,7 @@ local layout       = require( "awful.widget.layout"        )
 local wibox        = require( "awful.wibox"                )
 local tabList      = require( "ultiLayout.widgets.tablist" )
 local config       = require( "config"                     )
+local object_model = require( "ultiLayout.object_model"    )
 
 module("ultiLayout.widgets.titlebar")
 

@@ -55,8 +55,6 @@ function new(cg)
         end
         activeCg = sub_cg
         tabs[activeCg].selected = true
-        tb.tablist:update()
-        --cg:emit_signal("active::changed")
     end
 
     function data:add_child(child_cg)
@@ -68,7 +66,7 @@ function new(cg)
             tb.wibox.bg    = "#ff0000"
             titlebars[tb] = cg
         end
-        tabs[child_cg] = tb.tablist:add_tab_cg(child_cg)
+        tabs[child_cg] = tb.tablist:add_tab(child_cg)
         
         local function swap(_cg,other_cg,old_parent)
             if _cg.parent ~= cg then
@@ -77,7 +75,6 @@ function new(cg)
                 other_cg:add_signal("cg::swapped",swap)
                 tabs[other_cg] = tabs[_cg]
                 tabs[_cg] = nil
-                tabs[other_cg]:update()
             end
         end
         child_cg:add_signal("cg::swapped",swap)
