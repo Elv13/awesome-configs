@@ -15,7 +15,7 @@ local capi = { image      = image      ,
 
 module("titlebar.default")
 
-ulti_titlebar.add_signal("create",function(widgets,titlebar)
+ulti_titlebar.add_signal("create",function(_tb,widgets,titlebar)
     local numberStyle    = "<span size='large' bgcolor='".. beautiful.fg_normal .."'color='".. beautiful.bg_normal .."'><tt><b>"
     local numberStyleEnd = "</b></tt></span>"--"</b></tt></span> "
     local menuTb         = capi.widget({type="textbox"})
@@ -39,7 +39,7 @@ ulti_titlebar.add_signal("create",function(widgets,titlebar)
     }
           
     local client = nil
-    titlebar:add_signal('client_changed', function (c)
+    titlebar:add_signal('client_changed', function (_tb,c)
         client      = c
         menuTb.text = numberStyle.. (config.data().listPrefix[utils.clientSwitcher.getIndex(c)] or config.data().listPrefix[1] or 0) .. numberStyleEnd .."<span color=\"".. beautiful.bg_normal .."\">[MENU]</span>"
     end)

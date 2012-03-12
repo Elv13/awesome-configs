@@ -14,11 +14,10 @@ local function warn_invalid()
 end
 
 local function setup_object(data, get_map, set_map, private_data,args)
-    local data,args = data or {},args or {}
+    local data,args,private_data = data or {},args or {},private_data or {}
     local signals = {}
     
     function data:add_signal(name,func)
-        print("ADDING",name,func)
         signals[name] = signals[name] or {}
         table.insert(signals[name],func)
     end
@@ -53,7 +52,6 @@ local function setup_object(data, get_map, set_map, private_data,args)
     
     local function auto_signal(key)
         if args.autogen_signals == true then
-            print("emit",key)
             data:emit_signal(key.."::changed")
         end
     end

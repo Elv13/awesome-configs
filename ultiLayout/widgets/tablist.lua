@@ -134,7 +134,7 @@ function new(label, buttons,cg)
         end
     end
     
-    u()
+    tasklist_update()
     return w
 end
 setmetatable(_M, { __call = function(_, ...) return new(...) end })
