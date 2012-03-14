@@ -83,7 +83,7 @@ function new(parent)
     function data:geometry(new,relative)
         if new ~= nil then
             for k,v in ipairs({"x","y","width","height"}) do
-                private_data[v] = new[v] or 0
+                data[v] = new[v] or 0
             end
         end
         return {width = private_data.width or 0, height = private_data.height or 0, x = private_data.x or 0, y = private_data.y or 0}
@@ -224,7 +224,7 @@ function new(parent)
         end
         cg:set_parent(data)
         --self:add_signal("geometry::changed",function() print("test",debug.traceback());cg:repaint() end)
-        if cg ~= self then
+        if cg ~= self then --TODO dead code?
             cg:add_signal("geometry::changed",function() data:emit_signal("geometry::changed") end)
         end
         
@@ -314,11 +314,13 @@ function new(parent)
     end
     
     local function change_geo(var,new_value)
+        if new_value < 0 then return end --It can be normal, but avoid it anyway
         local prev = private_data[var]
         private_data[var] = new_value
         data:emit_signal(var.."::changed",new_value-prev)
         data:emit_signal("geometry::changed")
     end
+    
     
     local set_map = {
         floating = function(value) private_data.floating = value end,

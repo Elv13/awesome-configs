@@ -22,9 +22,9 @@ local function create_edge(args)
     local set_map = {
         wibox = function (value) private_data.wibox = value end,
         cg1   = function (value) private_data.cg1 = value end,
-        cg2   = function (value) 
+        cg2   = function (value)
                     private_data.cg2 = value
-                    private_data.cg2:add_signal("geometry::changed", dsfsdfdsfds)
+                    value:add_signal("geometry::changed", function() border.update_wibox(data) end)
                     border.update_wibox(data)
                 end,
     }

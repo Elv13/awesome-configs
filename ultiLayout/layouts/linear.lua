@@ -3,6 +3,7 @@ local print        = print
 local table        = table
 local common       = require( "ultiLayout.common" )
 local edge         = require( "ultiLayout.edge" )
+local beautiful    = require( "beautiful" )
 
 module("ultiLayout.layouts.linear")
 
@@ -79,17 +80,22 @@ local function new(cg,orientation)
         end
         return edge_list
     end
+    
+    local function gen_margin(lenght,count)
+        return (lenght/count) - (lenght-(beautiful.border_width2*(count-1)))/count
+    end
    
    function data:update()
-       local relX,relY   = cg.x,cg.y
+       local relX,relY,margin = cg.x,cg.y,gen_margin(cg[orientation == "horizontal" and "width" or "height"],#cg:childs())
        for k,v in ipairs(cg:childs()) do
            if v.visible ~= false and (#v:childs() > 0 or v:has_client() == true) then --TODO visible childs
-                local w_mul = ( orientation == "horizontal" ) and 1 or ratio_to_percent(data.ratio[k])
-                local h_mul = ( orientation == "vertical"   ) and 1 or ratio_to_percent(data.ratio[k])
-                v:geometry({width = cg.width*w_mul, height = cg.height*h_mul, x = relX, y = relY })
+                local width  = ( orientation == "horizontal" ) and cg.width or ratio_to_percent(data.ratio[k])*cg.width
+                local height = ( orientation == "vertical"   ) and cg.height or ratio_to_percent(data.ratio[k])*cg.height
+                local pad_h,pad_v = ( orientation == "vertical"   ) and 0 or margin,( orientation == "vertical"   ) and margin or 0
+                v:geometry({width = width-pad_v, height = height-pad_h, x = relX, y = relY })
                 v:repaint()
-                relY     = relY + (( orientation == "horizontal" ) and (cg.height*ratio_to_percent(data.ratio[k])) or 0)
-                relX     = relX + (( orientation == "vertical"   ) and (cg.width*ratio_to_percent(data.ratio[k]))  or 0)
+                relY     = relY + (( orientation == "horizontal" ) and v.height+beautiful.border_width2 or 0)
+                relX     = relX + (( orientation == "vertical"   ) and v.width+beautiful.border_width2  or 0)
            end
        end
    end
