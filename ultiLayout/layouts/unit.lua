@@ -1,5 +1,6 @@
 --This is the smallest component of a layout. It handle titlebars and (optionally) some other goodies
 local print        = print
+local client       = client
 local common       = require( "ultiLayout.common" )
 
 module("ultiLayout.layouts.unit")
@@ -33,6 +34,18 @@ function new(cg,c)
    
     c:add_signal("property::name",function()
         cg.title = c.name
+    end)
+    
+    client.add_signal("focus",function(c2) --TODO 4.0, emit this from the client object too
+        if c == c2 then
+            cg.focus = true
+        end
+    end)
+    
+    client.add_signal("unfocus",function(c2) --TODO 4.0, emit this from the client object too
+        if c == c2 then
+            cg.focus = false
+        end
     end)
    return data
 end

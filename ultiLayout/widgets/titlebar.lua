@@ -15,6 +15,7 @@ local pairs        = pairs
 local type         = type
 local unpack       = unpack
 local setmetatable = setmetatable
+local print        = print
 local table        = table
 local beautiful    = require( "beautiful"                  )
 local button       = require( "awful.button"               )
@@ -38,14 +39,17 @@ function registerCustomClass(className, func)
 end
 
 function create_from_cg(cg, args)
-    --if not c or (c.type ~= "normal" and c.type ~= "dialog") then return end
+    if not cg then return end
     local theme        = beautiful.get()
     local buttons      = {}
+    local focus        = false
     args               = args or {}
     args.height        = args.height or capi.awesome.font_height * 1.5
     
     -- Store colors
     local titlebar     = {}
+    local tb = wibox(args)
+    local tl = tabList.new(nil,nil,cg)
     titlebar.client    = cg
     titlebar.fg        = args.fg       or theme.titlebar_fg_normal or theme.fg_normal
     titlebar.bg        = args.bg       or theme.titlebar_bg_normal or theme.bg_normal
@@ -55,7 +59,14 @@ function create_from_cg(cg, args)
     titlebar.width     = args.width    --
     data[cg]           = titlebar
     
-    object_model(titlebar,{},{},private_data,{autogen_getmap = true,autogen_signals = true})
+    local function set_focus(value)
+        focus = value
+        tl.focus = value
+        tb.bg = (value == true) and titlebar.bg_focus or titlebar.bg
+        tb.fg = (value == true) and titlebar.fg_focus or titlebar.fg
+    end
+    
+    object_model(titlebar,{focus = function() return focus end},{focus = set_focus},{},{autogen_getmap = true,autogen_signals = true})
     
     --Buttons creation
     function titlebar:button_group(args)
@@ -77,7 +88,7 @@ function create_from_cg(cg, args)
         end
         
         function data:setImage(hover)
-            local curfocus    = (((type(data.focus) == "function") and data.focus() or data.focus) == true) and "focus" or "normal"
+            local curfocus    = (focus == true) and "focus" or "normal"
             local curactive   = ((((type(data.checked) == "function") and data.checked() or data.checked) == true) and "active" or "inactive")
             data.widget.image = capi.image((beautiful["titlebar_"..data.field .."_button_"..curfocus .."_"..curactive.. ((hover == true) and "_hover" or "")]) 
                 or  (beautiful["titlebar_"..data.field .."_button_"..curfocus .. ((hover == true) and "_hover" or "")])
@@ -116,8 +127,6 @@ function create_from_cg(cg, args)
       args.height = 16
     end
     
-    local tb = wibox(args)
-    local tl = tabList.new(nil,nil,cg)
     tl:add_signal("button1::clicked",function(_tl,tab)
         cg:set_active(tab.clientgroup)
         ultilayoutC.drag_cg(cg)
@@ -164,11 +173,11 @@ function create_from_cg(cg, args)
     
     function titlebar:update(cg,event)
         if cg.titlebar and titlebar then
-            if event     == 'focus'   then
-                tl.focus = true
-            elseif event == 'unfocus' then
-                tl.focus = false
-            end
+--             if event     == 'focus'   then
+--                 tl.focus = true
+--             elseif event == 'unfocus' then
+--                 tl.focus = false
+--             end
             
             local widgets = cg.titlebar.widgets
             appicon.image = cg.icon
@@ -185,5 +194,5 @@ function create_from_cg(cg, args)
         cg:add_signal("property::"..v, function(cg) titlebar:update(cg) end)
     end
     titlebar:update(cg)
-    return {wibox = tb, tablist = tl}
+    return {wibox = tb, tablist = tl, titlebar = titlebar}
 end

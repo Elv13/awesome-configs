@@ -73,6 +73,9 @@ function new(cg)
         child_cg:add_signal("title::changed",function(_cg,title)
             tab.title = title
         end)
+        child_cg:add_signal("focus:changed",function(_cg,value)
+            tab.selected = value
+        end)
         tabs[child_cg] = tab
         
         
@@ -115,6 +118,12 @@ function new(cg)
             end
         else
             print("Error stack")
+        end
+    end)
+    
+    cg:add_signal("focus::changed",function(_cg,value)
+        if tb then
+            tb.titlebar.focus = value
         end
     end)
    

@@ -12,6 +12,7 @@ local client_to_cg          = {}
 function new(parent)
     local data              = { swapable = false }
     local layout            = nil
+    local focus             = false
     local client            = nil
     local parent            = parent or nil
     local childs_cg         = {}
@@ -249,6 +250,7 @@ function new(parent)
         for k,v in pairs(childs_cg) do
             if v == sub_cg and  layout and layout.set_active then
                 layout:set_active(sub_cg)
+                sub_cg.focus = true
                 return
             end
         end
@@ -302,6 +304,15 @@ function new(parent)
         end
     end
     
+    local function set_focus(value)
+        if value == focus then return end
+        focus = value
+        if parent ~= nil then
+            parent.focus = value
+        end
+        data:emit_signal("focus::changed",value)
+    end
+    
     local function change_geo(var,new_value)
         local prev = private_data[var]
         private_data[var] = new_value
@@ -314,6 +325,7 @@ function new(parent)
         parent   = function(value) data:set_parent(value) end,
         visible  = function(value) change_visibility(value); data:emit_signal("visibility::changed",value) end,
         title    = function(value) title = value; data:emit_signal("title::changed",value) end,
+        focus    = set_focus,
     }
     for k,v in pairs({"height", "width","y","x"}) do
         set_map[v] =  function (value) change_geo(v,value) end
@@ -322,6 +334,7 @@ function new(parent)
     local get_map = {
         parent = function() return parent end,
         title  = function() return get_title() end,
+        focus  = function() return focus end,
     }
     
     object_model(data,get_map,set_map,private_data,{always_handle = {visible = true},autogen_getmap = true})

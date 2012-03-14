@@ -6,7 +6,7 @@ module("ultiLayout.widgets.thumbnail")
 
 local function create_thumb(cg,args)
     local args = args or {}
-    local aWb = wibox({position="free"})
+    local aWb = wibox({position="free",visible=false})
     aWb.width  = 200
     aWb.height = 200
     aWb.x = args.x or (capi.mouse.coords().x+10)

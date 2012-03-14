@@ -38,26 +38,9 @@ local function create_tab(no_focus)
     return tab
 end
 
-local function gen_style(fg,bg)
-    return "<span color='"..util.color_strip_alpha(beautiful[fg]).."'>",beautiful[bg]
-end
-
 function widget_tasklist_label_common(tab,w)
-    local suffix, prefix = "</span>",""
-    if w.focus == true then
-      if tab.selected == false then
-          prefix,bg = gen_style("fg_normal","bg_highlight")
-      else
-          prefix,bg = gen_style("fg_focus","bg_focus")
-      end
-    else
-      if tab.selected == false then
-          prefix,bg = gen_style("fg_focus","bg_focus")
-      else
-          prefix,bg = gen_style("fg_normal","bg_normal")
-      end
-    end
-    
+    local color = ((tab.selected == true) and "_active" or "_innactive") .. ((w.focus == true) and "_focus" or "_normal")
+    local suffix,prefix,bg = "</span>",(w.count >1) and "<span color='"..w["fg"..color].."'>" or nil, (w.count >1) and w["bg"..color] or nil
     return (prefix or "<span>")..tab.title..suffix, bg, nil, nil, bg
 end
 
@@ -74,7 +57,17 @@ end
 -- @param label Label function to use.
 -- @param buttons A table with buttons binding to set.
 function new(label, buttons)
-    local tabs,w,private_data = {},{},{focus = false}
+    local tabs,w,private_data = {},{},{
+        focus                      = false,
+        bg_active_focus            = beautiful.bg_focus,
+        fg_active_focus            = beautiful.fg_focus,
+        bg_active_normal           = beautiful.bg_highlight or beautiful.bg_normal,
+        fg_active_normal           = beautiful.fg_normal,
+        bg_innactive_normal        = beautiful.bg_normal,
+        fg_innactive_normal        = beautiful.fg_normal,
+        bg_innactive_focus         = beautiful.bg_highlight or beautiful.bg_normal,
+        fg_innactive_focus         = beautiful.fg_normal,
+    }
     
     local data = setmetatable({}, { __mode = 'k' })
     local label2 = label or function(tab) return widget_tasklist_label_common(tab,w) end
@@ -88,9 +81,13 @@ function new(label, buttons)
     
     w.widgets_real = {layout = layout.horizontal.flex}
     
-    object_model(w,{},{},private_data,{
-        autogen_getmap  = true,
-        autogen_signals = true,
+    object_model(w,{count=function() return #tabs end},{},private_data,{
+        autogen_getmap      = true,
+        autogen_signals     = true,
+        auto_signal_changed = true,
+        force_private       = {
+            focus = true
+        }
     })
     
     local buttons_t = {}
@@ -120,6 +117,8 @@ function new(label, buttons)
             end
         end
     end
+    
+    w:add_signal("changed",tasklist_update)
     
     tasklist_update()
     return w
