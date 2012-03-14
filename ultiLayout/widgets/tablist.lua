@@ -11,6 +11,7 @@ local ipairs       = ipairs
 local pairs        = pairs
 local print        = print
 local setmetatable = setmetatable
+local unpack       = unpack
 local table        = table
 local common       = require( "awful.widget.common"     )
 local beautiful    = require( "beautiful"               )
@@ -18,21 +19,21 @@ local wibox        = require( "awful.wibox"             )
 local util         = require( "awful.util"              )
 local layout       = require( "awful.widget.layout"     )
 local awButtons    = require( "awful.button"            )
-local ultilayoutC  = require( "ultiLayout.common"       )
 local object_model = require( "ultiLayout.object_model" )
 
 module("ultiLayout.widgets.tablist")
 
 local function create_tab(no_focus)
     local tab = {}
-    local private_data = {clientgroup = new_cg, selected = no_focus or true}
+    local private_data = {selected = no_focus or true,title="N/A"}
     local get_map, set_map = {},{}
     object_model(tab,get_map,set_map,private_data,{
-        autogen_getmap  = true,
-        autogen_signals = true,
-        force_private   = {
-            clientgroup = true,
-            selected    = true}
+        autogen_getmap      = true ,
+        autogen_signals     = true ,
+        auto_signal_changed = true ,
+        force_private       = {
+            selected        = true ,
+            title           = true }
     })
     return tab
 end
@@ -57,13 +58,11 @@ function widget_tasklist_label_common(tab,w)
       end
     end
     
-    return prefix..((tab.clientgroup and tab.clientgroup.title) or (tab.client and tab.client.name) or "N/A3")..suffix, bg, nil, nil, bg
+    return (prefix or "<span>")..tab.title..suffix, bg, nil, nil, bg
 end
 
-local function create_dnd_widget(title)
-    local xpos  = capi.mouse.coords().x
-    local ypos  = capi.mouse.coords().y
-    local wb    = wibox({position="free",width=200,height=18,x=xpos-100,y=ypos-9,ontop=true})
+function create_dnd_widget(title)
+    local wb    = wibox({position="free",width=200,height=18,x=capi.mouse.coords().x-100,y=capi.mouse.coords().y-9,ontop=true})
     local textb = capi.widget({type="textbox"})
     textb.text  = title
     wb.widgets  = {textb, layout = layout.horizontal.leftright}
@@ -74,7 +73,7 @@ end
 --- Create a new tasklist widget.
 -- @param label Label function to use.
 -- @param buttons A table with buttons binding to set.
-function new(label, buttons,cg)
+function new(label, buttons)
     local tabs,w,private_data = {},{},{focus = false}
     
     local data = setmetatable({}, { __mode = 'k' })
@@ -89,36 +88,24 @@ function new(label, buttons,cg)
     
     w.widgets_real = {layout = layout.horizontal.flex}
     
-    local buttons2 = buttons or util.table.join(
-        awButtons({ }, 1, function (tab)
-            cg:set_active(tab.clientgroup)
-            ultilayoutC.drag_cg(cg)
-        end),
-        awButtons({ }, 2, function (tab)
-            local wb = create_dnd_widget(cg.title or  "N/A2")
-            ultilayoutC.drag_cg(tab.clientgroup,nil,{wibox = wb, button = 2})
-        end)
-    )
+    object_model(w,{},{},private_data,{
+        autogen_getmap  = true,
+        autogen_signals = true,
+    })
+    
+    local buttons_t = {}
+    for i=1,10 do
+        table.insert(buttons_t,awButtons({ }, i , function(tab) w:emit_signal("button".. i .."::clicked",tab) end))
+    end
+    local buttons2 = buttons or util.table.join(unpack(buttons_t))
     
     local function tasklist_update()
         common.list_update(w.widgets_real, buttons2, label2, data, widgets, tabs)
     end
     
-    object_model(w,{},{},private_data,{
-        autogen_getmap  = true,
-        autogen_signals = true,
-        force_private   = {focus=true}
-    })
-    
-    w:add_signal("focus::changed",function() fsdfsdfs() end)
-    cg:add_signal("active::changed",tasklist_update)
-    
-    function w:add_tab(new_cg, no_focus)
-        if not new_cg then return end
+    function w:add_tab(no_focus)
         local aTab = create_tab(no_focus)
-        aTab:add_signal( "selected::changed"    ,tasklist_update)
-        aTab:add_signal( "clientgroup::changed" ,tasklist_update)
-        aTab.clientgroup = new_cg
+        aTab:add_signal( "changed"    ,tasklist_update)
         table.insert(tabs, aTab)
         tasklist_update()
         return aTab

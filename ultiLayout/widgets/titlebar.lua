@@ -23,6 +23,7 @@ local layout       = require( "awful.widget.layout"        )
 local wibox        = require( "awful.wibox"                )
 local tabList      = require( "ultiLayout.widgets.tablist" )
 local object_model = require( "ultiLayout.object_model"    )
+local ultilayoutC  = require( "ultiLayout.common"          )
 
 module("ultiLayout.widgets.titlebar")
 
@@ -117,6 +118,15 @@ function create_from_cg(cg, args)
     
     local tb = wibox(args)
     local tl = tabList.new(nil,nil,cg)
+    tl:add_signal("button1::clicked",function(_tl,tab)
+        cg:set_active(tab.clientgroup)
+        ultilayoutC.drag_cg(cg)
+    end)
+    tl:add_signal("button2::clicked",function(_tl,tab)
+        local wb = tabList.create_dnd_widget(cg.title or  "N/A")
+        ultilayoutC.drag_cg(tab.clientgroup,nil,{wibox = wb, button = 2})
+    end)
+    
     
     local bts = util.table.join(
         button({             }, 1, function() 

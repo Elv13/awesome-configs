@@ -47,7 +47,7 @@ function new(cg)
     function data:show_splitters(show,horizontal,vertical) end
     
     function data:set_active(sub_cg)
-        if activeCg ~= nil then
+        if activeCg ~= nil and tabs[activeCg] ~= nil then
             tabs[activeCg].selected = false
         end
         for k,v in pairs(cg:childs()) do
@@ -66,7 +66,15 @@ function new(cg)
             tb.wibox.bg    = "#ff0000"
             titlebars[tb] = cg
         end
-        tabs[child_cg] = tb.tablist:add_tab(child_cg)
+        local tab = tb.tablist:add_tab()
+        tab:add_autosignal_field("clientgroup")
+        tab.clientgroup = child_cg
+        tab.title = child_cg.title
+        child_cg:add_signal("title::changed",function(_cg,title)
+            tab.title = title
+        end)
+        tabs[child_cg] = tab
+        
         
         local function swap(_cg,other_cg,old_parent)
             if _cg.parent ~= cg then

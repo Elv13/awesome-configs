@@ -30,6 +30,10 @@ function new(cg,c)
    cg:add_signal("visibility::changed",function(_cg,value)
        c.hidden = not value
    end)
+   
+    c:add_signal("property::name",function()
+        cg.title = c.name
+    end)
    return data
 end
 

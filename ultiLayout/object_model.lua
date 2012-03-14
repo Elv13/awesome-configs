@@ -38,6 +38,11 @@ local function setup_object(data, get_map, set_map, private_data,args)
         end
     end
     
+    function data:add_autosignal_field(name)
+        args.force_private = args.force_private or {}
+        table.insert(args.force_private,name)
+    end
+    
     data.warn_invalid = warn_invalid
     
     local function return_data(table, key)
@@ -67,6 +72,9 @@ local function setup_object(data, get_map, set_map, private_data,args)
             auto_signal(key)
         elseif set_map[key] == nil then
             rawset(data,key,value)
+        end
+        if args.auto_signal_changed == true then
+            data:emit_signal("changed")
         end
     end
     

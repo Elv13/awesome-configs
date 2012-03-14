@@ -312,8 +312,8 @@ function new(parent)
     local set_map = {
         floating = function(value) private_data.floating = value end,
         parent   = function(value) data:set_parent(value) end,
-        title    = function(value) title = value end,
         visible  = function(value) change_visibility(value); data:emit_signal("visibility::changed",value) end,
+        title    = function(value) title = value; data:emit_signal("title::changed",value) end,
     }
     for k,v in pairs({"height", "width","y","x"}) do
         set_map[v] =  function (value) change_geo(v,value) end
