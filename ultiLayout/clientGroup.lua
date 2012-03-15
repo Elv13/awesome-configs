@@ -321,7 +321,6 @@ function new(parent)
         data:emit_signal("geometry::changed")
     end
     
-    
     local set_map = {
         floating = function(value) private_data.floating = value end,
         parent   = function(value) data:set_parent(value) end,

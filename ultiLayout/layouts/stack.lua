@@ -3,6 +3,7 @@ local pairs        = pairs
 local print        = print
 local wibox        = require( "awful.wibox"       )
 local common       = require( "ultiLayout.common" )
+local beautiful    = require( "beautiful"         )
 local titlebar     = require( "ultiLayout.widgets.titlebar"  )
 
 module("ultiLayout.layouts.stack")
@@ -23,18 +24,20 @@ function new(cg)
    cg.swapable    = true
    
    function data:update()
-       for k,v in ipairs(cg:childs()) do
-           if tb and cg.width > 0 then
-               tb.wibox.x       = cg.x
-               tb.wibox.y       = cg.y
-               tb.wibox.width   = cg.width
-               tb.wibox.visible = true
-           elseif tb then
-               tb.wibox.visible = false
-           end
-           v:geometry({width  = cg.width, height = cg.height-16, x = cg.x, y = cg.y+16})
-           v:repaint()
-       end
+        local margin = beautiful.client_margin or 0
+        margin = (cg.width-(2*margin) < 0 or cg.height-(2*margin) < 0) and 0 or beautiful.client_margin or 0
+        if tb and cg.width > 0 then
+            tb.wibox.x       = cg.x+(margin/2)
+            tb.wibox.y       = cg.y+(margin/2)
+            tb.wibox.width   = cg.width-(margin*2)
+            tb.wibox.visible = true
+        elseif tb then
+            tb.wibox.visible = false
+        end
+        for k,v in ipairs(cg:childs()) do
+            v:geometry({width  = cg.width-(margin*2), height = cg.height-16-(margin*2), x = cg.x+(margin/2), y = cg.y+16+(margin/2)})
+            v:repaint()
+        end
    end
    
     function data:gen_edge(edge_list)
@@ -63,7 +66,6 @@ function new(cg)
             tb = titlebar.create_from_cg(cg)
             common.register_wibox(tb.wibox,cg,function(new_cg) cg:attach(new_cg) end)
             tb.wibox.ontop = true
-            tb.wibox.bg    = "#ff0000"
             titlebars[tb] = cg
         end
         local tab = tb.tablist:add_tab()
