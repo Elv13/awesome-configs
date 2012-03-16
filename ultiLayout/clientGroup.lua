@@ -210,33 +210,32 @@ function new(parent)
         end
     end
     
-    function data:attach(cg)
+    function data:attach(cg,index)
+        if cg.parent == self or cg == self or cg == nil then return end
         --Check if the CG is not already a child of self
-        for k,v in pairs(data:all_childs()) do
+        for k,v in pairs(data:childs()) do --TODO all_childs? break splitters
             if v == cg then
                 print("Trying to add a clientgroup that is already a child of self")
                 return 
             end
         end
-        if cg.parent == self or cg == self then return end
         if cg.parent ~= nil then
             cg.parent:detach(cg)
         end
         cg:set_parent(data)
-        --self:add_signal("geometry::changed",function() print("test",debug.traceback());cg:repaint() end)
-        if cg ~= self then --TODO dead code?
-            cg:add_signal("geometry::changed",function() data:emit_signal("geometry::changed") end)
-        end
+        cg:add_signal("geometry::changed",function() data:emit_signal("geometry::changed") end)
         
         if layout and cg.floating == false then
             cg = layout:add_child(cg)
-            if cg then
+        end
+        
+        if cg ~= nil and cg.floating == false then
+            if index ~= nil then
+                table.insert(childs_cg,index,cg)
+            else
                 table.insert(childs_cg,cg)
             end
-        else
-            table.insert(childs_cg,cg)
         end
-        --table.insert(childs_cg,cg)
         data:emit_signal("client::attached")
         self:repaint()
         return cg

@@ -16,7 +16,6 @@ local tag          = require( "awful.tag"              )
 local clientGroup  = require( "ultiLayout.clientGroup" )
 local client       = require( "awful.client"           )
 local thumbnail    = require( "ultiLayout.widgets.thumbnail")
-local splitter     = require("ultiLayout.widgets.splitter")
 
 module("ultiLayout.common")
 
@@ -26,24 +25,20 @@ local top_level_cg        = {} -- tag -> cg
 local layout_list         = {} -- string -> layout func
 local wibox_to_cg         = {}
 local vertices            = {}
-local active_splitters    = {}
 local auto_display_border = true
 
 function add_new_layout(name, func)
     layout_list[name] = func
 end
 
-function add_splitter_box(x,y,direction,on_drop,on_hover)
-    local w  =  splitter()
-    table.insert(active_splitters,w)
-end
-
-function clear_splitter_box()
-    for k,v in pairs(active_splitters) do
-        v.visible = false
-    end
-    active_splitters = {}
-end
+-- function add_splitter_box(x,y,direction,on_drop,on_hover)
+--     local w  =  splitter()
+--     table.insert(active_splitters,w)
+-- end
+-- 
+-- function clear_splitter_box()
+--     --TODO
+-- end
 
 -- function merge_client_groups(cg1,cg2,layout,args)
 --     local newCg = ultiLayout.clientGroup()

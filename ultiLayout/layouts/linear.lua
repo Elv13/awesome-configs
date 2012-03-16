@@ -3,6 +3,7 @@ local print        = print
 local table        = table
 local common       = require( "ultiLayout.common" )
 local edge         = require( "ultiLayout.edge" )
+local splitter     = require( "ultiLayout.widgets.splitter" )
 local beautiful    = require( "beautiful" )
 
 module("ultiLayout.layouts.linear")
@@ -47,6 +48,13 @@ local function new(cg,orientation)
    end
    
    function data:show_splitters(show,horizontal,vertical)
+       if orientation == "horizontal" then
+            local asplitter = splitter(cg,{y=cg.y,x=cg.x+cg.width/2,index=1,direction="bottom"})
+            local asplitter = splitter(cg,{y=cg.y+cg.height-48,x=cg.x+cg.width/2,direction="top"})
+       else
+            local asplitter = splitter(cg,{y=cg.y+cg.height/2,x=cg.x,index=1,direction="right"})
+            local asplitter = splitter(cg,{y=cg.y+cg.height/2,x=cg.x+cg.width-48,direction="left"})
+       end
        for k,v in ipairs(cg:childs()) do
            v:show_splitters(show,horizontal,vertical)
        end

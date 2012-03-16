@@ -21,7 +21,7 @@ local function tile(cg,main_layout_name,sub_layout_name,right)
     else
         second_tile, main_tile = create_cg(cg,layout,sub_layout_name),create_cg(cg,layout,sub_layout_name)
     end
-    
+    layout.add_child_orig = layout.add_child
     layout.add_child = function(self,new_cg)
         if new_cg == main_tile or new_cg == second_tile then return end
         ((#main_tile:childs() < 1) and main_tile or second_tile):attach(common.wrap_stack(new_cg))
