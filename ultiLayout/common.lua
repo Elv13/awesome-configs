@@ -26,6 +26,7 @@ local layout_list         = {} -- string -> layout func
 local wibox_to_cg         = {}
 local vertices            = {}
 local auto_display_border = true
+local splitter_visible    = false
 
 function add_new_layout(name, func)
     layout_list[name] = func
@@ -204,11 +205,15 @@ function display_resize_handle(s)
     end
 end
 
-function toggle_splitters(t)
-    local t = t or tag.selected(capi.mouse.screen)
-    if top_level_cg[t] ~= nil then
-        top_level_cg[t]:toggle_splitters(true,true)--horizontal,vertical
+function toggle_splitters(value)
+    splitter_visible = value or not splitter_visible
+    if top_level_cg[tag.selected(capi.mouse.screen)] ~= nil then
+        top_level_cg[tag.selected(capi.mouse.screen)]:repaint()
     end
+end
+
+function are_splitter_visible()
+    return splitter_visible
 end
 
 function wrap_client(c)

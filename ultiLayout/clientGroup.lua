@@ -16,7 +16,6 @@ function new(parent)
     local client            = nil
     local parent            = parent or nil
     local childs_cg         = {}
-    local show_splitters    = false
     local title             = nil
     local private_data = {
         floating = false,
@@ -194,19 +193,6 @@ function new(parent)
             end
             self:set_parent(other_parent,true,new_cg)
             new_cg:set_parent(cur_parent,true,self)
-        end
-    end
-    
-    function data:show_splitters(horizontal,vertical)
-        if layout and layout.show_splitters ~= nil then
-            layout:show_splitters(show_splitters,horizontal,vertical)
-        end
-    end
-    
-    function data:toggle_splitters(horizontal,vertical)
-        if layout and layout.show_splitters ~= nil then
-            show_splitters = not show_splitters
-            self:show_splitters(show_splitters,horizontal,vertical)
         end
     end
     

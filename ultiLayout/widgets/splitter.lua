@@ -1,9 +1,12 @@
 local capi = { mouse = mouse,image=image }
 local setmetatable = setmetatable
 local print = print
+local type = type
+local ipairs = ipairs
 local wibox        = require( "awful.wibox"  )
 local common       = require( "ultiLayout.common" )
 local beautiful    = require( "beautiful" )
+--local object_model = require( "ultiLayout.object_model" )
 
 module("ultiLayout.widgets.splitter")
 
@@ -61,14 +64,15 @@ end
 
 local function create_splitter(cg,args)
     local args = args or {}
+    local data = {x=args.x,y=args.y}
     local aWb = wibox({position="free"})
+    local visible = false
+    data.wibox = aWb
     aWb.width  = 48
     aWb.height = 48
     aWb.bg = beautiful.fg_normal
-    aWb.x = args.x or (capi.mouse.coords().x+10)
-    aWb.y = args.y or (capi.mouse.coords().y+10)
     aWb.ontop = true
-    aWb.visible = true
+    aWb.visible = false
     common.register_wibox(aWb, cg, function(new_cg)
         if cg.get_layout().add_child_orig ~= nil then
             local tmp = cg.get_layout().add_child
@@ -84,6 +88,26 @@ local function create_splitter(cg,args)
     end
     aWb.shape_clip = dir[args.direction or "left"]
     aWb.shape_bounding = dir[args.direction or "left"]
-    return aWb
+    
+    function data:update()
+        if common.are_splitter_visible() == false and visible == false then return end
+        if visible ~= common.are_splitter_visible() then
+            visible = common.are_splitter_visible()
+            aWb.visible = visible
+        end
+        if visible == true then
+            for k,v in ipairs({"x","y"}) do
+                if data[v] == nil then
+                    aWb[v] = capi.mouse.coords().x+10
+                elseif type(data[v]) == "function" then
+                    aWb[v] = data[v]()
+                else
+                    aWb[v] = data[v]
+                end
+            end
+        end
+    end
+    data:update()
+    return data
 end
 setmetatable(_M, { __call = function(_, ...) return create_splitter(...) end })

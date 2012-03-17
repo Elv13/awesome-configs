@@ -17,8 +17,6 @@ function new(cg,c)
     function data:gen_edge(edge_list)
         return edge_list
     end
-
-    function data:show_splitters(show,horizontal,vertical) end
     
     function data:set_active(sub_cg)
         c.focus = c

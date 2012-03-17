@@ -18,6 +18,15 @@ end
 local function new(cg,orientation)
    local data     = { ratio = {} }
    local edges   = {}
+   local splitter1,splitter2
+   
+    if orientation == "horizontal" then
+        splitter1 = splitter(cg,{y=function() return cg.y end,x=function() return cg.x+cg.width/2 end,index=1,direction="bottom"})
+        splitter2 = splitter(cg,{y=function() return cg.y+cg.height-48 end,x=function() return cg.x+cg.width/2 end,direction="top"})
+    else
+        splitter1 = splitter(cg,{y=function() return cg.y+cg.height/2 end ,x=function() return cg.x end,index=1,direction="right"})
+        splitter2 = splitter(cg,{y=function() return cg.y+cg.height/2 end ,x=function() return cg.x+cg.width-48 end,direction="left"})
+    end
    
    local function sum_ratio(only_visible)
         local sumratio = 0
@@ -45,19 +54,6 @@ local function new(cg,orientation)
            end
        end
        return nil
-   end
-   
-   function data:show_splitters(show,horizontal,vertical)
-       if orientation == "horizontal" then
-            local asplitter = splitter(cg,{y=cg.y,x=cg.x+cg.width/2,index=1,direction="bottom"})
-            local asplitter = splitter(cg,{y=cg.y+cg.height-48,x=cg.x+cg.width/2,direction="top"})
-       else
-            local asplitter = splitter(cg,{y=cg.y+cg.height/2,x=cg.x,index=1,direction="right"})
-            local asplitter = splitter(cg,{y=cg.y+cg.height/2,x=cg.x+cg.width-48,direction="left"})
-       end
-       for k,v in ipairs(cg:childs()) do
-           v:show_splitters(show,horizontal,vertical)
-       end
    end
    
     function data:gen_edge(edge_list)
@@ -106,6 +102,8 @@ local function new(cg,orientation)
                 relX     = relX + (( orientation == "vertical"   ) and v.width+beautiful.border_width2  or 0)
            end
        end
+       splitter1:update()
+       splitter2:update()
    end
     
    function data:add_child(child_cg)

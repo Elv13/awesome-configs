@@ -46,8 +46,6 @@ function new(cg)
         end
         return edge_list
     end
-   
-    function data:show_splitters(show,horizontal,vertical) end
     
     function data:set_active(sub_cg)
         if activeCg ~= nil and tabs[activeCg] ~= nil then
@@ -65,7 +63,7 @@ function new(cg)
         if not tb then
             tb = titlebar.create_from_cg(cg)
             common.register_wibox(tb.wibox,cg,function(new_cg) cg:attach(new_cg) end)
-            tb.wibox.ontop = true
+            --tb.wibox.ontop = true
             titlebars[tb] = cg
         end
         local tab = tb.tablist:add_tab()
