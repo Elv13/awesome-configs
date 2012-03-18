@@ -1,4 +1,5 @@
 local ipairs       = ipairs
+local pairs        = pairs
 local print        = print
 local table        = table
 local common       = require( "ultiLayout.common" )
@@ -17,15 +18,15 @@ end
 
 local function new(cg,orientation)
    local data     = { ratio = {} }
-   local edges   = {}
+   local edges    = {}
    local splitter1,splitter2
    
     if orientation == "horizontal" then
-        splitter1 = splitter(cg,{y=function() return cg.y end,x=function() return cg.x+cg.width/2 end,index=1,direction="bottom"})
-        splitter2 = splitter(cg,{y=function() return cg.y+cg.height-48 end,x=function() return cg.x+cg.width/2 end,direction="top"})
+        splitter1 = splitter(cg,{y=function() return cg.y end              ,x=function() return cg.x+cg.width/2 end, index=1 ,direction="bottom"})
+        splitter2 = splitter(cg,{y=function() return cg.y+cg.height-48 end ,x=function() return cg.x+cg.width/2 end          ,direction="top"   })
     else
-        splitter1 = splitter(cg,{y=function() return cg.y+cg.height/2 end ,x=function() return cg.x end,index=1,direction="right"})
-        splitter2 = splitter(cg,{y=function() return cg.y+cg.height/2 end ,x=function() return cg.x+cg.width-48 end,direction="left"})
+        splitter1 = splitter(cg,{y=function() return cg.y+cg.height/2 end  ,x=function() return cg.x end           , index=1 ,direction="right" })
+        splitter2 = splitter(cg,{y=function() return cg.y+cg.height/2 end  ,x=function() return cg.x+cg.width-48 end         ,direction="left"  })
     end
    
    local function sum_ratio(only_visible)
@@ -47,46 +48,16 @@ local function new(cg,orientation)
        return (ratio or get_average(true)) / sum_ratio(true)
    end
    
-   local function get_cg_idx(child)
-       for k,v in ipairs(cg:childs()) do
-           if v == child then
-               return k
-           end
-       end
-       return nil
-   end
-   
-    function data:gen_edge(edge_list)
-        local prev = nil
-        for k,v in ipairs(cg:childs()) do
-            if prev  then
-                if not edges[prev] or not edges[prev][v] then
-                    local anEdge = edge({})
-                    anEdge:add_signal("distance_change::request",function(_v, delta)
-                        if _v.cg1.parent == cg and _v.cg2.parent == cg and orientation == _v.orientation then
-                            local cg1_ratio_k, cg2_ratio_k = get_cg_idx(_v.cg1),get_cg_idx(_v.cg2)
-                            local diff = (sum_ratio()/cg[(orientation == "horizontal") and "height" or "width"])*delta
-                            data.ratio[cg1_ratio_k] = data.ratio[cg1_ratio_k] + diff
-                            data.ratio[cg2_ratio_k] = data.ratio[cg2_ratio_k] - diff
-                            self:update()
-                        end
-                    end)
-                    anEdge.cg1     = prev
-                    anEdge.cg2     = v
-                    edges[prev]    = edges[prev] or {}
-                    edges[prev][v] = anEdge
-                end
-                local anEdge = edges[prev][v]
-                table.insert(edge_list,edges[prev][v])
-            end
-            v:gen_edge(edge_list)
-            prev = v
-        end
-        return edge_list
-    end
-    
     local function gen_margin(lenght,count)
         return (lenght/count) - (lenght-(beautiful.border_width2*(count-1)))/count
+    end
+    
+    local function update_decorator()
+       for k,v in pairs(edges) do for k2,v2 in pairs(v or {}) do
+           v2:update()
+       end end
+       splitter1:update()
+       splitter2:update()
     end
    
    function data:update()
@@ -102,16 +73,30 @@ local function new(cg,orientation)
                 relX     = relX + (( orientation == "vertical"   ) and v.width+beautiful.border_width2  or 0)
            end
        end
-       splitter1:update()
-       splitter2:update()
+       update_decorator()
    end
     
-   function data:add_child(child_cg)
-        data.ratio[#cg:childs()+1] = child_cg.default_percent and (child_cg.default_percent*sum_ratio()) or get_average()
+   function data:add_child(child_cg,index)
+        local current_count = #cg:childs()
+        local index  = index or current_count + 1
+        data.ratio[current_count+1] = child_cg.default_percent and (child_cg.default_percent*sum_ratio()) or get_average()
         --child_cg:add_signal("cg::swapped",swap)
+        if current_count > 0 and current_count+1 == index then--TODO implement other cases
+            local anEdge = edge({cg1=cg:childs()[current_count],cg2=child_cg})
+            anEdge:add_signal("distance_change::request",function(_e, delta)
+                if _e.cg1.parent == cg and _e.cg2.parent == cg and orientation == _e.orientation then --TODO dead code?
+                    local diff = (sum_ratio()/cg[(orientation == "horizontal") and "height" or "width"])*delta
+                    data.ratio[ current_count   ] = data.ratio[ current_count   ] + diff
+                    data.ratio[ current_count+1 ] = data.ratio[ current_count+1 ] - diff
+                    self:update()
+                end
+            end)
+            edges[cg:childs()[current_count]]    = edges[cg:childs()[current_count]] or {}
+            edges[cg:childs()[current_count]][child_cg] = anEdge
+        end
         return child_cg
    end
-   
+   cg:add_signal("visibility::changed",update_decorator)
    return data
 end
 

@@ -1,5 +1,6 @@
 local setmetatable = setmetatable
 local pairs        = pairs
+local print        = print
 local object_model = require( "ultiLayout.object_model" )
 local border       = require( "ultiLayout.widgets.border" )
 
@@ -36,6 +37,9 @@ local function create_edge(args)
     
     if private_data.wibox == nil and auto_display_border == true then
         border.create(data)
+    end
+    function data:update()
+        border.update_wibox(data)
     end
     return data
 end

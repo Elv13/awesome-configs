@@ -91,8 +91,8 @@ local function create_splitter(cg,args)
     
     function data:update()
         if common.are_splitter_visible() == false and visible == false then return end
-        if visible ~= common.are_splitter_visible() then
-            visible = common.are_splitter_visible()
+        if visible ~= common.are_splitter_visible() or visible ~= cg.visible then
+            visible = cg.visible and common.are_splitter_visible()
             aWb.visible = visible
         end
         if visible == true then

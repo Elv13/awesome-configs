@@ -40,13 +40,6 @@ function new(cg)
         end
    end
    
-    function data:gen_edge(edge_list)
-        if activeCg then
-            activeCg:gen_edge(edge_list)
-        end
-        return edge_list
-    end
-    
     function data:set_active(sub_cg)
         if activeCg ~= nil and tabs[activeCg] ~= nil then
             tabs[activeCg].selected = false

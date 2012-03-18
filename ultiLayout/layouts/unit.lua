@@ -13,10 +13,6 @@ function new(cg,c)
         c.hidden = not cg.visible
         c:geometry({x = cg.x, y = cg.y, width = cg.width, height = cg.height})
     end
-
-    function data:gen_edge(edge_list)
-        return edge_list
-    end
     
     function data:set_active(sub_cg)
         c.focus = c

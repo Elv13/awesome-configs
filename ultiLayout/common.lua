@@ -25,21 +25,11 @@ local top_level_cg        = {} -- tag -> cg
 local layout_list         = {} -- string -> layout func
 local wibox_to_cg         = {}
 local vertices            = {}
-local auto_display_border = true
 local splitter_visible    = false
 
 function add_new_layout(name, func)
     layout_list[name] = func
 end
-
--- function add_splitter_box(x,y,direction,on_drop,on_hover)
---     local w  =  splitter()
---     table.insert(active_splitters,w)
--- end
--- 
--- function clear_splitter_box()
---     --TODO
--- end
 
 -- function merge_client_groups(cg1,cg2,layout,args)
 --     local newCg = ultiLayout.clientGroup()
@@ -73,6 +63,9 @@ local function abstract_drag(cg,on_drag_f,on_drop_f,on_click_f,args)
         end
         if mouse.x ~= cur.x and mouse.y ~= cur.y then
             moved = true
+            if type(args.on_first_move) == "function" then
+                args.on_first_move(mouse,cur)
+            end
             if type(on_drag_f) == "function" then
                 on_drag_f(mouse,cur)
             end
@@ -85,6 +78,7 @@ end
 
 function drag_cg(cg,on_click_f,args)
     local args = args or {}
+    args.on_first_move = args.on_first_move or function() toggle_splitters(true) end
     if cg.floating == true then
         abstract_drag(cg,function(mouse,cur)
             cg.x = cg.x + (mouse.x-cur.x)
@@ -92,7 +86,6 @@ function drag_cg(cg,on_click_f,args)
         end,nil,on_click_f)
     else
         local aWb = args.wibox or thumbnail(cg)
-        
         abstract_drag(cg,function(mouse,cur)
             aWb.visible = true
             aWb.x = mouse.x+10
@@ -110,6 +103,7 @@ function drag_cg(cg,on_click_f,args)
             elseif type(obj) == "wibox" and wibox_to_cg[obj] ~= nil and type(wibox_to_cg[obj].on_drop_f) == "function" then
                 wibox_to_cg[obj].on_drop_f(cg)
             end
+            toggle_splitters(false)
         end, on_click_f,args)
     end
 end
@@ -168,45 +162,8 @@ function get_layout_list()
     return layout_list
 end
 
-local function display_border_real(t)
-    if not auto_display_border then return end
-    local t = t or tag.selected(capi.mouse.screen)
-    if top_level_cg[t] then
-        local edge = {}
-        top_level_cg[t]:gen_edge(edge)
-    else
-        print("No layout")
-    end
-end
-
----This is to make sure it is not called from a signal
-function display_border(t)
-    auto_display_border = true
-    display_border_real(t)
-end
-
-function display_resize_handle(s)
-    if not auto_display_border then return end
-    local t = t or tag.selected(capi.mouse.screen)
-    if top_level_cg[t] then
-        local edgeH = {}
-        local edgeV = {}
-        top_level_cg[t]:gen_edge(edge)
-        for k,v in ipairs(edge) do
-            if v.orientation == "horizontal" then
-                table.insert(edgeH,v)
-            else
-                table.insert(edgeV,v)
-            end
-        end
-        --for k,v in ipairs(edgeV) do
-            
-        --end
-    end
-end
-
 function toggle_splitters(value)
-    splitter_visible = value or not splitter_visible
+    splitter_visible = (value == nil) and not splitter_visible or value
     if top_level_cg[tag.selected(capi.mouse.screen)] ~= nil then
         top_level_cg[tag.selected(capi.mouse.screen)]:repaint()
     end

@@ -12,10 +12,12 @@ module("ultiLayout.widgets.border")
 
 function update_wibox(edge)
     if edge.wibox ~= nil then
+        edge.wibox.visible = edge.cg2.visible --.parent.visible
+        if edge.wibox.visible == false then return end
         edge.wibox.x                                                           = edge.x-(beautiful.border_width2*((edge.orientation == "vertical") and 1 or 0))
         edge.wibox.y                                                           = edge.y-(beautiful.border_width2*((edge.orientation == "vertical") and 0 or 1))
         edge.wibox[edge.orientation == "vertical" and "width"  or "height" ] = beautiful.border_width2
-        edge.wibox[edge.orientation == "vertical" and "height" or "width"  ] = edge.length
+        edge.wibox[edge.orientation == "vertical" and "height" or "width"  ] = (edge.length > 0) and edge.length or 1
         edge.wibox.visible=true
     end
 end

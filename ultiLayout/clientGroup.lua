@@ -212,7 +212,7 @@ function new(parent)
         cg:add_signal("geometry::changed",function() data:emit_signal("geometry::changed") end)
         
         if layout and cg.floating == false then
-            cg = layout:add_child(cg)
+            cg = layout:add_child(cg,index)
         end
         
         if cg ~= nil and cg.floating == false then
@@ -252,14 +252,6 @@ function new(parent)
         end
         if emit_swapped == true then
             data:emit_signal("cg::swapped",other_cg,old_parent)
-        end
-    end
-    
-    function data:gen_edge(edge_list)
-        if layout then
-            return layout:gen_edge(edge_list)
-        else
-            print("layout not set")
         end
     end
     
