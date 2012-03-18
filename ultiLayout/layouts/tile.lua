@@ -7,31 +7,31 @@ module("ultiLayout.layouts.tile")
 
 local function create_cg(parent, layout, tile_layout)
     local tile = clientGroup()
-    tile:set_layout(common.get_layout_list()[tile_layout](tile))
+    tile:set_layout(common.get_layout_list()[tile_layout])
     layout:add_child(tile)
     parent:attach(tile)
     return tile
 end
 
-local function tile(cg,main_layout_name,sub_layout_name,right)
-    local layout = common.get_layout_list()[main_layout_name](cg)
-    local main_tile,second_tile
+local function tile(cg,main_l_name,sub_l_name,right)
+    local layout = common.get_layout_list()[main_l_name](cg)
+    local m_tile,s_tile
     if right == true then
-        main_tile, second_tile = create_cg(cg,layout,sub_layout_name),create_cg(cg,layout,sub_layout_name)
+        m_tile, s_tile = create_cg(cg,layout,sub_l_name),create_cg(cg,layout,sub_l_name)
     else
-        second_tile, main_tile = create_cg(cg,layout,sub_layout_name),create_cg(cg,layout,sub_layout_name)
+        s_tile, m_tile = create_cg(cg,layout,sub_l_name),create_cg(cg,layout,sub_l_name)
     end
     layout.add_child_orig = layout.add_child
     layout.add_child = function(self,new_cg)
-        if new_cg == main_tile or new_cg == second_tile then return end
-        ((#main_tile:childs() < 1) and main_tile or second_tile):attach(common.wrap_stack(new_cg))
+        if new_cg == m_tile or new_cg == s_tile then return end
+        ((#m_tile:childs() < 1) and m_tile or s_tile):attach(common.wrap_stack(new_cg))
     end 
     
     return layout
 end
 
-local function grid(cg,main_layout_name,sub_layout_name)
-    local layout = common.get_layout_list()[main_layout_name](cg)
+local function grid(cg,main_l_name,sub_l_name)
+    local layout = common.get_layout_list()[main_l_name](cg)
     layout.add_child_orig = layout.add_child
     local function new_add_child(self,new_cg)
         local lowest  = nil
@@ -42,7 +42,7 @@ local function grid(cg,main_layout_name,sub_layout_name)
             lowest:attach(common.wrap_stack(new_cg))
         else
             layout.add_child = layout.add_child_orig
-            local row = create_cg(cg,layout,sub_layout_name)
+            local row = create_cg(cg,layout,sub_l_name)
             layout.add_child = new_add_child
             row:attach(common.wrap_stack(new_cg))
         end
@@ -52,16 +52,16 @@ local function grid(cg,main_layout_name,sub_layout_name)
     return layout
 end
 
-local function spiral(cg,main_layout_name)
-    local layout = common.get_layout_list()[(main_layout_name == "horizontal") and "vertical" or "horizontal"](cg)
-    local current_orientation = main_layout_name
-    local current_level = create_cg(cg,layout,main_layout_name)
+local function spiral(cg,main_l_name)
+    local layout = common.get_layout_list()[(main_l_name == "horizontal") and "vertical" or "horizontal"](cg)
+    local current_orientation = main_l_name
+    local current_level = create_cg(cg,layout,main_l_name)
     
     layout.add_child = function(self,new_cg)
         if #current_level:childs() >= 1 then
             current_orientation = (current_orientation == "horizontal") and "vertical" or "horizontal"
             local tmpCg = clientGroup()
-            tmpCg:set_layout(common.get_layout_list()[current_orientation](tmpCg))
+            tmpCg:set_layout(common.get_layout_list()[current_orientation])
             current_level:attach(tmpCg)
             current_level = tmpCg
         end

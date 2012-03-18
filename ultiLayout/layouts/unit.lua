@@ -1,5 +1,4 @@
 --This is the smallest component of a layout. It handle titlebars and (optionally) some other goodies
-local print        = print
 local client       = client
 local common       = require( "ultiLayout.common" )
 

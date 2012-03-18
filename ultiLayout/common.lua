@@ -176,14 +176,14 @@ end
 function wrap_client(c)
     local aCG = clientGroup()
     aCG:geometry(c:geometry())
-    aCG:set_layout(layout_list.unit(aCG,c))
+    aCG:set_layout(layout_list.unit,c)
     
     if client.floating.get(c) == false then
         return aCG
     elseif client.floating.get(c) == true then
         local aStack = clientGroup()
         aStack:geometry(c:geometry())
-        aStack:set_layout(layout_list.stack(aStack))
+        aStack:set_layout(layout_list.stack)
         aStack:attach(aCG)
         aStack.floating = true
         return aStack
@@ -192,7 +192,7 @@ end
 
 function wrap_stack(new_cg)
     local stack = clientGroup()
-    stack:set_layout(get_layout_list().stack(stack))
+    stack:set_layout(get_layout_list().stack)
     stack:attach(new_cg)
     return stack
 end
@@ -222,17 +222,16 @@ function set_layout_by_name(name,t)
         if top_level_cg[t] == nil or (top_level_cg[t] ~= nil and cur_layout_name[t] ~= name) then
             local aCG = clientGroup()
             local coords = capi.screen[t.screen].workarea
-        aCG:set_layout( layout_list[name](aCG))
+        aCG:set_layout( layout_list[name])
         cur_layout_name[t] = name
         layouts[t][name] = aCG
             for k,v in ipairs(t:clients()) do
                 local unit = wrap_client(v)
                 aCG:attach(unit)
             end
-            aCG.width  = coords.width
-            aCG.height = coords.height
-            aCG.x      = coords.x
-            aCG.y      = coords.y
+            for k,v in ipairs({"x","y","width","height"}) do
+                aCG[v] = coords[v]
+            end
             if top_level_cg[t] then
                 top_level_cg[t].visible = false
             end

@@ -19,12 +19,11 @@ function new(parent)
     local title             = nil
     local private_data = {
         floating = false,
-        height   = 0    ,
-        width    = 0    ,
-        x        = 0    ,
-        y        = 0    ,
         visible  = true,
     }
+    for k,v in ipairs({"x","y","width","height"}) do
+        private_data[v] = 0
+    end
     
     function data:childs()
         return childs_cg
@@ -116,20 +115,15 @@ function new(parent)
         end
     end
 
-    function data:set_layout(l)
-        if not l then
-            print("No layout to be set")
-        else
-            layout = l
-            for k,v in ipairs(self:childs()) do
-                if not v.floating then
-                    l:add_child(v)
-                else
-                    --TODO Is there something to do here? z-index?
-                end
+    function data:set_layout(l,...)
+        if not l then print("No layout to be set"); return end
+        layout = l(self,...)
+        for k,v in ipairs(self:childs()) do
+            if not v.floating then
+                layout:add_child(v)
             end
-            self:repaint()
         end
+        self:repaint()
     end
     
     function data:get_layout()
@@ -185,11 +179,9 @@ function new(parent)
         if parent ~= nil and new_cg.parent ~= nil then
             local cur_parent   = parent
             local other_parent = new_cg.parent
+            parent:replace(self,new_cg)
             if cur_parent ~= other_parent then
-                parent:replace(self,new_cg)
                 other_parent:replace(new_cg,self)
-            else
-                parent:replace(self,new_cg)
             end
             self:set_parent(other_parent,true,new_cg)
             new_cg:set_parent(cur_parent,true,self)
@@ -273,11 +265,7 @@ function new(parent)
             return title
         else
             local allC = data:all_clients()
-            if #allC == 1 then
-                return allC[1].name
-            else
-                return #allC.." clients"
-            end
+            return ((#allC == 1) and allC[1].name or #allC.." clients")
         end
     end
     
