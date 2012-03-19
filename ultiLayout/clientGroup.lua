@@ -224,14 +224,10 @@ function new(parent)
     end
     
     function data:set_active(sub_cg)
-        for k,v in pairs(childs_cg) do
-            if v == sub_cg and  layout and layout.set_active then
-                layout:set_active(sub_cg)
-                sub_cg.focus = true
-                return
-            end
+        if layout.set_active then
+            layout:set_active(sub_cg)
+            sub_cg.focus = true
         end
-        print("Child client group not found")
     end
     
     function data:set_parent(new_parent,emit_swapped,other_cg)

@@ -38,7 +38,7 @@ function registerCustomClass(className, func)
     hooks[className] = func
 end
 
-function create_from_cg(cg, args)
+local function create(cg, args)
     if not cg then return end
     local theme        = beautiful.get()
     local buttons      = {}
@@ -47,7 +47,7 @@ function create_from_cg(cg, args)
     args.height        = args.height or capi.awesome.font_height * 1.5
     
     -- Store colors
-    local titlebar     = {}
+    local titlebar     = {tabs={}}
     local tb = wibox(args)
     local tl = tabList.new(nil,nil,cg)
     titlebar.client    = cg
@@ -171,19 +171,60 @@ function create_from_cg(cg, args)
         }
     end
     
-    function titlebar:update(cg,event)
-        if cg.titlebar and titlebar then
---             if event     == 'focus'   then
---                 tl.focus = true
---             elseif event == 'unfocus' then
---                 tl.focus = false
---             end
-            
-            local widgets = cg.titlebar.widgets
-            appicon.image = cg.icon
-            for k,v in pairs(buttons) do
-                v:setImage()
+    function titlebar:add_tab(child_cg)
+        local tab = tl:add_tab()
+        tab:add_autosignal_field("clientgroup")
+        tab.clientgroup = child_cg
+        tab.title = child_cg.title
+        child_cg:add_signal("title::changed",function(_cg,title)
+            tab.title = title
+        end)
+        child_cg:add_signal("focus:changed",function(_cg,value)
+            tab.selected = value
+        end)
+        local function swap(_cg,other_cg,old_parent)
+            if _cg.parent ~= cg then
+                _cg:remove_signal("cg::swapped",swap) --TODO name changed
+                tb.titlebar.tabs[_cg].clientgroup = other_cg
+                other_cg:add_signal("cg::swapped",swap)
+                tb.titlebar.tabs[other_cg] = tb.titlebar.tabs[_cg]
+                tb.titlebar.tabs[_cg] = nil
             end
+        end
+        child_cg:add_signal("cg::swapped",swap)
+        titlebar.tabs[child_cg]=tab
+        return tab
+    end
+    
+    function titlebar:select_tab(child_cg)
+        if child_cg == self.activeCg then
+            return
+        elseif child_cg and self.tabs[child_cg] then
+            if self.activeCg then
+                self.tabs[self.activeCg].selected = false
+            end
+            self.tabs[child_cg].selected      = true
+        end
+        self.activeCg = child_cg
+        return self.tabs[child_cg]
+    end
+    
+    function titlebar:update()
+        if tb and cg.width > 0 then
+            local margin = beautiful.client_margin or 0
+            margin = (cg.width-(2*margin) < 0 or cg.height-(2*margin) < 0) and 0 or beautiful.client_margin or 0
+            tb.x       = cg.x+(margin/2)
+            tb.y       = cg.y+(margin/2)
+            tb.width   = cg.width-(margin*2)
+            tb.visible = true
+        elseif tb then
+            tb.visible = false
+        end
+            
+        local widgets = cg.titlebar.widgets
+        appicon.image = cg.icon
+        for k,v in pairs(buttons) do
+            v:setImage()
         end
     end
         
@@ -193,6 +234,31 @@ function create_from_cg(cg, args)
     for k,v in pairs({"icon","name","sticky","floating","ontop","maximized_vertical","maximized_horizontal"}) do
         cg:add_signal("property::"..v, function(cg) titlebar:update(cg) end)
     end
-    titlebar:update(cg)
-    return {wibox = tb, tablist = tl, titlebar = titlebar}
+    titlebar:update()
+    
+    cg:add_signal("geometry::changed"   ,update                                        )
+    cg:add_signal("focus::changed"      ,function(_cg,value) titlebar.focus = value end)
+    cg:add_signal("visibility::changed" ,function(_cg,value) tb.visible = value     end)
+    cg:add_signal("detached"            ,function(_cg,child)
+        if not titlebar then return end
+        if titlebar.tabs[child] then
+            tl:remove_tab(titlebar.tabs[child])
+            titlebar.tabs[child] = nil
+            if #cg:childs() > 0 then
+                _cg:set_active(cg:childs()[1])
+            end
+        else
+            print("Error stack")
+        end
+    end)
+    cg:add_signal("destroyed",function()
+        tb.visible = false
+        tb         = nil
+        tl         = nil
+        titlebar   = nil --If it ever crash here, find the cause, do not remove this line
+    end)
+    titlebar.wibox = tb
+    titlebar.tablist = tl
+    return titlebar --{wibox = tb, tablist = tl, titlebar = titlebar}
 end
+setmetatable(_M, { __call = function(_, ...) return create(...) end })

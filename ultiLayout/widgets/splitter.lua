@@ -13,7 +13,7 @@ module("ultiLayout.widgets.splitter")
 local dir = {}
 local init = false
 
-local function gen_top(width, height)
+local function gen_arrow_top(width, height)
     local img = capi.image.argb32(width, height, nil)
     img:draw_rectangle(0, (width/2), 10, (width/2), true, "#ffffff")
     img:draw_rectangle(width-10, (width/2), 10, (width/2), true, "#ffffff")
@@ -24,7 +24,7 @@ local function gen_top(width, height)
     return img
 end
 
-local function gen_bottom(width, height)
+local function gen_arrow_bottom(width, height)
     local img = capi.image.argb32(width, height, nil)
     img:draw_rectangle(0, 0, 10, (width/2), true, "#ffffff")
     img:draw_rectangle(width-10, 0, 10, (width/2), true, "#ffffff")
@@ -35,7 +35,7 @@ local function gen_bottom(width, height)
     return img
 end
 
-local function gen_right(width, height)
+local function gen_arrow_right(width, height)
     local img = capi.image.argb32(width, height, nil)
     img:draw_rectangle(0, 0, (width/2), 10, true, "#ffffff")
     img:draw_rectangle(0, height-10, (width/2), 10, true, "#ffffff")
@@ -46,7 +46,7 @@ local function gen_right(width, height)
     return img
 end
 
-local function gen_left(width, height)
+local function gen_arrow_left(width, height)
     local img = capi.image.argb32(width, height, nil)
     img:draw_rectangle((width/2), 0, (width/2), 10, true, "#ffffff")
     img:draw_rectangle((width/2), height-10, (width/2), 10, true, "#ffffff")
@@ -58,7 +58,7 @@ local function gen_left(width, height)
 end
 
 local function init_shape(width, height)
-    dir.left,dir.right,dir.top,dir.bottom=gen_left(width, height),gen_right(width, height),gen_top(width, height),gen_bottom(width, height)
+    dir.left,dir.right,dir.top,dir.bottom=gen_arrow_left(width, height),gen_arrow_right(width, height),gen_arrow_top(width, height),gen_arrow_bottom(width, height)
     init = true
 end
 
@@ -110,4 +110,19 @@ local function create_splitter(cg,args)
     data:update()
     return data
 end
+
+function create_splitter_bar(cg)
+    local wbs = {}
+    local data = {}
+    for i=1,6 do
+        local w = wibox({position="free"})
+        w.width = 30
+        w.height = 30
+        w.x = cg.x * (i*30)
+        w.y = cg.y-30
+        wbs[i] = w
+    end
+    return data
+end
+
 setmetatable(_M, { __call = function(_, ...) return create_splitter(...) end })

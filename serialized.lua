@@ -36,27 +36,26 @@ return {
   kill = {
 
 },
-  float = {
-
-},
   keys = {
 
 },
-  slave = {
+  float = {
 
 },
-  minimized = {
-
-},
-  below = {
+  maximized = {
   Dolphin = true,
-  Kate = true,
 
 },
   dockable = {
 
 },
-  hidden = {
+  honorsizehints = {
+
+},
+  slave = {
+
+},
+  struts = {
 
 },
   onTop = {
@@ -68,10 +67,10 @@ return {
   ontop = {
 
 },
-  titlebar = {
+  run = {
 
 },
-  run = {
+  hidden = {
 
 },
   above = {
@@ -81,17 +80,18 @@ return {
   border_width = {
 
 },
-  struts = {
+  titlebar = {
 
 },
-  honorsizehints = {
+  below = {
+  Dolphin = true,
+  Kate = true,
 
 },
   skip_taskbar = {
 
 },
-  maximized = {
-  Dolphin = true,
+  minimized = {
 
 },
   sticky = {
@@ -129,8 +129,8 @@ return {
 },
   iconPath = "/home/lepagee/.config/awesome/theme/darkBlue//Icon/",
   scr = {
-  irc = 5,
   boo = "test",
+  irc = 5,
   media = 4,
   test = {
   [12] = {
