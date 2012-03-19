@@ -8,7 +8,7 @@ local titlebar     = require( "ultiLayout.widgets.titlebar"  )
 
 module("ultiLayout.layouts.stack")
 
-function new(cg)
+function new(cg,have_tiltebar)
     if not cg then return end
    local data     = {}
    local tb       = nil
@@ -16,8 +16,9 @@ function new(cg)
    
    function data:update()
         local margin = (cg.width-(2*(beautiful.client_margin or 0)) < 0 or cg.height-(2*(beautiful.client_margin or 0)) < 0) and 0 or beautiful.client_margin or 0
+        local margin_top = (tb) and tb.wibox.height or 0
         for k,v in ipairs(cg:childs()) do
-            v:geometry({width  = cg.width-(margin*2), height = cg.height-16-(margin*2), x = cg.x+(margin/2), y = cg.y+16+(margin/2)})
+            v:geometry({width  = cg.width-(margin*2), height = cg.height-margin_top-(margin*2), x = cg.x+(margin/2), y = cg.y+margin_top+(margin/2)})
             v:repaint()
         end
         if tb then tb:update() end
@@ -27,15 +28,15 @@ function new(cg)
         for k,v in pairs(cg:childs()) do
             v.visible = v == sub_cg
         end
-        tb:select_tab(sub_cg)
+        if tb then tb:select_tab(sub_cg) end
     end
 
     function data:add_child(child_cg)
-        if not tb then
+        if not tb and have_tiltebar == true then
             tb = titlebar(cg)
             common.register_wibox(tb.wibox,cg,function(new_cg) cg:attach(new_cg) end)
         end
-        local tab = tb:add_tab(child_cg)
+        if tb then tb:add_tab(child_cg) end
         data:set_active(sub_cg)
         return child_cg
     end
@@ -43,4 +44,5 @@ function new(cg)
     return data
 end
 
-common.add_new_layout("stack",new)
+common.add_new_layout("stack",function(cg,...) return new(cg,true ,...) end)
+common.add_new_layout("max"  ,function(cg,...) return new(cg,false,...) end)
