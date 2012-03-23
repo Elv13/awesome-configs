@@ -24,7 +24,6 @@ end
 
 function create(edge)
     local w = wibox({position = "free"})
-    w.ontop = true
     w.bg = beautiful.border_normal
     w:buttons(util.table.join(
         button({ }, 1 ,function (tab)

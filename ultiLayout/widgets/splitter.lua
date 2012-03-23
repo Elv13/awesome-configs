@@ -1,10 +1,13 @@
-local capi = { mouse = mouse,image=image }
+local capi = { mouse = mouse,image=image,widget=widget }
 local setmetatable = setmetatable
 local print = print
+local math = math
 local type = type
 local ipairs = ipairs
+local util = require("awful.util")
 local wibox        = require( "awful.wibox"  )
 local common       = require( "ultiLayout.common" )
+local clientGroup  = require( "ultiLayout.clientGroup" )
 local beautiful    = require( "beautiful" )
 --local object_model = require( "ultiLayout.object_model" )
 
@@ -111,17 +114,80 @@ local function create_splitter(cg,args)
     return data
 end
 
+local img = {"","arrowLeft","arrowUp","arrowDown","arrowRight",""}
+local right_bar,left_bar
+local function gen_splitter_bar_mask(i_mul, start_pos)
+    local img2 = capi.image.argb32(16, 16, nil)
+    for i=0,16 do
+        print(i,math.floor(math.sin( (math.pi/32)*i )*16)  )
+        img2:draw_rectangle(start_pos+(i*i_mul), 0, 1, 16-math.floor(math.sin((math.pi/32)*i)*16), true, "#ffffff")
+    end
+    return img2
+end
 function create_splitter_bar(cg)
     local wbs = {}
     local data = {}
+    local visible = false
+    
     for i=1,6 do
         local w = wibox({position="free"})
-        w.width = 30
-        w.height = 30
-        w.x = cg.x * (i*30)
-        w.y = cg.y-30
+        w.width = 16
+        w.height = 16
+        w.ontop = true
+        w.bg = beautiful.fg_normal
+        w.visible = false
+        print(util.getdir("config") .. "/theme/darkBlue/Icon/".. img[i] .."_dark.png")
+        if img[i] ~= "" then
+            local wd = capi.widget({type="imagebox"})
+            wd.image = capi.image(util.getdir("config") .. "/theme/darkBlue/Icon/".. img[i] .."_dark.png")
+            w.widgets = {wd} 
+        end
         wbs[i] = w
     end
+    
+    local function split_tab(new_cg,layout,idx)
+        local new,old = clientGroup(),cg.active
+        new:set_layout(common.get_layout_list()[layout])
+        new:attach(new_cg)
+        cg:attach(new)
+        new:attach(old,idx)
+        cg:repaint()
+    end
+    
+    common.register_wibox(wbs[2], cg2, function(new_cg) split_tab(new_cg,"vertical"  ,nil ) end)
+    common.register_wibox(wbs[3], cg2, function(new_cg) split_tab(new_cg,"horizontal",1   ) end)
+    common.register_wibox(wbs[4], cg2, function(new_cg) split_tab(new_cg,"horizontal",nil ) end)
+    common.register_wibox(wbs[5], cg2, function(new_cg) split_tab(new_cg,"vertical"  ,1   ) end)
+    
+    right_bar = right_bar or gen_splitter_bar_mask(-1,16)
+    left_bar  = left_bar or gen_splitter_bar_mask(1,0)
+    wbs[1].shape_clip     = left_bar
+    wbs[1].shape_bounding = left_bar
+    wbs[6].shape_clip     = right_bar
+    wbs[6].shape_bounding = right_bar
+    
+    function data:update()
+        if (common.are_splitter_visible() == false and wbs[1].visible == false) or not wbs then return end
+        if wbs[1].visible ~= common.are_splitter_visible() or visible ~= cg.visible then
+            for i=1,6 do
+                wbs[i].visible = cg.visible and common.are_splitter_visible()
+            end
+        end
+        if wbs[1].visible == true then
+            for i=1,6 do
+                wbs[i].x = cg.x + ((i-1)*16)
+                wbs[i].y = cg.y-16
+            end
+        end
+    end
+    cg:add_signal("destroyed",function()
+        for i=1,6 do
+            wbs[i].visible = false
+            wbs[i] = nil
+        end
+        wbs = nil
+        data = nil
+    end)
     return data
 end
 

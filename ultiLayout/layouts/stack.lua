@@ -5,14 +5,16 @@ local wibox        = require( "awful.wibox"       )
 local common       = require( "ultiLayout.common" )
 local beautiful    = require( "beautiful"         )
 local titlebar     = require( "ultiLayout.widgets.titlebar"  )
+local splitter     = require( "ultiLayout.widgets.splitter" )
 
 module("ultiLayout.layouts.stack")
 
 function new(cg,have_tiltebar)
     if not cg then return end
-   local data     = {}
-   local tb       = nil
-   cg.swapable    = true
+   local data      = {}
+   local tb        = nil
+   local asplitter = splitter.create_splitter_bar(cg)
+   cg.swapable     = true
    
    function data:update()
         local margin = (cg.width-(2*(beautiful.client_margin or 0)) < 0 or cg.height-(2*(beautiful.client_margin or 0)) < 0) and 0 or beautiful.client_margin or 0
@@ -22,6 +24,7 @@ function new(cg,have_tiltebar)
             v:repaint()
         end
         if tb then tb:update() end
+        asplitter:update()
    end
    
     function data:set_active(sub_cg)

@@ -128,7 +128,7 @@ local function create(cg, args)
     end
     
     tl:add_signal("button1::clicked",function(_tl,tab)
-        cg:set_active(tab.clientgroup)
+        cg.active = tab.clientgroup
         ultilayoutC.drag_cg(cg)
     end)
     tl:add_signal("button2::clicked",function(_tl,tab)
@@ -171,27 +171,34 @@ local function create(cg, args)
         }
     end
     
+    function data:swap(_cg,old_cg,new_cg)
+        --sdfdsfds()
+        if _cg.parent ~= cg then
+            print("here",_cg,old_cg,new_cg)
+            for k,v in pairs(titlebar.tabs) do
+                print("tab",v,k)
+            end
+            --_cg:remove_signal("cg::swapped",swap) --TODO name changed
+            titlebar.tabs[old_cg].clientgroup = new_cg
+            --other_cg:add_signal("cg::swapped",swap)
+            titlebar.tabs[new_cg] = titlebar.tabs[old_cg]
+            titlebar.tabs[old_cg] = nil
+        end
+    end
+        
     function titlebar:add_tab(child_cg)
         local tab = tl:add_tab()
         tab:add_autosignal_field("clientgroup")
         tab.clientgroup = child_cg
         tab.title = child_cg.title
+        cg.active = child_cg
         child_cg:add_signal("title::changed",function(_cg,title)
             tab.title = title
         end)
         child_cg:add_signal("focus:changed",function(_cg,value)
             tab.selected = value
         end)
-        local function swap(_cg,other_cg,old_parent)
-            if _cg.parent ~= cg then
-                _cg:remove_signal("cg::swapped",swap) --TODO name changed
-                tb.titlebar.tabs[_cg].clientgroup = other_cg
-                other_cg:add_signal("cg::swapped",swap)
-                tb.titlebar.tabs[other_cg] = tb.titlebar.tabs[_cg]
-                tb.titlebar.tabs[_cg] = nil
-            end
-        end
-        child_cg:add_signal("cg::swapped",swap)
+        --child_cg:add_signal("cg::swapped",function(...) data:swap(...) end)
         titlebar.tabs[child_cg]=tab
         return tab
     end
@@ -239,13 +246,16 @@ local function create(cg, args)
     cg:add_signal("geometry::changed"   ,update                                        )
     cg:add_signal("focus::changed"      ,function(_cg,value) titlebar.focus = value end)
     cg:add_signal("visibility::changed" ,function(_cg,value) tb.visible = value     end)
+    cg:add_signal("child::replaced"     ,function(...) data:swap(...)               end)
     cg:add_signal("detached"            ,function(_cg,child)
+        print("detached",child,titlebar.tabs[child],#cg:childs())
         if not titlebar then return end
         if titlebar.tabs[child] then
+            print("Removing ",titlebar.tabs[child])
             tl:remove_tab(titlebar.tabs[child])
             titlebar.tabs[child] = nil
             if #cg:childs() > 0 then
-                _cg:set_active(cg:childs()[1])
+                _cg.active = cg:childs()[1]
             end
         else
             print("Error stack")

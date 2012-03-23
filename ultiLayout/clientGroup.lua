@@ -17,6 +17,7 @@ function new(parent)
     local parent            = parent or nil
     local childs_cg         = {}
     local title             = nil
+    local active_cg         = nil
     local private_data = {
         floating = false,
         visible  = true,
@@ -160,7 +161,11 @@ function new(parent)
             for k,v in pairs(childs_cg) do
                 if v == old_cg then
                     childs_cg[k] = new_cg
+                    if self.active == old_cg then
+                        self.active = new_cg
+                    end
                     self:repaint()
+                    self:emit_signal("child::replaced",old_cg,new_cg)
                     return
                 end
             end
@@ -169,7 +174,7 @@ function new(parent)
             if old_cg_idx ~= nil and new_cg_idx ~= nil then
                 childs_cg[ old_cg_idx ] = new_cg
                 childs_cg[ new_cg_idx ] = old_cg
-                data:emit_signal("cg::swapped",other_cg,old_parent)
+                data:emit_signal("cg::replaced",old_cg,new_cg)
                 self:repaint()
             end
         end
@@ -223,11 +228,12 @@ function new(parent)
         --TODO
     end
     
-    function data:set_active(sub_cg)
+    local function set_active(sub_cg)
         if layout.set_active then
             layout:set_active(sub_cg)
             sub_cg.focus = true
         end
+        active_cg = sub_cg --TODO check if child
     end
     
     function data:set_parent(new_parent,emit_swapped,other_cg)
@@ -288,15 +294,17 @@ function new(parent)
         visible  = function(value) change_visibility(value); data:emit_signal("visibility::changed",value) end,
         title    = function(value) title = value; data:emit_signal("title::changed",value) end,
         focus    = set_focus,
+        active   = set_active,
     }
     for k,v in pairs({"height", "width","y","x"}) do
         set_map[v] =  function (value) change_geo(v,value) end
     end
     
     local get_map = {
-        parent = function() return parent end,
+        parent = function() return parent      end,
         title  = function() return get_title() end,
-        focus  = function() return focus end,
+        focus  = function() return focus       end,
+        active = function() return active_cg   end,
     }
     
     object_model(data,get_map,set_map,private_data,{always_handle = {visible = true},autogen_getmap = true})

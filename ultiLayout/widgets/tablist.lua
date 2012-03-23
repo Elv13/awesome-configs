@@ -111,7 +111,7 @@ function new(label, buttons)
     function w:remove_tab(tab)
         for k,v in pairs(tabs) do
             if v == tab then
-                tabs[k] = nil
+                table.remove(tabs,k)
                 tasklist_update()
                 return
             end
