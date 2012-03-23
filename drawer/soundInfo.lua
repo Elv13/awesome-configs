@@ -18,7 +18,7 @@ module("drawer.soundInfo")
 
 local data = {}
 local alsaInfo = {}
-local mywibox3 = nil
+--local mywibox3 = nil
 local widgetTable = {}
 
 function update()
@@ -157,7 +157,9 @@ function new(mywibox3)
   volumewidget:buttons( util.table.join(
      button({ }, 1, function()
           data.wibox.visible = not data.wibox.visible
-	  mywibox3.visible = not mywibox3.visible
+          if mywibox3 then
+            mywibox3.visible = not mywibox3.visible
+          end
 	  musicBarVisibility = true
 	  volumepixmap.visible = not volumepixmap.visible 
 	  volumewidget.visible = not volumewidget.visible 
@@ -176,7 +178,9 @@ function new(mywibox3)
   volumepixmap:buttons( util.table.join(
       button({ }, 1, function()
           data.wibox.visible = not data.wibox.visible
-	  --mywibox3.visible = not mywibox3.visible
+          if mywibox3 then
+            mywibox3.visible = not mywibox3.visible
+          end
 	  volumepixmap.visible = not volumepixmap.visible 
 	  volumewidget.visible = not volumewidget.visible 
       end),

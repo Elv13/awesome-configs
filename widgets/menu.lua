@@ -598,9 +598,9 @@ function new(args)
         table.insert(self.items, data)
     end
 
-    function menu:add_wibox(m,args)
-       m.isMenu = true
-    end  
+--     function menu:add_wibox(m,args)
+--        m.isMenu = true
+--     end
 
     return menu
   end

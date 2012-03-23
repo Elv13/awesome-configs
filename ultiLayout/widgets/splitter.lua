@@ -152,6 +152,8 @@ function create_splitter_bar(cg)
         cg:attach(new)
         new:attach(old,idx)
         cg:repaint()
+        new.visible = false --TODO find why it work only with that, it should work without
+        new.visible = true
     end
     
     common.register_wibox(wbs[2], cg2, function(new_cg) split_tab(new_cg,"vertical"  ,nil ) end)

@@ -330,14 +330,13 @@ function new(s, args)
     end)
     ))
     
+    local visible = false
     function toggle()
-        if not data.menu or data.menu.settings.visible == false then
-            refreshStat()
+        if not visible then
             data.menu = repaint()
-            data.menu:toggle(true)
-        else
-            data.menu:toggle(false)
         end
+        visible = not visible
+        data.menu:toggle(visible)
     end
 
     
@@ -359,9 +358,9 @@ function new(s, args)
     ramlogo:buttons   (util.table.join(button({ }, 1, function () toggle() end)))
     memwidget:buttons (util.table.join(button({ }, 1, function () toggle() end)))
 
-    memwidget:add_signal("mouse::leave", function ()
-        data.menu:toggle(false)
-    end)
+--     memwidget:add_signal("mouse::leave", function ()
+--         data.menu:toggle(false)
+--     end)
 
     membarwidget = widget2.progressbar({ layout = widget2.layout.horizontal.rightleft })
     membarwidget:set_width(40)

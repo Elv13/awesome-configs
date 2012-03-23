@@ -316,14 +316,11 @@ function new(screen, args)
 
     local visible = false
     function show()
-        if visible == false then
-            if data.menu then
-                data.menu:toggle(false)
-            end
-            data.menu = regenMenu()
-        else
-            data.menu:toggle(false)
-        end
+        --if not data.menu then
+        data.menu = regenMenu()
+        --end
+        data.menu:toggle(visible == false)
+        visible = not visible
     end
     
     cpulogo.image = capi.image(config.data().iconPath .. "brain.png")
