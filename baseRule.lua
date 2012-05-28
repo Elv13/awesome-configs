@@ -231,7 +231,7 @@ local shifty_rules = {
 {match = { "Thunderbird"   , "kmail"          , "evolution" ,                                      } , tag = "Mail"               } ,
 {match = { "ksnapshot"     , "pinentry"       , "gtksu"     , "kcalc"        , "xcalc"               ,                             --
            "feh"           , "Gradient editor", "About KDE" , "Paste Special", "Background color"    ,                             --
-           "kcolorchooser" ,                                                                       } , intrusive = true,          } ,
+           "kcolorchooser" , "plasmoidviewer" , "plasmaengineexplorer"                             } , intrusive = true,          } ,
 {match = { "rssStock"      ,                                                                       } , tag = "RSS"                  ,
                                                                                                        honorsizehints = false     } ,
 {match = { "gimp"          ,                                                                       } , honorsizehints = false       ,
@@ -258,7 +258,7 @@ local shifty_rules = {
 {match = { "MPlayer"      , "pinentry"        , "ksnapshot"  , "pinentry"     , "gtksu"              ,                             --
            "xine"         , "feh"             , "kmix"       , "kcalc"        , "xcalc"              ,                             --
            "yakuake"      , "Select Color$"   , "kruler"     , "kcolorchooser", "Paste Special"      ,                             --
-           "New Form"     , "Insert Picture"  , "kcharselect", "mythfrontend" ,                    } , float = true               } ,
+           "New Form"     , "Insert Picture"  , "kcharselect", "mythfrontend" , "plasmoidviewer"   } , float = true               } ,
 {match = { "Konversation" , "Opera"           , "Firefox"    , "Chrome"       , "Okular"             ,                             --
            "*OpenOffice*" , "OpenOffice"      , "Qt Designer",                                     } , float = false              } ,
 -------------------------------------------------------------------------------------------------------------------------------------
