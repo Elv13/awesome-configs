@@ -65,6 +65,7 @@ return {
 
 },
   ontop = {
+  Kruler = true,
 
 },
   run = {
@@ -101,23 +102,6 @@ return {
 
 },
   nofocus = {
-
-},
-
-},
-  tag = {
-  Imaging = {
-  class = {
-  Kcalc = true,
-
-},
-
-},
-  Game = {
-  class = {
-  Kcalc = true,
-
-},
 
 },
 

@@ -37,9 +37,11 @@ end
 local function startTimer()
     if mytimer.started == true or autoSave == false then return end
     mytimer:add_signal("timeout", function()
-        mytimer:stop()
-        print("Serializing data")
-        save()
+        if mytimer.started == true then
+            mytimer:stop()
+            print("Serializing data")
+            save()
+        end
     end)
     mytimer:start()
 end
