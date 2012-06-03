@@ -158,11 +158,11 @@ function new(mywibox3)
      button({ }, 1, function()
           data.wibox.visible = not data.wibox.visible
           if mywibox3 then
-            mywibox3.visible = not mywibox3.visible
+            --mywibox3.visible = not mywibox3.visible
           end
 	  musicBarVisibility = true
-	  volumepixmap.visible = not volumepixmap.visible 
-	  volumewidget.visible = not volumewidget.visible 
+-- 	  volumepixmap.visible = not volumepixmap.visible 
+-- 	  volumewidget.visible = not volumewidget.visible 
       end),
       button({ }, 4, function()
 	  util.spawn("amixer -c0 sset Master 2dB+ >/dev/null") 
@@ -179,10 +179,10 @@ function new(mywibox3)
       button({ }, 1, function()
           data.wibox.visible = not data.wibox.visible
           if mywibox3 then
-            mywibox3.visible = not mywibox3.visible
+            --mywibox3.visible = not mywibox3.visible
           end
-	  volumepixmap.visible = not volumepixmap.visible 
-	  volumewidget.visible = not volumewidget.visible 
+-- 	  volumepixmap.visible = not volumepixmap.visible 
+-- 	  volumewidget.visible = not volumewidget.visible 
       end),
       button({ }, 4, function()
 	  util.spawn("amixer -c0 sset Master 2dB+ >/dev/null") 

@@ -28,6 +28,8 @@ local function new(cg,orientation)
         splitter1 = splitter(cg,{y=function() return cg.y+cg.height/2 end  ,x=function() return cg.x end           , index=1 ,direction="right" })
         splitter2 = splitter(cg,{y=function() return cg.y+cg.height/2 end  ,x=function() return cg.x+cg.width-48 end         ,direction="left"  })
     end
+    cg.decorations:add_decoration(splitter1,{class="splitter",position="top",align="beginning",update_callback= function() splitter1:update() end})
+    cg.decorations:add_decoration(splitter2,{class="splitter",position="top",align="beginning",update_callback= function() splitter2:update() end})
    
    local function sum_ratio(only_visible)
         local sumratio = 0
@@ -48,32 +50,28 @@ local function new(cg,orientation)
        return (ratio or get_average(true)) / sum_ratio(true)
    end
    
-    local function gen_margin(lenght,count)
-        return (lenght/count) - (lenght-(beautiful.border_width2*(count-1)))/count
-    end
-    
-    local function update_decorator()
-       for k,v in pairs(edges) do for k2,v2 in pairs(v or {}) do
-           v2:update()
-       end end
-       splitter1:update()
-       splitter2:update()
-    end
-   
    function data:update()
-       local relX,relY,margin = cg.x,cg.y,gen_margin(cg[orientation == "horizontal" and "width" or "height"],#cg:childs())
+       local relX,relY,prev = cg.x,cg.y,nil
        for k,v in ipairs(cg:childs()) do
            if v.visible ~= false and (#v:childs() > 0 or v:has_client() == true) then --TODO visible childs
                 local width  = ( orientation == "horizontal" ) and cg.width or ratio_to_percent(data.ratio[k])*cg.width
                 local height = ( orientation == "vertical"   ) and cg.height or ratio_to_percent(data.ratio[k])*cg.height
-                local pad_h,pad_v = ( orientation == "vertical"   ) and 0 or margin,( orientation == "vertical"   ) and margin or 0
-                v:geometry({width = width-pad_v, height = height-pad_h, x = relX, y = relY })
+                
+                if prev and prev.decorations["edge"] then
+                    print("This do work",#prev.decorations["edge"],prev.decorations["edge"][1].cg2,v)
+                    prev.decorations["edge"][1].cg2 = v
+                elseif (prev) then
+                    print("You failed",prev.decorations["edge"])
+                end
+                
+                
+                v:geometry({width = width, height = height, x = relX, y = relY })
                 v:repaint()
-                relY     = relY + (( orientation == "horizontal" ) and v.height+beautiful.border_width2 or 0)
-                relX     = relX + (( orientation == "vertical"   ) and v.width+beautiful.border_width2  or 0)
+                relY     = relY + (( orientation == "horizontal" ) and v.height or 0)
+                relX     = relX + (( orientation == "vertical"   ) and v.width  or 0)
+                prev = v
            end
        end
-       update_decorator()
    end
     
    function data:add_child(child_cg,index)
@@ -91,12 +89,10 @@ local function new(cg,orientation)
                     self:update()
                 end
             end)
-            edges[cg:childs()[current_count]]    = edges[cg:childs()[current_count]] or {}
-            edges[cg:childs()[current_count]][child_cg] = anEdge
+            child_cg.decorations:add_decoration(anEdge,{class="edge",position=((orientation == "vertical") and "left" or "top"),align="ajust",update_callback= function() anEdge:update() end})
         end
         return child_cg
    end
-   cg:add_signal("visibility::changed",update_decorator)
    return data
 end
 

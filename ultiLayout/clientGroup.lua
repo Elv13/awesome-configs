@@ -2,7 +2,9 @@ local setmetatable = setmetatable
 local table        = table
 local pairs        = pairs
 local print        = print
+local type         = type
 local ipairs       = ipairs
+local decorations  = require( "ultiLayout.decoration" )
 local object_model = require( "ultiLayout.object_model" )
 
 module("ultiLayout.clientGroup")
@@ -18,6 +20,7 @@ function new(parent)
     local childs_cg         = {}
     local title             = nil
     local active_cg         = nil
+    local deco              = decorations.decoration(data)
     local private_data = {
         floating = false,
         visible  = true,
@@ -253,6 +256,7 @@ function new(parent)
         if layout then
             layout:update()
         end
+        deco:update()
     end
     
     local function change_visibility(value)
@@ -263,12 +267,7 @@ function new(parent)
     end
     
     local function get_title()
-        if title then
-            return title
-        else
-            local allC = data:all_clients()
-            return ((#allC == 1) and allC[1].name or #allC.." clients")
-        end
+        return (title) and title or (function(allC) return ((#allC == 1) and allC[1].name or #allC.." clients") end)(data:all_clients())
     end
     
     local function set_focus(value)
@@ -279,6 +278,7 @@ function new(parent)
         end
         data:emit_signal("focus::changed",value)
     end
+    
     
     local function change_geo(var,new_value)
         if new_value < 0 then return end --It can be normal, but avoid it anyway
@@ -301,10 +301,11 @@ function new(parent)
     end
     
     local get_map = {
-        parent = function() return parent      end,
-        title  = function() return get_title() end,
-        focus  = function() return focus       end,
-        active = function() return active_cg   end,
+        parent      = function() return parent      end,
+        title       = function() return get_title() end,
+        focus       = function() return focus       end,
+        active      = function() return active_cg   end,
+        decorations = function() return deco        end,
     }
     
     object_model(data,get_map,set_map,private_data,{always_handle = {visible = true},autogen_getmap = true})

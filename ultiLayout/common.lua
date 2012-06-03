@@ -48,7 +48,7 @@ end
 
 local function abstract_drag(cg,on_drag_f,on_drop_f,on_click_f,args)
     local cur = capi.mouse.coords()
-    local args = args
+    local args = args or {}
     local moved = false
     capi.mousegrabber.run(function(mouse)
         if mouse.buttons[args.button or 1] == false then

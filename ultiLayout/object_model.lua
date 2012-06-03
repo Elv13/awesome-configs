@@ -9,8 +9,8 @@ local pairs        = pairs
 module("ultiLayout.object_model")
 
 local function warn_invalid()
-    print("This is not a setter")
-    debug.traceback()
+    --print("This is not a setter") --In some case, it may be called "normally", having this print is only good for debug
+    --debug.traceback()
 end
 
 local function setup_object(data, get_map, set_map, private_data,args)
@@ -50,9 +50,11 @@ local function setup_object(data, get_map, set_map, private_data,args)
             return get_map[key]()
         elseif args.autogen_getmap == true and private_data[key] ~= nil then
             return private_data[key]
-        else
-            return rawget(table,key)
+        elseif args.other_get_callback then
+            local to_return = args.other_get_callback(key)
+            if to_return then return to_return end
         end
+        return rawget(table,key)
     end
     
     local function auto_signal(key)

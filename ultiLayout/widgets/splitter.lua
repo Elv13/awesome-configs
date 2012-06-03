@@ -9,7 +9,7 @@ local wibox        = require( "awful.wibox"  )
 local common       = require( "ultiLayout.common" )
 local clientGroup  = require( "ultiLayout.clientGroup" )
 local beautiful    = require( "beautiful" )
---local object_model = require( "ultiLayout.object_model" )
+local object_model = require( "ultiLayout.object_model" )
 
 module("ultiLayout.widgets.splitter")
 
@@ -67,9 +67,28 @@ end
 
 local function create_splitter(cg,args)
     local args = args or {}
-    local data = {x=args.x,y=args.y}
+    local private_data = {x=args.x,y=args.y}
+    local data = {}
     local aWb = wibox({position="free"})
     local visible = false
+    
+    local get_map = {
+        x = function() return private_data.x end,
+        y = function() return private_data.y end
+    }
+    local set_map = {
+        x = false,
+        y = false,
+    }
+    object_model(data,get_map,set_map,private_data,{
+        autogen_getmap      = true ,
+        autogen_signals     = true ,
+        auto_signal_changed = true ,
+        force_private       = {
+            selected        = true ,
+            title           = true }
+    })
+    
     data.wibox = aWb
     aWb.width  = 48
     aWb.height = 48
@@ -128,6 +147,7 @@ function create_splitter_bar(cg)
     local wbs = {}
     local data = {}
     local visible = false
+    local x,y = 0,0
     
     for i=1,6 do
         local w = wibox({position="free"})
@@ -136,7 +156,6 @@ function create_splitter_bar(cg)
         w.ontop = true
         w.bg = beautiful.fg_normal
         w.visible = false
-        print(util.getdir("config") .. "/theme/darkBlue/Icon/".. img[i] .."_dark.png")
         if img[i] ~= "" then
             local wd = capi.widget({type="imagebox"})
             wd.image = capi.image(util.getdir("config") .. "/theme/darkBlue/Icon/".. img[i] .."_dark.png")
@@ -147,6 +166,7 @@ function create_splitter_bar(cg)
     
     local function split_tab(new_cg,layout,idx)
         local new,old = clientGroup(),cg.active
+        old.decorations:remove_decoration("titlebar")
         new:set_layout(common.get_layout_list()[layout])
         new:attach(new_cg)
         cg:attach(new)
@@ -190,6 +210,20 @@ function create_splitter_bar(cg)
         wbs = nil
         data = nil
     end)
+    
+--     local get_map = {
+--         x = function() return x end,
+--         y = function() return y end
+--     }
+--     local set_map = {}
+--     object_model(tab,get_map,set_map,private_data,{
+--         autogen_getmap      = true ,
+--         autogen_signals     = true ,
+--         auto_signal_changed = true ,
+--         force_private       = {
+--             selected        = true ,
+--             title           = true }
+--     })
     return data
 end
 
