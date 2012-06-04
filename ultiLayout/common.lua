@@ -62,15 +62,14 @@ local function abstract_drag(cg,on_drag_f,on_drop_f,on_click_f,args)
             return false
         end
         if mouse.x ~= cur.x and mouse.y ~= cur.y then
-            moved = true
-            if type(args.on_first_move) == "function" then
+            if not moved and type(args.on_first_move) == "function" then
                 args.on_first_move(mouse,cur)
             end
+            moved = true
             if type(on_drag_f) == "function" then
                 on_drag_f(mouse,cur)
             end
             cur.x,cur.y = mouse.x,mouse.y
-            cg:repaint()
         end
         return true
     end,"fleur")
@@ -83,6 +82,7 @@ function drag_cg(cg,on_click_f,args)
         abstract_drag(cg,function(mouse,cur)
             cg.x = cg.x + (mouse.x-cur.x)
             cg.y = cg.y + (mouse.y-cur.y)
+            cg:repaint()
         end,nil,on_click_f)
     else
         local aWb = args.wibox or thumbnail(cg)

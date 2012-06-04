@@ -4,6 +4,7 @@ local pairs        = pairs
 local print        = print
 local type         = type
 local ipairs       = ipairs
+local debug        = debug
 local decorations  = require( "ultiLayout.decoration" )
 local object_model = require( "ultiLayout.object_model" )
 
@@ -257,6 +258,7 @@ function new(parent)
         if layout then
             layout:update()
         end
+--         print("Track repaint",debug.traceback())
     end
     
     local function change_visibility(value)

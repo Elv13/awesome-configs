@@ -57,14 +57,14 @@ local function new(cg,orientation)
                 local width  = ( orientation == "horizontal" ) and cg.workarea.width or ratio_to_percent(data.ratio[k])*cg.workarea.width
                 local height = ( orientation == "vertical"   ) and cg.workarea.height or ratio_to_percent(data.ratio[k])*cg.workarea.height
                 
-                if prev and prev.decorations["edge"] then
-                    print("This do work",#prev.decorations["edge"],prev.decorations["edge"][1].cg2,v)
-                    prev.decorations["edge"][1].cg2 = v
+                if prev and v.decorations["edge"] then
+                    print("This do work",#(v.decorations["edge"] or {}),#(prev.decorations["edge"] or {}))
+                    --prev.decorations["edge"][1].cg1 = v
+                    v.decorations["edge"][1].cg2 = prev
                 elseif (prev) then
                     print("You failed",prev.decorations["edge"])
                 end
                 
-                print("geo      h w x y",height,width,relX,relY)
                 v:geometry({width = width, height = height, x = relX, y = relY })
                 v:repaint()
                 relY     = relY + (( orientation == "horizontal" ) and v.height or 0)
@@ -80,7 +80,7 @@ local function new(cg,orientation)
         data.ratio[current_count+1] = child_cg.default_percent and (child_cg.default_percent*sum_ratio()) or get_average()
         --child_cg:add_signal("cg::swapped",swap)
         if current_count > 0 and current_count+1 == index then--TODO implement other cases
-            local anEdge = edge({cg1=cg:childs()[current_count],cg2=child_cg})
+            local anEdge = edge({cg1=cg:childs()[current_count] or nil,cg2=child_cg})
             anEdge:add_signal("distance_change::request",function(_e, delta)
                 if _e.cg1.parent == cg and _e.cg2.parent == cg and orientation == _e.orientation then --TODO dead code?
                     local diff = (sum_ratio()/cg[(orientation == "horizontal") and "height" or "width"])*delta
