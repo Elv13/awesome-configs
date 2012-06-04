@@ -32,8 +32,8 @@ local function create_edge(args)
         cg2    = function (value) private_data.cg2 = value end,
         x      = function (value) private_data.x,private_data.wibox.x = value,value end,
         y      = function (value) private_data.y,private_data.wibox.y = value,value end,
-        width  = (data.orientation == "horizontal") and function (value) private_data.wibox.width = value end or false,
-        height = (data.orientation == "horizontal") and false or function (value) private_data.wibox.height = value end,
+        width  = function (value) private_data.wibox.width = value end,
+        height = function (value) private_data.wibox.height = value end,
     }
     for k,v in pairs({"orientation"}) do
         set_map[v] = false

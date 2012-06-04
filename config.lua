@@ -167,8 +167,10 @@ end
 
 function save()
      local f = io.open(util.getdir("config") .. "/serialized.lua",'w')
-     f:write("return " .. serialise(data2).." \n")
-     f:close()
+     if f then
+        f:write("return " .. serialise(data2).." \n")
+        f:close()
+     end
 end
 
 function load()

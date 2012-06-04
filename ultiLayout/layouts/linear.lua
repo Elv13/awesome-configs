@@ -28,8 +28,8 @@ local function new(cg,orientation)
         splitter1 = splitter(cg,{y=function() return cg.y+cg.height/2 end  ,x=function() return cg.x end           , index=1 ,direction="right" })
         splitter2 = splitter(cg,{y=function() return cg.y+cg.height/2 end  ,x=function() return cg.x+cg.width-48 end         ,direction="left"  })
     end
-    cg.decorations:add_decoration(splitter1,{class="splitter",position="top",align="beginning",update_callback= function() splitter1:update() end})
-    cg.decorations:add_decoration(splitter2,{class="splitter",position="top",align="beginning",update_callback= function() splitter2:update() end})
+    cg.decorations:add_decoration(splitter1,{class="splitter",position="top",align="beginning",ontop=true,update_callback= function() splitter1:update() end})
+    cg.decorations:add_decoration(splitter2,{class="splitter",position="top",align="beginning",ontop=true,update_callback= function() splitter2:update() end})
    
    local function sum_ratio(only_visible)
         local sumratio = 0
@@ -51,11 +51,11 @@ local function new(cg,orientation)
    end
    
    function data:update()
-       local relX,relY,prev = cg.x,cg.y,nil
+       local relX,relY,prev = cg.workarea.x,cg.workarea.y,nil
        for k,v in ipairs(cg:childs()) do
            if v.visible ~= false and (#v:childs() > 0 or v:has_client() == true) then --TODO visible childs
-                local width  = ( orientation == "horizontal" ) and cg.width or ratio_to_percent(data.ratio[k])*cg.width
-                local height = ( orientation == "vertical"   ) and cg.height or ratio_to_percent(data.ratio[k])*cg.height
+                local width  = ( orientation == "horizontal" ) and cg.workarea.width or ratio_to_percent(data.ratio[k])*cg.workarea.width
+                local height = ( orientation == "vertical"   ) and cg.workarea.height or ratio_to_percent(data.ratio[k])*cg.workarea.height
                 
                 if prev and prev.decorations["edge"] then
                     print("This do work",#prev.decorations["edge"],prev.decorations["edge"][1].cg2,v)
@@ -64,7 +64,7 @@ local function new(cg,orientation)
                     print("You failed",prev.decorations["edge"])
                 end
                 
-                
+                print("geo      h w x y",height,width,relX,relY)
                 v:geometry({width = width, height = height, x = relX, y = relY })
                 v:repaint()
                 relY     = relY + (( orientation == "horizontal" ) and v.height or 0)

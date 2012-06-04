@@ -12,6 +12,7 @@ local function add_decoration(list,cg,wb, args)--{class, position, index, ontop,
     if not wb then return end
     local deco = args or {}
     deco.position = args.position or "top"
+    deco.ontop = args.ontop or false
     deco.align = args.align or "ajust"
     deco.update_callback = args.update_callback or nil
     local wb = (type(wb) == "function") and wb(cg) or wb
@@ -163,39 +164,36 @@ function decoration(cg)
     end
     
     local padding = {}
-    
+
     local ajust_workarea = {
-        top    = function(wb) return { x= 0     , y= wb.y , width = 0         , height = - wb.height } end,
-        bottom = function(wb) return { x= 0     , y= 0    , width = 0         , height = - wb.height } end,
-        left   = function(wb) return { x= wb.x  , y= 0    , width = -wb.width , height = 0           } end,
-        right  = function(wb) return { x= 0     , y= 0    , width = -wb.width , height = 0           } end,
+        top    = function(wb,wa) return { x= wa.x           , y= wa.y+wb.height , width = wa.width          , height = wa.height - wb.height } end,
+        bottom = function(wb,wa) return { x= wa.x           , y= wa.y           , width = wa.width          , height = wa.height - wb.height } end,
+        left   = function(wb,wa) return { x= wa.x+wb.width  , y= wa.y           , width = wa.width-wb.width , height = wa.height                    } end,
+        right  = function(wb,wa) return { x= wa.x           , y= wa.y           , width = wa.width-wb.width , height = wa.height                    } end,
     }
         
 
     function data:update()
         local workarea = {width = cg.width, height = cg.height, x = cg.x, y = cg.y}
         for k,v in pairs(decolist) do
-            print("class",k)
             for k2,v2 in ipairs(v) do
                 if v2.wibox then
-                    if (k == "edge") then print("here44",v2.wibox,type(v2.wibox),v2.position,v2.wibox.orientation,v2.wibox.height,v2.wibox.width,cg.width)end
-                    local geo = ajust_pos(v2,cg)
-                    --v2.wibox:geometry(geo)
+                    local geo = ajust_pos(v2,workarea)
                     for k3,v3 in ipairs({"width","height","x","y"}) do
-                        print(v3,geo[v3],cg[v3])
                         if not ((v3 == "width" or v3 == "height") and geo[v3] == 0) then
                             v2.wibox[v3] = geo[v3] or 2
                         end
                     end
-                    --v2.wibox.visible = cg.visible
-                    --print("pos:",v2.position,v2.wibox,k2,cg,cg.title,"visible",v2.wibox.visible,"geo",v2.wibox.x,v2.wibox.y,v2.wibox.width,v2.wibox.height)
                     if type(v2.update_callback) == "function" then
                         v2.update_callback()
                     end
                 end
-                workarea = ajust_workarea[v2.position](workarea,v2)
+                if not v2.ontop then
+                    workarea = ajust_workarea[v2.position](v2.wibox,workarea)
+                end
             end
         end
+        return workarea
     end
     
     function data:work_area()

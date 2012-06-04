@@ -253,10 +253,10 @@ function new(parent)
     end
     
     function data:repaint()
+        private_data["workarea"] = deco:update()
         if layout then
             layout:update()
         end
-        deco:update()
     end
     
     local function change_visibility(value)
@@ -295,18 +295,24 @@ function new(parent)
         title    = function(value) title = value; data:emit_signal("title::changed",value) end,
         focus    = set_focus,
         active   = set_active,
+        workarea = false,
     }
     for k,v in pairs({"height", "width","y","x"}) do
         set_map[v] =  function (value) change_geo(v,value) end
     end
     
     local get_map = {
-        parent      = function() return parent      end,
-        title       = function() return get_title() end,
-        focus       = function() return focus       end,
-        active      = function() return active_cg   end,
-        decorations = function() return deco        end,
+        parent      = function() return parent                   end,
+        title       = function() return get_title()              end,
+        focus       = function() return focus                    end,
+        active      = function() return active_cg                end,
+        decorations = function() return deco                     end,
+        workarea    = function() return private_data["workarea"] end,
     }
+    
+    for k,v in pairs({"height", "width","y","x"}) do
+        get_map[v] =  function () return (type(private_data[v]) == "function") and private_data[v]() or private_data[v] end
+    end
     
     object_model(data,get_map,set_map,private_data,{always_handle = {visible = true},autogen_getmap = true})
     return data

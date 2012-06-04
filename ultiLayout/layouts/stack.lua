@@ -10,7 +10,7 @@ local splitter     = require( "ultiLayout.widgets.splitter" )
 module("ultiLayout.layouts.stack")
 
 function new(cg,have_tiltebar)
-    if not cg then return end
+   if not cg then return end
    local data      = {}
    local tb        = nil
    local asplitter = splitter.create_splitter_bar(cg)
@@ -18,9 +18,8 @@ function new(cg,have_tiltebar)
    
    function data:update()
         local margin = (cg.width-(2*(beautiful.client_margin or 0)) < 0 or cg.height-(2*(beautiful.client_margin or 0)) < 0) and 0 or beautiful.client_margin or 0
-        local margin_top = (tb) and tb.wibox.height or 0
         for k,v in ipairs(cg:childs()) do
-            v:geometry({width  = cg.width-(margin*2), height = cg.height-margin_top-(margin*2), x = cg.x+(margin/2), y = cg.y+margin_top+(margin/2)})
+            v:geometry({width  = cg.workarea.width-(margin*2), height = cg.workarea.height-(margin*2), x = cg.workarea.x+(margin/2), y = cg.workarea.y+(margin/2)})
             v:repaint()
         end
         --if tb then tb:update() end
