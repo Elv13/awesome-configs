@@ -1,11 +1,9 @@
 local ipairs       = ipairs
 local pairs        = pairs
 local print        = print
-local table        = table
 local common       = require( "ultiLayout.common" )
 local edge         = require( "ultiLayout.edge" )
 local splitter     = require( "ultiLayout.widgets.splitter" )
-local beautiful    = require( "beautiful" )
 
 module("ultiLayout.layouts.linear")
 
@@ -13,14 +11,13 @@ local function cg_to_idx(list,cg)
     for k,v in ipairs(list) do
         if v == cg then return k end
     end
-    return nil
 end
 
 local function new(cg,orientation)
    local data     = { ratio = {} }
-   local edges    = {}
    local splitter1,splitter2
    
+   --local function pos_or_size(p_or_x,side) return (p_or_x == "pos") and cg[side]/2 or cg[side]-48 end
     if orientation == "horizontal" then
         splitter1 = splitter(cg,{y=function() return cg.y end              ,x=function() return cg.x+cg.width/2 end, index=1 ,direction="bottom"})
         splitter2 = splitter(cg,{y=function() return cg.y+cg.height-48 end ,x=function() return cg.x+cg.width/2 end          ,direction="top"   })
@@ -46,26 +43,19 @@ local function new(cg,orientation)
        return (sum_ratio(only_visible) / #((only_visible == true) and cg:visible_childs() or cg:childs())) or 1
    end
    
-   local function ratio_to_percent(ratio)
-       return (ratio or get_average(true)) / sum_ratio(true)
+   local function size(ratio,w_or_h,ori)
+       return ( orientation == ori ) and cg.workarea[w_or_h] or ((ratio or get_average(true)) / sum_ratio(true))*cg.workarea[w_or_h]
    end
    
    function data:update()
        local relX,relY,prev = cg.workarea.x,cg.workarea.y,nil
        for k,v in ipairs(cg:childs()) do
            if v.visible ~= false and (#v:childs() > 0 or v:has_client() == true) then --TODO visible childs
-                local width  = ( orientation == "horizontal" ) and cg.workarea.width or ratio_to_percent(data.ratio[k])*cg.workarea.width
-                local height = ( orientation == "vertical"   ) and cg.workarea.height or ratio_to_percent(data.ratio[k])*cg.workarea.height
-                
-                if prev and v.decorations["edge"] then
-                    print("This do work",#(v.decorations["edge"] or {}),#(prev.decorations["edge"] or {}))
-                    --prev.decorations["edge"][1].cg1 = v
-                    v.decorations["edge"][1].cg2 = prev
-                elseif (prev) then
-                    print("You failed",prev.decorations["edge"])
+                if v.decorations["edge"] then
+                    v.decorations["edge"][1].cg1 = prev
                 end
                 
-                v:geometry({width = width, height = height, x = relX, y = relY })
+                v:geometry({width = size(data.ratio[k],"width","horizontal"), height = size(data.ratio[k],"height","vertical"), x = relX, y = relY })
                 v:repaint()
                 relY     = relY + (( orientation == "horizontal" ) and v.height or 0)
                 relX     = relX + (( orientation == "vertical"   ) and v.width  or 0)
@@ -78,19 +68,17 @@ local function new(cg,orientation)
         local current_count = #cg:childs()
         local index  = index or current_count + 1
         data.ratio[current_count+1] = child_cg.default_percent and (child_cg.default_percent*sum_ratio()) or get_average()
-        --child_cg:add_signal("cg::swapped",swap)
-        if current_count > 0 and current_count+1 == index then--TODO implement other cases
-            local anEdge = edge({cg1=cg:childs()[current_count] or nil,cg2=child_cg})
+            local anEdge = edge({cg1=cg:childs()[current_count] or nil,cg2=child_cg,orientation=orientation})
             anEdge:add_signal("distance_change::request",function(_e, delta)
-                if _e.cg1.parent == cg and _e.cg2.parent == cg and orientation == _e.orientation then --TODO dead code?
+                if _e.cg1 and _e.cg2 then
                     local diff = (sum_ratio()/cg[(orientation == "horizontal") and "height" or "width"])*delta
-                    data.ratio[ current_count   ] = data.ratio[ current_count   ] + diff
-                    data.ratio[ current_count+1 ] = data.ratio[ current_count+1 ] - diff
+                    local idx1,idx2 = cg_to_idx(cg:childs(),_e.cg1),cg_to_idx(cg:childs(),_e.cg2)
+                    data.ratio[ idx1 ] = data.ratio[ idx1 ] + diff
+                    data.ratio[ idx2 ] = data.ratio[ idx2 ] - diff
                     self:update()
                 end
             end)
             child_cg.decorations:add_decoration(anEdge,{class="edge",position=((orientation == "vertical") and "left" or "top"),align="ajust",update_callback= function() anEdge:update() end})
-        end
         return child_cg
    end
    return data

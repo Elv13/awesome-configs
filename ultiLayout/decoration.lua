@@ -132,7 +132,6 @@ function decoration(cg)
     --local args = args or {}
     function data:add_decoration(wb,args)
         local deco = add_decoration(decolist,cg,wb,args)
-        --print("\n\nPOS",deco.position,"WIB",deco.wibox)
         local class = args.class or "other"
         decolist[class] = decolist[class] or {}
         table.insert(decolist[class],deco)
@@ -177,7 +176,7 @@ function decoration(cg)
         local workarea = {width = cg.width, height = cg.height, x = cg.x, y = cg.y}
         for k,v in pairs(decolist) do
             for k2,v2 in ipairs(v) do
-                if v2.wibox then
+                if v2.wibox and v2.wibox.visible == true then
                     local geo = ajust_pos(v2,workarea)
                     for k3,v3 in ipairs({"width","height","x","y"}) do
                         if not ((v3 == "width" or v3 == "height") and geo[v3] == 0) then
@@ -188,7 +187,7 @@ function decoration(cg)
                         v2.update_callback()
                     end
                 end
-                if not v2.ontop then
+                if not v2.ontop and v2.wibox.visible == true then
                     workarea = ajust_workarea[v2.position](v2.wibox,workarea)
                 end
             end

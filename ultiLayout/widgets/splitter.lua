@@ -74,7 +74,8 @@ local function create_splitter(cg,args)
     
     local get_map = {
         x = function() return (type(private_data.x) == "function") and private_data.x() or private_data.x end,
-        y = function() return (type(private_data.y) == "function") and private_data.y() or private_data.y end
+        y = function() return (type(private_data.y) == "function") and private_data.y() or private_data.y end,
+        visible = function() return aWb.visible end
     }
     local set_map = {
         x = false,
