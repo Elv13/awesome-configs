@@ -17,7 +17,7 @@ end
 
 function create(edge)
     local w = wibox({position = "free"})
-    w.visible = (edge.cg1 ~= nil and edge.cg2 ~= nil)
+    w.visible = (edge.cg2 ~= nil)
     w.bg = beautiful.border_normal
     w:buttons(util.table.join(
         button({ }, 1 ,function (tab)

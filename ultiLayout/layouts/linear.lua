@@ -7,12 +7,6 @@ local splitter     = require( "ultiLayout.widgets.splitter" )
 
 module("ultiLayout.layouts.linear")
 
-local function cg_to_idx(list,cg)
-    for k,v in ipairs(list) do
-        if v == cg then return k end
-    end
-end
-
 local function new(cg,orientation)
    local data     = { ratio = {} }
    local splitter1,splitter2
@@ -48,18 +42,13 @@ local function new(cg,orientation)
    end
    
    function data:update()
-       local relX,relY,prev = cg.workarea.x,cg.workarea.y,nil
+       local relX,relY = cg.workarea.x,cg.workarea.y
        for k,v in ipairs(cg:childs()) do
            if v.visible ~= false and (#v:childs() > 0 or v:has_client() == true) then --TODO visible childs
-                if v.decorations["edge"] then
-                    v.decorations["edge"][1].cg1 = prev
-                end
-                
                 v:geometry({width = size(data.ratio[k],"width","horizontal"), height = size(data.ratio[k],"height","vertical"), x = relX, y = relY })
                 v:repaint()
-                relY     = relY + (( orientation == "horizontal" ) and v.height or 0)
-                relX     = relX + (( orientation == "vertical"   ) and v.width  or 0)
-                prev = v
+                relY = relY + (( orientation == "horizontal" ) and v.height or 0)
+                relX = relX + (( orientation == "vertical"   ) and v.width  or 0)
            end
        end
    end
@@ -70,10 +59,10 @@ local function new(cg,orientation)
         data.ratio[current_count+1] = child_cg.default_percent and (child_cg.default_percent*sum_ratio()) or get_average()
             local anEdge = edge({cg1=cg:childs()[current_count] or nil,cg2=child_cg,orientation=orientation})
             anEdge:add_signal("distance_change::request",function(_e, delta)
-                if _e.cg1 and _e.cg2 then
+                if _e.cg2 then
                     local diff = (sum_ratio()/cg[(orientation == "horizontal") and "height" or "width"])*delta
-                    local idx1,idx2 = cg_to_idx(cg:childs(),_e.cg1),cg_to_idx(cg:childs(),_e.cg2)
-                    data.ratio[ idx1 ] = data.ratio[ idx1 ] + diff
+                    local idx2 = cg:cg_to_idx(_e.cg2)
+                    data.ratio[ idx2-1 ] = data.ratio[ idx2-1 ] + diff
                     data.ratio[ idx2 ] = data.ratio[ idx2 ] - diff
                     self:update()
                 end

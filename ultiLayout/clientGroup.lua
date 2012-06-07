@@ -150,13 +150,10 @@ function new(parent)
         self:repaint()
     end
     
-    local function cg_to_idx(cg)
+    function data:cg_to_idx(cg)
         for k,v in ipairs(childs_cg) do
-            if v == cg then
-                return k
-            end
+            if v == cg then return k end
         end
-        return nil
     end
     
     --It is not called swap because it only do half of the operation
@@ -174,7 +171,7 @@ function new(parent)
                 end
             end
         else --This avoid swaping CG back to original state if they are in the same parent CG
-            local old_cg_idx, new_cg_idx = cg_to_idx(old_cg), cg_to_idx(new_cg)
+            local old_cg_idx, new_cg_idx = self:cg_to_idx(old_cg), self:cg_to_idx(new_cg)
             if old_cg_idx ~= nil and new_cg_idx ~= nil then
                 childs_cg[ old_cg_idx ] = new_cg
                 childs_cg[ new_cg_idx ] = old_cg
