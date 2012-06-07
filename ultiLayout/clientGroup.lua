@@ -2,7 +2,10 @@ local setmetatable = setmetatable
 local table        = table
 local pairs        = pairs
 local print        = print
+local type         = type
 local ipairs       = ipairs
+local debug        = debug
+local decorations  = require( "ultiLayout.decoration" )
 local object_model = require( "ultiLayout.object_model" )
 
 module("ultiLayout.clientGroup")
@@ -18,6 +21,7 @@ function new(parent)
     local childs_cg         = {}
     local title             = nil
     local active_cg         = nil
+    local deco              = decorations.decoration(data)
     local private_data = {
         floating = false,
         visible  = true,
@@ -146,13 +150,10 @@ function new(parent)
         self:repaint()
     end
     
-    local function cg_to_idx(cg)
+    function data:cg_to_idx(cg)
         for k,v in ipairs(childs_cg) do
-            if v == cg then
-                return k
-            end
+            if v == cg then return k end
         end
-        return nil
     end
     
     --It is not called swap because it only do half of the operation
@@ -170,7 +171,7 @@ function new(parent)
                 end
             end
         else --This avoid swaping CG back to original state if they are in the same parent CG
-            local old_cg_idx, new_cg_idx = cg_to_idx(old_cg), cg_to_idx(new_cg)
+            local old_cg_idx, new_cg_idx = self:cg_to_idx(old_cg), self:cg_to_idx(new_cg)
             if old_cg_idx ~= nil and new_cg_idx ~= nil then
                 childs_cg[ old_cg_idx ] = new_cg
                 childs_cg[ new_cg_idx ] = old_cg
@@ -250,9 +251,11 @@ function new(parent)
     end
     
     function data:repaint()
+        private_data["workarea"] = deco:update()
         if layout then
             layout:update()
         end
+--         print("Track repaint",debug.traceback())
     end
     
     local function change_visibility(value)
@@ -263,12 +266,7 @@ function new(parent)
     end
     
     local function get_title()
-        if title then
-            return title
-        else
-            local allC = data:all_clients()
-            return ((#allC == 1) and allC[1].name or #allC.." clients")
-        end
+        return (title) and title or (function(allC) return ((#allC == 1) and allC[1].name or #allC.." clients") end)(data:all_clients())
     end
     
     local function set_focus(value)
@@ -279,6 +277,7 @@ function new(parent)
         end
         data:emit_signal("focus::changed",value)
     end
+    
     
     local function change_geo(var,new_value)
         if new_value < 0 then return end --It can be normal, but avoid it anyway
@@ -295,17 +294,24 @@ function new(parent)
         title    = function(value) title = value; data:emit_signal("title::changed",value) end,
         focus    = set_focus,
         active   = set_active,
+        workarea = false,
     }
     for k,v in pairs({"height", "width","y","x"}) do
         set_map[v] =  function (value) change_geo(v,value) end
     end
     
     local get_map = {
-        parent = function() return parent      end,
-        title  = function() return get_title() end,
-        focus  = function() return focus       end,
-        active = function() return active_cg   end,
+        parent      = function() return parent                   end,
+        title       = function() return get_title()              end,
+        focus       = function() return focus                    end,
+        active      = function() return active_cg                end,
+        decorations = function() return deco                     end,
+        workarea    = function() return private_data["workarea"] end,
     }
+    
+    for k,v in pairs({"height", "width","y","x"}) do
+        get_map[v] =  function () return (type(private_data[v]) == "function") and private_data[v]() or private_data[v] end
+    end
     
     object_model(data,get_map,set_map,private_data,{always_handle = {visible = true},autogen_getmap = true})
     return data

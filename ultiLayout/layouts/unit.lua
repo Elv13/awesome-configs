@@ -10,7 +10,7 @@ function new(cg,c)
     
     function data:update()
         c.hidden = not cg.visible
-        c:geometry({x = cg.x, y = cg.y, width = cg.width, height = cg.height})
+        c:geometry({x = cg.workarea.x, y = cg.workarea.y, width = cg.workarea.width, height = cg.workarea.height})
     end
     
     function data:set_active(sub_cg)

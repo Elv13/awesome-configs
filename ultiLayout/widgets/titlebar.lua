@@ -220,9 +220,9 @@ local function create(cg, args)
         if tb and cg.width > 0 then
             local margin = beautiful.client_margin or 0
             margin = (cg.width-(2*margin) < 0 or cg.height-(2*margin) < 0) and 0 or beautiful.client_margin or 0
-            tb.x       = cg.x+(margin/2)
-            tb.y       = cg.y+(margin/2)
-            tb.width   = cg.width-(margin*2)
+--             tb.x       = cg.x+(margin/2)
+--             tb.y       = cg.y+(margin/2)
+--             tb.width   = cg.width-(margin*2)
             tb.visible = true
         elseif tb then
             tb.visible = false
@@ -248,7 +248,6 @@ local function create(cg, args)
     cg:add_signal("visibility::changed" ,function(_cg,value) tb.visible = value     end)
     cg:add_signal("child::replaced"     ,function(...) data:swap(...)               end)
     cg:add_signal("detached"            ,function(_cg,child)
-        print("detached",child,titlebar.tabs[child],#cg:childs())
         if not titlebar then return end
         if titlebar.tabs[child] then
             print("Removing ",titlebar.tabs[child])

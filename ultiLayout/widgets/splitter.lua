@@ -9,7 +9,7 @@ local wibox        = require( "awful.wibox"  )
 local common       = require( "ultiLayout.common" )
 local clientGroup  = require( "ultiLayout.clientGroup" )
 local beautiful    = require( "beautiful" )
---local object_model = require( "ultiLayout.object_model" )
+local object_model = require( "ultiLayout.object_model" )
 
 module("ultiLayout.widgets.splitter")
 
@@ -65,11 +65,51 @@ local function init_shape(width, height)
     init = true
 end
 
+local function gen_y(direction,cg)
+    local dir_to_y = {
+        left   =cg.y+cg.height/2,
+        right  =cg.y+cg.height/2,
+        top    =cg.y+cg.height-48,
+        bottom =cg.y
+    }
+    return dir_to_y[direction]
+end
+
+local function gen_x(direction,cg)
+    local dir_to_x = {
+        left   =cg.x+cg.width-48,
+        right  =cg.x,
+        top    =cg.x+cg.width/2,
+        bottom =cg.x+cg.width/2
+    }
+    return dir_to_x[direction]
+end
+
 local function create_splitter(cg,args)
     local args = args or {}
-    local data = {x=args.x,y=args.y}
+    local private_data = {x=args.x,y=args.y,direction=args.direction}
+    local data = {}
     local aWb = wibox({position="free"})
     local visible = false
+    
+    local get_map = {
+        x = function() return (type(private_data.x) == "function") and private_data.x() or private_data.x or gen_x(private_data.direction,cg)  end,
+        y = function() return (type(private_data.y) == "function") and private_data.y() or private_data.y or gen_y(private_data.direction,cg)  end,
+        visible = function() return aWb.visible end
+    }
+    local set_map = {
+        x = false,
+        y = false,
+    }
+    object_model(data,get_map,set_map,private_data,{
+        autogen_getmap      = true ,
+        autogen_signals     = true ,
+        auto_signal_changed = true ,
+        force_private       = {
+            selected        = true ,
+            title           = true }
+    })
+    
     data.wibox = aWb
     aWb.width  = 48
     aWb.height = 48
@@ -128,6 +168,7 @@ function create_splitter_bar(cg)
     local wbs = {}
     local data = {}
     local visible = false
+    local x,y = 0,0
     
     for i=1,6 do
         local w = wibox({position="free"})
@@ -136,7 +177,6 @@ function create_splitter_bar(cg)
         w.ontop = true
         w.bg = beautiful.fg_normal
         w.visible = false
-        print(util.getdir("config") .. "/theme/darkBlue/Icon/".. img[i] .."_dark.png")
         if img[i] ~= "" then
             local wd = capi.widget({type="imagebox"})
             wd.image = capi.image(util.getdir("config") .. "/theme/darkBlue/Icon/".. img[i] .."_dark.png")
@@ -147,6 +187,7 @@ function create_splitter_bar(cg)
     
     local function split_tab(new_cg,layout,idx)
         local new,old = clientGroup(),cg.active
+        old.decorations:remove_decoration("titlebar")
         new:set_layout(common.get_layout_list()[layout])
         new:attach(new_cg)
         cg:attach(new)
@@ -190,6 +231,20 @@ function create_splitter_bar(cg)
         wbs = nil
         data = nil
     end)
+    
+--     local get_map = {
+--         x = function() return x end,
+--         y = function() return y end
+--     }
+--     local set_map = {}
+--     object_model(tab,get_map,set_map,private_data,{
+--         autogen_getmap      = true ,
+--         autogen_signals     = true ,
+--         auto_signal_changed = true ,
+--         force_private       = {
+--             selected        = true ,
+--             title           = true }
+--     })
     return data
 end
 

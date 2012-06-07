@@ -14,5 +14,7 @@ require( "widgets.desktopIcon"          )
 require( "widgets.checkbox"             )
 require( "widgets.layout.desktopLayout" )
 require( "widgets.radialSelect"         )
+require( "widgets.menuDeco"             )
+require( "widgets.overlay"              )
 
 module("widgets")
