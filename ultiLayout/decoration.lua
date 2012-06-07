@@ -176,15 +176,15 @@ function decoration(cg)
         local workarea = {width = cg.width, height = cg.height, x = cg.x, y = cg.y}
         for k,v in pairs(decolist) do
             for k2,v2 in ipairs(v) do
+                if type(v2.update_callback) == "function" then
+                    v2.update_callback()
+                end
                 if v2.wibox and v2.wibox.visible == true then
                     local geo = ajust_pos(v2,workarea)
                     for k3,v3 in ipairs({"width","height","x","y"}) do
                         if not ((v3 == "width" or v3 == "height") and geo[v3] == 0) then
                             v2.wibox[v3] = geo[v3] or 2
                         end
-                    end
-                    if type(v2.update_callback) == "function" then
-                        v2.update_callback()
                     end
                 end
                 if not v2.ontop and v2.wibox.visible == true then

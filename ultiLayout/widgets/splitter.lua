@@ -65,16 +65,36 @@ local function init_shape(width, height)
     init = true
 end
 
+local function gen_y(direction,cg)
+    local dir_to_y = {
+        left   =cg.y+cg.height/2,
+        right  =cg.y+cg.height/2,
+        top    =cg.y+cg.height-48,
+        bottom =cg.y
+    }
+    return dir_to_y[direction]
+end
+
+local function gen_x(direction,cg)
+    local dir_to_x = {
+        left   =cg.x+cg.width-48,
+        right  =cg.x,
+        top    =cg.x+cg.width/2,
+        bottom =cg.x+cg.width/2
+    }
+    return dir_to_x[direction]
+end
+
 local function create_splitter(cg,args)
     local args = args or {}
-    local private_data = {x=args.x,y=args.y}
+    local private_data = {x=args.x,y=args.y,direction=args.direction}
     local data = {}
     local aWb = wibox({position="free"})
     local visible = false
     
     local get_map = {
-        x = function() return (type(private_data.x) == "function") and private_data.x() or private_data.x end,
-        y = function() return (type(private_data.y) == "function") and private_data.y() or private_data.y end,
+        x = function() return (type(private_data.x) == "function") and private_data.x() or private_data.x or gen_x(private_data.direction,cg)  end,
+        y = function() return (type(private_data.y) == "function") and private_data.y() or private_data.y or gen_y(private_data.direction,cg)  end,
         visible = function() return aWb.visible end
     }
     local set_map = {

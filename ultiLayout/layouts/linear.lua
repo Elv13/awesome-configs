@@ -8,17 +8,9 @@ local splitter     = require( "ultiLayout.widgets.splitter" )
 module("ultiLayout.layouts.linear")
 
 local function new(cg,orientation)
-   local data     = { ratio = {} }
-   local splitter1,splitter2
-   
-   --local function pos_or_size(p_or_x,side) return (p_or_x == "pos") and cg[side]/2 or cg[side]-48 end
-    if orientation == "horizontal" then
-        splitter1 = splitter(cg,{y=function() return cg.y end              ,x=function() return cg.x+cg.width/2 end, index=1 ,direction="bottom"})
-        splitter2 = splitter(cg,{y=function() return cg.y+cg.height-48 end ,x=function() return cg.x+cg.width/2 end          ,direction="top"   })
-    else
-        splitter1 = splitter(cg,{y=function() return cg.y+cg.height/2 end  ,x=function() return cg.x end           , index=1 ,direction="right" })
-        splitter2 = splitter(cg,{y=function() return cg.y+cg.height/2 end  ,x=function() return cg.x+cg.width-48 end         ,direction="left"  })
-    end
+    local data     = { ratio = {} }
+    local splitter1 = splitter(cg,{direction=(orientation == "horizontal") and "bottom" or "right", index=1})
+    local splitter2 = splitter(cg,{direction=(orientation == "horizontal") and "top"    or "left" ,        })
     cg.decorations:add_decoration(splitter1,{class="splitter",position="top",align="beginning",ontop=true,update_callback= function() splitter1:update() end})
     cg.decorations:add_decoration(splitter2,{class="splitter",position="top",align="beginning",ontop=true,update_callback= function() splitter2:update() end})
    

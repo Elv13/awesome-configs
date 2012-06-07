@@ -22,7 +22,6 @@ function new(cg,have_tiltebar)
             v:geometry({width  = cg.workarea.width-(margin*2), height = cg.workarea.height-(margin*2), x = cg.workarea.x+(margin/2), y = cg.workarea.y+(margin/2)})
             v:repaint()
         end
-        --if tb then tb:update() end
         asplitter:update()
    end
    
