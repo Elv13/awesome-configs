@@ -187,6 +187,7 @@ function create_splitter_bar(cg)
     
     local function split_tab(new_cg,layout,idx)
         local new,old = clientGroup(),cg.active
+        if new_cg == old or new_cg == cg then return end
         old.decorations:remove_decoration("titlebar")
         new:set_layout(common.get_layout_list()[layout])
         new:attach(new_cg)
