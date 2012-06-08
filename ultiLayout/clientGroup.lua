@@ -263,6 +263,7 @@ function new(parent)
         for k,v in pairs(childs_cg) do
             v.visible = value
         end
+        --deco:show(value)
         private_data.visible = value
     end
     
@@ -307,7 +308,6 @@ function new(parent)
         focus       = function() return focus                    end,
         active      = function() return active_cg                end,
         decorations = function() return deco                     end,
-        workarea    = function() return private_data["workarea"] end,
     }
     
     for k,v in pairs({"height", "width","y","x"}) do

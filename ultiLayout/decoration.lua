@@ -113,7 +113,6 @@ function decoration(cg)
             if decolist[list_or_class] ~= nil then
                 for k,v in ipairs(decolist[list_or_class]) do
                     if v.wibox then
-                        print("\n\n\nREMOVING\n\n\n")
                         v.wibox.visible = false
                     end
                     decolist[list_or_class][v] = nil
@@ -133,6 +132,25 @@ function decoration(cg)
             end
         end
     end
+    
+--     function data:hide()
+--         data:show(false)
+--     end
+--     
+--     function data:show(value)
+--         local set_visible = value or true
+--         for k,v in pairs(decolist) do
+--             for k2,v2 in ipairs(v) do
+--                 if not set_visible then
+--                     v2.deco_visible = v2.visible
+--                     v2.visible = false
+--                 else
+--                     v2.visible = v2.deco_visible or true
+--                 end
+--                 
+--             end
+--         end
+--     end
     
     local padding = {}
 
