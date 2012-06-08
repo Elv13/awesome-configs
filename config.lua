@@ -183,8 +183,8 @@ function load()
         end
         local newData = func()
         unserialise(newData)
+        f:close()
     end
-    f:close()
 end
 
 function disableAutoSave()

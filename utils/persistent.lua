@@ -57,13 +57,15 @@ function loadClassesRules(t)
 --                    dockable      , urgent        , opacity         , titlebar , run            , sticky          ,
 --                    wfact         , struts        , skip_taskbar    , props                                       }
     print("Loading persistent rules",#prop)
-    for k,v in pairs(prop) do
-        local realT = config.get_real(config.data().persistent.flags[v])
-        print("Table "..v,realT)
-        for k2,v2 in pairs(realT) do
-            print("In table: "..v)
+    if config.data().persistent then
+        for k,v in pairs(prop) do
+            local realT = config.get_real(config.data().persistent.flags[v])
+            print("Table "..v,realT)
+            for k2,v2 in pairs(realT) do
+                print("In table: "..v)
+            end
+            table.insert(t,{match=reatT,[v]=true})
         end
-        table.insert(t,{match=reatT,[v]=true})
     end
 end
 

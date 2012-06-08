@@ -40,36 +40,6 @@ local function string_to_center(cg,string,length)
     end
 end
 
--- local function update_decorations(list)
---     for k,v in pairs(list) do
---         print("updating class",k)    if type(position) == "function" then
---         for k2,v2 in ipairs(v) do
---             local x,y,w,h
---                 x,y,w,h = position(cg)
---                 w,h = w or wb.width,h or wb.height
---             elseif type(position) == "string" then
---                  then
---                 
---                 local arr = {
---                     bottom = {x = cg.x,y=cg.y+cg.height-v2.wibox.height},
---                     left,
---                     right,
---                     topleft,
---                     topright,
---                     bottomleft,
---                     bottomright,
---                     lefttop,
---                     righttop,
---                     leftbottom,
---                     rightbottom
---                 }
---                 
---             elseif type(position) == "array" then
---                 
---             end
---         end
---     end
--- end
 local s2xy = {
     top    = "x",
     bottom = "x",

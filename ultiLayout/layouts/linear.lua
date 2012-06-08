@@ -1,6 +1,5 @@
 local ipairs       = ipairs
 local pairs        = pairs
-local print        = print
 local common       = require( "ultiLayout.common" )
 local edge         = require( "ultiLayout.edge" )
 local splitter     = require( "ultiLayout.widgets.splitter" )
@@ -46,20 +45,15 @@ local function new(cg,orientation)
    end
     
    function data:add_child(child_cg,index)
-        local current_count = #cg:childs()
-        local index  = index or current_count + 1
-        data.ratio[current_count+1] = child_cg.default_percent and (child_cg.default_percent*sum_ratio()) or get_average()
-            local anEdge = edge({cg1=cg:childs()[current_count] or nil,cg2=child_cg,orientation=orientation})
-            anEdge:add_signal("distance_change::request",function(_e, delta)
-                if _e.cg2 then
-                    local diff = (sum_ratio()/cg[(orientation == "horizontal") and "height" or "width"])*delta
-                    local idx2 = cg:cg_to_idx(_e.cg2)
-                    data.ratio[ idx2-1 ] = data.ratio[ idx2-1 ] + diff
-                    data.ratio[ idx2 ] = data.ratio[ idx2 ] - diff
-                    self:update()
-                end
-            end)
-            child_cg.decorations:add_decoration(anEdge,{class="edge",position=((orientation == "vertical") and "left" or "top"),align="ajust",update_callback= function() anEdge:update() end})
+        local index,anEdge = index or  #cg:childs()+1,edge({cg=child_cg,orientation=orientation})
+        data.ratio[#cg:childs()+1] = child_cg.default_percent and (child_cg.default_percent*sum_ratio()) or get_average()
+        anEdge:add_signal("distance_change::request",function(_e, delta)
+            local diff,idx2 = (sum_ratio()/cg[(orientation == "horizontal") and "height" or "width"])*delta,cg:cg_to_idx(child_cg)
+            data.ratio[ idx2-1 ] = data.ratio[ idx2-1 ] + diff
+            data.ratio[ idx2   ] = data.ratio[ idx2   ] - diff
+            self:update()
+        end)
+        child_cg.decorations:add_decoration(anEdge,{class="edge",position=((orientation == "vertical") and "left" or "top"),align="ajust",update_callback= function() anEdge:update() end})
         return child_cg
    end
    return data

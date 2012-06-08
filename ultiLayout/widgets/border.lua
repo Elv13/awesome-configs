@@ -11,13 +11,14 @@ local beautiful    = require( "beautiful"    )
 
 module("ultiLayout.widgets.border")
 
-function update_wibox(edge)
+function update_wibox(edge) --TODO dead code
     edge.wibox[(edge.orientation == "horizontal") and "height" or "width"] = 3
+    edge.wibox.visible = edge.visible
 end
 
 function create(edge)
     local w = wibox({position = "free"})
-    w.visible = (edge.cg2 ~= nil)
+    w.visible = (edge.cg ~= nil)
     w.bg = beautiful.border_normal
     w:buttons(util.table.join(
         button({ }, 1 ,function (tab)

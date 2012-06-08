@@ -244,6 +244,7 @@ function new(parent)
             if old_parent ~= nil then
                 old_parent:emit_signal("detached",data)
             end
+            data:emit_signal("parent::changed",new_parent,old_parent)
         end
         if emit_swapped == true then
             data:emit_signal("cg::swapped",other_cg,old_parent)
