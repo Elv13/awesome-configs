@@ -87,21 +87,21 @@ end
 
 local function create_splitter(cg,args)
     local args = args or {}
-    local private_data = {x=args.x,y=args.y,direction=args.direction}
+    local p_data = {x=args.x,y=args.y,direction=args.direction}
     local data = {}
     local aWb = wibox({position="free"})
     local visible = false
     
     local get_map = {
-        x = function() return (type(private_data.x) == "function") and private_data.x() or private_data.x or gen_x(private_data.direction,cg)  end,
-        y = function() return (type(private_data.y) == "function") and private_data.y() or private_data.y or gen_y(private_data.direction,cg)  end,
+        x = function() return (type(p_data.x) == "function") and p_data.x() or p_data.x or gen_x(p_data.direction,cg)  end,
+        y = function() return (type(p_data.y) == "function") and p_data.y() or p_data.y or gen_y(p_data.direction,cg)  end,
         visible = function() return aWb.visible end
     }
     local set_map = {
         x = false,
         y = false,
     }
-    object_model(data,get_map,set_map,private_data,{
+    object_model(data,get_map,set_map,p_data,{
         autogen_getmap      = true ,
         autogen_signals     = true ,
         auto_signal_changed = true ,
@@ -120,7 +120,11 @@ local function create_splitter(cg,args)
         if cg.get_layout().add_child_orig ~= nil then
             local tmp = cg.get_layout().add_child
             cg.get_layout().add_child = cg.get_layout().add_child_orig
-            cg:attach(new_cg,args.index)
+            local new_cg_parent = clientGroup()
+            new_cg.decorations:remove_decoration("edge")
+            new_cg_parent:set_layout(common.get_layout_list()[(p_data.direction == "top" or p_data.direction == "bottom") and "vertical" or "horizontal"])
+            new_cg_parent:attach(new_cg)
+            cg:attach(new_cg_parent,args.index)
             cg.get_layout().add_child = tmp
         else
             cg:attach(new_cg,args.index)
@@ -238,7 +242,7 @@ function create_splitter_bar(cg)
 --         y = function() return y end
 --     }
 --     local set_map = {}
---     object_model(tab,get_map,set_map,private_data,{
+--     object_model(tab,get_map,set_map,p_data,{
 --         autogen_getmap      = true ,
 --         autogen_signals     = true ,
 --         auto_signal_changed = true ,
