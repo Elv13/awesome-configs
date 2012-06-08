@@ -21,7 +21,7 @@ local function create_edge(args)
         wibox       = function () return p_data.wibox                                                                 end,
         width       = function () return p_data.wibox.width                                                           end,
         height      = function () return p_data.wibox.height                                                          end,
-        visible     = function () return (p_data.cg and p_data.cg.parent:cg_to_idx(p_data.cg) > 1)                    end,
+        visible     = function () return (p_data.cg and (p_data.cg.parent:cg_to_idx(p_data.cg) or 0) > 1)             end,
     }
     
     local set_map = {

@@ -174,10 +174,6 @@ local function create(cg, args)
     function data:swap(_cg,old_cg,new_cg)
         --sdfdsfds()
         if _cg.parent ~= cg then
-            print("here",_cg,old_cg,new_cg)
-            for k,v in pairs(titlebar.tabs) do
-                print("tab",v,k)
-            end
             --_cg:remove_signal("cg::swapped",swap) --TODO name changed
             titlebar.tabs[old_cg].clientgroup = new_cg
             --other_cg:add_signal("cg::swapped",swap)

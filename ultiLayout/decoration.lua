@@ -113,10 +113,12 @@ function decoration(cg)
             if decolist[list_or_class] ~= nil then
                 for k,v in ipairs(decolist[list_or_class]) do
                     if v.wibox then
+                        print("\n\n\nREMOVING\n\n\n")
                         v.wibox.visible = false
                     end
                     decolist[list_or_class][v] = nil
                 end
+                decolist[list_or_class] = {}
             end
         else
             for k,v in pairs(list) do
@@ -140,7 +142,6 @@ function decoration(cg)
         left   = function(wb,wa) return { x= wa.x+wb.width  , y= wa.y           , width = wa.width-wb.width , height = wa.height                    } end,
         right  = function(wb,wa) return { x= wa.x           , y= wa.y           , width = wa.width-wb.width , height = wa.height                    } end,
     }
-        
 
     function data:update()
         local workarea = {width = cg.width, height = cg.height, x = cg.x, y = cg.y}
@@ -171,4 +172,3 @@ function decoration(cg)
     
     return data
 end
---function

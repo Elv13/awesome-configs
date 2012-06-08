@@ -159,7 +159,6 @@ local right_bar,left_bar
 local function gen_splitter_bar_mask(i_mul, start_pos)
     local img2 = capi.image.argb32(16, 16, nil)
     for i=0,16 do
-        print(i,math.floor(math.sin( (math.pi/32)*i )*16)  )
         img2:draw_rectangle(start_pos+(i*i_mul), 0, 1, 16-math.floor(math.sin((math.pi/32)*i)*16), true, "#ffffff")
     end
     return img2
@@ -188,6 +187,7 @@ function create_splitter_bar(cg)
     local function split_tab(new_cg,layout,idx)
         local new,old = clientGroup(),cg.active
         if new_cg == old or new_cg == cg then return end
+        new_cg.decorations:remove_decoration("titlebar")
         old.decorations:remove_decoration("titlebar")
         new:set_layout(common.get_layout_list()[layout])
         new:attach(new_cg)
