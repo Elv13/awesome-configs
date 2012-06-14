@@ -1,7 +1,6 @@
 local ipairs       = ipairs
 local pairs        = pairs
 local print        = print
-local wibox        = require( "awful.wibox"       )
 local common       = require( "ultiLayout.common" )
 local beautiful    = require( "beautiful"         )
 local titlebar     = require( "ultiLayout.widgets.titlebar"  )

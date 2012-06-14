@@ -48,9 +48,8 @@ local function new(cg,orientation)
         local index,anEdge = index or  #cg:childs()+1,edge({cg=child_cg,orientation=orientation})
         data.ratio[#cg:childs()+1] = child_cg.default_percent and (child_cg.default_percent*sum_ratio()) or get_average()
         anEdge:add_signal("distance_change::request",function(_e, delta)
-            local diff,idx2 = (sum_ratio()/cg[(orientation == "horizontal") and "height" or "width"])*delta,cg:cg_to_idx(child_cg)
-            data.ratio[ idx2-1 ] = data.ratio[ idx2-1 ] + diff
-            data.ratio[ idx2   ] = data.ratio[ idx2   ] - diff
+            local diff,idx = (sum_ratio()/cg[(orientation == "horizontal") and "height" or "width"])*delta,cg:cg_to_idx(child_cg)
+            data.ratio[idx-1],data.ratio[idx] = data.ratio[ idx-1 ] + diff,data.ratio[ idx   ] - diff
             self:update()
         end)
         child_cg.decorations:add_decoration(anEdge,{class="edge",position=((orientation == "vertical") and "left" or "top"),align="ajust",update_callback= function() anEdge:update() end})

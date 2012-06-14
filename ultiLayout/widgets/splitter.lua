@@ -127,6 +127,7 @@ local function create_splitter(cg,args)
             cg:attach(new_cg_parent,args.index)
             cg.get_layout().add_child = tmp
         else
+            new_cg.decorations:remove_decoration("edge")
             cg:attach(new_cg,args.index)
         end
     end)
@@ -191,8 +192,10 @@ function create_splitter_bar(cg)
     local function split_tab(new_cg,layout,idx)
         local new,old = clientGroup(),cg.active
         if new_cg == old or new_cg == cg then return end
-        new_cg.decorations:remove_decoration("titlebar")
+        new_cg.decorations:remove_decoration("titlebar") --TODO what about tabs
         old.decorations:remove_decoration("titlebar")
+        old.decorations:remove_decoration("edge")
+        new_cg.decorations:remove_decoration("edge")
         new:set_layout(common.get_layout_list()[layout])
         new:attach(new_cg)
         cg:attach(new)

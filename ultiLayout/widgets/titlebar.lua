@@ -185,6 +185,8 @@ local function create(cg, args)
     function titlebar:add_tab(child_cg)
         local tab = tl:add_tab()
         tab:add_autosignal_field("clientgroup")
+        child_cg.decorations:remove_decoration("titlebar") --TODO check is multitab stack
+        child_cg.decorations:remove_decoration("edge")
         tab.clientgroup = child_cg
         tab.title = child_cg.title
         cg.active = child_cg
