@@ -11,6 +11,11 @@ local object_model = require( "ultiLayout.object_model" )
 module("ultiLayout.clientGroup")
 
 local client_to_cg          = {}
+local debugCounter = 0
+local bigCgRepaintLock =  0
+
+function lock()   bigCgRepaintLock = bigCgRepaintLock+1  end
+function unlock() bigCgRepaintLock = bigCgRepaintLock-1 end
 
 function new(parent)
     local data              = { swapable = false }
@@ -123,11 +128,13 @@ function new(parent)
     function data:set_layout(l,...)
         if not l then print("No layout to be set"); return end
         layout = l(self,...)
+        lock()
         for k,v in ipairs(self:childs()) do
             if not v.floating then
                 layout:add_child(v)
             end
         end
+        unlock()
         self:repaint()
     end
     
@@ -221,7 +228,9 @@ function new(parent)
             end
         end
         data:emit_signal("client::attached")
-        self:repaint()
+        --if bigCgRepaintLock == 0 then
+            self:repaint()
+        --end
         return cg
     end
     
@@ -252,11 +261,13 @@ function new(parent)
     end
     
     function data:repaint()
-        private_data["workarea"] = deco:update()
-        if layout then
-            layout:update()
+        if bigCgRepaintLock == 0 then
+            --print("Track repaint",debug.traceback())
+            private_data["workarea"] = deco:update()
+            if layout then
+                layout:update()
+            end
         end
---         print("Track repaint",debug.traceback())
     end
     
     local function change_visibility(value)
