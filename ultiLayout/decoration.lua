@@ -14,6 +14,7 @@ local function add_decoration(list,cg,wb, args)--{class, position, index, ontop,
     deco.position = args.position or "top"
     deco.ontop = args.ontop or false
     deco.align = args.align or "ajust"
+    deco.index = args.index
     deco.update_callback = args.update_callback or nil
     local wb = (type(wb) == "function") and wb(cg) or wb
     deco.wibox = wb
@@ -132,53 +133,39 @@ function decoration(cg)
             end
         end
     end
-    
---     function data:hide()
---         data:show(false)
---     end
---     
---     function data:show(value)
---         local set_visible = value or true
---         for k,v in pairs(decolist) do
---             for k2,v2 in ipairs(v) do
---                 if not set_visible then
---                     v2.deco_visible = v2.visible
---                     v2.visible = false
---                 else
---                     v2.visible = v2.deco_visible or true
---                 end
---                 
---             end
---         end
---     end
-    
-    local padding = {}
 
     local ajust_workarea = {
         top    = function(wb,wa) return { x= wa.x           , y= wa.y+wb.height , width = wa.width          , height = wa.height - wb.height } end,
         bottom = function(wb,wa) return { x= wa.x           , y= wa.y           , width = wa.width          , height = wa.height - wb.height } end,
-        left   = function(wb,wa) return { x= wa.x+wb.width  , y= wa.y           , width = wa.width-wb.width , height = wa.height                    } end,
-        right  = function(wb,wa) return { x= wa.x           , y= wa.y           , width = wa.width-wb.width , height = wa.height                    } end,
+        left   = function(wb,wa) return { x= wa.x+wb.width  , y= wa.y           , width = wa.width-wb.width , height = wa.height             } end,
+        right  = function(wb,wa) return { x= wa.x           , y= wa.y           , width = wa.width-wb.width , height = wa.height             } end,
     }
 
     function data:update()
-        local workarea = {width = cg.width, height = cg.height, x = cg.x, y = cg.y}
+        local workarea,validDeco = {width = cg.width, height = cg.height, x = cg.x, y = cg.y},{}
         for k,v in pairs(decolist) do
             for k2,v2 in ipairs(v) do
-                if type(v2.update_callback) == "function" then
-                    v2.update_callback()
-                end
                 if v2.wibox and v2.wibox.visible == true then
-                    local geo = ajust_pos(v2,workarea)
-                    for k3,v3 in ipairs({"width","height","x","y"}) do
-                        if not ((v3 == "width" or v3 == "height") and geo[v3] == 0) then
-                            v2.wibox[v3] = geo[v3] or 2
-                        end
+                    if v2.index then
+                        table.insert(validDeco,v2.index,v2)
+                    else
+                        table.insert(validDeco,v2)
                     end
                 end
-                if not v2.ontop and v2.wibox.visible == true then
-                    workarea = ajust_workarea[v2.position](v2.wibox,workarea)
+            end
+        end
+        for k,v in ipairs(validDeco) do
+            if type(v.update_callback) == "function" then
+                v.update_callback()
+            end
+            local geo = ajust_pos(v,workarea)
+            for k3,v3 in ipairs({"width","height","x","y"}) do
+                if not ((v3 == "width" or v3 == "height") and geo[v3] == 0) then
+                    v.wibox[v3] = geo[v3] or 2
                 end
+            end
+            if not v.ontop and v.wibox.visible == true then
+                workarea = ajust_workarea[v.position](v.wibox,workarea)
             end
         end
         return workarea

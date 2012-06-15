@@ -52,7 +52,7 @@ local function new(cg,orientation)
             data.ratio[idx-1],data.ratio[idx] = data.ratio[ idx-1 ] + diff,data.ratio[ idx   ] - diff
             self:update()
         end)
-        child_cg.decorations:add_decoration(anEdge,{class="edge",position=((orientation == "vertical") and "left" or "top"),align="ajust",update_callback= function() anEdge:update() end})
+        child_cg.decorations:add_decoration(anEdge,{class="edge",position=((orientation == "vertical") and "left" or "top"),align="ajust",index=1,update_callback= function() anEdge:update() end})
         return child_cg
    end
    return data
