@@ -23,6 +23,7 @@ local layouts             = {} -- tag -> layout name -> top level CG
 local cur_layout_name     = {} -- tag -> name
 local top_level_cg        = {} -- tag -> cg
 local layout_list         = {} -- string -> layout func
+local currentTag          = {} -- screen -> cg
 local wibox_to_cg         = {}
 local vertices            = {}
 local splitter_visible    = false
@@ -215,8 +216,6 @@ local function layout_name_to_idx(name)
     return nil
 end
 
-
-local currentTag = nil
 function set_layout_by_name(name,t)
     local t = t or tag.selected(capi.mouse.screen)
     if not layouts[t] then layouts[t] = {} end
@@ -263,7 +262,7 @@ function set_layout_by_name(name,t)
         print("layout".. name .. " not found")
     end
     if t.selected then
-        currentTag = top_level_cg[t]
+        currentTag[t.screen] = top_level_cg[t]
     end
 end
 
@@ -287,15 +286,15 @@ end
 local function switch_on_tag_change(t)
     local t,cg = t or tag.selected(capi.mouse.screen),top_level_cg[t]
     if t.selected == false then return end
-    if currentTag ~= nil and currentTag ~= cg then
-        currentTag.visible = false
+    if currentTag[t.screen] ~= nil and currentTag[t.screen] ~= cg then
+        currentTag[t.screen].visible = false
     end
     if cg then
         cg.visible = true
     else
         --set_layout_by_name("righttile",t)
     end
-    currentTag = cg
+    currentTag[t.screen] = cg
 end
 
 tag.attached_add_signal(screen, "property::selected", switch_on_tag_change)
