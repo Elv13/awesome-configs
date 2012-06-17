@@ -145,16 +145,16 @@ function resize_closest()
     local vx1    = v.x1
     local vy1    = v.y1
     capi.mousegrabber.run(function(mouse)
-                                    if mouse.buttons[1] == false and mouse.buttons[3] == false then
-                                        return false
-                                    end
-                                    if v.orientation == "v" then
-                                        local dx = coords.x - mouse.x
-                                    elseif v.orientation == "h" then
-                                        local dy = coords.y - mouse.y
-                                    end
-                                    return true
-                                end,"fleur")
+        if mouse.buttons[1] == false and mouse.buttons[3] == false then
+            return false
+        end
+        if v.orientation == "v" then
+            local dx = coords.x - mouse.x
+        elseif v.orientation == "h" then
+            local dy = coords.y - mouse.y
+        end
+        return true
+    end,"fleur")
     
 end
 
@@ -215,6 +215,8 @@ local function layout_name_to_idx(name)
     return nil
 end
 
+
+local currentTag = nil
 function set_layout_by_name(name,t)
     local t = t or tag.selected(capi.mouse.screen)
     if not layouts[t] then layouts[t] = {} end
@@ -246,17 +248,22 @@ function set_layout_by_name(name,t)
         top_level_cg[t].visible = false
         local aCG = layouts[t][name]
         top_level_cg[t] = aCG
+        clientGroup.lock()
         for k,v in pairs(t:clients()) do
             if not aCG:has_client(v) then
                 local unit = wrap_client(v)
                 aCG:attach(unit)
             end
         end
-        top_level_cg[t].visible = true
+        clientGroup.unlock()
+        aCG.visible = true
         cur_layout_name[t] = name
         layouts[t][name]:repaint()
     else
         print("layout".. name .. " not found")
+    end
+    if t.selected then
+        currentTag = top_level_cg[t]
     end
 end
 
@@ -277,19 +284,18 @@ function get_current_layout_name(s)
     return cur_layout_name[tag.selected(s or capi.mouse.screen)]
 end
 
-local currentTag = nil
 local function switch_on_tag_change(t)
-    local t = t or tag.selected(capi.mouse.screen)
-    if currentTag ~= nil then
+    local t,cg = t or tag.selected(capi.mouse.screen),top_level_cg[t]
+    if t.selected == false then return end
+    if currentTag ~= nil and currentTag ~= cg then
         currentTag.visible = false
     end
-    if top_level_cg[t] then
-        top_level_cg[t].visible = true
-        top_level_cg[t]:repaint()
+    if cg then
+        cg.visible = true
     else
         --set_layout_by_name("righttile",t)
     end
-    currentTag = top_level_cg[t]
+    currentTag = cg
 end
 
 tag.attached_add_signal(screen, "property::selected", switch_on_tag_change)

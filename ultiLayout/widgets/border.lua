@@ -1,20 +1,12 @@
 local capi = { root         = root         ,
                mousegrabber = mousegrabber }
 
-local setmetatable = setmetatable
-local print        = print
-local type = type
 local button       = require( "awful.button" )
 local wibox        = require( "awful.wibox"  )
 local util         = require( "awful.util"   )
 local beautiful    = require( "beautiful"    )
 
 module("ultiLayout.widgets.border")
-
-function update_wibox(edge) --TODO dead code
-    edge.wibox[(edge.orientation == "horizontal") and "height" or "width"] = 3
-    edge.wibox.visible = edge.visible
-end
 
 function create(edge)
     local w = wibox({position = "free"})
@@ -23,9 +15,7 @@ function create(edge)
     w:buttons(util.table.join(
         button({ }, 1 ,function (tab)
             capi.mousegrabber.run(function(mouse)
-                if mouse.buttons[1] == false then
-                    return false
-                end
+                if mouse.buttons[1] == false then return false end
                 local x_or_y = edge.orientation == "horizontal" and "y" or "x"
                 edge:emit_signal("distance_change::request",mouse[x_or_y] - edge[x_or_y])
                 return true

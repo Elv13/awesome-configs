@@ -37,7 +37,6 @@ local function new(cg,orientation)
        for k,v in ipairs(cg:childs()) do
            if v.visible ~= false and (#v:childs() > 0 or v:has_client() == true) then --TODO visible childs
                 v:geometry({width = size(data.ratio[k],"width","horizontal"), height = size(data.ratio[k],"height","vertical"), x = relX, y = relY })
-                v:repaint()
                 relY = relY + (( orientation == "horizontal" ) and v.height or 0)
                 relX = relX + (( orientation == "vertical"   ) and v.width  or 0)
            end
@@ -50,7 +49,7 @@ local function new(cg,orientation)
         anEdge:add_signal("distance_change::request",function(_e, delta)
             local diff,idx = (sum_ratio()/cg[(orientation == "horizontal") and "height" or "width"])*delta,cg:cg_to_idx(child_cg)
             data.ratio[idx-1],data.ratio[idx] = data.ratio[ idx-1 ] + diff,data.ratio[ idx   ] - diff
-            self:update()
+            cg:repaint()
         end)
         child_cg.decorations:add_decoration(anEdge,{class="edge",position=((orientation == "vertical") and "left" or "top"),align="ajust",index=1,update_callback= function() anEdge:update() end})
         return child_cg

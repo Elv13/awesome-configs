@@ -66,7 +66,7 @@ local function create(cg, args)
         tb.fg = (value == true) and titlebar.fg_focus or titlebar.fg
     end
     
-    object_model(titlebar,{focus = function() return focus end},{focus = set_focus},{},{autogen_getmap = true,autogen_signals = true})
+    object_model(titlebar,{focus = function() return focus end,visible=function() print("dfgdfgdgf") end},{focus = set_focus,visible = function(val)print("ertert") end},{},{autogen_getmap = true,autogen_signals = true})
     
     --Buttons creation
     function titlebar:button_group(args)
@@ -215,27 +215,14 @@ local function create(cg, args)
     end
     
     function titlebar:update()
-        if tb and cg.width > 0 then
-            local margin = beautiful.client_margin or 0
-            margin = (cg.width-(2*margin) < 0 or cg.height-(2*margin) < 0) and 0 or beautiful.client_margin or 0
---             tb.x       = cg.x+(margin/2)
---             tb.y       = cg.y+(margin/2)
---             tb.width   = cg.width-(margin*2)
-            tb.visible = true
-        elseif tb then
-            tb.visible = false
-        end
-            
-        local widgets = cg.titlebar.widgets
         appicon.image = cg.icon
         for k,v in pairs(buttons) do
             v:setImage()
         end
     end
-        
+    
     titlebar:emit_signal('client_changed',titlebar.client)
     
-    cg.titlebar = tb
     for k,v in pairs({"icon","name","sticky","floating","ontop","maximized_vertical","maximized_horizontal"}) do
         cg:add_signal("property::"..v, function(cg) titlebar:update(cg) end)
     end
@@ -243,7 +230,6 @@ local function create(cg, args)
     
     cg:add_signal("geometry::changed"   ,update                                        )
     cg:add_signal("focus::changed"      ,function(_cg,value) titlebar.focus = value end)
-    cg:add_signal("visibility::changed" ,function(_cg,value) tb.visible = value     end)
     cg:add_signal("child::replaced"     ,function(...) data:swap(...)               end)
     cg:add_signal("detached"            ,function(_cg,child)
         if not titlebar then return end

@@ -15,11 +15,7 @@ local function create_edge(args)
                         visible     = args.visible or true}
     
     local get_map = {
-        x           = function () return p_data.x                                                                            end,
-        y           = function () return p_data.y                                                                            end,
-        orientation = function () return p_data.orientation                                                                  end,
         length      = function () return (data.orientation == "horizontal") and p_data.cg.width or p_data.cg.height          end,
-        wibox       = function () return p_data.wibox                                                                        end,
         width       = function () return p_data.wibox.width                                                                  end,
         height      = function () return p_data.wibox.height                                                                 end,
         visible     = function () return (p_data.cg and (p_data.cg.parent:cg_to_idx(p_data.cg) or 0) > 1) and p_data.visible end,
@@ -44,12 +40,8 @@ local function create_edge(args)
     function data:update()
         local idx = (p_data.cg.parent) and p_data.cg.parent:cg_to_idx(p_data.cg) or 0
         p_data.wibox.visible = (p_data.cg and p_data.cg.parent ~= nil and idx and idx > 1) and p_data.cg.visible and p_data.visible
-        if p_data.wibox.visible then
-            border.update_wibox(data)
-        end
     end
     p_data.cg:add_signal("parent::changed"     ,function(...)       data:update()        end)
-    p_data.cg:add_signal("visibility::changed" ,function(_cg,value) data.visible = value end)
     return data
 end
 setmetatable(_M, { __call = function(_, ...) return create_edge(...) end })

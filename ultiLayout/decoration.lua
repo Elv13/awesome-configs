@@ -78,7 +78,6 @@ local side_align = {
 
 local function ajust_pos(deco,cg) 
     local ret = {}
-    --print("Align",deco.align,side_align[deco.align])
     ret[s2xy[deco.position]]     = side_align[deco.align](deco,cg)
     ret[s2hw[deco.position]]     = (deco.align == "ajust") and cg[s2hw[deco.position]] or deco.wibox[s2hw[deco.position]]
     ret[s2hw_inv[deco.position]] = (deco.align == "ajust") and deco.wibox[s2hw_inv[deco.position]] or cg[s2hw[deco.position]]
@@ -100,10 +99,8 @@ function decoration(cg)
         other_get_callback  = function(name) return decolist[name] end
     })
     
-    --local args = args or {}
     function data:add_decoration(wb,args)
-        local deco = add_decoration(decolist,cg,wb,args)
-        local class = args.class or "other"
+        local deco,class = add_decoration(decolist,cg,wb,args),args.class or "other"
         decolist[class] = decolist[class] or {}
         table.insert(decolist[class],deco)
         return deco
@@ -121,7 +118,7 @@ function decoration(cg)
                 decolist[list_or_class] = {}
             end
         else
-            for k,v in pairs(list) do
+            for k,v in pairs(list_or_class) do --TODO does that even work?!?
                 for k2,v2 in ipairs(v) do
                     if v2.wibox == w then
                         table.remove(v,v2)
@@ -145,7 +142,7 @@ function decoration(cg)
         local workarea,validDeco = {width = cg.width, height = cg.height, x = cg.x, y = cg.y},{}
         for k,v in pairs(decolist) do
             for k2,v2 in ipairs(v) do
-                if v2.wibox and v2.wibox.visible == true then
+                if v2.wibox then
                     if v2.index then
                         table.insert(validDeco,v2.index,v2)
                     else
@@ -158,21 +155,22 @@ function decoration(cg)
             if type(v.update_callback) == "function" then
                 v.update_callback()
             end
-            local geo = ajust_pos(v,workarea)
-            for k3,v3 in ipairs({"width","height","x","y"}) do
-                if not ((v3 == "width" or v3 == "height") and geo[v3] == 0) then
-                    v.wibox[v3] = geo[v3] or 2
-                end
+            if v.wibox.visible ~= cg.visible then
+                v.wibox.visible = cg.visible
             end
-            if not v.ontop and v.wibox.visible == true then
-                workarea = ajust_workarea[v.position](v.wibox,workarea)
+            if v.wibox.visible then
+                local geo = ajust_pos(v,workarea)
+                for k3,v3 in ipairs({"width","height","x","y"}) do
+                    if not ((v3 == "width" or v3 == "height") and geo[v3] == 0) then
+                        v.wibox[v3] = geo[v3] or 2
+                    end
+                end
+                if not v.ontop then
+                    workarea = ajust_workarea[v.position](v.wibox,workarea)
+                end
             end
         end
         return workarea
-    end
-    
-    function data:work_area()
-        
     end
     
     return data

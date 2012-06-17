@@ -1,21 +1,13 @@
 local setmetatable = setmetatable
 local table        = table
-local print        = print
-local debug        = debug
 local rawset       = rawset
 local rawget       = rawget
 local pairs        = pairs
 
 module("ultiLayout.object_model")
 
-local function warn_invalid()
-    --print("This is not a setter") --In some case, it may be called "normally", having this print is only good for debug
-    --debug.traceback()
-end
-
 local function setup_object(data, get_map, set_map, private_data,args)
-    local data,args,private_data = data or {},args or {},private_data or {}
-    local signals = {}
+    local data,args,private_data,signals = data or {},args or {},private_data or {},{}
     
     function data:add_signal(name,func)
         signals[name] = signals[name] or {}
@@ -26,10 +18,8 @@ local function setup_object(data, get_map, set_map, private_data,args)
         for k,v in pairs(signals[name] or {}) do
             if v == func then
                 signals[name][k] = nil
-                return true
             end
         end
-        return false
     end
     
     function data:emit_signal(name,...)
@@ -43,9 +33,7 @@ local function setup_object(data, get_map, set_map, private_data,args)
         table.insert(args.force_private,name)
     end
     
-    data.warn_invalid = warn_invalid
-    
-    local function return_data(table, key)
+    local function return_data(tab, key)
         if get_map[key] ~= nil then
             return get_map[key]()
         elseif args.autogen_getmap == true and private_data[key] ~= nil then
@@ -54,7 +42,7 @@ local function setup_object(data, get_map, set_map, private_data,args)
             local to_return = args.other_get_callback(key)
             if to_return then return to_return end
         end
-        return rawget(table,key)
+        return rawget(tab,key)
     end
     
     local function auto_signal(key)
@@ -63,9 +51,9 @@ local function setup_object(data, get_map, set_map, private_data,args)
         end
     end
     
-    local function catchGeoChange(table, key,value)
+    local function catchGeoChange(tab, key,value)
         if set_map[key] == false then
-            warn_invalid()
+            --print("This is not a setter",debug.traceback()) --In some case, it may be called "normally", having this print is only good for debug
         elseif (data[key] ~= value or (args.always_handle ~= nil and args.always_handle[key] == true)) and set_map[key] ~= nil then
             set_map[key](value)
             auto_signal(key)

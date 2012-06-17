@@ -19,7 +19,7 @@ function new(cg,have_tiltebar)
         local margin = (cg.width-(2*(beautiful.client_margin or 0)) < 0 or cg.height-(2*(beautiful.client_margin or 0)) < 0) and 0 or beautiful.client_margin or 0
         for k,v in ipairs(cg:childs()) do
             v:geometry({width  = cg.workarea.width-(margin*2), height = cg.workarea.height-(margin*2), x = cg.workarea.x+(margin/2), y = cg.workarea.y+(margin/2)})
-            v:repaint()
+            --v:repaint()
         end
         asplitter:update()
    end
@@ -35,7 +35,6 @@ function new(cg,have_tiltebar)
         if not tb and have_tiltebar == true then
             tb = titlebar(cg)
             cg.decorations:add_decoration(tb.wibox,{class="titlebar",position="top",align="ajust",update_callback= function() tb:update() end})
-            common.register_wibox(tb.wibox,cg,function(new_cg) cg:attach(new_cg) end)
         end
         if tb then tb:add_tab(child_cg) end
         data:set_active(sub_cg)

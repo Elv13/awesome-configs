@@ -228,9 +228,7 @@ function new(parent)
             end
         end
         data:emit_signal("client::attached")
-        --if bigCgRepaintLock == 0 then
-            self:repaint()
-        --end
+        self:repaint()
         return cg
     end
     
@@ -263,19 +261,27 @@ function new(parent)
     function data:repaint()
         if bigCgRepaintLock == 0 then
             --print("Track repaint",debug.traceback())
-            private_data["workarea"] = deco:update()
-            if layout then
+            private_data.workarea = deco:update()
+            if layout and data.visible then
                 layout:update()
+            end
+            for k,v in pairs(childs_cg) do
+                v:repaint()
             end
         end
     end
     
     local function change_visibility(value)
-        for k,v in pairs(childs_cg) do
-            v.visible = value
+        if private_data.visible ~= value then
+            private_data.visible = value
+            lock()
+            for k,v in pairs(childs_cg) do
+                v.visible = value
+            end
+            unlock()
+            data:emit_signal("visibility::changed",value)
+            data:repaint()
         end
-        --deco:show(value)
-        private_data.visible = value
     end
     
     local function get_title()
@@ -291,7 +297,6 @@ function new(parent)
         data:emit_signal("focus::changed",value)
     end
     
-    
     local function change_geo(var,new_value)
         if new_value < 0 then return end --It can be normal, but avoid it anyway
         local prev = private_data[var]
@@ -303,7 +308,7 @@ function new(parent)
     local set_map = {
         floating = function(value) private_data.floating = value end,
         parent   = function(value) data:set_parent(value) end,
-        visible  = function(value) change_visibility(value); data:emit_signal("visibility::changed",value) end,
+        visible  = function(value) change_visibility(value);  end,
         title    = function(value) title = value; data:emit_signal("title::changed",value) end,
         focus    = set_focus,
         active   = set_active,
