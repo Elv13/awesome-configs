@@ -223,10 +223,10 @@ function set_layout_by_name(name,t)
         if top_level_cg[t] == nil or (top_level_cg[t] ~= nil and cur_layout_name[t] ~= name) then
             local aCG = clientGroup()
             local coords = capi.screen[t.screen].workarea
-            clientGroup.lock()
             aCG:set_layout( layout_list[name])
             cur_layout_name[t] = name
             layouts[t][name] = aCG
+            clientGroup.lock()
             for k,v in ipairs(t:clients()) do
                 local unit = wrap_client(v)
                 aCG:attach(unit)
@@ -234,12 +234,12 @@ function set_layout_by_name(name,t)
             for k,v in ipairs({"x","y","width","height"}) do
                 aCG[v] = coords[v]
             end
+            clientGroup.unlock()
             if top_level_cg[t] then
                 top_level_cg[t].visible = false
             end
             top_level_cg[t] = aCG
             aCG.visible = true
-            clientGroup.unlock()
             aCG:repaint()
         end
     elseif layouts[t][name] then
