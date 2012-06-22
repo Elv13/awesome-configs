@@ -125,7 +125,7 @@ mysystray              = widget                   ( { type = "systray"          
 --musicBar = panel.musicBar()
 
 -- Create the hardware alarm panel
-hardwarePanel = panel.hardware()
+--hardwarePanel = panel.hardware()
 
 -- Shifty rules
 dofile(awful.util.getdir("config") .. "/baseRule.lua"                                  )

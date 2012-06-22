@@ -30,8 +30,8 @@ local autoItems    = {}
 module("widgets.layout.desktopLayout")
 
 local function usableSpace(s)
-    local h = capi.screen[(#capi.screen >= s) and s or 1].geometry.height - padding.top-padding.bottom
-    local w = capi.screen[(#capi.screen >= s) and s or 1].geometry.width  - padding.left-padding.left
+    local h = capi.screen[(#capi.screen >= s) and s or 1].geometry.height - (padding.top or 0)-(padding.bottom or 0)
+    local w = capi.screen[(#capi.screen >= s) and s or 1].geometry.width  - (padding.left or 0)-(padding.left or 0)
     return {width = w, height = h}
 end
 
@@ -80,7 +80,7 @@ end
 
 local function getCurrentX(s)
     local xpos = 0
-    for i=1, (activeCol[s])-1 do
+    for i=1, (activeCol[s] or 2)-1 do
         xpos = xpos + columns[s or 1][i].width
     end
     return xpos

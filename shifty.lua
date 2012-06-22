@@ -216,12 +216,12 @@ function set(t, args)
   -- pick screen and get its tag table
   local scr = args.screen or (not t.screen and preset.screen) or t.screen or mouse.screen
   local clientstomove = nil
-  if scr > screen.count() then scr = screen.count() end
+  if type(src) == "number" and scr > screen.count() then scr = screen.count() end
   if t.screen and scr ~= t.screen then
     tagtoscr(scr, t)
     t.screen = nil
   end
-  local tags = screen[scr]:tags()
+  local tags = screen[(type(scr) == "number") and scr or scr[1]]:tags()
 
   -- try to guess position from the name
   local guessed_position = nil
