@@ -154,6 +154,8 @@ function decoration(cg)
         for k,v in ipairs(validDeco) do
             if type(v.update_callback) == "function" then
                 v.update_callback()
+            elseif type(v.wibox.update) == "function" then
+                v.wibox:update()
             end
             if v.wibox.visible ~= cg.visible then
                 v.wibox.visible = cg.visible
