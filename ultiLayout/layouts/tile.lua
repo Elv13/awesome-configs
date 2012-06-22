@@ -8,6 +8,7 @@ module("ultiLayout.layouts.tile")
 local function create_cg(parent, layout, tile_layout,percent)
     local tile = clientGroup()
     tile.default_percent = percent
+    tile.keep = true
     tile:set_layout(common.get_layout_list()[tile_layout])
     layout:add_child(tile)
     parent:attach(tile)
@@ -21,6 +22,16 @@ local function tile(cg,main_l_name,sub_l_name,right)
         m_tile, s_tile = create_cg(cg,layout,sub_l_name,65),create_cg(cg,layout,sub_l_name,35)
     else
         s_tile, m_tile = create_cg(cg,layout,sub_l_name,65),create_cg(cg,layout,sub_l_name,35)
+    end
+    layout.update_orig = layout.update
+    function layout:update()
+        if m_tile and #m_tile:childs() == 0 and s_tile and #s_tile:childs() > 0 then
+            clientGroup.lock()
+            m_tile:attach(s_tile:childs()[1])
+            clientGroup.unlock()
+            return
+        end
+        layout:update_orig()
     end
     layout.add_child_orig = layout.add_child
     layout.add_child = function(self,new_cg)

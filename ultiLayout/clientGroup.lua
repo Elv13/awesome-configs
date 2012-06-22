@@ -146,13 +146,18 @@ function new(parent)
         for k,v in pairs(childs_cg) do
             if v == child then
                 table.remove(childs_cg,k)
+                child.parent = nil
             end
         end
         if parent ~= nil and #childs_cg == 0 then
-            data:emit_signal("destroyed")
-            parent:detach(self)
-            self = nil
-            return
+            if self.keep == true then
+                parent:repaint(true)
+            else
+                data:emit_signal("destroyed")
+                parent:detach(self)
+                self = nil
+                return
+            end
         end
         self:repaint()
     end
@@ -205,10 +210,7 @@ function new(parent)
         if cg.parent == self or cg == self or cg == nil then return end
         --Check if the CG is not already a child of self
         for k,v in pairs(data:childs()) do --TODO all_childs? break splitters
-            if v == cg then
-                print("Trying to add a clientgroup that is already a child of self")
-                return 
-            end
+            if v == cg then print("Trying to add a clientgroup that is already a child of itself"); return end
         end
         if cg.parent ~= nil then
             cg.parent:detach(cg)
@@ -258,8 +260,8 @@ function new(parent)
         end
     end
     
-    function data:repaint()
-        if bigCgRepaintLock == 0 then
+    function data:repaint(force)
+        if bigCgRepaintLock == 0 or force == true then
             --print("Track repaint",debug.traceback())
             private_data.workarea = deco:update()
             if layout and data.visible then
