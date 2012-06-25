@@ -39,14 +39,22 @@ function new(parent)
         return childs_cg
     end
     
-    function data:visible_childs()
-        local to_return = {}
-        for k,v in pairs(self:childs()) do
-            if v.visible == true and (#v:visible_childs() > 0 or client ~= nil) then
+    local function all_visible_common(list)
+      local to_return = {}
+        for k,v in pairs(list) do
+            if v.visible == true and (#v:all_visible_childs() > 0 or v.client ~= nil) then
                 table.insert(to_return,v)
             end
         end
         return to_return
+    end
+    
+    function data:visible_childs()
+        return all_visible_common(self:childs())
+    end
+    
+    function data:all_visible_childs()
+      return all_visible_common(self:all_childs())
     end
     
     function data:all_childs()
@@ -126,7 +134,7 @@ function new(parent)
     end
 
     function data:set_layout(l,...)
-        if not l then print("No layout to be set"); return end
+        if not l or type(l) ~= "function" then print("No layout to be set"); return end
         layout = l(self,...)
         lock()
         for k,v in ipairs(self:childs()) do
@@ -325,6 +333,7 @@ function new(parent)
         title       = function() return get_title()              end,
         focus       = function() return focus                    end,
         active      = function() return active_cg                end,
+	client      = function() return client                   end,
         decorations = function() return deco                     end,
     }
     

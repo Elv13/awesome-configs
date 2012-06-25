@@ -42,6 +42,33 @@ local function tile(cg,main_l_name,sub_l_name,right)
     return layout
 end
 
+local function highres(cg)
+  local main_layout = common.get_layout_list().horizontal(cg)
+  local cg_top,cg_bottom = create_cg(cg,main_layout,"righttile",65),create_cg(cg,main_layout,"horizontal",35)
+  --cg:attach()
+  main_layout.add_child_orig = main_layout.add_child
+    print("\n\nHERE2",#cg_top:all_visible_childs(),#cg_bottom:childs(),#cg_top:all_childs())
+  function main_layout:add_child(new_cg)
+    print("\n\nHERE",#cg_top:all_visible_childs(),#cg_bottom:childs(),#cg_top:all_childs())
+    clientGroup.lock()
+    if (#cg_top:all_visible_childs() < 1) then
+      print("here3")
+      cg_top:attach(new_cg)
+    elseif (#cg_bottom:childs() < 1) then
+      print("here4")
+      cg_bottom:attach(new_cg)
+    elseif #cg_bottom:childs() == 1 and #cg_top:childs() > 1 then
+      print("here5")
+      cg_bottom:attach(new_cg)
+    else
+      print("here6")
+      cg_top:attach(new_cg)
+    end
+    clientGroup.unlock()
+  end
+  return main_layout
+end
+
 local function grid(cg,main_l_name,sub_l_name)
     local layout = common.get_layout_list()[main_l_name](cg)
     layout.add_child_orig = layout.add_child
@@ -82,11 +109,12 @@ local function spiral(cg,main_l_name)
     return layout
 end
 
-common.add_new_layout("righttile"       , function(cg) return tile   ( cg, "vertical"   , "horizontal" ,true  ) end)
-common.add_new_layout("lefttile"        , function(cg) return tile   ( cg, "vertical"   , "horizontal" ,false ) end)
-common.add_new_layout("topttile"        , function(cg) return tile   ( cg, "horizontal" , "vertical"   ,true  ) end)
-common.add_new_layout("bottomttile"     , function(cg) return tile   ( cg, "horizontal" , "vertical"   ,false ) end)
-common.add_new_layout("verticalgrid"    , function(cg) return grid   ( cg, "horizontal" , "vertical"          ) end)
-common.add_new_layout("horizontalgrid"  , function(cg) return grid   ( cg, "vertical"   , "horizontal"        ) end)
-common.add_new_layout("horizontalspiral", function(cg) return spiral ( cg, "horizontal"                       ) end)
-common.add_new_layout("verticalspiral"  , function(cg) return spiral ( cg, "vertical"                         ) end)
+common.add_new_layout("righttile"       , function(cg) return tile    ( cg, "vertical"   , "horizontal" ,true  ) end)
+common.add_new_layout("lefttile"        , function(cg) return tile    ( cg, "vertical"   , "horizontal" ,false ) end)
+common.add_new_layout("topttile"        , function(cg) return tile    ( cg, "horizontal" , "vertical"   ,true  ) end)
+common.add_new_layout("bottomttile"     , function(cg) return tile    ( cg, "horizontal" , "vertical"   ,false ) end)
+common.add_new_layout("highres"         , function(cg) return highres ( cg                                     ) end)
+common.add_new_layout("verticalgrid"    , function(cg) return grid    ( cg, "horizontal" , "vertical"          ) end)
+common.add_new_layout("horizontalgrid"  , function(cg) return grid    ( cg, "vertical"   , "horizontal"        ) end)
+common.add_new_layout("horizontalspiral", function(cg) return spiral  ( cg, "horizontal"                       ) end)
+common.add_new_layout("verticalspiral"  , function(cg) return spiral  ( cg, "vertical"                         ) end)
