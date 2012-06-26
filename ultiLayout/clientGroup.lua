@@ -188,7 +188,7 @@ function new(parent)
                     end
                     self:repaint()
                     self:emit_signal("child::replaced",old_cg,new_cg)
-                    return
+                    return true
                 end
             end
         else --This avoid swaping CG back to original state if they are in the same parent CG
@@ -198,8 +198,10 @@ function new(parent)
                 childs_cg[ new_cg_idx ] = old_cg
                 data:emit_signal("cg::replaced",old_cg,new_cg)
                 self:repaint()
+                return true
             end
         end
+        return false
     end
     
     function data:swap(new_cg)
@@ -210,8 +212,10 @@ function new(parent)
             if cur_parent ~= other_parent then
                 other_parent:replace(new_cg,self)
             end
-            self:set_parent(other_parent,true,new_cg)
-            new_cg:set_parent(cur_parent,true,self)
+            new_cg.parent = cur_parent
+            new_cg:emit_signal("cg::swapped",self,other_parent)
+            self.parent = other_parent
+            self:emit_signal("cg::swapped",new_cg,cur_parent)
         end
     end
     
@@ -224,7 +228,7 @@ function new(parent)
         if cg.parent ~= nil then
             cg.parent:detach(cg)
         end
-        cg:set_parent(data)
+        cg.parent = data
         cg:add_signal("geometry::changed",function() data:emit_signal("geometry::changed") end)
         
         if layout and cg.floating == false then
@@ -255,7 +259,7 @@ function new(parent)
         active_cg = sub_cg --TODO check if child
     end
     
-    function data:set_parent(new_parent,emit_swapped,other_cg)
+    local function set_parent(new_parent)
         if new_parent ~= parent then
             local old_parent = parent
             parent = new_parent
@@ -263,9 +267,6 @@ function new(parent)
                 old_parent:emit_signal("detached",data)
             end
             data:emit_signal("parent::changed",new_parent,old_parent)
-        end
-        if emit_swapped == true then
-            data:emit_signal("cg::swapped",other_cg,old_parent)
         end
     end
     
@@ -318,7 +319,7 @@ function new(parent)
     
     local set_map = {
         floating = function(value) private_data.floating = value end,
-        parent   = function(value) data:set_parent(value) end,
+        parent   = function(value) set_parent(value) end,
         visible  = function(value) change_visibility(value);  end,
         title    = function(value) title = value; data:emit_signal("title::changed",value) end,
         focus    = set_focus,

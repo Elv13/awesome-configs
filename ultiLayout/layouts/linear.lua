@@ -2,6 +2,7 @@ local ipairs       = ipairs
 local common       = require( "ultiLayout.common"           )
 local edge         = require( "ultiLayout.edge"             )
 local splitter     = require( "ultiLayout.widgets.splitter" )
+local print = print
 
 module("ultiLayout.layouts.linear")
 
@@ -42,9 +43,10 @@ local function new(cg,ori)
         local index,anEdge = index or  #cg:childs()+1,edge({cg=child_cg,orientation=ori})
         data.ratio[#cg:childs()+1] = child_cg.default_percent or get_average()
         anEdge:add_signal("distance_change::request",function(_e, delta)
-            local diff,idx = (sum_ratio()/cg[(ori == "horizontal") and "height" or "width"])*delta,cg:cg_to_idx(child_cg)
+            print("HERE",cg,child_cg.parent)
+            local diff,idx = (sum_ratio()/child_cg.parent[(ori == "horizontal") and "height" or "width"])*delta,child_cg.parent:cg_to_idx(child_cg)
             data.ratio[idx-1],data.ratio[idx] = data.ratio[ idx-1 ] + diff,data.ratio[ idx   ] - diff
-            cg:repaint()
+            child_cg.parent:repaint()
         end)
         child_cg.decorations:add_decoration(anEdge,{class="edge",position=((ori == "vertical") and "left" or "top"),align="ajust",index=1,update_callback= function() anEdge:update() end})
         return child_cg
