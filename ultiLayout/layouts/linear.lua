@@ -2,7 +2,6 @@ local ipairs       = ipairs
 local common       = require( "ultiLayout.common"           )
 local edge         = require( "ultiLayout.edge"             )
 local splitter     = require( "ultiLayout.widgets.splitter" )
-local print = print
 
 module("ultiLayout.layouts.linear")
 
@@ -11,7 +10,7 @@ local function new(cg,ori)
     cg.decorations:add_decoration(splitter(cg,{direction=(ori == "horizontal") and "bottom" or "right", index=1}),{class="splitter",position="top",align="beginning",ontop=true})
     cg.decorations:add_decoration(splitter(cg,{direction=(ori == "horizontal") and "top"    or "left" ,        }),{class="splitter",position="top",align="beginning",ontop=true})
    
-   local function sum_ratio(only_visible)
+   function data:sum_ratio(only_visible)
         local sumratio = 0
         for k,v in ipairs(cg:childs()) do
             if (only_visible == true and v.visible ~= false and (#v:childs() > 0 or v:has_client() == true)) or only_visible ~= true then --TODO visible childs
@@ -22,11 +21,11 @@ local function new(cg,ori)
    end
    
    local function get_average(only_visible)
-       return (#cg:childs() > 0) and (sum_ratio(only_visible) / #((only_visible == true) and cg:visible_childs() or cg:childs())) or 1
+       return (#cg:childs() > 0) and (data:sum_ratio(only_visible) / #((only_visible == true) and cg:visible_childs() or cg:childs())) or 1
    end
    
    local function size(ratio,w_or_h,orientation)
-       return ( ori == orientation ) and cg.workarea[w_or_h] or ((ratio or get_average(true)) / sum_ratio(true))*cg.workarea[w_or_h]
+       return ( ori == orientation ) and cg.workarea[w_or_h] or ((ratio or get_average(true)) / data:sum_ratio(true))*cg.workarea[w_or_h]
    end
    
    function data:update()
@@ -43,9 +42,8 @@ local function new(cg,ori)
         local index,anEdge = index or  #cg:childs()+1,edge({cg=child_cg,orientation=ori})
         data.ratio[#cg:childs()+1] = child_cg.default_percent or get_average()
         anEdge:add_signal("distance_change::request",function(_e, delta)
-            print("HERE",cg,child_cg.parent)
-            local diff,idx = (sum_ratio()/child_cg.parent[(ori == "horizontal") and "height" or "width"])*delta,child_cg.parent:cg_to_idx(child_cg)
-            data.ratio[idx-1],data.ratio[idx] = data.ratio[ idx-1 ] + diff,data.ratio[ idx   ] - diff
+            local diff,idx = (child_cg.parent.layout:sum_ratio()/child_cg.parent[(ori == "horizontal") and "height" or "width"])*delta,child_cg.parent:cg_to_idx(child_cg)
+            child_cg.parent.layout.ratio[idx-1],child_cg.parent.layout.ratio[idx] = child_cg.parent.layout.ratio[ idx-1 ] + diff,child_cg.parent.layout.ratio[ idx   ] - diff
             child_cg.parent:repaint()
         end)
         child_cg.decorations:add_decoration(anEdge,{class="edge",position=((ori == "vertical") and "left" or "top"),align="ajust",index=1,update_callback= function() anEdge:update() end})

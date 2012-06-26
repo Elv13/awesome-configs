@@ -145,10 +145,6 @@ function new(parent)
         unlock()
         self:repaint()
     end
-    
-    function data:get_layout()
-        return layout
-    end
 
     function data:detach(child)
         for k,v in pairs(childs_cg) do
@@ -336,6 +332,7 @@ function new(parent)
         focus       = function() return focus                    end,
         active      = function() return active_cg                end,
 	client      = function() return client                   end,
+        layout      = function() return layout                   end,
         decorations = function() return deco                     end,
     }
     

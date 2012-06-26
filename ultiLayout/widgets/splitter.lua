@@ -117,15 +117,15 @@ local function create_splitter(cg,args)
     aWb.ontop = true
     aWb.visible = false
     common.register_wibox(aWb, cg, function(new_cg)
-        if cg.get_layout().add_child_orig ~= nil then
-            local tmp = cg.get_layout().add_child
-            cg.get_layout().add_child = cg.get_layout().add_child_orig
+        if cg.layout.add_child_orig ~= nil then
+            local tmp = cg.layout.add_child
+            cg.layout.add_child = cg.layout.add_child_orig
             local new_cg_parent = clientGroup()
             new_cg.decorations:remove_decoration("edge")
             new_cg_parent:set_layout(common.get_layout_list()[(p_data.direction == "top" or p_data.direction == "bottom") and "vertical" or "horizontal"])
             new_cg_parent:attach(new_cg)
             cg:attach(new_cg_parent,args.index)
-            cg.get_layout().add_child = tmp
+            cg.layout.add_child = tmp
         else
             new_cg.decorations:remove_decoration("edge")
             cg:attach(new_cg,args.index)
