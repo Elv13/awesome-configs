@@ -113,7 +113,7 @@ cpuinfo                = drawer.cpuInfo           ( nil                         
 netinfo                = drawer.netInfo           ( nil                                )
 
 -- Create the volume box
---soundWidget            = drawer.soundInfo         ( wiboxTop3                          )
+soundWidget            = drawer.soundInfo         ( wiboxTop3                          )
 
 -- Create the keyboard layout switcher, feel free to add your contry and push it to master
 keyboardSwitcherWidget = widgets.keyboardSwitcher ( nil                                )

@@ -162,6 +162,7 @@ function new(parent)
                 parent:repaint(true)
             else
                 data:emit_signal("destroyed")
+                self.visible = false
                 parent:detach(self)
                 self = nil
                 return

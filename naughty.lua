@@ -334,12 +334,13 @@ function notify(args)
                     if args.noslider ~= true then
                         local timer_fade = capi.timer { timeout = 0.0333 } --30fps
                         timer_fade:add_signal("timeout", function () 
-                                                for k, w in ipairs(widgets) do
-                                                    if (w.opacity < 100 and w.opacity ~= nil) then
-                                                        w.widget.text = string.format('<span rise="%s" font_desc="%s"><b>%s</b>%s</span>', 0-(w.opacity*100), font, newTitle, newText)
-                                                        w.opacity = w.opacity + 3
+                                                --for k, w in ipairs(widgets) do
+                                                if widgets[1] then
+                                                    if (widgets[1].opacity < 100 and widgets[1].opacity ~= nil) then
+                                                        widgets[1].widget.text = string.format('<span rise="%s" font_desc="%s"><b>%s</b>%s</span>', 0-(widgets[1].opacity*100), font, newTitle, newText)
+                                                        widgets[1].opacity = widgets[1].opacity + 3
                                                     elseif timer_fade then
-                                                        w.widget.text = ""
+                                                        widgets[1].widget.text = ""
                                                         --widgets[k] = nil
                                                         timer_fade:stop()
                                                         timer_fade = nil
@@ -384,15 +385,16 @@ function notify(args)
             w.opacity = 100
             local timer_fade_in = capi.timer { timeout = 0.0333 } --30fps
             timer_fade_in:add_signal("timeout", function () 
-                                for k, w in ipairs(widgets) do
-                                if (w.opacity > 0 and w.opacity ~= nil) then
-                                    w.widget.text = string.format('<span rise="%s" font_desc="%s"><b>%s</b>%s</span>', (w.opacity*100), font, newTitle, newText)
-                                    w.opacity = w.opacity - 3
-                                elseif timer_fade_in then
-                                    print("kill timer")
-                                    timer_fade_in:stop()
-                                    timer_fade_in = nil
-                                end
+                                --for k, w in ipairs(widgets) do
+                                if w then
+                                    if (w.opacity > 0 and w.opacity ~= nil) then
+                                        w.widget.text = string.format('<span rise="%s" font_desc="%s"><b>%s</b>%s</span>', (w.opacity*100), font, newTitle, newText)
+                                        w.opacity = w.opacity - 3
+                                    elseif timer_fade_in then
+                                        print("kill timer")
+                                        timer_fade_in:stop()
+                                        timer_fade_in = nil
+                                    end
                                 end
                             end)
             timer_fade_in:start()
