@@ -31,12 +31,21 @@ module("naughty")
 
 local commonTimer = capi.timer({ timeout = 0.0333 })
 local timerEvent = {}
+local loopCounter =0
 commonTimer:add_signal("timeout", function () 
     print("loop")
     if type(timerEvent[1]) == "function" then
         if timerEvent[1]() == false then
             timerEvent[1] = nil
+            loopCounter = 0
         end
+    end
+    loopCounter = loopCounter + 1
+    
+    --Prevent infinite loop due to pango error or something like that
+    if loopCounter > 40 then
+        timerEvent[1] = nil
+        loopCounter = 0
     end
     if #timerEvent == 0 then
         commonTimer:stop()
@@ -354,7 +363,9 @@ function notify(args)
         if #widgets > 0 then
             if args.noslider ~= true then
                 addTimerEvent(function () 
-                    for k, w in ipairs(widgets) do
+                    --for k, w in ipairs(widgets) do
+                    if widgets[1] then
+                        local w = widgets[1]
                         if (w.opacity < 110 and w.opacity ~= nil) then
                             w.widget.text = string.format('<span rise="%s" font_desc="%s"><b>%s</b>%s</span>', 0-(w.opacity*100), font, newTitle, newText)
                             w.opacity = w.opacity + 3
@@ -371,6 +382,9 @@ function notify(args)
         end
     end
     if timeout > 0 then
+        if notification.timer and notification.timer.started then
+            notification.timer:stop()
+        end
         local timer_die = capi.timer { timeout = timeout }
         timer_die:add_signal("timeout", function() die(timer_die) end)
         timer_die:start()
@@ -400,7 +414,9 @@ function notify(args)
     -- show in existing widgets
     if args.noslider ~= true and #widgets > 0 then
         addTimerEvent(function () 
-            for k, w in ipairs(widgets) do
+--             for k, w in ipairs(widgets) do
+            if widgets[1] then
+                local w = widgets[1]
                 if w.opacity == nil then
                     w.text_real = text
                     w.opacity = 100
