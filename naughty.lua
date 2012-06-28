@@ -29,6 +29,27 @@ local layout = require("awful.widget.layout")
 --- Notification library
 module("naughty")
 
+local commonTimer = capi.timer({ timeout = 0.0333 })
+local timerEvent = {}
+commonTimer:add_signal("timeout", function () 
+    print("loop")
+    if type(timerEvent[1]) == "function" then
+        if timerEvent[1]() == false then
+            timerEvent[1] = nil
+        end
+    end
+    if #timerEvent == 0 then
+        commonTimer:stop()
+    end
+end)
+
+function addTimerEvent(func)
+    table.insert(timerEvent,func)
+    if not commonTimer.started then
+        commonTimer:start()
+    end
+end
+
 --- Naughty configuration - a table containing common popup settings.
 -- @name config
 -- @field padding Space between popups and edge of the workarea. Default: 4
@@ -328,32 +349,30 @@ function notify(args)
     -- hook destroy
     local newTitle = tools.stripHtml(string.gsub(title, "\n", " - "))
     local newText = tools.stripHtml(string.gsub(text, "\n", " - "))
-    local die = function () 
-                  destroy(notification) 
-                  if #widgets > 0 then
-                    if args.noslider ~= true then
-                        local timer_fade = capi.timer { timeout = 0.0333 } --30fps
-                        timer_fade:add_signal("timeout", function () 
-                                                --for k, w in ipairs(widgets) do
-                                                if widgets[1] then
-                                                    if (widgets[1].opacity < 100 and widgets[1].opacity ~= nil) then
-                                                        widgets[1].widget.text = string.format('<span rise="%s" font_desc="%s"><b>%s</b>%s</span>', 0-(widgets[1].opacity*100), font, newTitle, newText)
-                                                        widgets[1].opacity = widgets[1].opacity + 3
-                                                    elseif timer_fade then
-                                                        widgets[1].widget.text = ""
-                                                        --widgets[k] = nil
-                                                        timer_fade:stop()
-                                                        timer_fade = nil
-                                                    end
-                                                end
-                                            end)
-                        timer_fade:start()
+    local die = function (timer) 
+        destroy(notification) 
+        if #widgets > 0 then
+            if args.noslider ~= true then
+                addTimerEvent(function () 
+                    for k, w in ipairs(widgets) do
+                        if (w.opacity < 110 and w.opacity ~= nil) then
+                            w.widget.text = string.format('<span rise="%s" font_desc="%s"><b>%s</b>%s</span>', 0-(w.opacity*100), font, newTitle, newText)
+                            w.opacity = w.opacity + 3
+                        else
+                            w.widget.text = ""
+                            return false
+                        end
                     end
-                  end
-                end
+                end)
+            end
+        end
+        if timer and timer.started then
+            timer:stop()
+        end
+    end
     if timeout > 0 then
         local timer_die = capi.timer { timeout = timeout }
-        timer_die:add_signal("timeout", die)
+        timer_die:add_signal("timeout", function() die(timer_die) end)
         timer_die:start()
         notification.timer = timer_die
     end
@@ -379,31 +398,23 @@ function notify(args)
     end
     
     -- show in existing widgets
-    if args.noslider ~= true then
-        for k, w in ipairs(widgets) do
-            w.text_real = text
-            w.opacity = 100
-            local timer_fade_in = capi.timer { timeout = 0.0333 } --30fps
-            timer_fade_in:add_signal("timeout", function () 
-                                --for k, w in ipairs(widgets) do
-                                if w then
-                                    if (w.opacity > 0 and w.opacity ~= nil) then
-                                        w.widget.text = string.format('<span rise="%s" font_desc="%s"><b>%s</b>%s</span>', (w.opacity*100), font, newTitle, newText)
-                                        w.opacity = w.opacity - 3
-                                    elseif timer_fade_in then
-                                        print("kill timer")
-                                        timer_fade_in:stop()
-                                        timer_fade_in = nil
-                                    end
-                                end
-                            end)
-            timer_fade_in:start()
-            --w.widget.text = string.format('<span font_desc="%s"><b>%s</b>%s</span>', font, title, text)
-        end
+    if args.noslider ~= true and #widgets > 0 then
+        addTimerEvent(function () 
+            for k, w in ipairs(widgets) do
+                if w.opacity == nil then
+                    w.text_real = text
+                    w.opacity = 100
+                end
+                    
+                if w.opacity > 0 then
+                    w.widget.text = string.format('<span rise="%s" font_desc="%s"><b>%s</b>%s</span>', (w.opacity*100), font, newTitle, newText)
+                    w.opacity = w.opacity - 3
+                else
+                    return false
+                end
+            end
+        end)
     end
-    --if #widgets > 0 then
-    --  return nil
-    --end
     -- create textbox
     local textbox = capi.widget({ type = "textbox", align = "flex" })
     textbox:buttons(util.table.join(button({ }, 1, run), button({ }, 3, die)))
