@@ -307,6 +307,7 @@ dofile(awful.util.getdir("config") .. "/keyBinding.lua")
 
 -- Hooks
 client.add_signal("manage", function (c, startup)
+    if c.name == "Software Update" then c:kill() end --I hate that Firefox popup, die!!!
     -- Add a titlebar to floating clients
     if awful.client.floating.get(c) == true or config.data().showTitleBar == true  then
       if (not c.class == "^XMMS$" or not c.class == "Xine") then

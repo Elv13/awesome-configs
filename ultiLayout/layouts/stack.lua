@@ -9,6 +9,7 @@ module("ultiLayout.layouts.stack")
 function new(cg,have_tiltebar)
    if not cg then return end
    local data,tb,asplitter = {},nil,splitter.create_splitter_bar(cg)
+   cg.orientation = "stack"
    cg.swapable = true
 
    function data:update()

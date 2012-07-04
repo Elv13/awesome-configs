@@ -33,7 +33,6 @@ local commonTimer = capi.timer({ timeout = 0.0333 })
 local timerEvent = {}
 local loopCounter =0
 commonTimer:add_signal("timeout", function () 
-    print("loop")
     if type(timerEvent[1]) == "function" then
         if timerEvent[1]() == false then
             timerEvent[1] = nil

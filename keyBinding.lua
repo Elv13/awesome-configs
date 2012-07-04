@@ -2,10 +2,18 @@
 globalkeys = awful.util.table.join(
     -- Basic
     --              MODIFIERS         KEY                        ACTION                               
-    awful.key({ modkey,           }, "Left"  , function () utils.clientSwitcher.focusLeft()     end ),
-    awful.key({ modkey,           }, "Right" , function () utils.clientSwitcher.focusRight()    end ),
-    awful.key({ modkey,           }, "Up"    , function () utils.clientSwitcher.focusUp()       end ),
-    awful.key({ modkey,           }, "Down"  , function () utils.clientSwitcher.focusDown()     end ),
+--Pre ultilayout, not very reliable
+--     awful.key({ modkey,           }, "Left"  , function () utils.clientSwitcher.focusLeft()     end ),
+--     awful.key({ modkey,           }, "Right" , function () utils.clientSwitcher.focusRight()    end ),
+--     awful.key({ modkey,           }, "Up"    , function () utils.clientSwitcher.focusUp()       end ),
+--     awful.key({ modkey,           }, "Down"  , function () utils.clientSwitcher.focusDown()     end ),
+    
+    awful.key({ modkey,           }, "e"  , function () ultiLayout.modules.keybpard_handling.move_left(1)     end ),
+--     awful.key({ modkey,           }, "Right" , function () utils.clientSwitcher.focusRight()    end ),
+--     awful.key({ modkey,           }, "Up"    , function () utils.clientSwitcher.focusUp()       end ),
+--     awful.key({ modkey,           }, "Down"  , function () utils.clientSwitcher.focusDown()     end ),
+    
+    
     awful.key({ modkey,           }, "Escape", function () awful.tag.history.restore()          end ),
     awful.key({ modkey, "Shift"   }, "p"     , function () utils.keyFunctions.moveTagToScreen() end ),
     awful.key({ modkey,           }, "Tab"   , function () utils.keyFunctions.altTab()          end ),

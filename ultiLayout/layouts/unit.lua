@@ -7,6 +7,7 @@ module("ultiLayout.layouts.unit")
 function new(cg,c)
     local data = {titlebar = nil, client = c,x=0,y=0,width=0,height=0}
     cg:set_client(c)
+    cg.orientation = nil
     
     function data:update()
         c.hidden = not cg.visible

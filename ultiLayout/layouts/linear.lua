@@ -2,6 +2,7 @@ local ipairs       = ipairs
 local common       = require( "ultiLayout.common"           )
 local edge         = require( "ultiLayout.edge"             )
 local splitter     = require( "ultiLayout.widgets.splitter" )
+local print = print
 
 module("ultiLayout.layouts.linear")
 
@@ -9,6 +10,7 @@ local function new(cg,ori)
     local data = { ratio = {} }
     cg.decorations:add_decoration(splitter(cg,{direction=(ori == "horizontal") and "bottom" or "right", index=1}),{class="splitter",position="top",align="beginning",ontop=true})
     cg.decorations:add_decoration(splitter(cg,{direction=(ori == "horizontal") and "top"    or "left" ,        }),{class="splitter",position="top",align="beginning",ontop=true})
+    cg.orientation = ori
    
    function data:sum_ratio(only_visible)
         local sumratio = 0
@@ -37,15 +39,28 @@ local function new(cg,ori)
            end
        end
    end
+   
+   local function resize_common(child_cg,base,w_or_h,v_or_h)
+       local newBase = base
+        if base and base ~= 0 and ori == v_or_h then
+            if (child_cg[w_or_h] - base < 15) then
+                newBase = (child_cg[w_or_h]+base <=15) and 0 or child_cg[w_or_h] -15
+            else
+                newBase = (cg:previousChild(child_cg)[w_or_h]+base <=15) and 0 or base
+            end
+            local diff,idx,length = (data:sum_ratio()/cg[w_or_h])*(newBase),cg:cg_to_idx(child_cg),cg[w_or_h]
+            data.ratio[idx-1],data.ratio[idx] = data.ratio[ idx-1 ] + (diff >= length-5 and length-5 or diff),data.ratio[ idx   ] - (diff >= length-5 and length-5 or diff)
+        end
+        return base-newBase
+   end
+   
+   function data:resize(child_cg,w,h)
+       return resize_common(child_cg,w,"width","vertical"),resize_common(child_cg,h,"height","horizontal")
+   end
     
    function data:add_child(child_cg,index)
         local index,anEdge = index or  #cg:childs()+1,edge({cg=child_cg,orientation=ori})
         data.ratio[#cg:childs()+1] = child_cg.default_percent or get_average()
-        anEdge:add_signal("distance_change::request",function(_e, delta)
-            local diff,idx = (child_cg.parent.layout:sum_ratio()/child_cg.parent[(ori == "horizontal") and "height" or "width"])*delta,child_cg.parent:cg_to_idx(child_cg)
-            child_cg.parent.layout.ratio[idx-1],child_cg.parent.layout.ratio[idx] = child_cg.parent.layout.ratio[ idx-1 ] + diff,child_cg.parent.layout.ratio[ idx   ] - diff
-            child_cg.parent:repaint()
-        end)
         child_cg.decorations:add_decoration(anEdge,{class="edge",position=((ori == "vertical") and "left" or "top"),align="ajust",index=1,update_callback= function() anEdge:update() end})
         return child_cg
    end

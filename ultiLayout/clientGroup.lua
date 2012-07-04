@@ -68,6 +68,16 @@ function new(parent)
         end
         return to_return
     end
+    
+    function data:nextChild(aChild)
+        local idx = data:cg_to_idx(aChild)
+        return childs_cg[idx+1]
+    end
+    
+    function data:previousChild(aChild)
+        local idx = data:cg_to_idx(aChild)
+        return childs_cg[idx-1]
+    end
 
     function data:all_clients()
         if client ~= nil then
@@ -263,6 +273,24 @@ function new(parent)
                 old_parent:emit_signal("detached",data)
             end
             data:emit_signal("parent::changed",new_parent,old_parent)
+        end
+    end
+    
+    function data:resize(child_cg,w,h)
+        local remainingW,remainingH=w,h
+        if layout and layout.resize then
+            local currentChild = child_cg
+            while (remainingW~=0 or remainingH~=0) and currentChild ~= nil do
+                remainingW,remainingH = layout:resize(currentChild,remainingW,remainingH)
+                currentChild = (remainingH<0) and self:previousChild(currentChild) or self:nextChild(currentChild)
+            end
+        end
+        if parent and remainingW > 0 or remainingH > 0 then
+            parent:resize(self,remainingW,remainingH)
+        elseif remainingW > 0 or remainingH > 0 then
+            print("Nowhere to take space from")
+        else
+            data:repaint()
         end
     end
     

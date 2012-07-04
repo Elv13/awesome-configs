@@ -42,6 +42,11 @@ end
 --     end
 -- end
 
+function tag_to_cg(t)
+    local t = t or tag.selected(capi.mouse.screen)
+    return top_level_cg[t]
+end
+
 function register_wibox(w, cg, on_drop_f)
     if not w then return end
     wibox_to_cg[w] = {cg=cg,on_drop_f=on_drop_f}

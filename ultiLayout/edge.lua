@@ -42,6 +42,12 @@ local function create_edge(args)
         p_data.wibox.visible = (p_data.cg and p_data.cg.parent ~= nil and idx and idx > 1) and p_data.cg.visible and p_data.visible
     end
     p_data.cg:add_signal("parent::changed"     ,function(...)       data:update()        end)
+    
+    data:add_signal("distance_change::request",function(_e, delta)
+        local w,h = ((p_data.orientation == "vertical") and delta or 0),((p_data.orientation == "horizontal") and delta or 0)
+        p_data.cg.parent:resize(p_data.cg,w,h)
+    end)
+    
     return data
 end
 setmetatable(_M, { __call = function(_, ...) return create_edge(...) end })
