@@ -41,7 +41,7 @@ local function new(cg,ori)
    end
    
    local function resize_common(child_cg,base,w_or_h,v_or_h)
-       local newBase = base
+        local newBase = base
         if base and base ~= 0 and ori == v_or_h then
             if (child_cg[w_or_h] - base < 15) then
                 newBase = (child_cg[w_or_h]+base <=15) and 0 or child_cg[w_or_h] -15

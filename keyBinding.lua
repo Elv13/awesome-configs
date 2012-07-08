@@ -8,10 +8,10 @@ globalkeys = awful.util.table.join(
 --     awful.key({ modkey,           }, "Up"    , function () utils.clientSwitcher.focusUp()       end ),
 --     awful.key({ modkey,           }, "Down"  , function () utils.clientSwitcher.focusDown()     end ),
     
-    awful.key({ modkey,           }, "e"  , function () ultiLayout.modules.keybpard_handling.move_left(1)     end ),
---     awful.key({ modkey,           }, "Right" , function () utils.clientSwitcher.focusRight()    end ),
---     awful.key({ modkey,           }, "Up"    , function () utils.clientSwitcher.focusUp()       end ),
---     awful.key({ modkey,           }, "Down"  , function () utils.clientSwitcher.focusDown()     end ),
+    awful.key({ modkey,           }, "Left"  , function () ultiLayout.modules.keybpard_handling.move_left(1)   end ),
+    awful.key({ modkey,           }, "Right" , function () ultiLayout.modules.keybpard_handling.move_right(1)  end ),
+    awful.key({ modkey,           }, "Up"    , function () ultiLayout.modules.keybpard_handling.move_up(1)     end ),
+    awful.key({ modkey,           }, "Down"  , function () ultiLayout.modules.keybpard_handling.move_down(1)   end ),
             
     awful.key({ modkey, "Control" }, "o"  , function () ultiLayout.modules.keybpard_handling.resize_h(20)     end ),
     awful.key({ modkey, "Control" }, "p"  , function () ultiLayout.modules.keybpard_handling.resize_w(20)     end ),

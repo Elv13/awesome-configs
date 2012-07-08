@@ -54,7 +54,7 @@ function new(parent)
     end
     
     function data:all_visible_childs()
-      return all_visible_common(self:all_childs())
+        return all_visible_common(self:all_childs())
     end
     
     function data:all_childs()
@@ -113,6 +113,10 @@ function new(parent)
             end
         end
         return {width = private_data.width or 0, height = private_data.height or 0, x = private_data.x or 0, y = private_data.y or 0}
+    end
+    
+    function data:center()
+        return {x=private_data.x+(private_data.width/2),y=private_data.y+(private_data.height/2)}
     end
 
     function data:set_client(c)
@@ -254,15 +258,17 @@ function new(parent)
     end
     
     function data:raise()
-        --TODO
+        if parent then
+            parent.active = self
+        end
     end
     
-    local function set_active(sub_cg)
+    local function set_active(child_cg)
         if layout.set_active then
-            layout:set_active(sub_cg)
-            sub_cg.focus = true
+            layout:set_active(child_cg)
         end
-        active_cg = sub_cg --TODO check if child
+        child_cg.focus = true
+        active_cg = child_cg --TODO check if child
     end
     
     local function set_parent(new_parent)
@@ -334,6 +340,13 @@ function new(parent)
         if parent ~= nil then
             parent.focus = value
         end
+        if #childs_cg == 1 then
+            childs_cg[1].focus = value
+            if client then
+                client.focus = client
+                active_cg = data
+            end
+        end
         data:emit_signal("focus::changed",value)
     end
     
@@ -351,7 +364,7 @@ function new(parent)
         visible  = function(value) change_visibility(value);  end,
         title    = function(value) title = value; data:emit_signal("title::changed",value) end,
         focus    = set_focus,
-        active   = set_active,
+        active   = set_active, --TODO change this
         workarea = false,
     }
     for k,v in pairs({"height", "width","y","x"}) do
@@ -362,7 +375,7 @@ function new(parent)
         parent      = function() return parent                   end,
         title       = function() return get_title()              end,
         focus       = function() return focus                    end,
-        active      = function() return active_cg                end,
+        active      = function() return active_cg                end, --TODO change this
 	client      = function() return client                   end,
         layout      = function() return layout                   end,
         decorations = function() return deco                     end,
