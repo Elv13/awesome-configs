@@ -12,7 +12,11 @@ globalkeys = awful.util.table.join(
 --     awful.key({ modkey,           }, "Right" , function () utils.clientSwitcher.focusRight()    end ),
 --     awful.key({ modkey,           }, "Up"    , function () utils.clientSwitcher.focusUp()       end ),
 --     awful.key({ modkey,           }, "Down"  , function () utils.clientSwitcher.focusDown()     end ),
-    
+            
+    awful.key({ modkey, "Control" }, "o"  , function () ultiLayout.modules.keybpard_handling.resize_h(20)     end ),
+    awful.key({ modkey, "Control" }, "p"  , function () ultiLayout.modules.keybpard_handling.resize_w(20)     end ),
+    awful.key({ modkey, "Control", "Shift" }, "o"  , function () ultiLayout.modules.keybpard_handling.resize_h(-20)     end ),
+    awful.key({ modkey, "Control", "Shift" }, "p"  , function () ultiLayout.modules.keybpard_handling.resize_w(-20)     end ),
     
     awful.key({ modkey,           }, "Escape", function () awful.tag.history.restore()          end ),
     awful.key({ modkey, "Shift"   }, "p"     , function () utils.keyFunctions.moveTagToScreen() end ),

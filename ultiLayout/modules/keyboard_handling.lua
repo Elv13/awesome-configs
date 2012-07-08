@@ -33,18 +33,14 @@ function move_left(count,tabs_too)
     move_left_real(tabs_too)
 end
 
-function resize_h_inc()
-    
+function resize_h(value)
+    print("I am here")
+    local unit = clientGroup.get_cg_from_client(capi.client.focus,common.tag_to_cg())
+    unit.parent:resize(unit,0,value)
 end
 
-function resize_h_dec()
-    
-end
-
-function resize_w_int()
-    
-end
-
-function resize_w_dec()
-    
+function resize_w(value)
+    print("I am here2")
+    local unit = clientGroup.get_cg_from_client(capi.client.focus,common.tag_to_cg())
+    unit.parent:resize(unit,value,0)
 end

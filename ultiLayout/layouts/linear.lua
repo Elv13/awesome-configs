@@ -45,17 +45,21 @@ local function new(cg,ori)
         if base and base ~= 0 and ori == v_or_h then
             if (child_cg[w_or_h] - base < 15) then
                 newBase = (child_cg[w_or_h]+base <=15) and 0 or child_cg[w_or_h] -15
-            else
+            elseif cg:previousChild(child_cg) then
                 newBase = (cg:previousChild(child_cg)[w_or_h]+base <=15) and 0 or base
             end
-            local diff,idx,length = (data:sum_ratio()/cg[w_or_h])*(newBase),cg:cg_to_idx(child_cg),cg[w_or_h]
+            local diff,idx,length = (data:sum_ratio()/cg[w_or_h])*(newBase or 0),cg:cg_to_idx(child_cg),cg[w_or_h]
             data.ratio[idx-1],data.ratio[idx] = data.ratio[ idx-1 ] + (diff >= length-5 and length-5 or diff),data.ratio[ idx   ] - (diff >= length-5 and length-5 or diff)
         end
         return base-newBase
    end
    
    function data:resize(child_cg,w,h)
-       return resize_common(child_cg,w,"width","vertical"),resize_common(child_cg,h,"height","horizontal")
+        if ori == "vertical" then
+            return resize_common(child_cg,w,"width","vertical"),h
+        else
+            return w,resize_common(child_cg,h,"height","horizontal")
+        end
    end
     
    function data:add_child(child_cg,index)

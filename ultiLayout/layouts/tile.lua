@@ -111,8 +111,8 @@ end
 
 common.add_new_layout("righttile"       , function(cg) return tile    ( cg, "vertical"   , "horizontal" ,true  ) end)
 common.add_new_layout("lefttile"        , function(cg) return tile    ( cg, "vertical"   , "horizontal" ,false ) end)
-common.add_new_layout("topttile"        , function(cg) return tile    ( cg, "horizontal" , "vertical"   ,true  ) end)
-common.add_new_layout("bottomttile"     , function(cg) return tile    ( cg, "horizontal" , "vertical"   ,false ) end)
+common.add_new_layout("toptile"         , function(cg) return tile    ( cg, "horizontal" , "vertical"   ,true  ) end)
+common.add_new_layout("bottomtile"      , function(cg) return tile    ( cg, "horizontal" , "vertical"   ,false ) end)
 common.add_new_layout("highres"         , function(cg) return highres ( cg                                     ) end)
 common.add_new_layout("verticalgrid"    , function(cg) return grid    ( cg, "horizontal" , "vertical"          ) end)
 common.add_new_layout("horizontalgrid"  , function(cg) return grid    ( cg, "vertical"   , "horizontal"        ) end)

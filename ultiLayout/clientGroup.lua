@@ -282,13 +282,17 @@ function new(parent)
             local currentChild = child_cg
             while (remainingW~=0 or remainingH~=0) and currentChild ~= nil do
                 remainingW,remainingH = layout:resize(currentChild,remainingW,remainingH)
-                currentChild = (remainingH<0) and self:previousChild(currentChild) or self:nextChild(currentChild)
+                if ((remainingW~=0) and remainingW  or remainingH ) > 0 then
+                    currentChild = self:nextChild(currentChild)
+                else
+                    currentChild = self:previousChild(currentChild)
+                end
             end
         end
-        if parent and remainingW > 0 or remainingH > 0 then
+        if parent and (remainingW ~= 0 or remainingH ~= 0) then
             parent:resize(self,remainingW,remainingH)
-        elseif remainingW > 0 or remainingH > 0 then
-            print("Nowhere to take space from")
+        elseif remainingW ~= 0 or remainingH ~= 0 then
+            print("Nowhere to take space from",self)
         else
             data:repaint()
         end
