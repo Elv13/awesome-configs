@@ -228,6 +228,8 @@ local function create(cg, args)
     end
     titlebar:update()
     
+    ultilayoutC.register_wibox(tb,cg,function(new_cg) cg:attach(new_cg) end)
+    
     cg:add_signal("geometry::changed"   ,update                                        )
     cg:add_signal("focus::changed"      ,function(_cg,value) titlebar.focus = value end)
     cg:add_signal("child::replaced"     ,function(...) data:swap(...)               end)

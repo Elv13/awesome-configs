@@ -61,7 +61,7 @@ local function abstract_drag(cg,on_drag_f,on_drop_f,on_click_f,args)
             if not moved and type(on_click_f) == "function" then
                 on_click_f()
             end
-            if type(on_drop_f) == "function" then
+            if type(on_drop_f) == "function" and moved then
                 on_drop_f(mouse,cur)
             end
             capi.mousegrabber.stop()
