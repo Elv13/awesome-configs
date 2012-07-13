@@ -102,7 +102,8 @@ function drag_cg(cg,on_click_f,args)
             aWb = nil
             local obj = capi.mouse.object_under_pointer()
             if type(obj) == "client" then
-                local possibilities = clientGroup.get_cg_from_client(obj)
+                --TODO handle possible tags
+                local possibilities = clientGroup.get_units_from_client(obj)
                 if possibilities ~= nil then
                     swap_client_group(cg,possibilities[1])
                 end
@@ -115,7 +116,8 @@ function drag_cg(cg,on_click_f,args)
 end
 
 function drag_cg_under_cursor(c)
-    local cg = clientGroup.get_cg_from_client(c, top_level_cg[tag.selected(capi.mouse.screen)])
+    local cg = common.tag_to_cg():get_unit(capi.client.focus)
+--     local cg = clientGroup.get_cg_from_client(c, top_level_cg[tag.selected(capi.mouse.screen)])
     drag_cg(cg)
 end
 
@@ -235,6 +237,10 @@ function set_layout_by_name(name,t)
             for k,v in ipairs(t:clients()) do
                 local unit = wrap_client(v)
                 aCG:attach(unit)
+                if aCG.layout then
+                    aCG.layout.units = aCG.layout.units or {}
+                    aCG.layout.units[v] = unit
+                end
             end
             for k,v in ipairs({"x","y","width","height"}) do
                 aCG[v] = coords[v]
@@ -257,6 +263,10 @@ function set_layout_by_name(name,t)
             if not aCG:has_client(v) then
                 local unit = wrap_client(v)
                 aCG:attach(unit)
+                if aCG.layout then
+                    aCG.layout.units = aCG.layout.units or {}
+                    aCG.layout.units[v] = unit
+                end
             end
         end
         clientGroup.unlock()
@@ -306,7 +316,7 @@ tag.attached_add_signal(screen, "property::selected", switch_on_tag_change)
 -- tag.attached_add_signal(screen, "property::layout", switch_on_tag_change)
 
 capi.client.add_signal("unmanage", function (c, startup) 
-    local units = clientGroup.get_cg_from_client(c)
+    local units = clientGroup.get_units_from_client(c)
     for k,v in pairs(units) do
         v.parent:detach(v)
     end
@@ -318,6 +328,10 @@ capi.client.add_signal("manage", function (c, startup)
     if cg then
         local unit = wrap_client(c)
         cg:attach(unit)
+        if cg.layout then
+            cg.layout.units = cg.layout.units or {}
+            cg.layout.units[c] = unit
+        end
         cg:repaint()
     end
 end)

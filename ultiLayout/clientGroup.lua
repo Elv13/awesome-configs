@@ -134,7 +134,8 @@ function new(parent)
         return false
     end
     
-    function get_cg_from_client(c,parent)
+    --TODO deprecate in favor of get_unit_from_cg
+    function get_units_from_client(c,parent)
         --TODO find a way to check  if it is check of parent
         if not parent then
             return client_to_cg[c]
@@ -144,6 +145,12 @@ function new(parent)
                     return v
                 end
             end
+        end
+    end
+    
+    function data:get_unit(c)
+        if layout and layout.units then
+            return layout.units[c]
         end
     end
 

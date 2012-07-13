@@ -13,25 +13,6 @@ local capi = { image  = image,
 
 module("ultiLayout.modules.keybpard_handling")
 
--- local function move_left_real(tabs_too)
---     print("finding")
---     local unit = clientGroup.get_cg_from_client(capi.client.focus,common.tag_to_cg())
---     print("unit",unit,capi.client.focus,unit.client,common.tag_to_cg())
---     if unit then
---         local current_level,prev = unit.parent
---         print("starting",current_level,unit.parent,current_level.orientation)
---         while current_level ~= nil and current_level.orientation ~= "vertical" do
---             prev,current_level = current_level,current_level.parent
---             print("new parent",current_level.orientation)
---         end
---         if current_level then
---             local index = current_level:cg_to_idx(prev)
---             prev:raise()
---             print("IT WORK!!!",index,current_level.orientation)
---         end
---     end
--- end
-
 local function move_common(cg,h_or_v,next_or_prev)
     if cg then
         local current_level,old_current = cg.parent,cg
@@ -76,31 +57,31 @@ local function move_common(cg,h_or_v,next_or_prev)
 end
 
 function move_left(count,tabs_too)
-    local unit = clientGroup.get_cg_from_client(capi.client.focus,common.tag_to_cg())
+    local unit = common.tag_to_cg():get_unit(capi.client.focus)
     move_common(unit,"vertical","prev")
 end
 
 function move_right(count,tabs_too)
-    local unit = clientGroup.get_cg_from_client(capi.client.focus,common.tag_to_cg())
+    local unit = common.tag_to_cg():get_unit(capi.client.focus)
     move_common(unit,"vertical","next")
 end
 
 function move_up(count,tabs_too)
-    local unit = clientGroup.get_cg_from_client(capi.client.focus,common.tag_to_cg())
+    local unit = common.tag_to_cg():get_unit(capi.client.focus)
     move_common(unit,"horizontal","prev")
 end
 
 function move_down(count,tabs_too)
-    local unit = clientGroup.get_cg_from_client(capi.client.focus,common.tag_to_cg())
+    local unit = common.tag_to_cg():get_unit(capi.client.focus)
     move_common(unit,"horizontal","next")
 end
 
 function resize_h(value)
-    local unit = clientGroup.get_cg_from_client(capi.client.focus,common.tag_to_cg())
+    local unit = common.tag_to_cg():get_unit(capi.client.focus)
     unit.parent:resize(unit,0,value)
 end
 
 function resize_w(value)
-    local unit = clientGroup.get_cg_from_client(capi.client.focus,common.tag_to_cg())
+    local unit = common.tag_to_cg():get_unit(capi.client.focus)
     unit.parent:resize(unit,value,0)
 end
