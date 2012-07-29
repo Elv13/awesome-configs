@@ -273,6 +273,7 @@ local shifty_rules = {
       awful.button({ modkey }, 3, awful.mouse.client.resize                   ) ,
       awful.button({ modkey }, 2, ultiLayout.common.drag_cg_under_cursor      ) ,
       awful.button({ modkey, "Control" }, 1, ultiLayout.common.drag_cg_under_cursor      ) ,
+      awful.button({ modkey, "Control" }, 3, ultiLayout.modules.keybpard_handling.resize      ) ,
       awful.button({ modkey }, 9, awful.mouse.client.move                     ) ,
       awful.button({ modkey }, 8, awful.mouse.client.resize)                  ) ,
   titlebar = false                                                              ,

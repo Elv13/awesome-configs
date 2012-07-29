@@ -135,16 +135,18 @@ function new(parent)
     end
     
     --TODO deprecate in favor of get_unit_from_cg
-    function get_units_from_client(c,parent)
-        --TODO find a way to check  if it is check of parent
-        if not parent then
+    function get_units_from_client(c,par)
+        if not par then
             return client_to_cg[c]
         else
-            for k,v in pairs(client_to_cg[c]) do
-                if data:has_indirect_parent(parent) == true then
-                    return v
+            print("I am here")
+            local to_return = {}
+            for k,v in pairs(client_to_cg[c] or {}) do
+                if data:has_indirect_parent(par) == true then
+                    table.insert(to_return,v)
                 end
             end
+            return to_return
         end
     end
     
@@ -192,6 +194,14 @@ function new(parent)
         for k,v in ipairs(childs_cg) do
             if v == cg then return k end
         end
+    end
+    
+    function data:first_swapable_parent()
+        local swapable1 = data
+        while swapable1 ~= nil and swapable1.swapable == false do
+            swapable1 = swapable1.parent
+        end
+        return swapable1
     end
     
     --It is not called swap because it only do half of the operation

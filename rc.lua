@@ -306,6 +306,12 @@ widgets.desktopMonitor(screen.count() == 1 and 1 or 2)
 dofile(awful.util.getdir("config") .. "/keyBinding.lua")
 
 -- Hooks
+awesome.add_signal("spawn::initiated ",function(ev)
+    if ev.name == "Software Update" then
+        print("die mozilla update popup, die!!!")
+    end
+end)
+
 client.add_signal("manage", function (c, startup)
     if c.name == "Software Update" then c:kill() end --I hate that Firefox popup, die!!!
     -- Add a titlebar to floating clients
