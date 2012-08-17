@@ -10,7 +10,6 @@ function new(cg,have_tiltebar)
    if not cg then return end
    local data,tb,asplitter = {},nil,splitter.create_splitter_bar(cg)
    cg.orientation = "stack"
-   cg.swapable = true
 
    function data:update()
         local margin = (cg.width-(2*(beautiful.client_margin or 0)) < 0 or cg.height-(2*(beautiful.client_margin or 0)) < 0) and 0 or beautiful.client_margin or 0

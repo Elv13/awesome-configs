@@ -123,12 +123,12 @@ local function create_splitter(cg,args)
             local new_cg_parent = clientGroup()
             new_cg.decorations:remove_decoration("edge")
             new_cg_parent:set_layout(common.get_layout_list()[(p_data.direction == "top" or p_data.direction == "bottom") and "vertical" or "horizontal"])
-            new_cg_parent:attach(new_cg)
+            new_cg_parent:attach(new_cg:first_swapable_parent())
             cg:attach(new_cg_parent,args.index)
             cg.layout.add_child = tmp
         else
             new_cg.decorations:remove_decoration("edge")
-            cg:attach(new_cg,args.index)
+            cg:attach(new_cg:first_swapable_parent(),args.index)
         end
     end)
     if init == false then
@@ -197,7 +197,7 @@ function create_splitter_bar(cg)
         old.decorations:remove_decoration("edge")
         new_cg.decorations:remove_decoration("edge")
         new:set_layout(common.get_layout_list()[layout])
-        new:attach(new_cg)
+        new:attach(new_cg:first_swapable_parent())
         cg:attach(new)
         new:attach(old,idx)
         cg:repaint()

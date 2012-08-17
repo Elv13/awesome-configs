@@ -172,7 +172,6 @@ local function create(cg, args)
     end
     
     function data:swap(_cg,old_cg,new_cg)
-        --sdfdsfds()
         if _cg.parent ~= cg then
             --_cg:remove_signal("cg::swapped",swap) --TODO name changed
             titlebar.tabs[old_cg].clientgroup = new_cg
@@ -228,7 +227,7 @@ local function create(cg, args)
     end
     titlebar:update()
     
-    ultilayoutC.register_wibox(tb,cg,function(new_cg) cg:attach(new_cg) end)
+    ultilayoutC.register_wibox(tb,cg,function(new_cg) cg:attach(new_cg:first_swapable_parent()) end)
     
     cg:add_signal("geometry::changed"   ,update                                        )
     cg:add_signal("focus::changed"      ,function(_cg,value) titlebar.focus = value end)

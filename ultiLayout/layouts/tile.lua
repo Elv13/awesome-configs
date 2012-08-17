@@ -36,7 +36,7 @@ local function tile(cg,main_l_name,sub_l_name,right)
     layout.add_child_orig = layout.add_child
     layout.add_child = function(self,new_cg)
         if new_cg == m_tile or new_cg == s_tile then return end
-        ((#m_tile:childs() < 1) and m_tile or s_tile):attach(common.wrap_stack(new_cg))
+        ((#m_tile:childs() < 1) and m_tile or s_tile):attach(new_cg)
     end 
     
     return layout
@@ -78,12 +78,12 @@ local function grid(cg,main_l_name,sub_l_name)
             lowest = (lowest ~= nil and (#lowest:childs() <= #v:childs())) and lowest or v
         end
         if lowest and #lowest:childs() < #cg:childs() then
-            lowest:attach(common.wrap_stack(new_cg))
+            lowest:attach(new_cg)
         else
             layout.add_child = layout.add_child_orig
             local row = create_cg(cg,layout,sub_l_name)
             layout.add_child = new_add_child
-            row:attach(common.wrap_stack(new_cg))
+            row:attach(new_cg)
         end
     end
     layout.add_child = new_add_child

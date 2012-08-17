@@ -1,6 +1,8 @@
 --This is the smallest component of a layout. It handle titlebars and (optionally) some other goodies
 local client       = client
 local common       = require( "ultiLayout.common" )
+local print = print
+local ipairs = ipairs
 
 module("ultiLayout.layouts.unit")
 
@@ -44,4 +46,28 @@ function new(cg,c)
    return data
 end
 
+local function meta_u(cg,meta_cg)
+    local data = {}
+    cg.swapable = true
+    cg.meta = true
+    cg.all_clients = meta_cg.all_clients
+
+    function data:update()
+        if not meta_cg.parent == cg then
+            meta_cg.parent = cg
+            meta_cg.visible = true
+        end
+        if cg.visible --[[and ]] then
+--             print("\n\nI AM HERE",meta_cg,meta_cg.visible,meta_cg.parent,cg)
+            meta_cg.visible = true
+            meta_cg:geometry(cg:geometry())
+            meta_cg:repaint()
+        end
+    end
+
+   function data:add_child(child_cg,index) return child_cg end
+   return data
+end
+
 common.add_new_layout("unit",new)
+common.add_new_layout("meta_unit",meta_u,...)

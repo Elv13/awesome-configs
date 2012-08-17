@@ -100,6 +100,7 @@ function new(parent)
         local clients = data:all_clients()
         for k,v in pairs(clients) do
             if v == c then
+                print("Has client",c)
                 return true
             end
         end
@@ -176,7 +177,7 @@ function new(parent)
                 child.parent = nil
             end
         end
-        if parent ~= nil and #childs_cg == 0 then
+        if parent ~= nil and #childs_cg == 0 and data.meta ~= true then
             if self.keep == true then
                 parent:repaint(true)
             else

@@ -198,13 +198,29 @@ function wrap_client(c)
     end
 end
 
+function wrap_meta_unit(c)
+    local meta = meta_unit[c]
+    if not meta then
+        meta = wrap_stack(wrap_client(c))
+        meta_unit[c] = meta
+        meta.meta = true
+    end
+    local aCG = clientGroup()
+    aCG:geometry(meta:geometry())
+    aCG:set_layout(layout_list.meta_unit,meta)
+    aCG:attach(meta)
+    return aCG
+--     return wrap_stack(wrap_client(c))
+end
+
 function wrap_stack(new_cg)
     local stack = clientGroup()
     stack:set_layout(get_layout_list().stack)
     stack:attach(new_cg)
-    if new_cg.client and not meta_unit[new_cg.client] then
-        meta_unit[new_cg.client] = stack
-    end
+--     if new_cg.client and not meta_unit[new_cg.client] then
+--         meta_unit[new_cg.client] = stack
+--         stack.meta = true
+--     end
     return stack
 end
 
@@ -238,7 +254,7 @@ function set_layout_by_name(name,t)
             layouts[t][name] = aCG
             clientGroup.lock()
             for k,v in ipairs(t:clients()) do
-                local unit = wrap_client(v)
+                local unit = wrap_meta_unit(v)
                 aCG:attach(unit)
                 if aCG.layout then
                     aCG.layout.units = aCG.layout.units or {}
@@ -261,21 +277,23 @@ function set_layout_by_name(name,t)
         top_level_cg[t].visible = false
         local aCG = layouts[t][name]
         top_level_cg[t] = aCG
+        cur_layout_name[t] = name
+        aCG:repaint()
         clientGroup.lock()
-        for k,v in pairs(t:clients()) do
-            if not aCG:has_client(v) then
-                local unit = wrap_client(v)
-                aCG:attach(unit)
-                if aCG.layout then
-                    aCG.layout.units = aCG.layout.units or {}
-                    aCG.layout.units[v] = unit
-                end
-            end
-        end
+--         for k,v in pairs(t:clients()) do
+--             if not aCG:has_client(v) then
+--                 print("\n\n\nARG")
+--                 local unit = wrap_meta_unit(v)
+--                 aCG:attach(unit)
+--                 if aCG.layout then
+--                     aCG.layout.units = aCG.layout.units or {}
+--                     aCG.layout.units[v] = unit
+--                 end
+--             end
+--         end
         clientGroup.unlock()
         aCG.visible = true
-        cur_layout_name[t] = name
-        layouts[t][name]:repaint()
+        aCG:repaint()
     else
         print("layout".. name .. " not found")
     end
@@ -290,7 +308,7 @@ function rotate_layout(inc,t)
     local layout_array = ordered or get_layout_name_list()
     local current_index = layout_name_to_idx(cur_layout_name[t]) or 1
     local new_index = (current_index+inc > #layout_array) and current_index+inc-#layout_array or current_index+inc
-    if layout_array[new_index] == "unit" then
+    if layout_array[new_index] == "unit" or layout_array[new_index] == "meta_unit" then
         rotate_layout(inc+(inc/math.abs(inc)),t)
     else
         set_layout_by_name(layout_array[new_index],t)
@@ -330,7 +348,9 @@ capi.client.add_signal("manage", function (c, startup)
     local t = t or tag.selected(capi.mouse.screen)
     local cg = top_level_cg[t]
     if cg then
-        local unit = wrap_client(c)
+--         local unit = wrap_stack(wrap_client(c))
+        local unit = wrap_meta_unit(c)
+        
         cg:attach(unit)
         if cg.layout then
             cg.layout.units = cg.layout.units or {}
@@ -342,7 +362,7 @@ capi.client.add_signal("manage", function (c, startup)
         print("tagged")
         local tCg = top_level_cg[t]
         if tCg then
-            local unit = wrap_client(c)
+            local unit = wrap_meta_unit(c)
             tCg:attach(unit)
         end
     end)
