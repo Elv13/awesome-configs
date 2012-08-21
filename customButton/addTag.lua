@@ -1,11 +1,12 @@
 local setmetatable = setmetatable
 local next = next
 local button = require("awful.button")
-local beautiful = require( "beautiful"    )
-local util      = require( "awful.util"   )
-local shifty    = require( "shifty"       )
-local config    = require( "config"       )
-local menu      = require( "widgets.menu" )
+local beautiful = require( "beautiful"       )
+local util      = require( "awful.util"      )
+local shifty    = require( "shifty"          )
+local config    = require( "config"          )
+local menu      = require( "widgets.menu"    )
+local tooltip   = require( "widgets.tooltip" )
 local capi = { image = image,
                widget = widget,
                mouse = mouse}
@@ -22,6 +23,16 @@ function new(screen, args)
   local addTag  = capi.widget({ type = "imagebox", align = "left" })
   addTag.image  = capi.image(config.data().iconPath .. "tags/cross2.png")
   local tagMenu = menu()
+  local tt = nil
+
+  local function showToolTip(show)
+     if not tt then
+       tt = tooltip("Add Tag",{})
+     end
+     tt.x = capi.mouse.coords().x - tt.width/2 -5
+     tt.y = 16
+     tt.visible = show
+  end
 
   for v, i in next, shifty.config.tags do
     tagMenu:add_item({text=v,onclick= function() 
@@ -41,8 +52,8 @@ function new(screen, args)
     end)
   ))
   
-  addTag:add_signal("mouse::enter", function() addTag.bg = beautiful.bg_highlight end)
-  addTag:add_signal("mouse::leave", function() addTag.bg = beautiful.bg_normal end)
+  addTag:add_signal("mouse::enter", function() showToolTip(true) ;addTag.bg = beautiful.bg_highlight end)
+  addTag:add_signal("mouse::leave", function() showToolTip(false);addTag.bg = beautiful.bg_normal    end)
   
   return addTag
 end
