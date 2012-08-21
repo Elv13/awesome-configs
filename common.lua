@@ -9,7 +9,7 @@ local math = math
 local type = type
 local ipairs = ipairs
 local setmetatable = setmetatable
-local capi = { widget = widget, button = button }
+local capi = { widget = widget, button = button,image = image }
 
 --- Common widget code
 module("common")
@@ -17,14 +17,31 @@ module("common")
 -- Private structures
 tagwidgets = setmetatable({}, { __mode = 'k' })
 
+local wNb = 2
+local img = capi.image.argb32(9, 16, nil)
+  img:draw_rectangle(0, 0, 9, 16, true, "#1577D3")
+  for i=0,(8) do
+    img:draw_rectangle(0,i, i, 1, true, "#0A1535")
+    img:draw_rectangle(0,16- i,i, 1, true, "#0A1535")
+  end
+
+local right_arrow_normal = nil
+local function get_right_arrow_normal()
+    if not right_arrow_normal then
+        right_arrow_normal = capi.widget({ type = "imagebox" })
+        right_arrow_normal.image = img
+    end
+    return right_arrow_normal
+end
+
 function list_update(w, buttons, label, data, widgets, objects)
     -- Hack: if it has been registered as a widget in a wibox,
     -- it's w.len since __len meta does not work on table until Lua 5.2.
     -- Otherwise it's standard #w.
-    local len = (w.len or #w) / 2
+    local len = (w.len or #w) / wNb
     -- Add more widgets
     if len < #objects then
-        for i = len * 2 + 1, #objects * 2, 2 do
+        for i = len * wNb + 1, #objects * wNb, wNb do
             local ib = capi.widget({ type = "imagebox", align = widgets.imagebox.align })
             local tb = capi.widget({ type = "textbox", align = widgets.textbox.align })
 
@@ -33,23 +50,29 @@ function list_update(w, buttons, label, data, widgets, objects)
             --w[i + 1]:margin({ left = widgets.textbox.margin.left, right = widgets.textbox.margin.right })
             w[i + 1].bg_resize = widgets.textbox.bg_resize or false
             w[i + 1].bg_align = widgets.textbox.bg_align or ""
+            if wNb >= 3 then
+                w[i+2] = get_right_arrow_normal()
+            end
 
-            if type(objects[math.floor(i / 2) + 1]) == "tag" then
-                tagwidgets[ib] = objects[math.floor(i / 2) + 1]
-                tagwidgets[tb] = objects[math.floor(i / 2) + 1]
+            if type(objects[math.floor(i / wNb) + 1]) == "tag" then
+                tagwidgets[ib] = objects[math.floor(i / wNb) + 1]
+                tagwidgets[tb] = objects[math.floor(i / wNb) + 1]
             end
         end
     -- Remove widgets
     elseif len > #objects then
-        for i = #objects * 2 + 1, len * 2, 2 do
+        for i = #objects * wNb + 1, len * wNb, wNb do
             w[i] = nil
             w[i + 1] = nil
+            if wNb >=3 then
+                w[i + 2] = nil
+            end
         end
     end
 
     -- update widgets text
-    for k = 1, #objects * 2, 2 do
-        local o = objects[(k + 1) / 2]
+    for k = 1, #objects * wNb, wNb do
+        local o = objects[(k + (wNb-1)) / wNb]
         if buttons then
             if not data[o] then
                 data[o] = { }
