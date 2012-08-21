@@ -95,7 +95,7 @@ function soundInfo()
     f2:close()
     
     channal = capi.widget({type = "textbox"})
-    channal.text = aChannal
+    --channal.text = aChannal
     channal.width = 107
         
     mute = capi.widget({ type = "imagebox", align = "left" })

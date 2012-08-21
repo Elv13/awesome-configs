@@ -607,4 +607,62 @@ function new(args)
   
   return createMenu(args)
 end
+
+function gen_menu_decoration(width,args)
+    local args = args or {}
+    local w,w2 = wibox({position="free",visible=false}), wibox({position="free",viaible=false})
+    w.width,w2.width=width,width
+    w.height,w2.height = 23,10
+    w.ontop,w2.ontop = true,true
+    w.visible,w2.visible = false,false
+    w.border_color,w2.border_color = "#ff0000","#ff0000"
+    local function do_gen_menu_top(width, radius,padding)
+        local img = capi.image.argb32(width, 23, nil)
+        if not args.down then
+            img:draw_rectangle(46, 0, width-40, 13 + (padding or 0), true, "#ffffff")
+            img:draw_rectangle(padding or 0,0, 20, 13 + (padding or 0), true, "#ffffff")
+            img:draw_rectangle(20,0,3, 13+ (padding or 0), true, "#ffffff")
+        else
+            img:draw_rectangle(46, 10-(padding or 0), width-40, 13 - (padding or 0), true, "#ffffff")
+            img:draw_rectangle(padding or 0,10-(padding or 0), 20, 13 - (padding or 0), true, "#ffffff")
+        end
+        for i=0,(13) do
+            if not args.down then
+                img:draw_rectangle(20+i+3, padding or 0, 1, 13-i, true, "#ffffff")
+                img:draw_rectangle(26+20-i, padding or 0, 1, 13-i, true, "#ffffff")
+            else
+                img:draw_rectangle(20+13+i, 26-3-i-(padding or 0), 1, i, true, "#ffffff")
+                img:draw_rectangle(20+13-i, 26-3-i-(padding or 0), 1, i, true, "#ffffff")
+            end
+        end
+        if not args.down then
+            img:draw_rectangle(0,13, radius + (padding or 0), radius + (padding or 0), true, "#ffffff")
+            img:draw_circle(10, 23+1, radius, radius, true, "#000000")
+
+            img:draw_rectangle(width-10 + (padding or 0),13 + (padding or 0), radius, radius, true, "#ffffff")
+            img:draw_circle(width-10 + (padding or 0), 23+1 + (pdding or 0), radius, radius, true, "#000000")
+        else
+            img:draw_rectangle(0,0, radius + (padding or 0), radius + (padding or 0), true, "#ffffff")
+            img:draw_circle(10, 0, radius-1, radius-1, true, "#000000")
+
+            img:draw_rectangle(width-10 + (padding or 0),0 + (padding or 0), radius, radius, true, "#ffffff")
+            img:draw_circle(width-10 + (padding or 0), 0 + (pdding or 0), radius-1, radius-1, true, "#000000")
+        end
+        return img
+    end
+    local function do_gen_menu_bottom(width,radius,padding)
+        local img = capi.image.argb32(width, 10-(padding or 0), nil)
+        img:draw_rectangle(0,0, radius + (padding or 0), radius + (padding or 0), true, "#ffffff")
+        img:draw_circle(10, 0, radius-1, radius-1, true, "#000000")
+        img:draw_rectangle(width-10,0, radius + (padding or 0), radius + (padding or 0), true, "#ffffff")
+        img:draw_circle(width-10, 0, radius-1, radius-1, true, "#000000")
+        return img
+    end
+    w.shape_clip      = do_gen_menu_top(width-(3),7,3)
+    w.shape_bounding  = do_gen_menu_top(width,10,0)
+    w2.shape_clip     = do_gen_menu_bottom(width,7,3)
+    w2.shape_bounding = do_gen_menu_bottom(width,10,0)
+    return w,w2
+end
+
 setmetatable(_M, { __call = function(_, ...) return new(...) end })

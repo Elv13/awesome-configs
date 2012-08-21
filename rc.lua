@@ -3,7 +3,7 @@ require( "awful"        )
 require( "beautiful"    )
 require( "naughty"      )
 require( "shifty"       )
-require( "vicious"      )
+--require( "vicious"      )
 require( "panel"        )
 require( "monkeyPatch"  )
 require( "config"       )
@@ -16,10 +16,10 @@ require( "titlebar"     )
 require( "ultiLayout"   )
 
 -- Cache result for probe used more than once
-vicious.cache( vicious.widgets.net )
-vicious.cache( vicious.widgets.fs  )
-vicious.cache( vicious.widgets.dio )
-vicious.cache( vicious.widgets.cpu )
+--vicious.cache( vicious.widgets.net )
+--vicious.cache( vicious.widgets.fs  )
+--vicious.cache( vicious.widgets.dio )
+--vicious.cache( vicious.widgets.cpu )
 
 -- Some widget for every screens
 wiboxTop        = {}; promptbox = {}; notifibox = {}; layoutmenu = {}; wiboxBot = {}

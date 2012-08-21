@@ -11,6 +11,7 @@ local util = require("awful.util")
 local config = require("config")
 local beautiful = require("beautiful")
 local wibox = require("awful.wibox")
+local menu2 = require("widgets.menu")
 local capi = { image = image,
                screen = screen,
                widget = widget,
@@ -56,11 +57,11 @@ function new(screen, layouts)
     w:buttons( util.table.join(
       button({ }, 1, function()
 	  menu:geometry({x = w:extents(screen).x or capi.mouse.coords().x, y = w:extents(screen).y or capi.mouse.coords().y})
-	  menu.visible = not menu.visible
+	  menu:visible()
       end),
       button({ }, 3, function()
           menu:geometry({x = w:extents(screen).x or capi.mouse.coords().x, y = w:extents(screen).y or capi.mouse.coords().y})
-          menu.visible = not menu.visible
+          menu:visible()
       end),
       button({ }, 4, function()
 	  layout.inc(layouts, 1)
@@ -110,15 +111,25 @@ end
 
 
 function create(s,layouts,titleBarWidget)
-  if menuWibox == nil then
-    menuWibox = {}
-  end
-  menuWibox[s] = wibox({ position = "free", screen = s})
-  menuWibox[s].visible = false
-  menuWibox[s].ontop = true
+  local menuWibox = wibox({ position = "free", screen = s})
+  local top,bottom = menu2.gen_menu_decoration(90)
+  menuWibox.visible = false
+  menuWibox.ontop,top.ontop,bottom.ontop = true,true,true
   layoutArray = {}
-  local counter = 0
-  local currentRow = {}
+  local counter,currentRow,data = 0, {},{}
+
+  function data:geometry(geo)
+    top:geometry({x=geo.x-30,y=geo.y})
+    menuWibox:geometry({x=geo.x-30,y=geo.y+23})
+    bottom:geometry({x=geo.x-30,y=geo.y+23+menuWibox.height})
+  end
+
+  function data:visible(vis)
+    local vis = vis or not menuWibox.visible
+    for k,v in ipairs({top,bottom,menuWibox}) do
+      v.visible = vis
+    end
+  end
   
   for i, layout_real in ipairs(layouts) do
     local layout2 = layout.getname(layout_real)
@@ -129,11 +140,11 @@ function create(s,layouts,titleBarWidget)
 	r_widget.layout.margins[tmp] = { right = 10}
 	tmp:buttons( util.table.join(
 	  button({ }, 1, function()
-	      menuWibox[s].visible = false
+	      data:visible(false)
 	      layout.set(layout_real)
 	  end),
 	  button({ }, 3, function()
-	      menuWibox[s].visible = false
+	      data:visible(false)
 	  end)
 	))
 	
@@ -158,11 +169,20 @@ function create(s,layouts,titleBarWidget)
   titleBarWidget.align = "center"
   table.insert(layoutArray, {titleBarWidget, layout= r_widget.layout.horizontal.flex})
   
-  menuWibox[s]:geometry({ width = 90, height = (30*#layoutArray)})
+  menuWibox:geometry({ width = 90, height = (30*#layoutArray)})
+
+  --Add border on both side
+  local img = capi.image.argb32(90, (30*#layoutArray) or 10, nil)
+  img:draw_rectangle(0,0, 3, (30*#layoutArray), true, "#ffffff")
+  img:draw_rectangle(87,0, 3, (30*#layoutArray), true, "#ffffff")
+
+  menuWibox.shape_clip     = img
+  menuWibox.border_color = "#ff0000"
+    --w2.shape_bounding = do_gen_menu_bottom(width,10,0)
   
   layoutArray["layout"] = r_widget.layout.vertical.flex
   
-  menuWibox[s].widgets = layoutArray
-  return menuWibox[s]
+  menuWibox.widgets = layoutArray
+  return data
 end
 setmetatable(_M, { __call = function(_, ...) return new(...) end })

@@ -282,6 +282,7 @@ function set_layout_by_name(name,t)
 end
 
 function rotate_layout(inc,t)
+    print("rotating")
     local inc = inc or 1
     local t = t or tag.selected(capi.mouse.screen)
     local layout_array = ordered or get_layout_name_list()
