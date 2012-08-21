@@ -29,7 +29,7 @@ local function save(command)
     file:close()
 end
 
-function createMenu(center)
+function createMenu(offset)
     
     local numberStyle = "<span size='large' color='".. beautiful.bg_normal .."'><tt><b>"
     local numberStyleEnd = "</b></tt></span> "
@@ -113,11 +113,12 @@ function createMenu(center)
     end)
     
     mainMenu:toggle(true)
+    mainMenu:set_coords(offset or 0,capi.screen[capi.mouse.screen].geometry.height-16)
     
     return mainMenu
 end
 
-function new(screen, args)
+function new(offset, args)
     local launcherText = capi.widget({ type = "textbox", align = "left" })
     launcherText.text  = "      Launch  |"
     launcherText.bg_image = capi.image(config.data().iconPath .. "gearA2.png")
@@ -135,7 +136,7 @@ function new(screen, args)
         if currentMenu ~= nil then
             currentMenu:toggle(false)
         else
-            currentMenu = createMenu()
+            currentMenu = createMenu(offset)
         end
     end)
     ))

@@ -17,7 +17,7 @@ function update()
 
 end
 
-function new(screen, args) 
+function new(offset, args) 
  data = menu.new({ items = {{ "Home", "dolphin $HOME",capi.image(config.data().iconPath .. "tags/home.png") },
 					{ "KDE-devel", "dolphin /home/kde-devel",capi.image(config.data().iconPath .. "tags/kde.png") },
 					{ "Image", "dolphin /mnt/smbsda1/My\ Pictures/",capi.image(config.data().iconPath .. "tags/image.png") },
@@ -39,7 +39,7 @@ function new(screen, args)
   
   mylauncher2text:buttons( util.table.join(
     button({ }, 1, function()
-      data:toggle()
+      data:toggle({coords={x=offset,y=capi.screen[capi.mouse.screen].geometry.height}})
   end)
   ))
   

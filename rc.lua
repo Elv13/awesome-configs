@@ -86,13 +86,13 @@ shifty.modkey          = modkey
 desktopGrid            = widgets.layout.desktopLayout({padBottom=20,padTop=35,padDef=8})
 
 -- Create the application menu
-applicationMenu        = customMenu.application   ( nil                                )
+appMenu        = customMenu.application           ( nil                                )
 
 -- Create the place menu TODO use the KDE list instead of the hardcoded one
-placesMenu             = customMenu.places        ( nil                                )
+placesMenu             = customMenu.places        ( appMenu:extents().width   )
 
 -- Call the laucher wibox
-launcher               = customMenu.launcher      ( nil                                )
+launcher               = customMenu.launcher      ( appMenu:extents().width + placesMenu:extents().width)
 
 -- Create the laucher dock
 lauchDock              = widgets.dock             ( nil                                )
@@ -268,7 +268,7 @@ for s = 1, screen.count() do
   -- Bottom wibox widgets
   wiboxBot[s].widgets = {
     --           RULES                                                         WIDGET                FALLBACK
-    ( s == config.data().scr.pri                                           ) and applicationMenu        or nil,
+    ( s == config.data().scr.pri                                           ) and appMenu        or nil,
     ( s == config.data().scr.pri                                           ) and placesMenu             or nil,
     ( s == config.data().scr.pri                                           ) and recentMenu             or nil,
     ( s == config.data().scr.pri                                           ) and launcher               or nil,

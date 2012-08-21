@@ -32,7 +32,6 @@ function new(text, args)
     img:draw_rectangle(width/2 + 5 - i,args.down and 20 or 5-i,1, i, true, "#000000")
   end
   w.shape_bounding  = img
-print("\n\n\nsafasdas",layout.horizontal.flex)
   w.widgets = {textw,layout = layout.horizontal.flex  }
   return w
 end

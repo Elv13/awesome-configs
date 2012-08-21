@@ -36,7 +36,7 @@ function new(screen, args)
   
   mylaunchertext:buttons( util.table.join(
     button({ }, 1, function()
-      myMenu:toggle()
+      myMenu:toggle({x=0,coords={x=0,y=capi.screen[capi.mouse.screen].geometry.height}},{x=0},{x=0})
   end)
   ))
   
