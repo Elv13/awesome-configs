@@ -4,6 +4,7 @@ local beautiful = require("beautiful")
 local util = require("awful.util")
 local menu = require("awful.menu")
 local config = require("config")
+local tooltip   = require( "widgets.tooltip" )
 local capi = { image = image,
                screen = screen,
                widget = widget,
@@ -27,6 +28,7 @@ function new(offset, args)
 					{ "Notes", "dolphin /home/lepagee/Notes/",capi.image(config.data().iconPath .. "tags/editor.png") },
                                      },
                            })
+  local tt = tooltip("Folder shortcut",{down=true})
 
   local mylauncher2text = capi.widget({ type = "textbox" })
   mylauncher2text.text = "      Places  "
@@ -34,8 +36,8 @@ function new(offset, args)
   mylauncher2text.bg_align = "left"
   mylauncher2text.bg_resize = true
   
-  mylauncher2text:add_signal("mouse::enter", function() mylauncher2text.bg = beautiful.bg_highlight end)
-  mylauncher2text:add_signal("mouse::leave", function() mylauncher2text.bg = beautiful.bg_normal end)
+  mylauncher2text:add_signal("mouse::enter", function() tt:showToolTip(true) ;mylauncher2text.bg = beautiful.bg_highlight end)
+  mylauncher2text:add_signal("mouse::leave", function() tt:showToolTip(false);mylauncher2text.bg = beautiful.bg_normal end)
   
   mylauncher2text:buttons( util.table.join(
     button({ }, 1, function()

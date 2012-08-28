@@ -4,13 +4,14 @@ local print        = print
 local ipairs       = ipairs
 local pairs        = pairs
 local io           = io
-local button       = require( "awful.button" )
-local beautiful    = require( "beautiful"    )
-local naughty      = require( "naughty"      )
-local tag          = require( "awful.tag"    )
-local menu         = require( "widgets.menu" )
-local util         = require( "awful.util"   )
-local config       = require( "config"       )
+local tooltip      = require( "widgets.tooltip" )
+local button       = require( "awful.button"    )
+local beautiful    = require( "beautiful"       )
+local naughty      = require( "naughty"         )
+local tag          = require( "awful.tag"       )
+local menu         = require( "widgets.menu"    )
+local util         = require( "awful.util"      )
+local config       = require( "config"          )
 
 local capi = { image  = image  ,
                widget = widget ,
@@ -123,11 +124,14 @@ function new(offset, args)
     launcherText.text  = "      Launch  |"
     launcherText.bg_image = capi.image(config.data().iconPath .. "gearA2.png")
     launcherText.bg_resize = true
+    local tt = tooltip("Execute a command",{down=true})
     
     launcherText:add_signal("mouse::enter", function()
+        tt:showToolTip(true)
         launcherText.bg = beautiful.bg_highlight
     end)
-    launcherText:add_signal("mouse::leave", function() 
+    launcherText:add_signal("mouse::leave", function()
+        tt:showToolTip(false)
         launcherText.bg = beautiful.bg_normal 
     end)
     

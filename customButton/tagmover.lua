@@ -6,6 +6,7 @@ local shifty       = require( "shifty"       )
 local beautiful    = require( "beautiful"    )
 local utils        = require( "utils.tools"  )
 local menu         = require( "widgets.menu" )
+local tooltip   = require( "widgets.tooltip" )
 
 local capi = { image  = image  ,
                screen = screen ,
@@ -27,6 +28,7 @@ function new(screen, args)
     local id         = screen..direction --
     local addOrSub   = 0                 --
     local screenMenu = menu()            --
+    local tt = tooltip("Move Tag Screen to the "..args.direction,{})
     
     
     if direction == "left" then
@@ -64,11 +66,13 @@ function new(screen, args)
     data[id].screen = screen
     data[id].direction = direction
     
-    data[id].widget:add_signal("mouse::enter", function () 
+    data[id].widget:add_signal("mouse::enter", function ()
+                                                  tt:showToolTip(true)
                                                   data[id].selected = tag.selected() 
                                                   data[id].widget.bg = beautiful.bg_highlight
                                                 end)
-    data[id].widget:add_signal("mouse::leave", function () 
+    data[id].widget:add_signal("mouse::leave", function ()
+                                                  tt:showToolTip(false)
                                                   data[id].selected = nil 
                                                   data[id].widget.bg = beautiful.bg_normal
                                                 end)

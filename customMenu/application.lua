@@ -5,6 +5,7 @@ local button = require("awful.button")
 local beautiful = require("beautiful")
 local util = require("awful.util")
 local menu = require("awful.menu")
+local tooltip   = require( "widgets.tooltip" )
 local capi = { image = image,
                screen = screen,
                widget = widget,
@@ -24,6 +25,7 @@ function new(screen, args)
   f:close()
   local afunction = loadstring(text3)
   local myMenu = afunction()
+  local tt = tooltip("Classic application menu",{down=true})
 
   local mylaunchertext = capi.widget({ type = "textbox" })
   mylaunchertext.text = "      Apps  "
@@ -31,8 +33,8 @@ function new(screen, args)
   mylaunchertext.bg_align = "left"
   mylaunchertext.bg_resize = false
   
-  mylaunchertext:add_signal("mouse::enter", function() mylaunchertext.bg = beautiful.bg_highlight end)
-  mylaunchertext:add_signal("mouse::leave", function() mylaunchertext.bg = beautiful.bg_normal end)
+  mylaunchertext:add_signal("mouse::enter", function() tt:showToolTip(true) ;mylaunchertext.bg = beautiful.bg_highlight end)
+  mylaunchertext:add_signal("mouse::leave", function() tt:showToolTip(false);mylaunchertext.bg = beautiful.bg_normal end)
   
   mylaunchertext:buttons( util.table.join(
     button({ }, 1, function()

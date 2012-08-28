@@ -4,6 +4,7 @@ local button = require("awful.button")
 local beautiful = require("beautiful")
 local util = require("awful.util")
 local config = require("config")
+local tooltip   = require( "widgets.tooltip" )
 local capi = { image = image,
                widget = widget }
 
@@ -24,9 +25,10 @@ end
 
 function new(screen, args) 
   local keyboardSwitcher = capi.widget({ type = "imagebox"})
+  local tt = tooltip("Change keyboard layout",{down=true})
   
-  keyboardSwitcher:add_signal("mouse::enter", function() keyboardSwitcher.bg = beautiful.bg_highlight end)
-  keyboardSwitcher:add_signal("mouse::leave", function() keyboardSwitcher.bg = beautiful.bg_normal end)
+  keyboardSwitcher:add_signal("mouse::enter", function() tt:showToolTip(true); keyboardSwitcher.bg = beautiful.bg_highlight end)
+  keyboardSwitcher:add_signal("mouse::leave", function() tt:showToolTip(false);keyboardSwitcher.bg = beautiful.bg_normal end)
 
   if setupKb() ==  "us" then
     keyboardSwitcher.image = capi.image(config.data().iconPath .. "us_flag.png")

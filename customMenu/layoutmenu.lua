@@ -11,6 +11,7 @@ local util = require("awful.util")
 local config = require("config")
 local beautiful = require("beautiful")
 local wibox = require("awful.wibox")
+local tooltip   = require( "widgets.tooltip" )
 local menu2 = require("widgets.menu")
 local capi = { image = image,
                screen = screen,
@@ -52,15 +53,18 @@ function new(screen, layouts)
     local w = capi.widget({ type = 'imagebox', height = 10 })
     local titleBarWidget = capi.widget({ type = 'textbox', height = 10 })
     local menu = create(screen,layouts,titleBarWidget)
+    local tt = tooltip("Change Layout",{})
     update(w, screen)
     
     w:buttons( util.table.join(
       button({ }, 1, function()
 	  menu:geometry({x = w:extents(screen).x or capi.mouse.coords().x, y = w:extents(screen).y or capi.mouse.coords().y})
+          tt:showToolTip(false);
 	  menu:visible()
       end),
       button({ }, 3, function()
           menu:geometry({x = w:extents(screen).x or capi.mouse.coords().x, y = w:extents(screen).y or capi.mouse.coords().y})
+          tt:showToolTip(false);
           menu:visible()
       end),
       button({ }, 4, function()
@@ -71,8 +75,8 @@ function new(screen, layouts)
       end)
     ))
     
-    w:add_signal("mouse::enter", function() w.bg = beautiful.bg_highlight end)
-    w:add_signal("mouse::leave", function() w.bg = beautiful.bg_normal end)
+    w:add_signal("mouse::enter", function() tt:showToolTip(true) ;w.bg = beautiful.bg_highlight end)
+    w:add_signal("mouse::leave", function() tt:showToolTip(false);w.bg = beautiful.bg_normal end)
     
     titleBarWidget:buttons( util.table.join(
       button({ }, 1, function()
@@ -177,7 +181,7 @@ function create(s,layouts,titleBarWidget)
   img:draw_rectangle(87,0, 3, (30*#layoutArray), true, "#ffffff")
 
   menuWibox.shape_clip     = img
-  menuWibox.border_color = "#ff0000"
+  menuWibox.border_color = beautiful.fg_normal
     --w2.shape_bounding = do_gen_menu_bottom(width,10,0)
   
   layoutArray["layout"] = r_widget.layout.vertical.flex

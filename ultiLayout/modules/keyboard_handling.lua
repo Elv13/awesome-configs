@@ -85,3 +85,43 @@ function resize_w(value)
     local unit = common.tag_to_cg():get_unit(capi.client.focus)
     unit.parent:resize(unit,value,0)
 end
+
+
+--------------------------------------------
+-------------------MOUSE--------------------
+--------------------------------------------
+
+function resize()
+    local cg = common.tag_to_cg():get_unit(capi.client.focus)
+    if cg ~= nil then
+        local swapable = cg:first_swapable_parent()
+        if not swapable then swapable = cg end
+        local coords,c_geo = capi.mouse.coords(),swapable:geometry()
+        local closest_h,closest_x,closest_y=9999999,0,0
+        local tmp = sqrt((coords.x-c_geo.x)^2+(coords.y-c_geo.y)^2)
+        if tmp < closest_h then
+            closest_x = c_geo.x
+            closest_y = c_geo.y
+            closest_h = tmp
+        end
+        tmp = sqrt((coords.x-c_geo.x)^2+(coords.y-(c_geo.y+c_geo.height))^2)
+        if tmp < closest_h then
+            closest_x = c_geo.x
+            closest_y = c_geo.y+c_geo.height
+            closest_h = tmp
+        end
+        tmp = sqrt((coords.x-(c_geo.x+c_geo.width))^2+(coords.y-c_geo.y)^2)
+        if tmp < closest_h then
+            closest_x = c_geo.x+c_geo.width
+            closest_y = c_geo.y
+            closest_h = tmp
+        end
+        tmp = sqrt((coords.x-(c_geo.x+c_geo.width))^2+(coords.y-(c_geo.y+c_geo.height))^2)
+        if tmp < closest_h then
+            closest_x = c_geo.x+c_geo.width
+            closest_y = c_geo.y+c_geo.height
+            closest_h = tmp
+        end
+        capi.mouse.coords({x=closest_x,y=closest_y})
+    end
+end

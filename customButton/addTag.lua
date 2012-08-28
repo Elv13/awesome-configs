@@ -23,16 +23,16 @@ function new(screen, args)
   local addTag  = capi.widget({ type = "imagebox", align = "left" })
   addTag.image  = capi.image(config.data().iconPath .. "tags/cross2.png")
   local tagMenu = menu()
-  local tt = nil
+  local tt = tooltip("Add Tag",{})
 
-  local function showToolTip(show)
-     if not tt then
-       tt = tooltip("Add Tag",{})
-     end
-     tt.x = capi.mouse.coords().x - tt.width/2 -5
-     tt.y = 16
-     tt.visible = show
-  end
+--   local function showToolTip(show)
+--      if not tt then
+--        tt = 
+--      end
+--      tt.x = capi.mouse.coords().x - tt.width/2 -5
+--      tt.y = 16
+--      tt.visible = show
+--   end
 
   for v, i in next, shifty.config.tags do
     tagMenu:add_item({text=v,onclick= function() 
@@ -52,8 +52,8 @@ function new(screen, args)
     end)
   ))
   
-  addTag:add_signal("mouse::enter", function() showToolTip(true) ;addTag.bg = beautiful.bg_highlight end)
-  addTag:add_signal("mouse::leave", function() showToolTip(false);addTag.bg = beautiful.bg_normal    end)
+  addTag:add_signal("mouse::enter", function() tt:showToolTip(true) ;addTag.bg = beautiful.bg_highlight end)
+  addTag:add_signal("mouse::leave", function() tt:showToolTip(false);addTag.bg = beautiful.bg_normal    end)
   
   return addTag
 end

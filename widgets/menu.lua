@@ -615,7 +615,7 @@ function gen_menu_decoration(width,args)
     w.height,w2.height = 23,10
     w.ontop,w2.ontop = true,true
     w.visible,w2.visible = false,false
-    w.border_color,w2.border_color = "#ff0000","#ff0000"
+    w.border_color,w2.border_color = beautiful.fg_normal,beautiful.fg_normal
     local function do_gen_menu_top(width, radius,padding)
         local img = capi.image.argb32(width, 23, nil)
         if not args.down then
