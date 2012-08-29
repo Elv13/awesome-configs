@@ -101,7 +101,7 @@ lauchDock              = widgets.dock             ( nil                         
 desktopPix             = customButton.showDesktop ( nil                                )
 
 -- Create the clock
-mytextclock            = drawer.dateinfo          ( nil                                )
+clock                  = drawer.dateinfo          ( nil                                )
 
 -- Create the memory manager
 meminfo                = drawer.memInfo           ( screen.count()                     )
@@ -113,7 +113,7 @@ cpuinfo                = drawer.cpuInfo           ( nil                         
 netinfo                = drawer.netInfo           ( nil                                )
 
 -- Create the volume box
-soundWidget            = drawer.soundInfo         ( wiboxTop3                          )
+soundWidget            = drawer.soundInfo         ( wiboxTop3, clock:extents().width   )
 
 -- Create the keyboard layout switcher, feel free to add your contry and push it to master
 keyboardSwitcherWidget = widgets.keyboardSwitcher ( nil                                )
@@ -243,7 +243,7 @@ for s = 1, screen.count() do
           layout = awful.widget.layout.horizontal.leftright                                           -------
       },
       --                             RULES                      EXIST            WIDGET              FALLBACK
-      ( s == config.data().scr.sec or screen.count() == 1                  ) and mytextclock            or nil,
+      ( s == config.data().scr.sec or screen.count() == 1                  ) and clock                  or nil,
       ( s == config.data().scr.sec or screen.count() == 1                  ) and kgetwidget             or nil,
       ( s == config.data().scr.sec or screen.count() == 1                  ) and kgetpixmap             or nil,
       ((s == config.data().scr.sec or screen.count() == 1) and soundWidget ) and soundWidget.wid        or nil,

@@ -619,20 +619,20 @@ function gen_menu_decoration(width,args)
     local function do_gen_menu_top(width, radius,padding)
         local img = capi.image.argb32(width, 23, nil)
         if not args.down then
-            img:draw_rectangle(46, 0, width-40, 13 + (padding or 0), true, "#ffffff")
-            img:draw_rectangle(padding or 0,0, 20, 13 + (padding or 0), true, "#ffffff")
-            img:draw_rectangle(20,0,3, 13+ (padding or 0), true, "#ffffff")
+            img:draw_rectangle((args.arrow_x or 20)+20+6, 0, width-(args.arrow_x or 20)+20, 13 + (padding or 0), true, "#ffffff")
+            img:draw_rectangle(padding or 0,0, (args.arrow_x or 20), 13 + (padding or 0), true, "#ffffff")
+            img:draw_rectangle((args.arrow_x or 20),0,3, 13+ (padding or 0), true, "#ffffff")
         else
-            img:draw_rectangle(46, 10-(padding or 0), width-40, 13 - (padding or 0), true, "#ffffff")
+            img:draw_rectangle((args.arrow_x or 20)+20+6, 10-(padding or 0), width-(args.arrow_x or 20)+20, 13 - (padding or 0), true, "#ffffff")
             img:draw_rectangle(padding or 0,10-(padding or 0), 20, 13 - (padding or 0), true, "#ffffff")
         end
         for i=0,(13) do
             if not args.down then
-                img:draw_rectangle(20+i+3, padding or 0, 1, 13-i, true, "#ffffff")
-                img:draw_rectangle(26+20-i, padding or 0, 1, 13-i, true, "#ffffff")
+                img:draw_rectangle((args.arrow_x or 20)+i+3, padding or 0, 1, 13-i, true, "#ffffff")
+                img:draw_rectangle((args.arrow_x or 20)+20+6-i, padding or 0, 1, 13-i, true, "#ffffff")
             else
-                img:draw_rectangle(20+13+i, 26-3-i-(padding or 0), 1, i, true, "#ffffff")
-                img:draw_rectangle(20+13-i, 26-3-i-(padding or 0), 1, i, true, "#ffffff")
+                img:draw_rectangle((args.arrow_x or 20)+13+i, 26-3-i-(padding or 0), 1, i, true, "#ffffff")
+                img:draw_rectangle((args.arrow_x or 20)+13-i, 26-3-i-(padding or 0), 1, i, true, "#ffffff")
             end
         end
         if not args.down then

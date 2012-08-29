@@ -10,6 +10,7 @@ local wibox        = require( "awful.wibox"                  )
 local button       = require( "awful.button"                 )
 local topbottom    = require( "awful.widget.layout.vertical" )
 local vicious      = require( "vicious"                      )
+local menu         = require( "widgets.menu"                 )
 
 local capi = { image  = image  ,
                screen = screen ,
@@ -200,15 +201,30 @@ end
 
   
 function new(screen, args)
+  local mytextclock = textclock({ align = "right" })
   data.wibox         = wibox({ position = "free", screen = capi.screen.count() })
   data.wibox.ontop   = true
   data.wibox.visible = false
-  createDrawer() 
-  data.wibox:geometry({ width = 147, height = 994, x = capi.screen[capi.mouse.screen].geometry.width - 147 + capi.screen[capi.mouse.screen].geometry.x, y = 20})
+  local top,bottom = menu.gen_menu_decoration(153,{arrow_x=153 - mytextclock:extents().width/2 - 10})
+  local guessHeight = capi.screen[1].geometry.height
+  local img = capi.image.argb32(153, guessHeight, nil)
+  img:draw_rectangle(0,0, 3, guessHeight, true, "#ffffff")
+  img:draw_rectangle(150,0, 3, guessHeight, true, "#ffffff")
+  data.wibox.shape_clip     = img
+  data.wibox.border_color = beautiful.fg_normal
   
-  mytextclock = textclock({ align = "right" })
+  createDrawer()
 
-  mytextclock:buttons (util.table.join(button({ }, 1, function () data.wibox.visible = not data.wibox.visible end)))
+  mytextclock:buttons (util.table.join(button({ }, 1, function () 
+      data.wibox:geometry({ width = 153, height = capi.screen[capi.mouse.screen].geometry.height-140, x = capi.screen[capi.mouse.screen].geometry.width - 153 + capi.screen[capi.mouse.screen].geometry.x - 5, y = 16 + top.height})
+      data.wibox.visible = not data.wibox.visible
+      top.x = data.wibox.x
+      top.y = 16
+      bottom.x = data.wibox.x
+      bottom.y = data.wibox.y+data.wibox.height
+      top.visible = data.wibox.visible
+      bottom.visible = data.wibox.visible
+  end)))
   
   return mytextclock
 end
