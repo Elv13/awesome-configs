@@ -167,16 +167,16 @@ function label.all(t, args)
         if config.data().useListPrefix == true then
           if fg_color then
             text = text .. "<span color='"..util.color_strip_alpha(fg_color).."'>"
-            text = text .. " " .. (util.escape(t.name) or "") .." </span>"
+            text = text .. "" .. (util.escape(t.name) or "") .."</span>"
           else
-            text = text .. " " .. (util.escape(t.name) or "") .. " "
+            text = text .. "" .. (util.escape(t.name) or "") .. ""
           end
         else
           if fg_color then
             text = text .. "<span color='"..util.color_strip_alpha(fg_color).."'>"
-            text = text .. " " .. (util.escape(t.name) or "") .." </span>"
+            text = text .. "" .. (util.escape(t.name) or "") .."</span>"
           else
-            text = text .. " " .. (util.escape(t.name) or "") .. " "
+            text = text .. "" .. (util.escape(t.name) or "") .. ""
           end
         end
     end

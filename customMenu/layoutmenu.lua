@@ -54,6 +54,7 @@ function new(screen, layouts)
     local titleBarWidget = capi.widget({ type = 'textbox', height = 10 })
     local menu = create(screen,layouts,titleBarWidget)
     local tt = tooltip("Change Layout",{})
+    w.bg = beautiful.bg_highlight
     update(w, screen)
     
     w:buttons( util.table.join(
@@ -75,8 +76,8 @@ function new(screen, layouts)
       end)
     ))
     
-    w:add_signal("mouse::enter", function() tt:showToolTip(true) ;w.bg = beautiful.bg_highlight end)
-    w:add_signal("mouse::leave", function() tt:showToolTip(false);w.bg = beautiful.bg_normal end)
+    w:add_signal("mouse::enter", function() tt:showToolTip(true) ;w.bg = beautiful.bg_normal   end)
+    w:add_signal("mouse::leave", function() tt:showToolTip(false);w.bg = beautiful.bg_highlight end)
     
     titleBarWidget:buttons( util.table.join(
       button({ }, 1, function()

@@ -5,5 +5,6 @@ require("utils.mouseManager")
 require("utils.urxvtIntegration")
 require("utils.persistent")
 require("utils.macro")
+require("utils.theme")
 
 module("utils")

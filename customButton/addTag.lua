@@ -22,6 +22,7 @@ end
 function new(screen, args) 
   local addTag  = capi.widget({ type = "imagebox", align = "left" })
   addTag.image  = capi.image(config.data().iconPath .. "tags/cross2.png")
+  addTag.bg     = beautiful.bg_highlight
   local tagMenu = menu()
   local tt = tooltip("Add Tag",{})
 
@@ -52,8 +53,8 @@ function new(screen, args)
     end)
   ))
   
-  addTag:add_signal("mouse::enter", function() tt:showToolTip(true) ;addTag.bg = beautiful.bg_highlight end)
-  addTag:add_signal("mouse::leave", function() tt:showToolTip(false);addTag.bg = beautiful.bg_normal    end)
+  addTag:add_signal("mouse::enter", function() tt:showToolTip(true) ;addTag.bg = beautiful.bg_normal    end)
+  addTag:add_signal("mouse::leave", function() tt:showToolTip(false);addTag.bg = beautiful.bg_highlight end)
   
   return addTag
 end

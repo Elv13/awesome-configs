@@ -1,5 +1,6 @@
 ---------------------------------------------------------------------------
 -- @author Julien Danjou &lt;julien@danjou.info&gt;
+-- @author Emmanuel Lepage Vallee &lt;elv1313@gmail.com&gt;
 -- @copyright 2008-2009 Julien Danjou
 -- @release v3.4-rc3
 ---------------------------------------------------------------------------
@@ -9,6 +10,8 @@ local math   = math
 local type   = type
 local ipairs = ipairs
 local setmetatable = setmetatable
+local themeUtils = require("utils.theme")
+local beautiful  = require( "beautiful"    )
 local capi   = { widget = widget, button = button,image = image }
 
 --- Common widget code
@@ -16,36 +19,14 @@ module("common")
 
 local offset = 0
 
-local function get_end_arrow(bg_color)
-    local img = capi.image.argb32(9, 16, nil)
-    img:draw_rectangle(0, 0, 9, 16, true, "#1577D3")
-    for i=0,(8) do
-        img:draw_rectangle(0,i, i, 1, true, bg_color)
-        img:draw_rectangle(0,16- i,i, 1, true, bg_color)
-    end
-    return img
-end
-
-local function get_beg_arrow(bg_color)
-    local img = capi.image.argb32(9, 16, nil)
-    img:draw_rectangle(0, 0, 9, 16, true, bg_color)
-    for i=0,(8) do
-        img:draw_rectangle(0,i, i, 1, true, "#1577D3")
-        img:draw_rectangle(0,16- i,i, 1, true, "#1577D3")
-    end
-    return img
-end
-
 function list_update(w, buttons, label, data, widgets, objects,args)
     args = args or {}
     local label_index,widget_count =1,2
     if args.have_index then
-        label_index = label_index +1
-        widget_count = widget_count + 1
+        label_index,widget_count = label_index +1,widget_count + 1
     end
     if args.have_arrow then
-        label_index = label_index +1
-        widget_count = widget_count + 2
+        label_index,widget_count = label_index +1,widget_count + 2
     end
     -- Hack: if it has been registered as a widget in a wibox,
     -- it's w.len since __len meta does not work on table until Lua 5.2.
@@ -79,7 +60,7 @@ function list_update(w, buttons, label, data, widgets, objects,args)
         end
     end
 
-    -- update widgets text
+    -- update widgets text and image
     for k = 1, #objects * widget_count, widget_count do
         local o = objects[(k + (widget_count-1)) / widget_count]
         if buttons then
@@ -105,15 +86,19 @@ function list_update(w, buttons, label, data, widgets, objects,args)
         w[k + label_index+offset].text, w[k + label_index+offset].bg, w[k + label_index+offset].bg_image = text, text_bg or bg, bg_image
         w[k+offset].bg, w[k+offset].image = ib_bg or bg, icon
 
-        if widget_count >= 4 then
-            w[k + ((widget_count < 5) and 1 or 2) + offset].image = get_beg_arrow(text_bg or bg  or "#0A1535")
+        if args.have_arrow then
+            w[k + ((widget_count < 5) and 1 or 2) + offset].image = themeUtils.get_beg_arrow(text_bg or bg,nil,3)
         end
-        if widget_count >= 5 then
+        if args.have_index then
             w[k + 1 + offset].text = idx or "[?]"
             w[k + 1 + offset].width = w[k + 1 + offset]:extents().width
         end
-        if widget_count >= 3 then
-            w[k+label_index+1+offset].image = get_end_arrow(text_bg or bg or "#0A1535")
+        if args.have_arrow then
+            if not w[k+label_index+1+offset+1] then
+                w[k+label_index+1+offset].image = themeUtils.get_end_arrow(text_bg or bg,beautiful.bg_highlight,3)
+            else
+                w[k+label_index+1+offset].image = themeUtils.get_end_arrow(text_bg or bg,nil,3)
+            end
         end
 
         for l=0, widget_count-1,1 do

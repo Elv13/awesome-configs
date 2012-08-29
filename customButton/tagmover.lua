@@ -47,6 +47,7 @@ function new(screen, args)
       data[id].widget       = capi.widget({ type = "textbox",  align = "left" })
       data[id].widget.text  = direction
     end
+    data[id].widget.bg = beautiful.bg_highlight
     
     if direction == "left" and screen == 1 then
       data[id].widget.visible = false
@@ -69,12 +70,12 @@ function new(screen, args)
     data[id].widget:add_signal("mouse::enter", function ()
                                                   tt:showToolTip(true)
                                                   data[id].selected = tag.selected() 
-                                                  data[id].widget.bg = beautiful.bg_highlight
+                                                  data[id].widget.bg = beautiful.bg_normal
                                                 end)
     data[id].widget:add_signal("mouse::leave", function ()
                                                   tt:showToolTip(false)
                                                   data[id].selected = nil 
-                                                  data[id].widget.bg = beautiful.bg_normal
+                                                  data[id].widget.bg = beautiful.bg_highlight
                                                 end)
     
     data[id].widget:buttons( util.table.join(

@@ -212,6 +212,9 @@ for s = 1, screen.count() do
   
   -- Create a taglist widget
   mytaglist[s]  = widgets.taglist       ( s, widgets.taglist.label.all, mytaglist.buttons )
+  
+  -- Create the arrow after the last taglist button
+  local arrow  = utils.theme.new_arrow_widget(beautiful.bg_highlight,beautiful.bg_normal,3)
 
   -- Create the delTag button
   delTag[s]     = customButton.delTag   ( s                                               )
@@ -236,6 +239,7 @@ for s = 1, screen.count() do
           movetagL   [s]                                                                              or nil,
           movetagR   [s]                                                                              or nil,
           layoutmenu [s]                                                                              or nil,
+          arrow                                                                                       or nil,
           layout = awful.widget.layout.horizontal.leftright                                           -------
       },
       --                             RULES                      EXIST            WIDGET              FALLBACK
