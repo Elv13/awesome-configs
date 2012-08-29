@@ -36,7 +36,7 @@ local function taglist_update (screen, w, label, buttons, data, widgets)
             table.insert(showntags, t)
         end
     end
-    common.list_update(w, buttons, label, data, widgets, showntags)
+    common.list_update(w, buttons, label, data, widgets, showntags,{have_index=true,have_arrow=true})
 end
 
 --- Get the tag object the given widget appears on.
@@ -111,7 +111,7 @@ end
 function label.all(t, args)
     if not args then args = {} end
     local theme = beautiful.get()
-    local numberStyle = "<span size='large' bgcolor='".. theme.fg_normal .."'color='".. theme.bg_normal .."'><tt><b>"--"<span size='x-large' bgcolor='".. theme.fg_normal .."'color='".. theme.bg_normal .."'><tt><b>"
+    local numberStyle = "<span size='x-large' bgcolor='".. theme.fg_normal .."'color='".. theme.bg_normal .."'><tt><b>"--"<span size='x-large' bgcolor='".. theme.fg_normal .."'color='".. theme.bg_normal .."'><tt><b>"
     local numberStyleEnd = "</b></tt></span>"--"</b></tt></span> "
     local fg_focus = args.fg_focus or theme.taglist_fg_focus or theme.fg_focus
     local bg_focus = args.bg_focus or theme.taglist_bg_focus or theme.bg_focus
@@ -166,10 +166,10 @@ function label.all(t, args)
     if not tag.getproperty(t, "icon_only") then
         if config.data().useListPrefix == true then
           if fg_color then
-            text = text .. numberStyle..config.data().listPrefix[tag.getidx(t)]..numberStyleEnd.."<span color='"..util.color_strip_alpha(fg_color).."'>"
+            text = text .. "<span color='"..util.color_strip_alpha(fg_color).."'>"
             text = text .. " " .. (util.escape(t.name) or "") .." </span>"
           else
-            text = text .. numberStyle..config.data().listPrefix[tag.getidx(t)]..numberStyleEnd.. " " .. (util.escape(t.name) or "") .. " "
+            text = text .. " " .. (util.escape(t.name) or "") .. " "
           end
         else
           if fg_color then
@@ -187,7 +187,7 @@ function label.all(t, args)
         icon = capi.image(tag.geticon(t))
     end
 
-    return text, bg_color, bg_image, icon, (config.data().useListPrefix == true and beautiful.fg_normal or bg_color)
+    return text, bg_color, bg_image, icon, (config.data().useListPrefix == true and beautiful.fg_normal or bg_color),nil,numberStyle..config.data().listPrefix[tag.getidx(t)]..numberStyleEnd
 end
 
 --- Return labels for a taglist widget with all *non empty* tags from screen.

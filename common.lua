@@ -5,19 +5,16 @@
 ---------------------------------------------------------------------------
 
 -- Grab environment we need
-local math = math
-local type = type
+local math   = math
+local type   = type
 local ipairs = ipairs
-local print = print
 local setmetatable = setmetatable
-local capi = { widget = widget, button = button,image = image }
+local capi   = { widget = widget, button = button,image = image }
 
 --- Common widget code
 module("common")
 
-local wNb = 2
 local offset = 0
-local tbIdx = 1
 
 local function get_end_arrow(bg_color)
     local img = capi.image.argb32(9, 16, nil)
@@ -39,46 +36,52 @@ local function get_beg_arrow(bg_color)
     return img
 end
 
-function list_update(w, buttons, label, data, widgets, objects)
+function list_update(w, buttons, label, data, widgets, objects,args)
+    args = args or {}
+    local label_index,widget_count =1,2
+    if args.have_index then
+        label_index = label_index +1
+        widget_count = widget_count + 1
+    end
+    if args.have_arrow then
+        label_index = label_index +1
+        widget_count = widget_count + 2
+    end
     -- Hack: if it has been registered as a widget in a wibox,
     -- it's w.len since __len meta does not work on table until Lua 5.2.
     -- Otherwise it's standard #w.
-    local len = (w.len or #w) / wNb
+    local len = (w.len or #w) / widget_count
     -- Add more widgets
     if len < #objects then
-        for i = len * wNb + 1, #objects * wNb, wNb do
+        for i = len * widget_count + 1, #objects * widget_count, widget_count do
             local ib = capi.widget({ type = "imagebox", align = widgets.imagebox.align })
             local tb = capi.widget({ type = "textbox", align = widgets.textbox.align })
 
+            if args.have_index then
+                local txt = capi.widget({ type = "textbox" })
+                w[i + 1 + offset] = txt
+            end
+            if args.have_arrow then
+                local arr = capi.widget({ type = "imagebox" , align = widgets.imagebox.align})
+                w[i + ((widget_count < 5) and 1 or 2) + offset] = arr
+                local arr2 = capi.widget({ type = "imagebox" , align = widgets.imagebox.align})
+                w[i+label_index+1+offset] = arr2
+            end
             w[i+offset] = ib
-            if wNb >= 4 then
-                local arr = capi.widget({ type = "imagebox" })
-                w[i + 1 + offset] = arr
-                tbIdx = 2
-            end
-            w[i + tbIdx + offset] = tb
-            if wNb >= 3 then
-                local arr = capi.widget({ type = "imagebox"})
-                w[i+tbIdx+1+offset] = arr
-            end
+            w[i + label_index + offset] = tb
         end
     -- Remove widgets
     elseif len > #objects then
-        for i = #objects * wNb + 1, len * wNb, wNb do
-            w[i+offset] = nil --ib
-            w[i + tbIdx+offset] = nil --tb
-            if wNb >=3 then
-                w[i + tbIdx+1+offset] = nil -->
-            end
-            if wNb >=4 then
-                w[i+offset+1] = nil -->
+        for i = #objects * widget_count + 1, len * widget_count, widget_count do
+            for l=0, widget_count-1,1 do
+                w[i+l] = nil
             end
         end
     end
 
     -- update widgets text
-    for k = 1, #objects * wNb, wNb do
-        local o = objects[(k + (wNb-1)) / wNb]
+    for k = 1, #objects * widget_count, widget_count do
+        local o = objects[(k + (widget_count-1)) / widget_count]
         if buttons then
             if not data[o] then
                 data[o] = { }
@@ -93,30 +96,30 @@ function list_update(w, buttons, label, data, widgets, objects)
                     data[o][#data[o] + 1] = btn
                 end
             end
-            for l=0, wNb-1,1 do
+            for l=0, widget_count-1,1 do
                 w[k+l]:buttons(data[o])
             end
         end
 
-        local text, bg, bg_image, icon, ib_bg, text_bg = label(o)
-        w[k + tbIdx+offset].text, w[k + tbIdx+offset].bg, w[k + tbIdx+offset].bg_image = text, text_bg or bg, bg_image
+        local text, bg, bg_image, icon, ib_bg, text_bg,idx = label(o)
+        w[k + label_index+offset].text, w[k + label_index+offset].bg, w[k + label_index+offset].bg_image = text, text_bg or bg, bg_image
         w[k+offset].bg, w[k+offset].image = ib_bg or bg, icon
 
-        if wNb >= 4 then
-            w[k + 1 + offset].image = get_beg_arrow(text_bg or bg  or "#0A1535")
+        if widget_count >= 4 then
+            w[k + ((widget_count < 5) and 1 or 2) + offset].image = get_beg_arrow(text_bg or bg  or "#0A1535")
         end
-        if wNb >= 3 then
-            w[k+tbIdx+1+offset].image = get_end_arrow(text_bg or bg or "#0A1535")
+        if widget_count >= 5 then
+            w[k + 1 + offset].text = idx or "[?]"
+            w[k + 1 + offset].width = w[k + 1 + offset]:extents().width
+        end
+        if widget_count >= 3 then
+            w[k+label_index+1+offset].image = get_end_arrow(text_bg or bg or "#0A1535")
         end
 
-        w[k+tbIdx+offset].visible = w[k + tbIdx+offset].text ~= nil
-        w[k+offset].visible       = w[k+offset].image ~= nil
-        if wNb >= 4 then
-            w[k + 1 + offset].visible = w[k + tbIdx+offset].text ~= nil
+        for l=0, widget_count-1,1 do
+            w[k+l].visible = w[k + label_index+offset].text ~= nil
         end
-        if wNb >= 3 then
-            w[k+tbIdx+1+offset].visible = w[k + tbIdx+offset].text ~= nil
-        end
+        w[k+offset].visible = w[k+offset].image ~= nil
    end
 end
 
