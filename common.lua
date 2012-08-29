@@ -8,30 +8,35 @@
 local math = math
 local type = type
 local ipairs = ipairs
+local print = print
 local setmetatable = setmetatable
 local capi = { widget = widget, button = button,image = image }
 
 --- Common widget code
 module("common")
 
--- Private structures
-tagwidgets = setmetatable({}, { __mode = 'k' })
-
 local wNb = 2
-local img = capi.image.argb32(9, 16, nil)
-  img:draw_rectangle(0, 0, 9, 16, true, "#1577D3")
-  for i=0,(8) do
-    img:draw_rectangle(0,i, i, 1, true, "#0A1535")
-    img:draw_rectangle(0,16- i,i, 1, true, "#0A1535")
-  end
+local offset = 0
+local tbIdx = 1
 
-local right_arrow_normal = nil
-local function get_right_arrow_normal()
-    if not right_arrow_normal then
-        right_arrow_normal = capi.widget({ type = "imagebox" })
-        right_arrow_normal.image = img
+local function get_end_arrow(bg_color)
+    local img = capi.image.argb32(9, 16, nil)
+    img:draw_rectangle(0, 0, 9, 16, true, "#1577D3")
+    for i=0,(8) do
+        img:draw_rectangle(0,i, i, 1, true, bg_color)
+        img:draw_rectangle(0,16- i,i, 1, true, bg_color)
     end
-    return right_arrow_normal
+    return img
+end
+
+local function get_beg_arrow(bg_color)
+    local img = capi.image.argb32(9, 16, nil)
+    img:draw_rectangle(0, 0, 9, 16, true, bg_color)
+    for i=0,(8) do
+        img:draw_rectangle(0,i, i, 1, true, "#1577D3")
+        img:draw_rectangle(0,16- i,i, 1, true, "#1577D3")
+    end
+    return img
 end
 
 function list_update(w, buttons, label, data, widgets, objects)
@@ -45,27 +50,28 @@ function list_update(w, buttons, label, data, widgets, objects)
             local ib = capi.widget({ type = "imagebox", align = widgets.imagebox.align })
             local tb = capi.widget({ type = "textbox", align = widgets.textbox.align })
 
-            w[i] = ib
-            w[i + 1] = tb
-            --w[i + 1]:margin({ left = widgets.textbox.margin.left, right = widgets.textbox.margin.right })
-            w[i + 1].bg_resize = widgets.textbox.bg_resize or false
-            w[i + 1].bg_align = widgets.textbox.bg_align or ""
-            if wNb >= 3 then
-                w[i+2] = get_right_arrow_normal()
+            w[i+offset] = ib
+            if wNb >= 4 then
+                local arr = capi.widget({ type = "imagebox" })
+                w[i + 1 + offset] = arr
+                tbIdx = 2
             end
-
-            if type(objects[math.floor(i / wNb) + 1]) == "tag" then
-                tagwidgets[ib] = objects[math.floor(i / wNb) + 1]
-                tagwidgets[tb] = objects[math.floor(i / wNb) + 1]
+            w[i + tbIdx + offset] = tb
+            if wNb >= 3 then
+                local arr = capi.widget({ type = "imagebox"})
+                w[i+tbIdx+1+offset] = arr
             end
         end
     -- Remove widgets
     elseif len > #objects then
         for i = #objects * wNb + 1, len * wNb, wNb do
-            w[i] = nil
-            w[i + 1] = nil
+            w[i+offset] = nil --ib
+            w[i + tbIdx+offset] = nil --tb
             if wNb >=3 then
-                w[i + 2] = nil
+                w[i + tbIdx+1+offset] = nil -->
+            end
+            if wNb >=4 then
+                w[i+offset+1] = nil -->
             end
         end
     end
@@ -87,22 +93,29 @@ function list_update(w, buttons, label, data, widgets, objects)
                     data[o][#data[o] + 1] = btn
                 end
             end
-            w[k]:buttons(data[o])
-            w[k + 1]:buttons(data[o])
+            for l=0, wNb-1,1 do
+                w[k+l]:buttons(data[o])
+            end
         end
 
         local text, bg, bg_image, icon, ib_bg, text_bg = label(o)
-        w[k + 1].text, w[k + 1].bg, w[k + 1].bg_image = text, text_bg or bg, bg_image
-        w[k].bg, w[k].image = ib_bg or bg, icon
-        if not w[k + 1].text then
-            w[k+1].visible = false
-        else
-            w[k+1].visible = true
+        w[k + tbIdx+offset].text, w[k + tbIdx+offset].bg, w[k + tbIdx+offset].bg_image = text, text_bg or bg, bg_image
+        w[k+offset].bg, w[k+offset].image = ib_bg or bg, icon
+
+        if wNb >= 4 then
+            w[k + 1 + offset].image = get_beg_arrow(text_bg or bg  or "#0A1535")
         end
-        if not w[k].image then
-            w[k].visible = false
-        else
-            w[k].visible = true
+        if wNb >= 3 then
+            w[k+tbIdx+1+offset].image = get_end_arrow(text_bg or bg or "#0A1535")
+        end
+
+        w[k+tbIdx+offset].visible = w[k + tbIdx+offset].text ~= nil
+        w[k+offset].visible       = w[k+offset].image ~= nil
+        if wNb >= 4 then
+            w[k + 1 + offset].visible = w[k + tbIdx+offset].text ~= nil
+        end
+        if wNb >= 3 then
+            w[k+tbIdx+1+offset].visible = w[k + tbIdx+offset].text ~= nil
         end
    end
 end
