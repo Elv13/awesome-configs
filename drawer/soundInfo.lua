@@ -152,7 +152,7 @@ function new(mywibox3,left_margin)
   data.wibox.shape_clip     = img
   data.wibox.border_color = beautiful.fg_normal
   local top,bottom = menu.gen_menu_decoration(240,{arrow_x=240 - (left_margin or 0) - 35 - 10})
-  soundInfo() 
+  soundInfo()
 
   --volumewidget.mouse_enter = function () soundInfo() end
   

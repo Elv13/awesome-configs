@@ -63,6 +63,19 @@ local function getFilterWidget(aMenu)
     return nil
 end
 
+local function getArrowItem(menu,mode)
+    if not menu.topArrow then
+        local topA,bottomA = gen_menu_decoration(menu.settings.itemWidth,{down = mode == 2, noArrow = mode == 3})
+        topA.visible,bottomA.visible = true, true
+        menu.topArrow = {widget = topA, hidden = false, width = menu.settings.itemWidth, height = topA.height}
+        table.insert(menu.otherwdg,menu.topArrow)
+
+        menu.bottomArrow = {widget = bottomA, hidden = false, width = menu.settings.itemWidth, height = bottomA.height}
+        table.insert(menu.otherwdg,menu.bottomArrow)
+    end
+    return menu.topArrow,menu.bottomArrow
+end
+
 local function getScrollWdg_common(aMenu,widget,step)
     local menu = aMenu or currentMenu or nil
     if menu.settings.maxvisible ~= nil and #menu.items > menu.settings.maxvisible then
@@ -211,7 +224,9 @@ function new(args)
       self:emit((self.settings.visible == true) and "menu::show" or "menu::hide")
       
       for v, i in next, self.otherwdg do
-          i.widget.visible = value
+          if i.widget then
+            i.widget.visible = self.settings.visible
+          end
       end
       
       activateKeyboard(self)
@@ -332,7 +347,6 @@ function new(args)
           self.downOrUp = -1
           yPadding = -self.settings.itemHeight
       end
-            
       local set_geometry = function(wdg)
         if not wdg then return end
         if type(wdg) ~= "function" and wdg.hidden == false and wdg.off ~= true then
@@ -359,8 +373,18 @@ function new(args)
         end
       end
       
-      local headerWdg = {getScrollUpWdg(self)}
-      local footerWdg = {getScrollDownWdg(self),getFilterWidget()}
+      local arrowMode
+      if menu.settings.parent then
+          arrowMode = 3
+      elseif self.downOrUp == 1  then
+          arrowMode = 1
+      else
+          arrowMode = 2
+      end
+      
+      getArrowItem(menu,arrowMode)
+      local headerWdg = {self.topArrow,getScrollUpWdg(self)}
+      local footerWdg = {getScrollDownWdg(self),getFilterWidget(),self.bottomArrow}
       
       addWdg((self.downOrUp == -1) and footerWdg or headerWdg,self.downOrUp)
       for v, i in next, self.items do
@@ -612,7 +636,7 @@ function gen_menu_decoration(width,args)
     local args = args or {}
     local w,w2 = wibox({position="free",visible=false}), wibox({position="free",viaible=false})
     w.width,w2.width=width,width
-    w.height,w2.height = 23,10
+    w.height,w2.height = (not args.down and not args.noArrow) and 23 or 10, (not args.down or args.noArrow) and 10 or 23
     w.ontop,w2.ontop = true,true
     w.visible,w2.visible = false,false
     w.border_color,w2.border_color = beautiful.fg_normal,beautiful.fg_normal
@@ -628,40 +652,32 @@ function gen_menu_decoration(width,args)
         end
         for i=0,(13) do
             if not args.down then
-                img:draw_rectangle((args.arrow_x or 20)+i+3, padding or 0, 1, 13-i, true, "#ffffff")
-                img:draw_rectangle((args.arrow_x or 20)+20+6-i, padding or 0, 1, 13-i, true, "#ffffff")
+                img:draw_rectangle((args.arrow_x or 20)+i+3   , padding or 0         , 1, 13-i, true, "#ffffff")
+                img:draw_rectangle((args.arrow_x or 20)+20+6-i, padding or 0         , 1, 13-i, true, "#ffffff")
             else
-                img:draw_rectangle((args.arrow_x or 20)+13+i, 26-3-i-(padding or 0), 1, i, true, "#ffffff")
-                img:draw_rectangle((args.arrow_x or 20)+13-i, 26-3-i-(padding or 0), 1, i, true, "#ffffff")
+                img:draw_rectangle((args.arrow_x or 20)+13+i  , 26-3-i-(padding or 0), 1, i   , true, "#ffffff")
+                img:draw_rectangle((args.arrow_x or 20)+13-i  , 26-3-i-(padding or 0), 1, i   , true, "#ffffff")
             end
         end
-        if not args.down then
-            img:draw_rectangle(0,13, radius + (padding or 0), radius + (padding or 0), true, "#ffffff")
-            img:draw_circle(10, 23+1, radius, radius, true, "#000000")
-
-            img:draw_rectangle(width-10 + (padding or 0),13 + (padding or 0), radius, radius, true, "#ffffff")
-            img:draw_circle(width-10 + (padding or 0), 23+1 + (pdding or 0), radius, radius, true, "#000000")
-        else
-            img:draw_rectangle(0,0, radius + (padding or 0), radius + (padding or 0), true, "#ffffff")
-            img:draw_circle(10, 0, radius-1, radius-1, true, "#000000")
-
-            img:draw_rectangle(width-10 + (padding or 0),0 + (padding or 0), radius, radius, true, "#ffffff")
-            img:draw_circle(width-10 + (padding or 0), 0 + (pdding or 0), radius-1, radius-1, true, "#000000")
-        end
+        img:draw_rectangle (0 , (not args.down) and 13 or 0 , radius + (padding or 0), radius + (padding or 0), true, "#ffffff")
+        img:draw_circle    (10, (not args.down) and 23+1 or 0, radius - ((not args.down) and 0 or 1), radius  - ((not args.down) and 0 or 1), true, "#000000")
+        img:draw_rectangle (width-10 + (padding or 0), (not args.down) and 13 or 0 + (padding or 0) , radius, radius, true, "#ffffff")
+        img:draw_circle(width-10 + (padding or 0), ((not args.down) and (23+1) or 0) + (pdding or 0), radius- ((not args.down) and 0 or 1), radius- ((not args.down) and 0 or 1), true, "#000000")
         return img
     end
-    local function do_gen_menu_bottom(width,radius,padding)
-        local img = capi.image.argb32(width, 10-(padding or 0), nil)
+    local function do_gen_menu_bottom(width,radius,padding,down)
+        local img = capi.image.argb32(width, 10, nil)
+        img:draw_rectangle(0,not down and radius or 0, width, padding or 0, true, "#ffffff")
         img:draw_rectangle(0,0, radius + (padding or 0), radius + (padding or 0), true, "#ffffff")
-        img:draw_circle(10, 0, radius-1, radius-1, true, "#000000")
+        img:draw_circle(10, down and 10 or 0, radius-1, radius-1, true, "#000000")
         img:draw_rectangle(width-10,0, radius + (padding or 0), radius + (padding or 0), true, "#ffffff")
-        img:draw_circle(width-10, 0, radius-1, radius-1, true, "#000000")
+        img:draw_circle(width-10, down and 10 or 0, radius-1, radius-1, true, "#000000")
         return img
     end
-    w.shape_clip      = do_gen_menu_top(width-(3),7,3)
-    w.shape_bounding  = do_gen_menu_top(width,10,0)
-    w2.shape_clip     = do_gen_menu_bottom(width,7,3)
-    w2.shape_bounding = do_gen_menu_bottom(width,10,0)
+    w.shape_clip      = (not args.down and not args.noArrow) and do_gen_menu_top(width-(3),7,3)       or do_gen_menu_bottom(width,7,3,true)
+    w.shape_bounding  = (not args.down and not args.noArrow) and do_gen_menu_top(width,10,0)          or do_gen_menu_bottom(width,10,0,true)
+    w2.shape_clip     = (not args.down or   args.noArrow) and do_gen_menu_bottom(width,7,3,false)  or do_gen_menu_top(width-(3),7,3)
+    w2.shape_bounding = (not args.down or   args.noArrow) and do_gen_menu_bottom(width,10,0,false) or do_gen_menu_top(width,10,0)
     return w,w2
 end
 

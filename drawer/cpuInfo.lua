@@ -283,6 +283,7 @@ function new(screen, args)
     
     function regenMenu()
         aMenu          = menu()
+        aMenu.settings.itemWidth = 200
         aMenu:add_wibox(infoHeaderW    , {height = 20  , width = 200})
         aMenu:add_wibox(modelW         , {height = 40  , width = 200})
         aMenu:add_wibox(usageHeaderW   , {height = 20  , width = 200})
@@ -316,11 +317,11 @@ function new(screen, args)
 
     local visible = false
     function show()
-        --if not data.menu then
-        data.menu = regenMenu()
-        --end
-        data.menu:toggle(visible == false)
+        if not visible then
+            data.menu = regenMenu()
+        end
         visible = not visible
+        data.menu:toggle(visible)
     end
     
     cpulogo.image = capi.image(config.data().iconPath .. "brain.png")
@@ -329,24 +330,6 @@ function new(screen, args)
 
   cpuwidget:buttons (util.table.join(button({ }, 1, function () show() end)))
   cpulogo:buttons   (util.table.join(button({ }, 1, function () show() end)))
-
---   cpugraphwidget = widget2.graph({ layout = widget2.layout.horizontal.rightleft })
-  
---   cpugraphwidget.height = 0.6
---   cpugraphwidget.width  = 100
---   cpugraphwidget.grow   = 'right'
-
---   cpugraphwidget:set_width            ( 100                  )
---   cpugraphwidget:set_height           ( 18                  )
---   cpugraphwidget:set_height           ( 14                  )
---   cpugraphwidget:set_background_color ( beautiful.bg_normal )
---   cpugraphwidget:set_border_color     ( beautiful.fg_normal )
---   cpugraphwidget:set_color            ( beautiful.fg_normal )
---   if (widget2.graph.set_offset ~= nil) then
---     widget2.graph.set_offset(cpugraphwidget,1)
---   end
-
---   vicious.register(cpugraphwidget, vicious.widgets.cpu, '$1', 1)
 
 --   mytimer = capi.timer({ timeout = 2 })
 --   mytimer:add_signal("timeout", updateTable)

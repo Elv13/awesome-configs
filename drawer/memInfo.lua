@@ -158,7 +158,7 @@ end
     
 function repaint()
     mainMenu = menu()
-              
+    mainMenu.settings.itemWidth = 200
     mainMenu:add_wibox(infoHeaderW,{height = 20 , width = 200})
     mainMenu:add_wibox(ramW       ,{height = 72, width = 200})
     mainMenu:add_wibox(userHeaderW,{height = 20, width = 200})
