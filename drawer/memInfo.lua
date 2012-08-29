@@ -364,7 +364,7 @@ function new(s, args)
 
     membarwidget = widget2.progressbar({ layout = widget2.layout.horizontal.rightleft })
     membarwidget:set_width(40)
-    membarwidget:set_height(18)
+    membarwidget:set_height(14)
     if (widget2.progressbar.set_offset ~= nil) then
         membarwidget:set_offset(1)
     end

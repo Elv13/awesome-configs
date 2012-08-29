@@ -3,7 +3,7 @@ require( "awful"        )
 require( "beautiful"    )
 require( "naughty"      )
 require( "shifty"       )
---require( "vicious"      )
+require( "vicious"      )
 require( "panel"        )
 require( "monkeyPatch"  )
 require( "config"       )
@@ -16,10 +16,10 @@ require( "titlebar"     )
 require( "ultiLayout"   )
 
 -- Cache result for probe used more than once
---vicious.cache( vicious.widgets.net )
---vicious.cache( vicious.widgets.fs  )
---vicious.cache( vicious.widgets.dio )
---vicious.cache( vicious.widgets.cpu )
+vicious.cache( vicious.widgets.net )
+vicious.cache( vicious.widgets.fs  )
+vicious.cache( vicious.widgets.dio )
+vicious.cache( vicious.widgets.cpu )
 
 -- Some widget for every screens
 wiboxTop        = {}; promptbox = {}; notifibox = {}; layoutmenu = {}; wiboxBot = {}
@@ -258,7 +258,7 @@ for s = 1, screen.count() do
       ((s == config.data().scr.sec or screen.count() == 1) and meminfo     ) and meminfo.text           or nil,
       ((s == config.data().scr.sec or screen.count() == 1) and meminfo     ) and meminfo.logo           or nil,
       ( s == config.data().scr.sec or screen.count() == 1                  ) and spacer2                or nil,
-      ((s == config.data().scr.sec or screen.count() == 1) and cpuinto     ) and cpuinfo.graph          or nil,
+      ((s == config.data().scr.sec or screen.count() == 1) and cpuinfo     ) and cpuinfo.graph          or nil,
       ((s == config.data().scr.sec or screen.count() == 1) and cpuinfo     ) and cpuinfo.text           or nil,
       ((s == config.data().scr.sec or screen.count() == 1) and cpuinfo     ) and cpuinfo.logo           or nil,
       ( s == config.data().scr.sec or screen.count() == 1                  ) and spacer3                or nil,
@@ -375,7 +375,7 @@ for s = 1, screen.count() do
       enableAmarokCtrl(true)
     end
       isPlayingMovie = false
-      
+
       -- Run or raise options
       if tag.name     == "Files"    then
         utils.tools.run_or_raise(filemanager.cmd, { class = filemanager.class })

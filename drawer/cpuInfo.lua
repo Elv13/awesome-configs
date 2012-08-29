@@ -329,30 +329,44 @@ function new(screen, args)
 
   cpuwidget:buttons (util.table.join(button({ }, 1, function () show() end)))
   cpulogo:buttons   (util.table.join(button({ }, 1, function () show() end)))
-	      
-  cpugraphwidget = widget2.graph({ layout = widget2.layout.horizontal.rightleft })
-  
-  cpugraphwidget.height = 0.6
-  cpugraphwidget.width  = 45
-  cpugraphwidget.grow   = 'right'
 
-    cpugraphwidget:set_width            ( 40                  )
-    cpugraphwidget:set_height           ( 18                  )
-    cpugraphwidget:set_height           ( 14                  )
-    cpugraphwidget:set_background_color ( beautiful.bg_normal )
-    cpugraphwidget:set_border_color     ( beautiful.fg_normal )
-    cpugraphwidget:set_color            ( beautiful.fg_normal )
-  if (widget2.graph.set_offset ~= nil) then
-    widget2.graph.set_offset(cpugraphwidget,1)
-  end
+--   cpugraphwidget = widget2.graph({ layout = widget2.layout.horizontal.rightleft })
   
-  vicious.register(cpugraphwidget, vicious.widgets.cpu, '$1', 1)
-  
+--   cpugraphwidget.height = 0.6
+--   cpugraphwidget.width  = 100
+--   cpugraphwidget.grow   = 'right'
+
+--   cpugraphwidget:set_width            ( 100                  )
+--   cpugraphwidget:set_height           ( 18                  )
+--   cpugraphwidget:set_height           ( 14                  )
+--   cpugraphwidget:set_background_color ( beautiful.bg_normal )
+--   cpugraphwidget:set_border_color     ( beautiful.fg_normal )
+--   cpugraphwidget:set_color            ( beautiful.fg_normal )
+--   if (widget2.graph.set_offset ~= nil) then
+--     widget2.graph.set_offset(cpugraphwidget,1)
+--   end
+
+--   vicious.register(cpugraphwidget, vicious.widgets.cpu, '$1', 1)
+
 --   mytimer = capi.timer({ timeout = 2 })
 --   mytimer:add_signal("timeout", updateTable)
 --   mytimer:start()
+
+  local cpuBar = widget2.graph({ layout = widget2.layout.horizontal.rightleft })
+  cpuBar:set_width(40)
+  cpuBar:set_height(14)
+  cpuBar:set_background_color(beautiful.bg_normal)
+  cpuBar:set_border_color(beautiful.fg_normal)
+  cpuBar:set_color(beautiful.fg_normal)
+
+  if (widget2.graph.set_offset ~= nil) then
+    cpuBar:set_offset(1)
+  end
+
+  --vicious.register(cpuBar, vicious.widgets.cpu, '$1', 1, 'cpu')
+  vicious.register(cpuBar, vicious.widgets.cpu,'$1',1)
   
-  return {logo = cpulogo, text = cpuwidget, graph = nil--[[cpugraphwidget]]}
+  return {logo = cpulogo, text = cpuwidget, graph = cpuBar}
 end
 
 setmetatable(_M, { __call = function(_, ...) return new(...) end })
