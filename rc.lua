@@ -89,10 +89,10 @@ desktopGrid            = widgets.layout.desktopLayout({padBottom=20,padTop=35,pa
 appMenu        = customMenu.application           ( nil                                )
 
 -- Create the place menu TODO use the KDE list instead of the hardcoded one
-placesMenu             = customMenu.places        ( appMenu:extents().width   )
+placesMenu             = customMenu.places        ( appMenu:extents().width            )
 
 -- Call the laucher wibox
-launcher               = customMenu.launcher      ( appMenu:extents().width + placesMenu:extents().width)
+launcher               = customMenu.launcher      ( appMenu:extents().width + placesMenu:extents().width+8)
 
 -- Create the laucher dock
 lauchDock              = widgets.dock             ( nil                                )
@@ -119,7 +119,17 @@ cpuinfo                = drawer.cpuInfo           ( clock:extents().width + 210 
 keyboardSwitcherWidget = widgets.keyboardSwitcher ( nil                                )
 
 -- Create a systray
-mysystray              = widget                   ( { type = "systray"               } )
+mysystray              = widget                   ( { type = "systray", bg = beautiful.fg_normal } )
+mysystray.bg           = beautiful.fg_normal
+
+-- Create systray end arrow
+taskarrow              = utils.theme.get_beg_arrow_widget()
+
+-- Create systray end arrow
+sysarrow               = utils.theme.get_beg_arrow_widget(nil,nil,nil,"left")
+
+-- Create systray end arrow
+menuarrow               = utils.theme.new_arrow_widget()
 
 -- Create the music panel
 --musicBar = panel.musicBar()
@@ -272,21 +282,24 @@ for s = 1, screen.count() do
   -- Bottom wibox widgets
   wiboxBot[s].widgets = {
     --           RULES                                                         WIDGET                FALLBACK
-    ( s == config.data().scr.pri                                           ) and appMenu        or nil,
+    ( s == config.data().scr.pri                                           ) and appMenu                or nil,
+    ( s == config.data().scr.pri                                           ) and menuarrow              or nil,
     ( s == config.data().scr.pri                                           ) and placesMenu             or nil,
+    ( s == config.data().scr.pri                                           ) and menuarrow              or nil,
     ( s == config.data().scr.pri                                           ) and recentMenu             or nil,
     ( s == config.data().scr.pri                                           ) and launcher               or nil,
+    ( s == config.data().scr.pri                                           ) and menuarrow              or nil,
     ( s == config.data().scr.pri                                           ) and desktopPix             or nil,
-    promptbox[s]                                                                                      or nil,
-    spacer3                                                                                           or nil,
-    {                                                                                                 ------
+    promptbox[s]                                                                                        or nil,
+    taskarrow                                                                                           or nil,
+    {                                                                                                   ------
       (s == config.data().scr.pri                                          ) and keyboardSwitcherWidget or nil,
-      spacer3                                                                                         or nil,
       (s == config.data().scr.pri                                          ) and mysystray              or nil,
-      layout = awful.widget.layout.horizontal.rightleft,                                              ------
-    },                                                                                                ------
-    layout = awful.widget.layout.horizontal.leftright,                                                ------
-    mytasklist[s]                                                                                     or nil,
+      sysarrow                                                                                          or nil,
+      layout = awful.widget.layout.horizontal.rightleft,                                                ------
+    },                                                                                                  ------
+    layout = awful.widget.layout.horizontal.leftright,                                                  ------
+    mytasklist[s]                                                                                       or nil,
   }  
 end
 
