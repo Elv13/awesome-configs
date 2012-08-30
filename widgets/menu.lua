@@ -26,6 +26,18 @@ local grabKeyboard = false
 local currentMenu  = nil
 local discardedItems = {}
 
+local function draw_border(menu,item,args)
+    if menu.settings.has_decoration ~= false then
+        local width,height=item.width,item.widget.height+10
+        local img = capi.image.argb32(width, height, nil)
+        img:draw_rectangle(0,0, width, height, true, "#000000")
+        img:draw_rectangle(0,0, 3, height, true, "#ffffff")
+        img:draw_rectangle(width-3,0, 3, height, true, "#ffffff")
+        item.widget.shape_clip     = img
+        item.widget.border_color = menu.settings.border_color or beautiful.fg_normal
+    end
+end
+
 local function getWibox()
     if #discardedItems > 0 then
         for k,v in pairs(discardedItems) do
@@ -56,6 +68,7 @@ local function getFilterWidget(aMenu)
             filterWibox.widgets = { textbox, layout = widget2.layout.horizontal.leftright }
             menu.filterWidget   = {textbox = textbox, widget = filterWibox, hidden = false, width = menu.settings.itemWidth, height = menu.settings.itemHeight}
             filterWibox:buttons( util.table.join(button({},3,function() menu:toggle(false) end)))
+            draw_border(menu,menu.filterWidget,{})
         end
         table.insert(menu.otherwdg,menu.filterWidget)
         return menu.filterWidget
@@ -65,12 +78,12 @@ end
 
 local function getArrowItem(menu,mode)
     if not menu.topArrow then
-        local topA,bottomA = gen_menu_decoration(menu.settings.itemWidth,{down = mode == 2, noArrow = mode == 3})
+        local topA,bottomA = gen_menu_decoration(menu.settings.itemWidth+2,{arrow_x = menu.settings.arrow_x, down = mode == 2, noArrow = mode == 3})
         topA.visible,bottomA.visible = true, true
-        menu.topArrow = {widget = topA, hidden = false, width = menu.settings.itemWidth, height = topA.height}
+        menu.topArrow = {widget = topA, hidden = false, width = menu.settings.itemWidth+2, height = topA.height}
         table.insert(menu.otherwdg,menu.topArrow)
 
-        menu.bottomArrow = {widget = bottomA, hidden = false, width = menu.settings.itemWidth, height = bottomA.height}
+        menu.bottomArrow = {widget = bottomA, hidden = false, width = menu.settings.itemWidth+2, height = bottomA.height}
         table.insert(menu.otherwdg,menu.bottomArrow)
     end
     return menu.topArrow,menu.bottomArrow
@@ -93,6 +106,7 @@ local function getScrollWdg_common(aMenu,widget,step)
             test2.text = " "
             wb.widgets = {test2,arrow,test2,layout = widget2.layout.horizontal.flex}
             menu[widget] = {widget = wb, hidden = false, width = menu.settings.itemWidth, height = menu.settings.itemHeight}
+            draw_border(menu,menu[widget],{})
             table.insert(menu.otherwdg,menu[widget])
         end
         return menu[widget]
@@ -167,22 +181,24 @@ function new(args)
     args          = args or {}
     local menu    = { settings = { 
     -- Settings
-    --PROPERTY          VALUE               BACKUP VLAUE         
-    itemHeight    = args.itemHeight    or beautiful.menu_height ,
-    visible       = false                                       ,
-    itemWidth     = args.width         or beautiful.menu_width  ,
-    bg_normal     = args.bg_normal     or beautiful.bg_normal   ,
-    bg_focus      = args.bg_focus      or beautiful.bg_focus    ,
-    nokeyboardnav = args.nokeyboardnav or false                 ,
-    noautohide    = args.noautohide    or false                 ,
-    filter        = args.filter        or false                 ,
-    showfilter    = args.showfilter    or false                 ,
-    maxvisible    = args.maxvisible    or nil                   ,
-    filterprefix  = args.filterprefix  or "<b>Filter:</b>"      ,
-    autodiscard   = args.autodiscard   or false                 ,
-    x             = args.x             or nil                   ,
-    y             = args.y             or nil                   ,
-    },-----------------------------------------------------------
+    --PROPERTY           VALUE               BACKUP VLAUE         
+    itemHeight     = args.itemHeight     or beautiful.menu_height ,
+    visible        = false                                        ,
+    itemWidth      = args.width          or beautiful.menu_width  ,
+    bg_normal      = args.bg_normal      or beautiful.bg_normal   ,
+    bg_focus       = args.bg_focus       or beautiful.bg_focus    ,
+    nokeyboardnav  = args.nokeyboardnav  or false                 ,
+    noautohide     = args.noautohide     or false                 ,
+    filter         = args.filter         or false                 ,
+    showfilter     = args.showfilter     or false                 ,
+    maxvisible     = args.maxvisible     or nil                   ,
+    filterprefix   = args.filterprefix   or "<b>Filter:</b>"      ,
+    autodiscard    = args.autodiscard    or false                 ,
+    x              = args.x              or nil                   ,
+    y              = args.y              or nil                   ,
+    arrow_x        = args.arrow_x        or nil                   ,
+    has_decoration = args.has_decoration --[[or true]]            ,
+    },-------------------------------------------------------------
 
     -- Data
     --  TYPE      INITIAL VALUE                                  
@@ -376,13 +392,18 @@ function new(args)
       local arrowMode
       if menu.settings.parent then
           arrowMode = 3
+          if self.settings.yPos - 10 > 0 then
+              self.settings.yPos = self.settings.yPos - 10
+          end
       elseif self.downOrUp == 1  then
           arrowMode = 1
       else
           arrowMode = 2
       end
       
-      getArrowItem(menu,arrowMode)
+      if menu.settings.has_decoration ~= false then
+          getArrowItem(menu,arrowMode)
+      end
       local headerWdg = {self.topArrow,getScrollUpWdg(self)}
       local footerWdg = {getScrollDownWdg(self),getFilterWidget(),self.bottomArrow}
       
@@ -593,6 +614,7 @@ function new(args)
       aWibox:add_signal("mouse::enter", function() toggleItem(true) end)
       aWibox:add_signal("mouse::leave", function() toggleItem(false) end)
       aWibox.visible = false
+      draw_border(menu,data,{})
       return data
     end
     
@@ -618,6 +640,7 @@ function new(args)
         function data:hightlight(value)
             
         end
+        draw_border(menu,data,{})
         registerButton(wibox,data)
         table.insert(self.items, data)
     end

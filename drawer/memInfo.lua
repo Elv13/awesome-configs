@@ -156,8 +156,8 @@ end
 
   --memory.widgets = {layout = widget2.layout.horizontal.leftright}
     
-function repaint()
-    mainMenu = menu()
+function repaint(margin)
+    mainMenu = menu({arrow_x=90})
     mainMenu.settings.itemWidth = 200
     mainMenu:add_wibox(infoHeaderW,{height = 20 , width = 200})
     mainMenu:add_wibox(ramW       ,{height = 72, width = 200})
@@ -234,7 +234,7 @@ function repaint()
         end
     end
     
-    mainMenu.settings.x = capi.screen[capi.mouse.screen].geometry.width - 200 + capi.screen[capi.mouse.screen].geometry.x
+    mainMenu.settings.x = capi.screen[capi.mouse.screen].geometry.width - 200 + capi.screen[capi.mouse.screen].geometry.x - margin
     mainMenu.settings.y = 16
     return mainMenu
 end
@@ -243,7 +243,7 @@ function update()
 
 end
 
-function new(s, args)
+function new(margin, args)
     infoHeaderW    = wibox({ position = "free", screen = s,ontop = true})
     ramW           = wibox({ position = "free", screen = s,ontop = true})
     userHeaderW    = wibox({ position = "free", screen = s,ontop = true})
@@ -307,9 +307,18 @@ function new(s, args)
                         {swapLabel ,totalSwap ,usedSwap ,freeSwap , layout = widget2.layout.horizontal.leftright},
                         layout = widget2.layout.vertical.flex
                     }
-                    
+
+    local memwidget = capi.widget({
+        type  = 'textbox',
+    })
+    memwidget:buttons( util.table.join(
+        button({ }, 1, function()
+            toggleSensorBar()
+        end)
+    ))
+
     refreshStat()
-    data.menu = repaint()
+    data.menu = repaint(margin-memwidget:extents().width-20-10)
     
 --     mytimer = capi.timer({ timeout = 2 })
 --     mytimer:add_signal("timeout", function()
@@ -333,24 +342,13 @@ function new(s, args)
     local visible = false
     function toggle()
         if not visible then
-            data.menu = repaint()
+            data.menu = repaint(margin-memwidget:extents().width-20-10)
         end
         visible = not visible
         data.menu:toggle(visible)
     end
 
     
-
-    memwidget = capi.widget({
-        type  = 'textbox',
-        name  = 'memwidget',
-        align = "right"
-    })
-    memwidget:buttons( util.table.join(
-        button({ }, 1, function()
-            toggleSensorBar()
-        end)
-    ))
 
 
     vicious.register(memwidget, vicious.widgets.mem, '$1%')

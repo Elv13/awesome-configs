@@ -74,7 +74,7 @@ local netDownGraph     = widget2.graph(                  )
 --VARIABLES
 local totalCount    = 0
   
-function update() 
+function update()
     local connectionInfo
     local f = io.open('/tmp/connectedHost.lua','r')
     if f ~= nil then
@@ -111,9 +111,9 @@ function update()
     localInfo.text = localValue
 end
 
-local function repaint()
-    local mainMenu = menu()
-    
+local function repaint(margin)
+    local mainMenu = menu({arrow_x=90})
+    mainMenu.settings.itemWidth = 200
     mainMenu:add_wibox(graphHeaderW ,{height = 20, width = 200})
     mainMenu:add_wibox(graphUW      ,{height = 40, width = 200})
     mainMenu:add_wibox(graphDW      ,{height = 50, width = 200})
@@ -125,31 +125,33 @@ local function repaint()
     totalCount = 0
     if data.connectionInfo ~= nil then
         for i=0 , #(data.connectionInfo or {}) do
-            if i < 10 then
-                connectionWidget[i].application.text =        (data.connectionInfo[i]['protocol']    or "")
-                connectionWidget[i].address.text     = " " .. (data.connectionInfo[i]['site']        or "")
-                totalCount = totalCount +1
-                
-                local found = false
-                for k2,v2 in ipairs(capi.client.get()) do
-                    if v2.class:lower() == data.connectionInfo[i]['application']:lower() or v2.name:lower():find(data.connectionInfo[i]['application']:lower()) ~= nil then
-                        connectionWidget[i].protocol.bg_image  = v2.icon
-                        connectionWidget[i].protocol.bg_resize = true
-                        found = true
-                        break 
+            if data.connectionInfo[i] then
+                if i < 10 then
+                    connectionWidget[i].application.text =        (data.connectionInfo[i]['protocol']    or "")
+                    connectionWidget[i].address.text     = " " .. (data.connectionInfo[i]['site']        or "")
+                    totalCount = totalCount +1
+                    
+                    local found = false
+                    for k2,v2 in ipairs(capi.client.get()) do
+                        if v2.class:lower() == data.connectionInfo[i]['application']:lower() or v2.name:lower():find(data.connectionInfo[i]['application']:lower()) ~= nil then
+                            connectionWidget[i].protocol.bg_image  = v2.icon
+                            connectionWidget[i].protocol.bg_resize = true
+                            found = true
+                            break 
+                        end
                     end
+                    
+                    if found == false then
+                        connectionWidget[i].protocol.text =  (data.connectionInfo[i]['application']    or "")
+                        connectionWidget[i].protocol.bg_image = nil
+                    else
+                        connectionWidget[i].protocol.text = ""
+                    end
+                    
                 end
-                
-                if found == false then
-                    connectionWidget[i].protocol.text =  (data.connectionInfo[i]['application']    or "")
-                    connectionWidget[i].protocol.bg_image = nil
-                else
-                    connectionWidget[i].protocol.text = ""
-                end
-                
+                appStat[data.connectionInfo[i]['application'  ] ] = (protocolStat[data.connectionInfo[i]['application'] ] or 0) + 1
+                protocolStat[data.connectionInfo[i]['protocol'] ] = (protocolStat[data.connectionInfo[i]['protocol'   ] ] or 0) + 1
             end
-            appStat[data.connectionInfo[i]['application'  ] ] = (protocolStat[data.connectionInfo[i]['application'] ] or 0) + 1
-            protocolStat[data.connectionInfo[i]['protocol'] ] = (protocolStat[data.connectionInfo[i]['protocol'   ] ] or 0) + 1
         end
         local subTotal = (totalCount < 10) and totalCount or 10
         for i=0, subTotal-1 do
@@ -187,12 +189,12 @@ local function repaint()
         end
     end
     
-    mainMenu.settings.x = capi.screen[capi.mouse.screen].geometry.width - 200 + capi.screen[capi.mouse.screen].geometry.x
+    mainMenu.settings.x = capi.screen[capi.mouse.screen].geometry.width - 200 + capi.screen[capi.mouse.screen].geometry.x - margin + 20
     mainMenu.settings.y = 16
     return mainMenu
 end 
 
-function new(screen, args)
+function new(margin, args)
     graphHeaderW         = wibox({ position = "free" , screen = s , ontop = true})
     ipHeaderW            = wibox({ position = "free" , screen = s , ontop = true})
     localHeaderW         = wibox({ position = "free" , screen = s , ontop = true})
@@ -346,7 +348,7 @@ function new(screen, args)
     function show()
         if not data.menu or data.menu.settings.visible == false then
             update() 
-            data.menu = repaint()
+            data.menu = repaint(margin)
             data.menu:toggle( true  )
         else
             data.menu:toggle( false )

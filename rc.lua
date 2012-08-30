@@ -103,17 +103,17 @@ desktopPix             = customButton.showDesktop ( nil                         
 -- Create the clock
 clock                  = drawer.dateinfo          ( nil                                )
 
--- Create the memory manager
-meminfo                = drawer.memInfo           ( screen.count()                     )
-
--- Create the cpu manager
-cpuinfo                = drawer.cpuInfo           ( nil                                )
-
--- Create the net manager
-netinfo                = drawer.netInfo           ( nil                                )
-
 -- Create the volume box
 soundWidget            = drawer.soundInfo         ( wiboxTop3, clock:extents().width   )
+
+-- Create the net manager
+netinfo                = drawer.netInfo           ( clock:extents().width + 60         )
+
+-- Create the memory manager
+meminfo                = drawer.memInfo           ( clock:extents().width + 210        )
+
+-- Create the cpu manager
+cpuinfo                = drawer.cpuInfo           ( clock:extents().width + 210 + 130  )
 
 -- Create the keyboard layout switcher, feel free to add your contry and push it to master
 keyboardSwitcherWidget = widgets.keyboardSwitcher ( nil                                )

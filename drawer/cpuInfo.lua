@@ -28,7 +28,7 @@ function update()
 
 end
 
-function new(screen, args)
+function new(margin, args)
     
     local data              = {}
     local coreWidgets       = {}
@@ -282,7 +282,7 @@ function new(screen, args)
     updateTable()
     
     function regenMenu()
-        aMenu          = menu()
+        aMenu          = menu({arrow_x=90})
         aMenu.settings.itemWidth = 200
         aMenu:add_wibox(infoHeaderW    , {height = 20  , width = 200})
         aMenu:add_wibox(modelW         , {height = 40  , width = 200})
@@ -309,7 +309,7 @@ function new(screen, args)
             end
         end
         
-        aMenu.settings.x = capi.screen[capi.mouse.screen].geometry.width - 200 + capi.screen[capi.mouse.screen].geometry.x
+        aMenu.settings.x = capi.screen[capi.mouse.screen].geometry.width - 200 + capi.screen[capi.mouse.screen].geometry.x - margin + 40 + 15 + 15
         aMenu.settings.y = 16
         aMenu:toggle(true)
         return aMenu
