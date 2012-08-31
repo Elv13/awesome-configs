@@ -188,7 +188,9 @@ function new(mywibox3,left_margin)
 
   volumewidget:buttons(btn)
   volumepixmap:buttons(btn)
-
+  
+  volumewidget.bg = beautiful.bg_alternate
+  volumepixmap.bg = beautiful.bg_alternate
 
   vicious.register(volumewidget, amixer_volume_int, '$1%  | ')
   return {pix = volumepixmap, wid = volumewidget}

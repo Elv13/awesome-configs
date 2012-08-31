@@ -355,6 +355,9 @@ function new(margin, args)
     
     ramlogo:buttons   (util.table.join(button({ }, 1, function () toggle() end)))
     memwidget:buttons (util.table.join(button({ }, 1, function () toggle() end)))
+        
+    ramlogo.bg = beautiful.bg_alternate
+    memwidget.bg = beautiful.bg_alternate
 
 --     memwidget:add_signal("mouse::leave", function ()
 --         data.menu:toggle(false)
@@ -371,7 +374,7 @@ function new(margin, args)
     membarwidget:set_margin({top=2,bottom=2})
     end
     membarwidget:set_vertical(false)
-    membarwidget:set_background_color(beautiful.bg_normal)
+    membarwidget:set_background_color(beautiful.bg_alternate)
     membarwidget:set_border_color(beautiful.fg_normal)
     membarwidget:set_color(beautiful.fg_normal)
     membarwidget:set_gradient_colors({

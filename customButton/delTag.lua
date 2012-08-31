@@ -32,7 +32,7 @@ function new(screen, args)
   data[screen]         = capi.widget({ type = "imagebox", align = "left" })
   data[screen].image   = capi.image(config.data().iconPath .. "tags/minus2.png")
   data[screen].visible = false
-  data[screen].bg      = beautiful.bg_highlight
+  data[screen].bg      = beautiful.bg_alternate
   local tt = tooltip("Remove Tag",{})
   
   data[screen]:buttons( util.table.join(
@@ -45,7 +45,7 @@ function new(screen, args)
   tag.attached_add_signal(screen, "property::layout", toggleVisibility)
   
   data[screen]:add_signal("mouse::enter", function() tt:showToolTip(true) ;data[screen].bg = beautiful.bg_normal    end)
-  data[screen]:add_signal("mouse::leave", function() tt:showToolTip(false);data[screen].bg = beautiful.bg_highlight end)
+  data[screen]:add_signal("mouse::leave", function() tt:showToolTip(false);data[screen].bg = beautiful.bg_alternate end)
 
   return data[screen]
 end

@@ -365,6 +365,10 @@ function new(margin, args)
     netDownWidget:buttons (util.table.join(button({ }, 1, function () show() end))   )
     uplogo:buttons        (util.table.join(button({ }, 1, function () show() end))   )
     netUpWidget:buttons   (util.table.join(button({ }, 1, function () show() end))   )
+        
+    for k,v in ipairs({downlogo,netDownWidget,uplogo,netUpWidget}) do
+        v.bg = beautiful.bg_alternate
+    end
     return {down_logo = downlogo      , 
             down_text = netDownWidget , 
             up_logo   = uplogo        , 

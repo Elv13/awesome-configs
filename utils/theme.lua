@@ -24,11 +24,11 @@ function get_end_arrow(bg_color,fg_color,padding,direction)
 end
 
 function get_beg_arrow(bg_color,fg_color,padding,direction)
-    local img = capi.image.argb32(9+(padding or 0), 16, nil)
+    local img = capi.image.argb32((direction == "left") and 8 or 9+(padding or 0), 16, nil)
     img:draw_rectangle(0, 0, 9+(padding or 0), 16, true, bg_color or beautiful.bg_normal)
     for i=0,(8) do
-        img:draw_rectangle((direction == "left") and 8-i or 0,i    , i, 1, true, fg_color or beautiful.fg_normal)
-        img:draw_rectangle((direction == "left") and 8-i or 0,16- i, i, 1, true, fg_color or beautiful.fg_normal)
+        img:draw_rectangle((direction == "left") and 8-i+(padding or 0) or 0,i    , i, 1, true, fg_color or beautiful.fg_normal)
+        img:draw_rectangle((direction == "left") and 8-i+(padding or 0) or 0,16- i, i, 1, true, fg_color or beautiful.fg_normal)
     end
     if direction == "left" then
         img:rotate(2)

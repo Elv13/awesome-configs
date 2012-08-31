@@ -325,7 +325,9 @@ function new(margin, args)
     end
     
     cpulogo.image = capi.image(config.data().iconPath .. "brain.png")
+    cpulogo.bg = beautiful.bg_alternate
     cpuwidget.width = 27
+    cpuwidget.bg = beautiful.bg_alternate
   vicious.register(cpuwidget, vicious.widgets.cpu,'$1%')
 
   cpuwidget:buttons (util.table.join(button({ }, 1, function () show() end)))
@@ -338,7 +340,7 @@ function new(margin, args)
   local cpuBar = widget2.graph({ layout = widget2.layout.horizontal.rightleft })
   cpuBar:set_width(40)
   cpuBar:set_height(14)
-  cpuBar:set_background_color(beautiful.bg_normal)
+  cpuBar:set_background_color(beautiful.bg_alternate)
   cpuBar:set_border_color(beautiful.fg_normal)
   cpuBar:set_color(beautiful.fg_normal)
 

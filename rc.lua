@@ -102,6 +102,7 @@ desktopPix             = customButton.showDesktop ( nil                         
 
 -- Create the clock
 clock                  = drawer.dateinfo          ( nil                                )
+clock.bg               = beautiful.bg_alternate
 
 -- Create the volume box
 soundWidget            = drawer.soundInfo         ( wiboxTop3, clock:extents().width   )
@@ -127,6 +128,7 @@ taskarrow              = utils.theme.get_beg_arrow_widget()
 
 -- Create systray end arrow
 sysarrow               = utils.theme.get_beg_arrow_widget(nil,nil,nil,"left")
+sysarrow2              = utils.theme.get_beg_arrow_widget(nil,beautiful.bg_alternate,nil,"left")
 
 -- Create systray end arrow
 menuarrow               = utils.theme.new_arrow_widget()
@@ -211,6 +213,8 @@ root.buttons(awful.util.table.join(
 
 --Some spacers with dirrent text
 spacer3 = widgets.spacer({text = "| "}); spacer2 = widgets.spacer({text = "  |"}); spacer4 = widgets.spacer({text = "|"})
+spacer5 = widgets.spacer({text = "",width=5})
+spacer2.bg,spacer5.bg,spacer4.bg = beautiful.bg_alternate,beautiful.bg_alternate,beautiful.bg_alternate
 
 -- The widget array with different possible screens configuration
 for s = 1, screen.count() do
@@ -224,7 +228,7 @@ for s = 1, screen.count() do
   mytaglist[s]  = widgets.taglist       ( s, widgets.taglist.label.all, mytaglist.buttons )
   
   -- Create the arrow after the last taglist button
-  local arrow  = utils.theme.new_arrow_widget(beautiful.bg_highlight,beautiful.bg_normal,3)
+  local arrow  = utils.theme.new_arrow_widget(beautiful.bg_alternate,beautiful.bg_normal,3)
 
   -- Create the delTag button
   delTag[s]     = customButton.delTag   ( s                                               )
@@ -271,7 +275,8 @@ for s = 1, screen.count() do
       ((s == config.data().scr.sec or screen.count() == 1) and cpuinfo     ) and cpuinfo.graph          or nil,
       ((s == config.data().scr.sec or screen.count() == 1) and cpuinfo     ) and cpuinfo.text           or nil,
       ((s == config.data().scr.sec or screen.count() == 1) and cpuinfo     ) and cpuinfo.logo           or nil,
-      ( s == config.data().scr.sec or screen.count() == 1                  ) and spacer3                or nil,
+      ( s == config.data().scr.sec or screen.count() == 1                  ) and spacer5                or nil,
+      ( s == config.data().scr.sec or screen.count() == 1                  ) and sysarrow2              or nil,
       layout = awful.widget.layout.horizontal.rightleft,                                              ------
       {                                                                                               ------
         notifibox[s]                                                                                  or nil,
@@ -291,11 +296,11 @@ for s = 1, screen.count() do
     ( s == config.data().scr.pri                                           ) and menuarrow              or nil,
     ( s == config.data().scr.pri                                           ) and desktopPix             or nil,
     promptbox[s]                                                                                        or nil,
-    taskarrow                                                                                           or nil,
+    ( s == config.data().scr.pri                                           ) and taskarrow              or nil,
     {                                                                                                   ------
       (s == config.data().scr.pri                                          ) and keyboardSwitcherWidget or nil,
+      ( s == config.data().scr.pri                                         ) and sysarrow               or nil,
       (s == config.data().scr.pri                                          ) and mysystray              or nil,
-      sysarrow                                                                                          or nil,
       layout = awful.widget.layout.horizontal.rightleft,                                                ------
     },                                                                                                  ------
     layout = awful.widget.layout.horizontal.leftright,                                                  ------

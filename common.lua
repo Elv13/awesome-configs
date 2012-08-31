@@ -99,7 +99,7 @@ function list_update(w, buttons, label, data, widgets, objects,args)
         end
         if args.have_arrow then
             if not w[k+label_index+1+offset+1] then
-                w[k+label_index+1+offset].image = themeUtils.get_end_arrow(text_bg or bg,beautiful.bg_highlight,3)
+                w[k+label_index+1+offset].image = themeUtils.get_end_arrow(text_bg or bg,beautiful.bg_alternate,3)
             else
                 w[k+label_index+1+offset].image = themeUtils.get_end_arrow(text_bg or bg,nil,3)
             end
