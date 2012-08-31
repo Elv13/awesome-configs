@@ -40,7 +40,12 @@ theme.border_marked = "#91231c"
 theme.taglist_squares_sel = confdir .. "/default/star2.png"
 theme.taglist_squares_unsel = confdir .. "/default/star.png"
 
-theme.tasklist_floating_icon = confdir .. "/theme/darkBlue/Icon/titlebar/floating.png"
+theme.tasklist_floating_icon              = confdir .. "/theme/darkBlue/Icon/titlebar/floating.png"
+theme.tasklist_ontop_icon                 = confdir .. "/theme/darkBlue/Icon/titlebar/ontop.png"
+theme.tasklist_ontop_floating_icon        = confdir .. "/theme/darkBlue/Icon/titlebar/ontop_float.png"
+theme.tasklist_sticky_icon                = confdir .. "/theme/darkBlue/Icon/titlebar/sticky.png"
+theme.tasklist_sticky_floating_icon       = confdir .. "/theme/darkBlue/Icon/titlebar/sticky_float.png"
+theme.tasklist_sticky_ontop_floating_icon = confdir .. "/theme/darkBlue/Icon/titlebar/sticky_ontop_float.png"
 
 -- Variables set for theming menu
 -- menu_[bg|fg]_[normal|focus]

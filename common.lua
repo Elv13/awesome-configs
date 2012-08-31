@@ -50,6 +50,10 @@ function list_update(w, buttons, label, data, widgets, objects,args)
             end
             w[i+offset] = ib
             w[i + label_index + offset] = tb
+            w[i + 1 + offset]:margin({ left = widgets.textbox.margin.left, right = widgets.textbox.margin.right })
+            w[i + 1 + offset].bg_resize = widgets.textbox.bg_resize or false
+            w[i + 1 + offset].bg_align = widgets.textbox.bg_align or ""
+
         end
     -- Remove widgets
     elseif len > #objects then
