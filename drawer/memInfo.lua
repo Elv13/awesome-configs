@@ -370,9 +370,9 @@ function new(margin, args)
         membarwidget:set_offset(1)
     end
 
-    if widget2.progressbar.set_margin then
-    membarwidget:set_margin({top=2,bottom=2})
-    end
+--     if widget2.progressbar.set_margin then
+--     membarwidget:set_margin({top=2,bottom=2})
+--     end
     membarwidget:set_vertical(false)
     membarwidget:set_background_color(beautiful.bg_alternate)
     membarwidget:set_border_color(beautiful.fg_normal)
