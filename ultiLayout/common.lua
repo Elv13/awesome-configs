@@ -116,7 +116,7 @@ function drag_cg(cg,on_click_f,args)
 end
 
 function drag_cg_under_cursor(c)
-    local cg = common.tag_to_cg():get_unit(capi.client.focus)
+    local cg = tag_to_cg():get_unit(capi.client.focus)
 --     local cg = clientGroup.get_cg_from_client(c, top_level_cg[tag.selected(capi.mouse.screen)])
     drag_cg(cg)
 end

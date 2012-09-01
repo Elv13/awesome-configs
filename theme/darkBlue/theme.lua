@@ -54,6 +54,8 @@ theme.tasklist_sticky_ontop_floating_icon = confdir .. "/theme/darkBlue/Icon/tit
 theme.menu_submenu_icon = confdir.."/theme/darkBlue/Icon/tags/arrow.png"
 theme.menu_height   = "20"
 theme.menu_width    = "130"
+theme.border_width  = 1
+theme.border_color  = theme.fg_normal
 
 
 -- You can add as many variables as

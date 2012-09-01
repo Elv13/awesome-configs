@@ -26,6 +26,19 @@ local grabKeyboard = false
 local currentMenu  = nil
 local discardedItems = {}
 
+local function prevent_toolbar_overlap(x_or_y,width_or_height)
+    local w_h,x_y = capi.screen[capi.mouse.screen].geometry[width_or_height],capi.mouse.coords()[x_or_y]
+    if x_y < 16 then
+        return 16
+    elseif x_y > w_h-16 then
+        return w_h-16
+    end
+    if x_or_y == "x" and x_y - 37 > 0 then
+        x_y = x_y - 37
+    end
+    return x_y
+end
+
 local function draw_border(menu,item,args)
     if menu.settings.has_decoration ~= false then
         local width,height=item.width,item.widget.height+10
@@ -39,15 +52,15 @@ local function draw_border(menu,item,args)
 end
 
 local function getWibox()
-    if #discardedItems > 0 then
-        for k,v in pairs(discardedItems) do
-            local wb = v
-            discardedItems[k] = nil
-            return wb
-        end
-    else
+--     if #discardedItems > 0 then --TODO good in theory but buggy in practice
+--         for k,v in pairs(discardedItems) do
+--             local wb = v
+--             discardedItems[k] = nil
+--             return wb
+--         end
+--     else
         return wibox({ position = "free", visible = false, ontop = true, border_width = 1, border_color = beautiful.border_normal })
-    end
+--     end
 end
 
 local function stopGrabber()
@@ -341,8 +354,8 @@ function new(args)
       local prevX = self.settings["xPos"] or -1
       local prevY = self.settings["yPos"] or -1
       
-      self.settings.xPos = x or self.settings.x or capi.mouse.coords().x
-      self.settings.yPos = y or self.settings.y or capi.mouse.coords().y
+      self.settings.xPos = x or self.settings.x or prevent_toolbar_overlap("x","width")
+      self.settings.yPos = y or self.settings.y or prevent_toolbar_overlap("y","height")
       
       if prevX ~= self.settings["xPos"] or prevY ~= self.settings["yPos"] then
           self.hasChanged = true
