@@ -1,464 +1,162 @@
 local setmetatable = setmetatable
-local io = io
-local ipairs = ipairs
-local table = table
-local loadstring = loadstring
-local button = require("awful.button")
-local beautiful = require("beautiful")
-local widget2 = require("awful.widget")
-local naughty = require("naughty")
-local vicious = require("vicious")
-local tag = require("awful.tag")
-local config = require( "config")
-local print = print
-local util = require("awful.util")
-local wibox = require("awful.wibox")
-local shifty = require("shifty")
-local menu = require("awful.menu")
-local capi = { image = image,
-               screen = screen,
-               widget = widget,
-               mouse = mouse,
-	       tag = tag}
+local table        = table
+local button       = require( "awful.button"    )
+local beautiful    = require( "beautiful"       )
+local widget2      = require( "awful.widget"    )
+local naughty      = require( "naughty"         )
+local vicious      = require( "vicious"         )
+local config       = require( "config"          )
+local util         = require( "awful.util"      )
+local tools        = require( "utils.tools"     )
+local wibox        = require( "awful.wibox"     )
+local tooltip      = require( "widgets.tooltip" )
+local capi = { image  = image  ,
+               screen = screen ,
+               widget = widget }
 
 module("widgets.dock")
-
-local lauchBar
-
-local data = {}
-
-function update()
-
-end
-
-local function run_or_raise(cmd, properties)
-   local clients = client.get()
-   for i, c in pairs(clients) do
-      if match(properties, c) then
-         local ctags = c:tags()
-         if table.getn(ctags) == 0 then
-            local curtag = tag.selected()
-         else
-            tag.viewonly(ctags[1])
-         end
-         return
-      end
-   end
-   util.spawn(cmd)
-end
-
-local function match (table1, table2)
-   for k, v in pairs(table1) do
-      if table2[k] ~= v then
-         return false
-      end
-   end
-   return true
-end
-
-local function executeApps(screen, tagName , cmd, class)
-    --run_or_raise(cmd, { class = class })
-    lauchBar.visible = false
-    --if appInfo and appInfo[3] then
-    --   naughty.destroy(appInfo[3])
-    --end
-end
-
-local function executeAppsNew(screen, tagName , cmd)
-    util.spawn(cmd) 
-    lauchBar.visible = false
-    --if appInfo and appInfo[3] then
-    --   naughty.destroy(appInfo[3])
-    --end
-end
+local lauchBar = nil
 
 local function create(screen, args)
-  
-  lauchBar = wibox({ position = "free", screen = s, width = 49 })
-  lauchBar:geometry({ width = 40, height = capi.screen[1].geometry.height -100, x = 0, y = 50})
-  lauchBar.orientation = "north"
-  lauchBar.ontop = true
+    local height = capi.screen[1].geometry.height -100
+    lauchBar = wibox({ position = "free", screen = s, width = 49 })
+    lauchBar:geometry({ width = 40, height =  height, x = 0, y = 50})
+    lauchBar.ontop = true
+    lauchBar.border_color = beautiful.fg_normal
 
-  local appInfo = {}
-  function appsInfo(name) 
-    local f = io.popen('/home/lepagee/Scripts/appsInfo.sh ' .. name )
-    local text2 = f:read("*all")
-    f:close()
-    appInfo = { month, year, 
-                naughty.notify({
-                    text = text2,
-                    timeout = 5, hover_timeout = 0.5,
-                    width = 210, screen = capi.mouse.screen
-                })
-              }
-  end
+    local img = capi.image.argb32(40, height, nil)
+    --Top corner (outer)
+    img:draw_rectangle(25 ,0, 15, 15   , true, "#ffffff")
+    img:draw_circle    (25, 15, 15, 15, true, "#000000")
 
-  function displayInfo(anApps, name)
---     anApps:add_signal("mouse::enter", function ()
---         appsInfo(name)
---     end)
--- 
---     anApps:add_signal("mouse::leave", function ()
---       if appInfo and appInfo[3] then
---         naughty.destroy(appInfo[3])
---       end
---     end)
-  end
+    --Bottom corner (outer)
+    img:draw_rectangle(25 ,height-15, 15, 15   , true, "#ffffff")
+    img:draw_circle    (25, height-15, 15, 15, true, "#000000")
 
-  inkscape       = capi.widget({ type = "imagebox", align = "left" })
-  inkscape.image = capi.image(config.data().iconPath .. "inkscape.png")
-  displayInfo(inkscape,"inkscape")
-  inkscape:buttons(util.table.join(
-    button({ }, 1, function()
-        executeAppsNew(1, "Multimedia" , "inkscape", "Inkscape")
-    end),
-    button({ }, 3, function()
-        lauchBar.visible = false
-    end)
-  ))
+    local img2 = capi.image.argb32(40, height, nil)
+    --Top corner (border)
+    img2:draw_rectangle(24 ,0, 16, 16   , true, "#ffffff")
+    img2:draw_circle    (24, 16, 15, 15, true, "#000000")
+    img2:draw_rectangle(0 ,0, 40, 1   , true, "#ffffff")
 
-  konqueror       = capi.widget({ type = "imagebox", align = "left" })
-  konqueror.image = capi.image(config.data().iconPath .. "konquror.png")
-  displayInfo(konqueror,"konqueror")
-  konqueror:buttons(util.table.join(
-    button({ }, 1, function()
-        executeAppsNew(1, "FileManager" , "konqueror", "Konqueror")
-    end),
-    button({ }, 3, function()
-        lauchBar.visible = false
-    end)
-  ))
-
-  blender       = capi.widget({ type = "imagebox", align = "left" })
-  blender.image = capi.image(config.data().iconPath .. "blender.png")
-  displayInfo(blender,"blender")
-  blender:buttons(util.table.join(
-    button({ }, 1, function()
-        executeAppsNew(1, "Multimedia" , "blender", "Blender")
-    end),
-    button({ }, 3, function()
-        lauchBar.visible = false
-    end)
-  ))
-
-  cinelerra       = capi.widget({ type = "imagebox", align = "left" })
-  cinelerra.image = capi.image(config.data().iconPath .. "cinelerra.png")
-  displayInfo(cinelerra,"cinelerra")
-  cinelerra:buttons(util.table.join(
-    button({ }, 1, function()
-        executeAppsNew(1, "Multimedia" , "cinelerra", "cinelerra")
-    end),
-    button({ }, 3, function()
-        lauchBar.visible = false
-    end)
-  ))
-
-  codeblocks       = capi.widget({ type = "imagebox", align = "left" })
-  codeblocks.image = capi.image(config.data().iconPath .. "code-blocks.png")
-  displayInfo(codeblocks,"codeblocks")
-  codeblocks:buttons(util.table.join(
-    button({ }, 1, function()
-        executeAppsNew(1, "Developpement" , "codeblocks", "Codeblocks")
-    end),
-    button({ }, 3, function()
-        lauchBar.visible = false
-    end)
-  ))
-
-  kdevelop       = capi.widget({ type = "imagebox", align = "left" })
-  kdevelop.image = capi.image(config.data().iconPath .. "kdevelop.png")
-  displayInfo(kdevelop,"kdevelop")
-  kdevelop:buttons(util.table.join(
-    button({ }, 1, function()
-        executeAppsNew(1, "Developpement" , "kdevelop", "Kdevelop")
-    end),
-    button({ }, 3, function()
-        lauchBar.visible = false
-    end)
-  ))
-
-  gimp       = capi.widget({ type = "imagebox", align = "left" })
-  gimp.image = capi.image(config.data().iconPath .. "gimp.png")
-  displayInfo(gimp,"gimp")
-  gimp:buttons(util.table.join(
-    button({ }, 1, function()
-        executeAppsNew(1, "Multimedia" , "gimp", "Gimp")
-    end),
-    button({ }, 3, function()
-        lauchBar.visible = false
-    end)
-  ))
-
-  oowrite       = capi.widget({ type = "imagebox", align = "left" })
-  oowrite.image = capi.image(config.data().iconPath .. "oowriter2.png")
-  displayInfo(oowrite,"writer")
-  oowrite:buttons(util.table.join(
-    button({ }, 1, function()
-        executeAppsNew(1, "Other1" , "oowriter", "OpenOffice Writer")
-    end),
-    button({ }, 3, function()
-        lauchBar.visible = false
-    end)
-  ))
-
-  oocalc       = capi.widget({ type = "imagebox", align = "left" })
-  oocalc.image = capi.image(config.data().iconPath .. "oocalc2.png")
-  displayInfo(oocalc,"calc")
-  oocalc:buttons(util.table.join(
-    button({ }, 1, function()
-        executeAppsNew(1, "Other1" , "oocalc", "OpenOffice Calc")
-    end),
-    button({ }, 3, function()
-        lauchBar.visible = false
-    end)
-  ))
-
-  ooimpress       = capi.widget({ type = "imagebox", align = "left" })
-  ooimpress.image = capi.image(config.data().iconPath .. "oopres2.png")
-  displayInfo(ooimpress,"impress")
-  ooimpress:buttons(util.table.join(
-    button({ }, 1, function()
-        executeAppsNew(1, "Other1" , "ooimpress", "OpenOffice Impress")
-    end),
-    button({ }, 3, function()
-        lauchBar.visible = false
-    end)
-  ))
-
-  oomath       = capi.widget({ type = "imagebox", align = "left" })
-  oomath.image = capi.image(config.data().iconPath .. "ooformula2.png")
-  displayInfo(oomath,"math")
-  oomath:buttons(util.table.join(
-    button({ }, 1, function()
-        executeAppsNew(1, "Other1" , "oomath", "OpenOffice Math")
-    end),
-    button({ }, 3, function()
-        lauchBar.visible = false
-    end)
-  ))
-
-  oobase       = capi.widget({ type = "imagebox", align = "left" })
-  oobase.image = capi.image(config.data().iconPath .. "oobase2.png")
-  displayInfo(oobase,"base")
-  oobase:buttons(util.table.join(
-    button({ }, 1, function()
-        executeAppsNew(1, "Other1" , "oobase", "OpenOffice Base")
-    end),
-    button({ }, 3, function()
-        lauchBar.visible = false
-    end)
-  ))
-
-  vlc       = capi.widget({ type = "imagebox", align = "left" })
-  vlc.image = capi.image(config.data().iconPath .. "vlc.png")
-  displayInfo(vlc,"vlc")
-  vlc:buttons(util.table.join(
-    button({ }, 1, function()
-        executeAppsNew(1, "Multimedia" , "vlc", "Vlc")
-    end),
-    button({ }, 3, function()
-        lauchBar.visible = false
-    end)
-  ))
-
-  vmware       = capi.widget({ type = "imagebox", align = "left" })
-  vmware.image = capi.image(config.data().iconPath .. "windows.png")
-  vmware:buttons(util.table.join(
-    button({ }, 1, function()
-        executeAppsNew(1, "Internet" , "inkscape", "Inkscape") --Broken
-    end),
-    button({ }, 3, function()
-        lauchBar.visible = false
-    end)
-  ))
-
-  amarok       = capi.widget({ type = "imagebox", align = "left" })
-  amarok.image = capi.image(config.data().iconPath .. "amarok.png")
-  displayInfo(amarok,"amarok")
-  amarok:buttons(util.table.join(
-    button({ }, 1, function()
-        executeAppsNew(1, "Multimedia" , "amarok", "Amarok")
-    end),
-    button({ }, 3, function()
-        lauchBar.visible = false
-    end)
-  ))
-
-  term       = capi.widget({ type = "imagebox", align = "left" })
-  term.image = capi.image(config.data().iconPath .. "term.png")
-  term:buttons(util.table.join(
-    button({ }, 1, function()
-        executeAppsNewNew(1, "Term" , "urxvt -tint gray -fade 50 +bl +si -cr red -pr green -iconic -fn \"xft:DejaVu Sans Mono:pixelsize=13\" -pe tabbed")
-    end),
-    button({ }, 3, function()
-        lauchBar.visible = false
-    end)
-  ))
-
-  kolourpaint       = capi.widget({ type = "imagebox", align = "left" })
-  kolourpaint.image = capi.image(config.data().iconPath .. "kolourpaint.png")
-  displayInfo(kolourpaint,"kolourpaint")
-  kolourpaint:buttons(util.table.join(
-    button({ }, 1, function()
-        executeAppsNew(1, "Multimedia" , "kolourpaint", "Kolourpaint")
-    end),
-    button({ }, 3, function()
-        lauchBar.visible = false
-    end)
-  ))
-
-  thunar       = capi.widget({ type = "imagebox", align = "left" })
-  thunar.image = capi.image(config.data().iconPath .. "Thunar.png")
-  displayInfo(thunar,"thunar")
-  thunar:buttons(util.table.join(
-    button({ }, 1, function()
-        executeAppsNew(1, "FileManager" , "thunar")
-    end),
-    button({ }, 3, function()
-        lauchBar.visible = false
-    end)
-  ))
-
-  digikam       = capi.widget({ type = "imagebox", align = "left" })
-  digikam.image = capi.image(config.data().iconPath .. "digikam.png")
-  displayInfo(digikam,"digikam")
-  digikam:buttons(util.table.join(
-    button({ }, 1, function()
-        executeAppsNew(1, "Imaging" , "digikam")
-    end),
-    button({ }, 3, function()
-        lauchBar.visible = false
-    end)
-  ))
-
-  kcalc       = capi.widget({ type = "imagebox", align = "left" })
-  kcalc.image = capi.image(config.data().iconPath .. "calc.png")
-  displayInfo(kcalc,"kcalc")
-  kcalc:buttons(util.table.join(
-    button({ }, 1, function()
-        executeAppsNew(1, "" , "kcalc")
-    end),
-    button({ }, 3, function()
-        lauchBar.visible = false
-    end)
-  ))
-
-  transmission       = capi.widget({ type = "imagebox", align = "left" })
-  transmission.image = capi.image(config.data().iconPath .. "transmission.png")
-  displayInfo(transmission,"transmission")
-  transmission:buttons(util.table.join(
-    button({ }, 1, function()
-        executeAppsNew(1, "" , "transmission")
-    end),
-    button({ }, 3, function()
-        lauchBar.visible = false
-    end)
-  ))
-
-  kdenlive       = capi.widget({ type = "imagebox", align = "left" })
-  kdenlive.image = capi.image(config.data().iconPath .. "kdenlive.png")
-  displayInfo(kdenlive,"kdenlive")
-  kdenlive:buttons(util.table.join(
-    button({ }, 1, function()
-        executeAppsNew(1, "" , "kdenlive")
-    end),
-    button({ }, 3, function()
-        lauchBar.visible = false
-    end)
-  ))
-
-  kino       = capi.widget({ type = "imagebox", align = "left" })
-  kino.image = capi.image(config.data().iconPath .. "kino.png")
-  --displayInfo(kino,"kino")
-  kino:buttons(util.table.join(
-    button({ }, 1, function()
-        executeAppsNew(1, "" , "kino")
-    end),
-    button({ }, 3, function()
-        lauchBar.visible = false
-    end)
-  ))
-
-  konversation       = capi.widget({ type = "imagebox", align = "left" })
-  konversation.image = capi.image(config.data().iconPath .. "konversation.png")
-  displayInfo(konversation,"konversation")
-  konversation:buttons(util.table.join(
-    button({ }, 1, function()
-        executeAppsNew(1, "" , "konversation")
-    end),
-    button({ }, 3, function()
-        lauchBar.visible = false
-    end)
-  ))
-
-  lauchBar.widgets = {  --firefox,
-                        --thunderbird,
-                        inkscape,
-                        konqueror,
-                        blender,
-                        cinelerra,
-                        codeblocks,
-                        kdevelop,
-                        gimp,
-                        oowrite,
-                        oocalc,
-                        ooimpress,
-                        oomath,
-                        oobase,
-                        vlc,
-                        vmware,
-                        amarok,
-                        term,
-                        kolourpaint,
-                        thunar,
-                        digikam,
-                        kcalc,
-                        transmission,
-                        kdenlive,
-                        kino,
-                        konversation,
-                        layout = widget2.layout.horizontal.leftright
-                        }
-  lauchBar.visible = false
+    --Bottom corner (border)
+    img2:draw_rectangle(24 ,height-16, 16, 16   , true, "#ffffff")
+    img2:draw_circle    (24, height-16, 15, 15, true, "#000000")
+    img2:draw_rectangle(0 ,height-1, 40, 1   , true, "#ffffff")
+    img2:draw_rectangle(39 ,5, 1, height   , true, "#ffffff")
 
 
-  local launcherPix = capi.widget({ type = "imagebox", align = "left" })
-  launcherPix.image = capi.image(config.data().iconPath .. "gearA2.png")
-  
-  --launcherPix:add_signal("mouse::enter", function() launcherPix.bg = beautiful.bg_highlight end)
-  --launcherPix:add_signal("mouse::leave", function() launcherPix.bg = beautiful.bg_normal end)
-  
-  launcherPix:buttons( util.table.join(
-  button({ }, 1, function()
-      if lauchBar.visible ==  false then
-	lauchBar.visible = true
-      else
-	lauchBar.visible = false
-      end
-  end)
-  ))
-  lauchBar:add_signal("mouse::leave", function() lauchBar.visible = false end)
-  return lauchBar
+    lauchBar.shape_clip      = img2
+    lauchBar.shape_bounding  = img
+
+    function displayInfo(anApps, name,tooltip1)
+        anApps:add_signal("mouse::enter", function ()
+    --         anApps.bg = beautiful.bg_highlight
+            local tt,ext = tooltip1()
+            tt:showToolTip(true,{x=40,y=ext-20})
+        end)
+
+        anApps:add_signal("mouse::leave", function ()
+    --       anApps.bg = beautiful.bg_normal
+            local tt,ext = tooltip1()
+            tt:showToolTip(false)
+        end)
+    end
+
+    local vertical_extents = lauchBar.y
+    local widgets = {}
+    local img = capi.image.argb32(40, 7, nil)
+    img:draw_rectangle(0 ,0, 40, 11   , true, beautiful.bg_normal)
+    img:draw_rectangle(3 ,4, 33, 1   , true, beautiful.fg_normal)
+    local separator = capi.widget({type="imagebox"})
+    separator.image = img
+
+    local function add_item(name,command,icon_path,category,description)
+        local inkscape       = capi.widget({ type = "imagebox", align = "left" })
+        inkscape.image = tools.scale_image(icon_path,40,40,5)
+        vertical_extents = vertical_extents + inkscape:extents().height
+        local self_extents = vertical_extents
+        local w = nil
+        local function getTooltip()
+            if not w then
+                w = tooltip(name,{left=true})
+            end
+            return w,self_extents
+        end
+        displayInfo(inkscape,name,getTooltip)
+        inkscape:buttons(util.table.join(
+            button({ }, 1, function()
+                util.spawn(command)
+            end),
+            button({ }, 3, function()
+                lauchBar.visible = false
+            end)
+        ))
+        table.insert(widgets,inkscape)
+    end
+
+    local function add_separator()
+        vertical_extents = vertical_extents + 7
+        table.insert(widgets,separator)
+    end
+
+    local iconPath = config.data().iconPath
+    add_item("Calculator","kcalc",iconPath .. "calc.png","Tools",nil)
+    add_item("Terminal","urxvt",iconPath .. "term.png","Tools",nil)
+
+    add_separator()
+
+    add_item("Konqueror","konqueror",iconPath .. "konquror.png","FileManager",nil)
+--   add_item("Thunar","thunar",iconPath .. "Thunar.png","FileManager",nil)
+    add_item("Konversation","konversation",iconPath .. "konversation.png","FileManager",nil)
+    add_item("Transmission","transmission-qt",iconPath .. "transmission.png","FileManager",nil)
+
+    add_separator()
+
+    add_item("LibreOffice Writer","lowriter",iconPath .. "oowriter2.png","Office",nil)
+    add_item("LibreOffice Calc","localc",iconPath .. "oocalc2.png","Office",nil)
+    add_item("LibreOffice Impress","loimpress",iconPath .. "oopres2.png","Office",nil)
+    add_item("LibreOffice Math","lomath",iconPath .. "ooformula2.png","Office",nil)
+    add_item("LibreOffice Base","oobase",iconPath .. "oobase2.png","Office",nil)
+
+    add_separator()
+
+    add_item("Inkscape","inkscape",iconPath .. "inkscape.png","Multimedia",nil)
+    add_item("Blender","blender",iconPath .. "blender.png","Multimedia",nil)
+    add_item("Cinelerra","cinelerra",iconPath .. "cinelerra.png","Multimedia",nil)
+    add_item("Gimp","gimp",iconPath .. "gimp.png","Multimedia",nil)
+    add_item("Vlc","vlc",iconPath .. "vlc.png","Multimedia",nil)
+    add_item("Amarok","amarok",iconPath .. "amarok.png","Multimedia",nil)
+    add_item("Kolourpaint","kolourpaint",iconPath .. "kolourpaint.png","Multimedia",nil)
+    add_item("Digikam","digikam",iconPath .. "digikam.png","Multimedia",nil)
+    add_item("KDenlive","kdenlive",iconPath .. "kdenlive.png","Multimedia",nil)
+--   add_item("Kino","kino",iconPath .. "kino.png","Multimedia",nil)
+
+    add_separator()
+
+    add_item("KVM","virt-manager",iconPath .. "windows.png","Developpement",nil)
+    add_item("Codeblocks","codeblocks",iconPath .. "code-blocks.png","Developpement",nil)
+    add_item("Kdevelop","kdevelop",iconPath .. "kdevelop.png","Developpement",nil)
+
+    lauchBar.widgets =  widgets
+    lauchBar.widgets.layout =  widget2.layout.vertical.topbottom
+
+    lauchBar:add_signal("mouse::leave", function() lauchBar.visible = false end)
+    return lauchBar
 end
-
-local l = nil
 
 local function getLauncher()
-    if not l then
-        l = create()
+    if not lauchBar then
+        lauchBar = create()
     end
-    return l
+    return lauchBar
 end
-  
+
 function new()
-  
   sensibleArea = wibox({ position = "free", screen = s, width = 1 })
   sensibleArea.ontop = true
   sensibleArea:geometry({ width = 1, height = capi.screen[1].geometry.height -100, x = 0, y = 50})
   sensibleArea:add_signal("mouse::enter", function() getLauncher().visible = true end)
-  
-  return launcherPix
 end
-
 
 setmetatable(_M, { __call = function(_, ...) return new(...) end })
