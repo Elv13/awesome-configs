@@ -62,9 +62,16 @@ local function create(screen, args)
         inkscape:buttons(util.table.join(
             button({ }, 1, function()
                 util.spawn(command)
+                lauchBar.visible = false
+                if w then
+                    w:showToolTip(false)
+                end
             end),
             button({ }, 3, function()
                 lauchBar.visible = false
+                if w then
+                    w:showToolTip(false)
+                end
             end)
         ))
         table.insert(widgets,inkscape)
