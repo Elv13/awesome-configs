@@ -24,36 +24,11 @@ local function create(screen, args)
     lauchBar.ontop = true
     lauchBar.border_color = beautiful.fg_normal
 
-    local img = capi.image.argb32(40, height, nil)
-    --Top corner (outer)
-    img:draw_rectangle(25 ,0, 15, 15   , true, "#ffffff")
-    img:draw_circle    (25, 15, 15, 15, true, "#000000")
-
-    --Bottom corner (outer)
-    img:draw_rectangle(25 ,height-15, 15, 15   , true, "#ffffff")
-    img:draw_circle    (25, height-15, 15, 15, true, "#000000")
-
-    local img2 = capi.image.argb32(40, height, nil)
-    --Top corner (border)
-    img2:draw_rectangle(24 ,0, 16, 16   , true, "#ffffff")
-    img2:draw_circle    (24, 16, 15, 15, true, "#000000")
-    img2:draw_rectangle(0 ,0, 40, 1   , true, "#ffffff")
-
-    --Bottom corner (border)
-    img2:draw_rectangle(24 ,height-16, 16, 16   , true, "#ffffff")
-    img2:draw_circle    (24, height-16, 15, 15, true, "#000000")
-    img2:draw_rectangle(0 ,height-1, 40, 1   , true, "#ffffff")
-    img2:draw_rectangle(39 ,5, 1, height   , true, "#ffffff")
-
-
-    lauchBar.shape_clip      = img2
-    lauchBar.shape_bounding  = img
-
     function displayInfo(anApps, name,tooltip1)
         anApps:add_signal("mouse::enter", function ()
     --         anApps.bg = beautiful.bg_highlight
             local tt,ext = tooltip1()
-            tt:showToolTip(true,{x=40,y=ext-20})
+            tt:showToolTip(true,{x=40,y=lauchBar.y + ext-20})
         end)
 
         anApps:add_signal("mouse::leave", function ()
@@ -63,7 +38,7 @@ local function create(screen, args)
         end)
     end
 
-    local vertical_extents = lauchBar.y
+    local vertical_extents = 0--lauchBar.y
     local widgets = {}
     local img = capi.image.argb32(40, 7, nil)
     img:draw_rectangle(0 ,0, 40, 11   , true, beautiful.bg_normal)
@@ -137,6 +112,35 @@ local function create(screen, args)
     add_item("KVM","virt-manager",iconPath .. "windows.png","Developpement",nil)
     add_item("Codeblocks","codeblocks",iconPath .. "code-blocks.png","Developpement",nil)
     add_item("Kdevelop","kdevelop",iconPath .. "kdevelop.png","Developpement",nil)
+    
+    if vertical_extents < lauchBar.height then
+        lauchBar.height = vertical_extents
+        height = vertical_extents
+        lauchBar.y = (capi.screen[1].geometry.height - vertical_extents) / 2
+    end
+
+    local img = capi.image.argb32(40, height, nil)
+    --Top corner (outer)
+    img:draw_rectangle(25 ,0, 15, 15   , true, "#ffffff")
+    img:draw_circle    (25, 15, 15, 15, true, "#000000")
+
+    --Bottom corner (outer)
+    img:draw_rectangle(25 ,height-15, 15, 15   , true, "#ffffff")
+    img:draw_circle    (25, height-15, 15, 15, true, "#000000")
+
+    local img2 = capi.image.argb32(40, height, nil)
+    --Top corner (border)
+    img2:draw_rectangle(24 ,0, 16, 16   , true, "#ffffff")
+    img2:draw_circle    (24, 16, 15, 15, true, "#000000")
+    img2:draw_rectangle(0 ,0, 40, 1   , true, "#ffffff")
+
+    --Bottom corner (border)
+    img2:draw_rectangle(24 ,height-16, 16, 16   , true, "#ffffff")
+    img2:draw_circle    (24, height-16, 15, 15, true, "#000000")
+    img2:draw_rectangle(0 ,height-1, 40, 1   , true, "#ffffff")
+    img2:draw_rectangle(39 ,5, 1, height   , true, "#ffffff")
+    lauchBar.shape_clip      = img2
+    lauchBar.shape_bounding  = img
 
     lauchBar.widgets =  widgets
     lauchBar.widgets.layout =  widget2.layout.vertical.topbottom
