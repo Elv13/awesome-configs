@@ -52,6 +52,7 @@ function new(text, args)
       end
        w.shape_bounding  = img
        w.widgets = {textw,layout = layout.horizontal.flex  }
+       w:add_signal("mouse::leave",function() w.visible = false end)
        data.wibox = w
      end
      if data.wibox then
