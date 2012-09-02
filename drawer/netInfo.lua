@@ -91,10 +91,10 @@ function update()
         data.connectionInfo = connectionInfo
     end
     
-    f = io.popen('/usr/bin/ifconfig | grep -e "inet addr:[0-9.]*" -o |  grep -e "[0-9.]*" -o')
+    f = io.popen('/bin/ifconfig | grep -e "inet[a-z: ]*[0-9.]*" -o |  grep -e "[0-9.]*" -o')
     local ip4Value = "<i><b>  v4: </b>" .. (f:read("*line") or "") .. "</i>"
     f:close()
-    f = io.popen('/usr/bin/ifconfig | grep -e "inet6 addr: [0-9.A-Fa-f;:]*" -o | cut -f3 -d " "')
+    f = io.popen('/bin/ifconfig | grep -e "inet6[a-z: ]*[0-9.A-Fa-f;:]*" -o | awk \'{print $(NF)}\'')
     local ip6Value = "<i><b>  v6: </b>" .. (f:read("*line") or "") .. "</i>\n\n"
     f:close()
     
