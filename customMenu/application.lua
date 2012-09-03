@@ -14,11 +14,11 @@ local capi = { image  = image  ,
                mouse  = mouse  }
 
 module("customMenu.application")
+fdutils.icon_theme = 'oxygen'
 
 local data = {}
 
 local function create_menu()
-    fdutils.icon_theme = 'oxygen'
     local menu_items = fdmenu.new()
     return menu.new({ items = menu_items, width = 150 })
 end
@@ -37,6 +37,7 @@ function new(screen, args)
 
     mylaunchertext:buttons( util.table.join(
         button({ }, 1, function()
+            tt:showToolTip(false)
             mymainmenu = mymainmenu or create_menu()
             mymainmenu:toggle({x=0,coords={x=0,y=capi.screen[capi.mouse.screen].geometry.height}},{x=0},{x=0})
         end)

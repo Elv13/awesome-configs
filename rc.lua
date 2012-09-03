@@ -291,7 +291,6 @@ for s = 1, screen.count() do
     ( s == config.data().scr.pri                                           ) and menuarrow              or nil,
     ( s == config.data().scr.pri                                           ) and placesMenu             or nil,
     ( s == config.data().scr.pri                                           ) and menuarrow              or nil,
-    ( s == config.data().scr.pri                                           ) and recentMenu             or nil,
     ( s == config.data().scr.pri                                           ) and launcher               or nil,
     ( s == config.data().scr.pri                                           ) and menuarrow              or nil,
     ( s == config.data().scr.pri                                           ) and desktopPix             or nil,
