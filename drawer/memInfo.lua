@@ -11,7 +11,7 @@ local beautiful    = require("beautiful")
 local widget2      = require("awful.widget")
 local wibox        = require("awful.wibox")
 local menu         = require("widgets.menu")
-local vicious      = require("vicious")
+local vicious      = require("extern.vicious")
 local config       = require("config")
 local util         = require("awful.util")
 

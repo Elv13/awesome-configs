@@ -7,7 +7,7 @@ local wibox = require("awful.wibox")
 local tag = require("awful.tag")
 local util = require("awful.util")
 local config = require("config")
-local vicious = require("vicious")
+local vicious = require("extern.vicious")
 local desktopGrid = require("widgets.layout.desktopLayout")
 local capi = { image = image,
                widget = widget,

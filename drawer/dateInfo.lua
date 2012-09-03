@@ -9,7 +9,7 @@ local margins      = require( "awful.widget.layout"          )
 local wibox        = require( "awful.wibox"                  )
 local button       = require( "awful.button"                 )
 local topbottom    = require( "awful.widget.layout.vertical" )
-local vicious      = require( "vicious"                      )
+local vicious      = require( "extern.vicious"               )
 local menu         = require( "widgets.menu"                 )
 
 local capi = { image  = image  ,
