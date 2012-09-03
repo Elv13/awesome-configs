@@ -45,10 +45,8 @@ local function read_kde_bookmark()
     return toReturn
 end
 
-function new(offset, args) 
-    local arr = read_kde_bookmark()
-    data = menu.new({ items = arr,
-                            })
+function new(offset, args)
+    local data = nil
     local tt = tooltip("Folder shortcut",{down=true})
 
     local mylauncher2text = capi.widget({ type = "textbox" })
@@ -63,6 +61,7 @@ function new(offset, args)
     mylauncher2text:buttons( util.table.join(
         button({ }, 1, function()
         tt:showToolTip(false)
+        data = data or menu.new({ items = read_kde_bookmark() })
         data:toggle({coords={x=offset,y=capi.screen[capi.mouse.screen].geometry.height}})
     end)
     ))
