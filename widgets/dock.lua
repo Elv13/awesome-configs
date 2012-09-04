@@ -13,13 +13,16 @@ local capi = { image  = image  ,
                widget = widget }
 
 module("widgets.dock")
-local lauchBar,visible_tt = nil,il
+local lauchBar,visible_tt = nil,nil
 
 local function hide_tooltip(tt)
+    if visible_tt then
+        visible_tt:showToolTip(false)
+    end
     if tt then
         tt:showToolTip(false)
-        visible_tt = nil
     end
+    visible_tt = nil
 end
 
 local function create(screen, args)
@@ -32,15 +35,16 @@ local function create(screen, args)
 
     function displayInfo(anApps, name,tooltip1)
         anApps:add_signal("mouse::enter", function ()
+            hide_tooltip()
             local tt,ext = tooltip1()
-            tt:showToolTip(true,{x=40,y=lauchBar.y + ext-30})
             visible_tt = tt
+            tt:showToolTip(true,{x=40,y=lauchBar.y + ext-30})
         end)
 
         anApps:add_signal("mouse::leave", function ()
             local tt,ext = tooltip1()
-            hide_tooltip(tt)
             hide_tooltip(visible_tt)
+            hide_tooltip(tt)
         end)
     end
 
@@ -63,12 +67,12 @@ local function create(screen, args)
         icon:buttons(util.table.join(
             button({ }, 1, function()
                 util.spawn(command)
+                hide_tooltip()
                 lauchBar.visible = false
-                hide_tooltip(visible_tt)
             end),
             button({ }, 3, function()
+                hide_tooltip()
                 lauchBar.visible = false
-                hide_tooltip(visible_tt)
             end)
         ))
         table.insert(widgets,icon)
@@ -138,7 +142,7 @@ local function create(screen, args)
     lauchBar.widgets         = widgets
     lauchBar.widgets.layout  = widget2.layout.vertical.topbottom
 
-    lauchBar:add_signal("mouse::leave", function() lauchBar.visible = false; hide_tooltip(visible_tt) end)
+    lauchBar:add_signal("mouse::leave", function() lauchBar.visible = false; hide_tooltip() end)
     return lauchBar
 end
 

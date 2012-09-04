@@ -6,7 +6,7 @@ local table        = table
 local button       = require( "awful.button"             )
 local beautiful    = require( "beautiful"                )
 local util         = require( "awful.util"               )
-local menu         = require( "awful.menu"               )
+local menu         = require( "widgets.menu"             )
 local config       = require( "config"                   )
 local tooltip      = require( "widgets.tooltip"          )
 local fdutil       = require( "extern.freedesktop.utils" )
@@ -17,7 +17,9 @@ local capi = { image  = image  ,
 
 module("customMenu.places")
 
-local function read_kde_bookmark()
+local function read_kde_bookmark(offset)
+    local m = menu({filter = true, showfilter = true, y = capi.screen[1].geometry.height - 18, x = offset, autodiscard = true,has_decoration=false})
+--     m:set_width(((screen or capi.screen[capi.mouse.screen]).geometry.width)/2)
     local f = io.open(os.getenv("HOME").. '/.kde/share/apps/kfileplaces/bookmarks.xml','r')
     local inBook=false
     local currentItem,toReturn = {},{}
@@ -34,15 +36,16 @@ local function read_kde_bookmark()
                 end
             end
 
-            if not inBook and currentItem.title and currentItem.path then
-                table.insert(toReturn,{currentItem.title,"dolphin " .. currentItem.path,currentItem.icon and capi.image(currentItem.icon)})
+            if string.match(line,"</bookmark") and currentItem.title and currentItem.path then
+--                 table.insert(toReturn,{currentItem.title,"dolphin " .. currentItem.path,currentItem.icon and capi.image(currentItem.icon)})
+                local item = m:add_item({text =  currentItem.title, icon = currentItem.icon, onclick = function() util.spawn("dolphin " .. currentItem.path) end})
                 currentItem = {}
             end
             line = f:read("*line")
         end
         f:close()
     end
-    return toReturn
+    return m
 end
 
 function new(offset, args)
@@ -61,8 +64,8 @@ function new(offset, args)
     mylauncher2text:buttons( util.table.join(
         button({ }, 1, function()
         tt:showToolTip(false)
-        data = data or menu.new({ items = read_kde_bookmark() })
-        data:toggle({coords={x=offset,y=capi.screen[capi.mouse.screen].geometry.height}})
+        data = data or read_kde_bookmark(offset)
+        data:toggle()
     end)
     ))
 

@@ -107,7 +107,7 @@ local function getScrollWdg_common(aMenu,widget,step)
     if menu.settings.maxvisible ~= nil and #menu.items > menu.settings.maxvisible then
         if not menu[widget] then
             local arrow = capi.widget({type="imagebox"})
-            arrow.image = capi.image(beautiful.menu_submenu_icon)
+            arrow.image = capi.image(beautiful["menu_scrollmenu_".. (widget == "scrollUpWdg" and "up" or "down") .."_icon"])
             local wb = getWibox()
             wb.bg = beautiful.bg_highlight
             wb:buttons( util.table.join(
@@ -143,7 +143,7 @@ local function activateKeyboard(curMenu)
         grabKeyboard = true
         capi.keygrabber.run(function(mod, key, event)
             if event == "release" then 
-                return true 
+                return true
             end 
             
             for k,v in pairs(currentMenu.filterHooks) do --TODO modkeys
@@ -161,9 +161,9 @@ local function activateKeyboard(curMenu)
                 currentMenu:toggle(false)
             elseif key == 'Escape' or (key == 'Tab' and currentMenu.filterString == "") then 
                 stopGrabber()
-            elseif (key == 'Up' and currentMenu.downOrUp == 1) or (key == 'Down' and currentMenu.downOrUp == -1) then 
+            elseif (key == 'Up' and currentMenu.downOrUp == 1) or (key == 'Down' and currentMenu.downOrUp == -1) then
                 currentMenu:rotate_selected(-1)
-            elseif (key == 'Down' and currentMenu.downOrUp == 1) or (key == 'Up' and currentMenu.downOrUp == -1) then 
+            elseif (key == 'Down' and currentMenu.downOrUp == 1) or (key == 'Up' and currentMenu.downOrUp == -1) then
                 currentMenu:rotate_selected(1)
             elseif (key == 'BackSpace') and currentMenu.filterString ~= "" and currentMenu.settings.filter == true then
                 currentMenu.filterString = currentMenu.filterString:sub(1,-2)
@@ -171,7 +171,7 @@ local function activateKeyboard(curMenu)
                 if getFilterWidget() ~= nil then
                     getFilterWidget().textbox.text = getFilterWidget().textbox.text:sub(1,-2)
                 end
-            elseif currentMenu.settings.filter == true and key:len() == 1 then 
+            elseif currentMenu.settings.filter == true and key:len() == 1 then
                 currentMenu.filterString = currentMenu.filterString .. key
                 if getFilterWidget() ~= nil then
                     getFilterWidget().textbox.text = getFilterWidget().textbox.text .. key
@@ -417,8 +417,10 @@ function new(args)
       if menu.settings.has_decoration ~= false then
           getArrowItem(menu,arrowMode)
       end
-      local headerWdg = {self.topArrow,getScrollUpWdg(self)}
-      local footerWdg = {getScrollDownWdg(self),getFilterWidget(),self.bottomArrow}
+      local headerWdg,footerWdg = {self.topArrow,getScrollUpWdg(self)},{getFilterWidget(),self.bottomArrow}
+      if getScrollDownWdg(self) then
+          table.insert(footerWdg,1,getScrollDownWdg(self))
+      end
       
       addWdg((self.downOrUp == -1) and footerWdg or headerWdg,self.downOrUp)
       for v, i in next, self.items do
@@ -710,8 +712,8 @@ function gen_menu_decoration(width,args)
         img:draw_circle(width-10, down and 10 or 0, radius-1, radius-1, true, "#000000")
         return img
     end
-    w.shape_clip      = (not args.down and not args.noArrow) and do_gen_menu_top(width-(3),7,3)       or do_gen_menu_bottom(width,7,3,true)
-    w.shape_bounding  = (not args.down and not args.noArrow) and do_gen_menu_top(width,10,0)          or do_gen_menu_bottom(width,10,0,true)
+    w.shape_clip      = (not args.down and not args.noArrow) and do_gen_menu_top(width-(3),7,3)    or do_gen_menu_bottom(width,7,3,true)
+    w.shape_bounding  = (not args.down and not args.noArrow) and do_gen_menu_top(width,10,0)       or do_gen_menu_bottom(width,10,0,true)
     w2.shape_clip     = (not args.down or   args.noArrow) and do_gen_menu_bottom(width,7,3,false)  or do_gen_menu_top(width-(3),7,3)
     w2.shape_bounding = (not args.down or   args.noArrow) and do_gen_menu_bottom(width,10,0,false) or do_gen_menu_top(width,10,0)
     return w,w2
