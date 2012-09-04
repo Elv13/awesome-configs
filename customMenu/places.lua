@@ -19,7 +19,6 @@ module("customMenu.places")
 
 local function read_kde_bookmark(offset)
     local m = menu({filter = true, showfilter = true, y = capi.screen[1].geometry.height - 18, x = offset, autodiscard = true,has_decoration=false})
---     m:set_width(((screen or capi.screen[capi.mouse.screen]).geometry.width)/2)
     local f = io.open(os.getenv("HOME").. '/.kde/share/apps/kfileplaces/bookmarks.xml','r')
     local inBook=false
     local currentItem,toReturn = {},{}
@@ -37,7 +36,6 @@ local function read_kde_bookmark(offset)
             end
 
             if string.match(line,"</bookmark") and currentItem.title and currentItem.path then
---                 table.insert(toReturn,{currentItem.title,"dolphin " .. currentItem.path,currentItem.icon and capi.image(currentItem.icon)})
                 local item = m:add_item({text =  currentItem.title, icon = currentItem.icon, onclick = function() util.spawn("dolphin " .. currentItem.path) end})
                 currentItem = {}
             end

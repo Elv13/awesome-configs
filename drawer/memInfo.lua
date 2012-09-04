@@ -158,7 +158,7 @@ end
     
 function repaint(margin)
     mainMenu = menu({arrow_x=90})
-    mainMenu.settings.itemWidth = 200
+    mainMenu.settings.itemWidth = 198
     mainMenu:add_wibox(infoHeaderW,{height = 20 , width = 200})
     mainMenu:add_wibox(ramW       ,{height = 72, width = 200})
     mainMenu:add_wibox(userHeaderW,{height = 20, width = 200})
@@ -198,6 +198,7 @@ function repaint(margin)
     
     mainMenu:add_wibox(processHeaderW,{height = 20 , width = 200})
     
+    local topMenu = menu({width=198,maxvisible=3,has_decoration=false,has_side_deco=true})
     for i = 0, #(data.process or {}) do
         if data.process ~= nil and data.process[i]["name"] ~= nil then
             local processW = wibox({ position = "free", screen = s,ontop = true})
@@ -230,9 +231,10 @@ function repaint(margin)
                                 aProcess , 
                                 layout = widget2.layout.horizontal.flex,
                                 }}
-            mainMenu:add_wibox(processW,{height = 20, width = 200})
+            topMenu:add_wibox(processW,{height = 20, width = 200})
         end
     end
+    mainMenu:add_embeded_menu(topMenu)
     
     mainMenu.settings.x = capi.screen[capi.mouse.screen].geometry.width - 200 + capi.screen[capi.mouse.screen].geometry.x - margin
     mainMenu.settings.y = 16

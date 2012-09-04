@@ -118,12 +118,13 @@ local function repaint(margin)
     mainMenu:add_wibox(graphUW      ,{height = 40, width = 200})
     mainMenu:add_wibox(graphDW      ,{height = 50, width = 200})
     mainMenu:add_wibox(ipHeaderW    ,{height = 20, width = 200})
-    mainMenu:add_wibox(ipInfo       ,{height = 20, width = 200})
-    mainMenu:add_wibox(localHeaderW ,{height = 20, width = 200})
+    mainMenu:add_wibox(ipInfo       ,{height = 30, width = 200})
+--     mainMenu:add_wibox(localHeaderW ,{height = 20, width = 200})
     mainMenu:add_wibox(connHeaderW  ,{height = 20, width = 200})
     
     totalCount = 0
     if data.connectionInfo ~= nil then
+        local connMenu = menu({width=198,maxvisible=3,has_decoration=false,has_side_deco=true})
         for i=0 , #(data.connectionInfo or {}) do
             if data.connectionInfo[i] then
                 if i < 10 then
@@ -147,7 +148,6 @@ local function repaint(margin)
                     else
                         connectionWidget[i].protocol.text = ""
                     end
-                    
                 end
                 appStat[data.connectionInfo[i]['application'  ] ] = (protocolStat[data.connectionInfo[i]['application'] ] or 0) + 1
                 protocolStat[data.connectionInfo[i]['protocol'] ] = (protocolStat[data.connectionInfo[i]['protocol'   ] ] or 0) + 1
@@ -155,12 +155,12 @@ local function repaint(margin)
         end
         local subTotal = (totalCount < 10) and totalCount or 10
         for i=0, subTotal-1 do
-            mainMenu:add_wibox(connectionInfoW[i] ,{height = 20, width = 200})
+            connMenu:add_wibox(connectionInfoW[i] ,{height = 20, width = 200})
         end
+        mainMenu:add_embeded_menu(connMenu)
     end
-    
-    mainMenu:add_wibox(protHeaderW ,{height = 20, width = 200})
-    
+    mainMenu:add_wibox(appHeaderW,{height = 20, width = 200})
+
     local count =1
     for v, i in next, protocolStat do
         if count < 10 then
@@ -170,8 +170,8 @@ local function repaint(margin)
             count = count +1
         end
     end
-    
-    mainMenu:add_wibox(appHeaderW,{height = 20, width = 200})
+
+    mainMenu:add_wibox(protHeaderW ,{height = 20, width = 200})
 
     count =1
     for v, i in next, appStat do
@@ -347,7 +347,7 @@ function new(margin, args)
 
     function show()
         if not data.menu or data.menu.settings.visible == false then
-            update() 
+            update()
             data.menu = repaint(margin)
             data.menu:toggle( true  )
         else

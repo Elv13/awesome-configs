@@ -40,7 +40,7 @@ local function prevent_toolbar_overlap(x_or_y,width_or_height)
 end
 
 local function draw_border(menu,item,args)
-    if menu.settings.has_decoration ~= false then
+    if menu.settings.has_decoration ~= false or menu.settings.has_side_deco == true then
         local width,height=item.width,item.widget.height+10
         local img = capi.image.argb32(width, height, nil)
         img:draw_rectangle(0,0, width, height, true, "#000000")
@@ -120,6 +120,8 @@ local function getScrollWdg_common(aMenu,widget,step)
             wb.widgets = {test2,arrow,test2,layout = widget2.layout.horizontal.flex}
             menu[widget] = {widget = wb, hidden = false, width = menu.settings.itemWidth, height = menu.settings.itemHeight}
             draw_border(menu,menu[widget],{})
+            wb:add_signal("mouse::enter", function() wb.bg = beautiful.bg_alternate end)
+            wb:add_signal("mouse::leave", function() wb.bg = beautiful.bg_highlight end)
             table.insert(menu.otherwdg,menu[widget])
         end
         return menu[widget]
@@ -211,6 +213,7 @@ function new(args)
     y              = args.y              or nil                   ,
     arrow_x        = args.arrow_x        or nil                   ,
     has_decoration = args.has_decoration --[[or true]]            ,
+    has_side_deco  = args.has_side_deco  --[[or true]]            ,
     },-------------------------------------------------------------
 
     -- Data
@@ -233,39 +236,44 @@ function new(args)
     }
 
     function menu:toggle(value)
-      if self.settings.visible == false and value == false then return end
-      
+      if self.settings.visible == false and value == false then return 0 end
+
       self.settings.visible = value or not self.settings.visible
       if self.settings.visible == false then
         self:toggle_sub_menu(nil,true,false)
       end
-      
+
       if menu.settings.maxvisible ~= nil and #menu.items > menu.settings.maxvisible then
           menu:scroll(0,true)
       end
-      
+
       for v, i in next, self.items do
         if type(i) ~= "function" and type(v) == "number" then
-          i.widget.visible = self.settings.visible and not i.hidden and not i.off
+          if i.is_embeded_menu then
+            i:toggle(self.settings.visible and not i.hidden and not i.off)
+          else
+            i.widget.visible = self.settings.visible and not i.hidden and not i.off
+          end
         end
       end
-      
+
       self:emit((self.settings.visible == true) and "menu::show" or "menu::hide")
-      
+
       for v, i in next, self.otherwdg do
           if i.widget then
             i.widget.visible = self.settings.visible
           end
       end
-      
+
       activateKeyboard(self)
-      self:set_coords()
-      
+      local toReturn = self:set_coords()
+
       if self.settings.autodiscard == true and self.settings.visible == false then
           self:discard()
       end
+      return toReturn
     end
-    
+
     function menu:discard()
       for v, i in next, self.items do
           i:discard()
@@ -362,7 +370,7 @@ function new(args)
       end
       
       if self.settings.visible == false or self.hasChanged == false then
-        return;
+        return 0
       end
       
       if self.hasChanged == true then
@@ -378,6 +386,11 @@ function new(args)
       end
       local set_geometry = function(wdg)
         if not wdg then return end
+        if wdg.is_embeded_menu == true then
+            wdg.settings.x = self.settings.xPos
+            wdg.settings.y = self.settings.yPos+yPadding
+            yPadding = yPadding + wdg:toggle(true)
+        end
         if type(wdg) ~= "function" and wdg.hidden == false and wdg.off ~= true then
             local geo = wdg.widget:geometry()
             wdg.x = self.settings.xPos
@@ -427,6 +440,8 @@ function new(args)
         set_geometry(i)
       end
       addWdg((self.downOrUp == 1) and footerWdg or headerWdg,self.downOrUp)
+      
+      return yPadding or 100
     end
     
     function menu:set_width(width)
@@ -658,6 +673,12 @@ function new(args)
         draw_border(menu,data,{})
         registerButton(wibox,data)
         table.insert(self.items, data)
+    end
+    
+    function menu:add_embeded_menu(m2,args)
+        m2.is_embeded_menu = true
+--         m2.settings.parent = self
+        table.insert(self.items, m2)
     end
 
 --     function menu:add_wibox(m,args)
