@@ -157,7 +157,7 @@ end
   --memory.widgets = {layout = widget2.layout.horizontal.leftright}
     
 function repaint(margin)
-    mainMenu = menu({arrow_x=90})
+    mainMenu = menu({arrow_x=90,nokeyboardnav=true})
     mainMenu.settings.itemWidth = 198
     mainMenu:add_wibox(infoHeaderW,{height = 20 , width = 200})
     mainMenu:add_wibox(ramW       ,{height = 72, width = 200})
@@ -198,7 +198,7 @@ function repaint(margin)
     
     mainMenu:add_wibox(processHeaderW,{height = 20 , width = 200})
     
-    local topMenu = menu({width=198,maxvisible=3,has_decoration=false,has_side_deco=true})
+    local topMenu = menu({width=198,maxvisible=3,has_decoration=false,has_side_deco=true,nokeyboardnav=true})
     for i = 0, #(data.process or {}) do
         if data.process ~= nil and data.process[i]["name"] ~= nil then
             local processW = wibox({ position = "free", screen = s,ontop = true})

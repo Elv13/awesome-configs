@@ -63,8 +63,10 @@ local function getWibox()
 --     end
 end
 
-local function stopGrabber()
-    currentMenu:toggle(false)
+local function stopGrabber(noHide)
+    if not noHide then
+        currentMenu:hideEverything()
+    end
     capi.keygrabber.stop()
     grabKeyboard = false
     currentMenu  = nil return false
@@ -111,9 +113,10 @@ local function getScrollWdg_common(aMenu,widget,step)
             local wb = getWibox()
             wb.bg = beautiful.bg_highlight
             wb:buttons( util.table.join(
-                        button({ }, 1 , function() menu:scroll(step) end),
-                        button({ }, 4 , function() menu:scroll(1) end),
-                        button({ }, 5 , function() menu:scroll(-1) end)
+                        button({ }, 1 , function() menu:scroll( step  ) end),
+                        button({ }, 3 , function() menu:toggle( false ) end),
+                        button({ }, 4 , function() menu:scroll(   1   ) end),
+                        button({ }, 5 , function() menu:scroll(  -1   ) end)
                     ))
             local test2 = capi.widget({type="textbox"})
             test2.text = " "
@@ -144,10 +147,10 @@ local function activateKeyboard(curMenu)
     if (not currentMenu.settings.nokeyboardnav) and currentMenu.settings.visible == true then
         grabKeyboard = true
         capi.keygrabber.run(function(mod, key, event)
-            if event == "release" then 
+            if event == "release" then
                 return true
-            end 
-            
+            end
+
             for k,v in pairs(currentMenu.filterHooks) do --TODO modkeys
                 if k.key == key and k.event == event then
                     local retval = v(currentMenu)
@@ -157,11 +160,11 @@ local function activateKeyboard(curMenu)
                     return retval
                 end
             end
-            
+
             if (currentMenu.keyShortcut[{mod,key}] or key == 'Return') and currentMenu.items[currentMenu.currentIndex] and currentMenu.items[currentMenu.currentIndex].button1 then
                 currentMenu.items[currentMenu.currentIndex].button1()
                 currentMenu:toggle(false)
-            elseif key == 'Escape' or (key == 'Tab' and currentMenu.filterString == "") then 
+            elseif key == 'Escape' or (key == 'Tab' and currentMenu.filterString == "") then
                 stopGrabber()
             elseif (key == 'Up' and currentMenu.downOrUp == 1) or (key == 'Down' and currentMenu.downOrUp == -1) then
                 currentMenu:rotate_selected(-1)
@@ -174,9 +177,9 @@ local function activateKeyboard(curMenu)
                     getFilterWidget().textbox.text = getFilterWidget().textbox.text:sub(1,-2)
                 end
             elseif currentMenu.settings.filter == true and key:len() == 1 then
-                currentMenu.filterString = currentMenu.filterString .. key
+                currentMenu.filterString = currentMenu.filterString .. key:lower()
                 if getFilterWidget() ~= nil then
-                    getFilterWidget().textbox.text = getFilterWidget().textbox.text .. key
+                    getFilterWidget().textbox.text = getFilterWidget().textbox.text .. key:lower()
                 end
                 currentMenu:filter(currentMenu.filterString:lower())
             else
@@ -281,6 +284,18 @@ function new(args)
       for v, i in next, self.otherwdg do
           --table.insert(discardedItems,i.widget) --TODO LEAK
       end
+    end
+    
+    function menu:clear()
+        local v = self.settings.visible
+        self.items = {}
+        menu:toggle(false)
+        if v == true then
+            self:toggle(true)
+        end
+        if menu.settings.parent and menu.settings.parent.settings.visible then
+            menu.settings.parent:toggle(true)
+        end
     end
     
     function menu:scroll(step,notoggle)
@@ -418,7 +433,7 @@ function new(args)
       local arrowMode
       if menu.settings.parent then
           arrowMode = 3
-          if self.settings.yPos - 10 > 0 then
+          if self.settings.yPos - 10 > 0 and not self.is_embeded_menu then
               self.settings.yPos = self.settings.yPos - 10
           end
       elseif self.downOrUp == 1  then
@@ -474,7 +489,7 @@ function new(args)
       self.subMenu = aSubMenu
     end
     
-    local hideEverything = function () 
+    function menu:hideEverything()
         menu:toggle(false)
         local aMenu = menu.settings.parent
         while aMenu ~= nil do
@@ -482,7 +497,7 @@ function new(args)
           aMenu = aMenu.settings.parent
         end
         if currentMenu == menu then
-            stopGrabber()
+            stopGrabber(true)
         end
       end
       
@@ -491,9 +506,11 @@ function new(args)
               data["button"..index](self,data)
           end
           if menu.settings.noautohide == false and index ~= 4 and index ~= 5 then
-            hideEverything()
-          elseif menu.settings.maxvisible and ( index == 4 or index == 5 ) and #menu.items > menu.settings.maxvisible then
-              menu:scroll((index == 4) and 1 or -1)
+              menu:hideEverything()
+          elseif menu.settings.maxvisible and index == 4 and #menu.items > menu.settings.maxvisible then
+              menu:scroll((menu.downOrUp > 0) and -1 or 1)
+          elseif menu.settings.maxvisible and index == 5 and #menu.items > menu.settings.maxvisible then
+              menu:scroll((menu.downOrUp > 0) and 1 or -1)
           end
       end
       
@@ -677,7 +694,7 @@ function new(args)
     
     function menu:add_embeded_menu(m2,args)
         m2.is_embeded_menu = true
---         m2.settings.parent = self
+        m2.settings.parent = self
         table.insert(self.items, m2)
     end
 
