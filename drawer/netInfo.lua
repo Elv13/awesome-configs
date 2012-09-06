@@ -5,14 +5,14 @@ local ipairs       = ipairs
 local loadstring   = loadstring
 local table        = table
 local print        = print
-local beautiful    = require( "beautiful"    )
-local widget2      = require( "awful.widget" )
-local wibox        = require( "awful.wibox"  )
-local button       = require( "awful.button" )
-local vicious      = require( "extern.vicious"      )
-local util         = require( "awful.util"   )
-local config       = require( "config"       )
-local menu         = require( "widgets.menu" )
+local beautiful    = require( "beautiful"      )
+local widget2      = require( "awful.widget"   )
+local wibox        = require( "awful.wibox"    )
+local button       = require( "awful.button"   )
+local vicious      = require( "extern.vicious" )
+local util         = require( "awful.util"     )
+local config       = require( "config"         )
+local menu         = require( "widgets.menu"   )
 
 local capi = { image  = image  ,
                screen = screen ,
@@ -72,8 +72,7 @@ local netUpGraph       = widget2.graph(                  )
 local netDownGraph     = widget2.graph(                  )
 
 --VARIABLES
-local totalCount    = 0
-  
+
 function update()
     local connectionInfo
     local f = io.open('/tmp/connectedHost.lua','r')
@@ -86,29 +85,145 @@ function update()
         end
         connectionInfo = afunction()
     end
-    
+
     if connectionInfo ~= nil then
         data.connectionInfo = connectionInfo
     end
-    
+
     f = io.popen('/bin/ifconfig | grep -e "inet[a-z: ]*[0-9.]*" -o |  grep -e "[0-9.]*" -o')
     local ip4Value = "<i><b>  v4: </b>" .. (f:read("*line") or "") .. "</i>"
     f:close()
     f = io.popen('/bin/ifconfig | grep -e "inet6[a-z: ]*[0-9.A-Fa-f;:]*" -o | awk \'{print $(NF)}\'')
     local ip6Value = "<i><b>  v6: </b>" .. (f:read("*line") or "") .. "</i>\n\n"
     f:close()
-    
+
     ip4Info.text = ip4Value
     ip6Info.text = ip6Value
-    
+
     local localValue = ""
     f = io.open('/tmp/localNetLookup','r')
     if f ~= nil then
         localValue = f:read("*all")
         f:close()
     end
-    
+
     localInfo.text = localValue
+end
+
+local function reload_conn(connMenu,data)
+    for i=0 , #(data.connectionInfo or {}) do
+        if data.connectionInfo[i] then
+            local protocol             = capi.widget({ type = "textbox"  })
+            protocol.width             = 25
+            protocol.bg                = "#0F2051"
+            protocol.border_width      = 1
+            protocol.border_color      = beautiful.bg_normal
+            local application          = capi.widget({ type = "textbox"  })
+            application.width          = 40
+            application.bg             = "#0F2051"
+            application.border_width   = 1
+            application.border_color   = beautiful.bg_normal
+            local address              = capi.widget({ type = "textbox"  })
+
+            local w         = wibox({ position = "free" , screen = s , ontop = true     })
+            w.visible = false
+            w.widgets = {
+                            application                                               ,
+                            {protocol,layout = widget2.layout.horizontal.rightleft}   ,
+                            layout = widget2.layout.horizontal.leftright              ,
+                            {address,layout = widget2.layout.horizontal.flex}         ,
+                        }
+
+            application:margin({ left = 7, right = 7 })
+            application.text =        (data.connectionInfo[i]['protocol']    or "")
+            address.text     = " " .. (data.connectionInfo[i]['site']        or "")
+
+            local found = false
+            for k2,v2 in ipairs(capi.client.get()) do
+                if v2.class:lower() == data.connectionInfo[i]['application']:lower() or v2.name:lower():find(data.connectionInfo[i]['application']:lower()) ~= nil then
+                    protocol.bg_image  = v2.icon
+                    protocol.bg_resize = true
+                    found = true
+                    break
+                end
+            end
+
+            if found == false then
+                protocol.text =  (data.connectionInfo[i]['application']    or "")
+                protocol.bg_image = nil
+            else
+                protocol.text = ""
+            end
+            appStat[data.connectionInfo[i]['application'  ] ] = (protocolStat[data.connectionInfo[i]['application'] ] or 0) + 1
+            protocolStat[data.connectionInfo[i]['protocol'] ] = (protocolStat[data.connectionInfo[i]['protocol'   ] ] or 0) + 1
+            connMenu:add_wibox(w ,{height = 20, width = 200})
+        end
+    end
+end
+
+local function reload_protstat(protMenu,data)
+    for v, i in next, protocolStat do
+        local protocol3   = capi.widget({ type = "textbox"                        })
+        local protoCount  = capi.widget({ type = "textbox"                        })
+        protoCount.bg     = "#0F2051"
+        protoCount.width  = 20
+        local w           = wibox({ position = "free" , screen = s , ontop = true })
+        w.visible         = false
+        w.widgets         = {
+                                protoCount                                   ,
+                                protocol3                                    ,
+                                layout = widget2.layout.horizontal.leftright ,
+                            }
+        protoCount:margin({ left = 7, right = 7 })
+        protoCount.text = "x"..i
+        protocol3:margin({ left = 7, right = 7 })
+        protocol3.text = v
+        protMenu:add_wibox(w,{height = 20, width = 200})
+    end
+end
+
+local function reload_appstat(appMenu,data)
+    local count =1
+    for v, i in next, appStat do
+        local appIcon          = capi.widget({ type = "textbox"                        })
+        appIcon.width          = 25
+        appIcon.bg             = "#0F2051"
+        appIcon.border_color   = beautiful.bg_normal
+        appIcon.border_width   = 1
+        local app2             = capi.widget({ type = "textbox"                        })
+        testImage2             = capi.widget({ type = "imagebox"                       })
+        testImage2.image       = capi.image (config.data().iconPath .. "kill.png"       )
+        local w                = wibox({ position = "free" , screen = s , ontop = true })
+        w.visible              = false
+        w.widgets              = {
+                                    appIcon                                                   ,
+                                    {testImage2,layout = widget2.layout.horizontal.rightleft} ,
+                                    layout = widget2.layout.horizontal.leftright              ,
+                                    {app2,layout = widget2.layout.horizontal.flex}            ,
+                                 }
+
+        app2.text = " " .. v .."("..i..")"
+        for k2,v2 in ipairs(capi.client.get()) do
+            if v2.class:lower() == v:lower() or v2.name:lower():find(v:lower()) ~= nil then
+                appIcon.bg_image  = v2.icon
+                appIcon.bg_resize = true
+                break
+            end
+        end
+        appMenu:add_wibox(w,{height = 20, width = 200})
+        count = count +1
+    end
+end
+
+local connMenu,protMenu,appMenu
+
+local function update2()
+    connMenu:clear()
+    protMenu:clear()
+    appMenu:clear()
+    reload_conn(connMenu,data)
+    reload_protstat(protMenu,data)
+    reload_appstat(appMenu,data)
 end
 
 local function repaint(margin)
@@ -121,81 +236,28 @@ local function repaint(margin)
     mainMenu:add_wibox(ipInfo       ,{height = 30, width = 200})
 --     mainMenu:add_wibox(localHeaderW ,{height = 20, width = 200})
     mainMenu:add_wibox(connHeaderW  ,{height = 20, width = 200})
-    
-    totalCount = 0
+
     if data.connectionInfo ~= nil then
-        local connMenu = menu({width=198,maxvisible=3,has_decoration=false,has_side_deco=true})
-        for i=0 , #(data.connectionInfo or {}) do
-            if data.connectionInfo[i] then
-                if i < 10 then
-                    connectionWidget[i].application:margin({ left = 7, right = 7 })
-                    connectionWidget[i].application.text =        (data.connectionInfo[i]['protocol']    or "")
-                    connectionWidget[i].address.text     = " " .. (data.connectionInfo[i]['site']        or "")
-                    totalCount = totalCount +1
-                    
-                    local found = false
-                    for k2,v2 in ipairs(capi.client.get()) do
-                        if v2.class:lower() == data.connectionInfo[i]['application']:lower() or v2.name:lower():find(data.connectionInfo[i]['application']:lower()) ~= nil then
-                            connectionWidget[i].protocol.bg_image  = v2.icon
-                            connectionWidget[i].protocol.bg_resize = true
-                            found = true
-                            break 
-                        end
-                    end
-                    
-                    if found == false then
-                        connectionWidget[i].protocol.text =  (data.connectionInfo[i]['application']    or "")
-                        connectionWidget[i].protocol.bg_image = nil
-                    else
-                        connectionWidget[i].protocol.text = ""
-                    end
-                end
-                appStat[data.connectionInfo[i]['application'  ] ] = (protocolStat[data.connectionInfo[i]['application'] ] or 0) + 1
-                protocolStat[data.connectionInfo[i]['protocol'] ] = (protocolStat[data.connectionInfo[i]['protocol'   ] ] or 0) + 1
-            end
-        end
-        local subTotal = (totalCount < 10) and totalCount or 10
-        for i=0, subTotal-1 do
-            connMenu:add_wibox(connectionInfoW[i] ,{height = 20, width = 200})
-        end
+        connMenu = menu({width=198,maxvisible=3,has_decoration=false,has_side_deco=true})
+        reload_conn(connMenu,data)
         mainMenu:add_embeded_menu(connMenu)
     end
     mainMenu:add_wibox(appHeaderW,{height = 20, width = 200})
 
-    local count =1
-    for v, i in next, protocolStat do
-        if count < 10 then
-            protCountWidget[count]:margin({ left = 7, right = 7 })
-            protCountWidget[count].text = "x"..i
-            protWidget[count]:margin({ left = 7, right = 7 })
-            protWidget[count].text = v
-            mainMenu:add_wibox(protWidgetW[count],{height = 20, width = 200})
-            count = count +1
-        end
-    end
+    protMenu = menu({width=198,maxvisible=7,has_decoration=false,has_side_deco=true})
+    reload_protstat(protMenu,data)
+    mainMenu:add_embeded_menu(protMenu)
 
     mainMenu:add_wibox(protHeaderW ,{height = 20, width = 200})
 
-    count =1
-    for v, i in next, appStat do
-        if count < 10 then
-            appWidget[count].app2.text = " " .. v .."("..i..")"
-            for k2,v2 in ipairs(capi.client.get()) do
-                if v2.class:lower() == v:lower() or v2.name:lower():find(v:lower()) ~= nil then
-                    appWidget[count].appIcon.bg_image  = v2.icon
-                    appWidget[count].appIcon.bg_resize = true
-                    break 
-                end
-            end
-            mainMenu:add_wibox(appWidgetW[count],{height = 20, width = 200})
-            count = count +1
-        end
-    end
-    
+    appMenu = menu({width=198,maxvisible=7,has_decoration=false,has_side_deco=true})
+    reload_appstat(appMenu,data)
+    mainMenu:add_embeded_menu(appMenu)
+
     mainMenu.settings.x = capi.screen[capi.mouse.screen].geometry.width - 200 + capi.screen[capi.mouse.screen].geometry.x - margin + 20
     mainMenu.settings.y = 16
     return mainMenu
-end 
+end
 
 function new(margin, args)
     graphHeaderW         = wibox({ position = "free" , screen = s , ontop = true})
@@ -207,35 +269,35 @@ function new(margin, args)
     graphUW              = wibox({ position = "free" , screen = s , ontop = true})
     ipInfo               = wibox({ position = "free" , screen = s , ontop = true})
     graphDW              = wibox({ position = "free" , screen = s , ontop = true})
-    
+
     graphHeaderW.visible = false
     ipHeaderW.visible    = false
     localHeaderW.visible = false
     connHeaderW.visible  = false
     protHeaderW.visible  = false
     appHeaderW.visible   = false
-    
+
     graphHeaderW.widgets = { graphHeader , layout = widget2.layout.horizontal.leftright }
     ipHeaderW.widgets    = { ipHeader    , layout = widget2.layout.horizontal.leftright }
     localHeaderW.widgets = { localHeader , layout = widget2.layout.horizontal.leftright }
     connHeaderW.widgets  = { connHeader  , layout = widget2.layout.horizontal.leftright }
     protHeaderW.widgets  = { protHeader  , layout = widget2.layout.horizontal.leftright }
     appHeaderW.widgets   = { appHeader   , layout = widget2.layout.horizontal.leftright }
-    
+
     ipInfo.visible = false
     ipInfo.widgets = {
         {ip4Info  , layout = widget2.layout.horizontal.leftright},
         {ip6Info  , layout = widget2.layout.horizontal.leftright},
         layout = widget2.layout.vertical.flex
     }
-    
+
     graphUW.visible = false
     graphUW.widgets = {
         {uploadImg    , netUsageUp   , layout = widget2.layout.horizontal.leftright},
         {netUpGraph   ,                layout = widget2.layout.horizontal.leftright},
         layout = widget2.layout.vertical.flex
     }
-    
+
     graphDW.visible = false
     graphDW.widgets = {
         {downloadImg  , netUsageDown , layout = widget2.layout.horizontal.leftright},
@@ -243,20 +305,20 @@ function new(margin, args)
         {netSpacer2   ,                layout = widget2.layout.horizontal.leftright},
         layout = widget2.layout.vertical.flex
     }
-    
+
     function formatHeader(wdg,txt)
         wdg.text= " <span color='".. beautiful.bg_normal .."'><b><tt>".. txt .."</tt></b></span> "
         wdg.bg     = beautiful.fg_normal
         wdg.width  = 240
     end
-    
+
     formatHeader(graphHeader ,"GRAPH"         )
     formatHeader(ipHeader    ,"IP"            )
     formatHeader(localHeader ,"LOCAL NETWORK" )
     formatHeader(connHeader  ,"CONNECTIONS"   )
     formatHeader(protHeader  ,"APPLICATIONS"  )
     formatHeader(appHeader   ,"PROTOCOLS"     )
-    
+
     uploadImg.image    = capi.image(config.data().iconPath .. "arrowUp.png"  )
     uploadImg.resize   = false
     downloadImg.image  = capi.image(config.data().iconPath .. "arrowDown.png")
@@ -268,7 +330,7 @@ function new(margin, args)
     netSpacer3.text    = "  "
     netSpacer2.text    = " "
     netSpacer2.width   = 10
-    
+
     netUpGraph:set_width             (190                )
     netUpGraph:set_height            (20                 )
     netUpGraph:set_scale             (true               )
@@ -284,74 +346,15 @@ function new(margin, args)
     netDownGraph:set_border_color    (beautiful.fg_normal)
     netDownGraph:set_color           (beautiful.fg_normal)
     vicious.register                 (netDownGraph, vicious.widgets.net, '${eth0 down_kb}',1)
-    
-    for i=0 , 10 do
-        local protocol             = capi.widget({ type = "textbox"                            })
-        protocol.width             = 25
-        protocol.bg                = "#0F2051"
-        protocol.border_width      = 1
-        protocol.border_color      = beautiful.bg_normal
-        local application          = capi.widget({ type = "textbox"                            })
-        application.width          = 40
-        application.bg             = "#0F2051"
-        application.border_width   = 1
-        application.border_color   = beautiful.bg_normal
-        local address              = capi.widget({ type = "textbox"                            })
-        connectionWidget[i]        = {
-                                      application = application                                 , 
-                                      protocol    = protocol                                    ,
-                                      address     = address                                     ,
-                                      layout      = widget2.layout.horizontal.leftright         ,
-                                     }
-        connectionInfoW[i]         = wibox({ position = "free" , screen = s , ontop = true     })
-        connectionInfoW[i].visible = false
-        connectionInfoW[i].widgets = {
-                                      application                                               ,
-                                      {protocol,layout = widget2.layout.horizontal.rightleft}   ,
-                                      layout = widget2.layout.horizontal.leftright              , 
-                                      {address,layout = widget2.layout.horizontal.flex}         ,
-                                     }
-    end
-    
-    for i=1 , 10 do
-        local appIcon          = capi.widget({ type = "textbox"                                })
-        appIcon.width          = 25
-        appIcon.bg             = "#0F2051"
-        appIcon.border_color   = beautiful.bg_normal
-        appIcon.border_width   = 1
-        local app2             = capi.widget({ type = "textbox"                                })
-        testImage2             = capi.widget({ type = "imagebox"                               })
-        testImage2.image       = capi.image (config.data().iconPath .. "kill.png"                 )
-        appWidget[i]           = { appIcon=appIcon,app2=app2                                    }
-        appWidgetW[i]          = wibox({ position = "free" , screen = s , ontop = true         })
-        appWidgetW[i].visible  = false
-        appWidgetW[i].widgets  = {
-                                  appIcon                                                       ,
-                                  {testImage2,layout = widget2.layout.horizontal.rightleft}     ,
-                                  layout = widget2.layout.horizontal.leftright                  ,
-                                  {app2,layout = widget2.layout.horizontal.flex}                ,
-                                 }
-    end
-    
-    for i=1 , 10 do
-        local protocol3          = capi.widget({ type = "textbox"                              })
-        protCountWidget[i]       = capi.widget({ type = "textbox"                              })
-        protCountWidget[i].bg    = "#0F2051"
-        protCountWidget[i].width = 20
-        protWidget[i]            = protocol3
-        protWidgetW[i]           = wibox({ position = "free" , screen = s , ontop = true       })
-        protWidgetW[i].visible   = false
-        protWidgetW[i].widgets   = {
-                                    protCountWidget[i]                                          ,
-                                    protocol3                                                   ,
-                                    layout = widget2.layout.horizontal.leftright                ,
-                                   }
-    end
 
     function show()
-        if not data.menu or data.menu.settings.visible == false then
+        if not data.menu then
             update()
             data.menu = repaint(margin)
+        end
+        if data.menu.settings.visible ~= true then
+            update()
+            update2()
             data.menu:toggle( true  )
         else
             data.menu:toggle( false )
@@ -360,21 +363,21 @@ function new(margin, args)
 
     netDownWidget.width = 55
     netUpWidget.width   = 55
-    uplogo.image        = capi.image(config.data().iconPath .. "arrowUp.png"           )
-    downlogo.image      = capi.image(config.data().iconPath .. "arrowDown.png"         )
+    uplogo.image        = capi.image(config.data().iconPath .. "arrowUp.png"         )
+    downlogo.image      = capi.image(config.data().iconPath .. "arrowDown.png"       )
     vicious.register(netUpWidget  , vicious.widgets.net   ,  '${eth0 up_kb}KBs'   ,1 )
-    vicious.register(netDownWidget, vicious.widgets.net   ,  '${eth0 down_kb}KBs' ,1 ) 
+    vicious.register(netDownWidget, vicious.widgets.net   ,  '${eth0 down_kb}KBs' ,1 )
     downlogo:buttons      (util.table.join(button({ }, 1, function () show() end))   )
     netDownWidget:buttons (util.table.join(button({ }, 1, function () show() end))   )
     uplogo:buttons        (util.table.join(button({ }, 1, function () show() end))   )
     netUpWidget:buttons   (util.table.join(button({ }, 1, function () show() end))   )
-        
+
     for k,v in ipairs({downlogo,netDownWidget,uplogo,netUpWidget}) do
         v.bg = beautiful.bg_alternate
     end
-    return {down_logo = downlogo      , 
-            down_text = netDownWidget , 
-            up_logo   = uplogo        , 
+    return {down_logo = downlogo      ,
+            down_text = netDownWidget ,
+            up_logo   = uplogo        ,
             up_text   = netUpWidget   }
 end
 

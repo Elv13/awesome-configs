@@ -494,7 +494,7 @@ function new(args)
         menu:toggle(false)
         local aMenu = menu.settings.parent
         while aMenu ~= nil do
-          aMenu:toggle(value)
+          aMenu:toggle(false)
           aMenu = aMenu.settings.parent
         end
         if currentMenu == menu then
@@ -686,9 +686,17 @@ function new(args)
         for i=2, 10 do
             data["button"..i] = args["button"..i]
         end
+        if not data.button4 then
+            data.button4 = function() menu:scroll(   1   ) end
+        end
+        if not data.button5 then
+            data.button5 = function() menu:scroll(   -1   ) end
+        end
+        
         function data:hightlight(value) end
         draw_border(menu,data,{})
         registerButton(wibox,data)
+        wibox:add_signal("mouse::enter", function() currentMenu = self end)
         table.insert(self.items, data)
         self.hasChanged = true
     end
