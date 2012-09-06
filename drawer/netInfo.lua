@@ -128,6 +128,7 @@ local function repaint(margin)
         for i=0 , #(data.connectionInfo or {}) do
             if data.connectionInfo[i] then
                 if i < 10 then
+                    connectionWidget[i].application:margin({ left = 7, right = 7 })
                     connectionWidget[i].application.text =        (data.connectionInfo[i]['protocol']    or "")
                     connectionWidget[i].address.text     = " " .. (data.connectionInfo[i]['site']        or "")
                     totalCount = totalCount +1
@@ -164,8 +165,10 @@ local function repaint(margin)
     local count =1
     for v, i in next, protocolStat do
         if count < 10 then
+            protCountWidget[count]:margin({ left = 7, right = 7 })
             protCountWidget[count].text = "x"..i
-            protWidget[count].text = " " .. v
+            protWidget[count]:margin({ left = 7, right = 7 })
+            protWidget[count].text = v
             mainMenu:add_wibox(protWidgetW[count],{height = 20, width = 200})
             count = count +1
         end

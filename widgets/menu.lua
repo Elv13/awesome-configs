@@ -650,6 +650,7 @@ function new(args)
       data.widgets.suffix = createWidget("suffix", "textbox"  )
       data.widgets.wdg    = createWidget("text"  , "textbox"  )
       data.widgets.icon   = createWidget("icon"  , "imagebox" )
+      data.widgets.wdg:margin({ left = 7, right = 7 })
       
       aWibox.bg = data.bg
       data.widgets.wdg.text = "<span color=\"".. data.fg .."\" >"..(data.widgets.wdg.text or "").."</span>"

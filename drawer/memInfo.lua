@@ -175,7 +175,8 @@ local function reload_user(usrMenu,data)
         local anUser = capi.widget({type = "textbox"})
         anUser.text = i
         local anUserLabel = capi.widget({type = "textbox"})
-        anUserLabel.text = "  "..v..":"
+        anUserLabel:margin({ left = 7, right = 7 })
+        anUserLabel.text = v..":"
         anUserLabel.width = 70
         anUserLabel.bg = "#0F2051"
         userW.widgets = {anUserLabel,anUser, layout = widget2.layout.horizontal.leftright}
@@ -193,6 +194,7 @@ local function reload_state(typeMenu,data)
         local anState = capi.widget({type = "textbox"})
         anState.text = i
         local anStateLabel = capi.widget({type = "textbox"})
+        anStateLabel:margin({ left = 7, right = 7 })
         anStateLabel.text = v..":"
         anStateLabel.width = 70
         anStateLabel.bg = "#0F2051"
@@ -364,7 +366,6 @@ function new(margin, args)
     mytimer:add_signal("timeout", function()
         if data.menu.settings.visible == true then
             refreshStat()
-            data.menu:toggle(false)
             update()
             data.menu:toggle(true)
         end
