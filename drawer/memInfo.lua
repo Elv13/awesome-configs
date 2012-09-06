@@ -362,15 +362,16 @@ function new(margin, args)
     refreshStat()
     data.menu = repaint(margin-memwidget:extents().width-20-10)
 
-    local mytimer = capi.timer({ timeout = 10 })
-    mytimer:add_signal("timeout", function()
-        if data.menu.settings.visible == true then
-            refreshStat()
-            update()
-            data.menu:toggle(true)
-        end
-    end)
-    mytimer:start()
+    --It does work, but there is some exteral issues with the menu
+--     local mytimer = capi.timer({ timeout = 10 })
+--     mytimer:add_signal("timeout", function()
+--         if data.menu.settings.visible == true then
+--             refreshStat()
+--             update()
+--             data.menu:toggle(true)
+--         end
+--     end)
+--     mytimer:start()
 
     ramlogo       = capi.widget({ type = "imagebox", align = "right" })
     ramlogo.image = capi.image(config.data().iconPath .. "cpu.png")

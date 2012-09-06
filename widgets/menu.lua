@@ -686,12 +686,12 @@ function new(args)
         for i=2, 10 do
             data["button"..i] = args["button"..i]
         end
-        if not data.button4 then
-            data.button4 = function() menu:scroll(   1   ) end
-        end
-        if not data.button5 then
-            data.button5 = function() menu:scroll(   -1   ) end
-        end
+--         if not data.button4 then
+--             data.button4 = function() menu:scroll(   1   ) end
+--         end
+--         if not data.button5 then
+--             data.button5 = function() menu:scroll(   -1   ) end
+--         end
         
         function data:hightlight(value) end
         draw_border(menu,data,{})

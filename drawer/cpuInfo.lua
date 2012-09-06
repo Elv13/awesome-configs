@@ -242,6 +242,7 @@ function new(margin, args)
 
         if cpuStat then
             data.cpuStat = cpuStat
+            cpuModel.text = cpuStat.model
         end
         
         local process = {}
@@ -289,7 +290,7 @@ function new(margin, args)
         aMenu:add_wibox(usageHeaderW   , {height = 20  , width = 200})
         aMenu:add_wibox(tableW         , {height = 120 , width = 200})
         aMenu:add_wibox(processHeaderW , {height = 20  , width = 200})
-            
+        local procMenu = menu({width=198,maxvisible=6,has_decoration=false,has_side_deco=true})
         if data.process then
             for i=1,10 do
                 if #data.process > i then
@@ -304,10 +305,11 @@ function new(margin, args)
                         end
                     end
                     
-                    aMenu:add_wibox(topCpuW[i] , {height = 20  , width = 200})
+                    procMenu:add_wibox(topCpuW[i] , {height = 20  , width = 200})
                 end
             end
         end
+        aMenu:add_embeded_menu(procMenu)
         
         aMenu.settings.x = capi.screen[capi.mouse.screen].geometry.width - 200 + capi.screen[capi.mouse.screen].geometry.x - margin + 40 + 15 + 15
         aMenu.settings.y = 16
