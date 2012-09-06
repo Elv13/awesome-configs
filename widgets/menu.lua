@@ -446,7 +446,7 @@ function new(args)
       if menu.settings.has_decoration ~= false then
           getArrowItem(menu,arrowMode)
       end
-      local headerWdg,footerWdg = {self.topArrow,getScrollUpWdg(self)},{getFilterWidget(),self.bottomArrow}
+      local headerWdg,footerWdg = {self.topArrow,getScrollUpWdg(self)},{getFilterWidget(self),self.bottomArrow}
       if getScrollDownWdg(self) then
           table.insert(footerWdg,1,getScrollDownWdg(self))
       end
@@ -502,9 +502,9 @@ function new(args)
         end
       end
       
-      local clickCommon = function (data, index)
+      local function clickCommon(data, index)
           if data["button"..index] ~= nil then
-              data["button"..index](self,data)
+              data["button"..index](menu,data)
           end
           if menu.settings.noautohide == false and index ~= 4 and index ~= 5 then
               menu:hideEverything()
@@ -515,7 +515,7 @@ function new(args)
           end
       end
       
-      function registerButton(aWibox,data)
+      local function registerButton(aWibox,data)
         aWibox:buttons( util.table.join(
             button({ }, 1 , function() clickCommon(data,1 ) end),
             button({ }, 2 , function() clickCommon(data,2 ) end),
@@ -569,11 +569,11 @@ function new(args)
           data["button"..i] = args["button"..i]
       end
       data.pMenu.hasChanged = true
-      
+
       table.insert(data.pMenu.items, data)
       local pos = #data.pMenu.items
       data.pMenu:set_coords() --TODO needed?
-      
+
       --Member functions
       function data:check(value)
           self.checked = (value == nil) and self.checked or ((value == false) and false or value)
@@ -582,7 +582,7 @@ function new(args)
           self.widgets.checkbox.image = (self.checked == true) and checkbox.checked() or checkbox.unchecked() or nil
           self.widgets.checkbox.bg = beautiful.bg_focus
       end
-      
+
       function data:hightlight(value)
           if not self.widget or value == nil then return end
 
@@ -591,11 +591,11 @@ function new(args)
               table.insert(menu.highlighted,self)
           end
       end
-      
+
       function data:discard()
           table.insert(discardedItems,aWibox)
       end
-      
+
       if data.subMenu ~= nil then
          subArrow2 = subArrow
          if type(data.subMenu) ~= "function" and data.subMenu.settings then
@@ -604,7 +604,7 @@ function new(args)
       else
         subArrow2 = nil
       end
-      
+
       local function toggleItem(value)
           if data.nohighlight ~= true then
               data:hightlight(value)
@@ -624,7 +624,7 @@ function new(args)
             end
           end
       end
-      
+
       local optionalWdgFeild = {"width","bg"}
       local createWidget = function(field,type2)
         local newWdg = (data[field] ~= nil) and capi.widget({type=type2 }) or nil
@@ -635,7 +635,7 @@ function new(args)
         elseif newWdg ~= nil and type2 == "imagebox" then
             newWdg.image = data[field]
         end
-        
+
         for k,v in pairs(optionalWdgFeild) do
             if newWdg ~= nil and data[field..v] ~= nil then
                 newWdg[v] = data[field..v]
@@ -645,35 +645,35 @@ function new(args)
       end
 
       data:check()
-      
+
       data.widgets.prefix = createWidget("prefix", "textbox"  )
       data.widgets.suffix = createWidget("suffix", "textbox"  )
       data.widgets.wdg    = createWidget("text"  , "textbox"  )
       data.widgets.icon   = createWidget("icon"  , "imagebox" )
       data.widgets.wdg:margin({ left = 7, right = 7 })
-      
+
       aWibox.bg = data.bg
       data.widgets.wdg.text = "<span color=\"".. data.fg .."\" >"..(data.widgets.wdg.text or "").."</span>"
       data.widgets.wdg.align = data.align
       --aWibox.widgets = {{data.widgets.prefix,data.widgets.icon, {subArrow2,data.widgets.checkbox,data.widgets.suffix, layout = widget2.layout.horizontal.rightleft},data.addwidgets, layout = widget2.layout.horizontal.leftright,{data.widgets.wdg, layout = widget2.layout.horizontal.flex}}, layout = widget2.layout.vertical.flex }
       aWibox.widgets = {{data.widgets.prefix,data.widgets.icon,data.widgets.wdg, {subArrow2,data.widgets.checkbox,data.widgets.suffix, layout = widget2.layout.horizontal.rightleft},data.addwidgets, layout = widget2.layout.horizontal.leftright}, layout = widget2.layout.vertical.flex }
-      
+
       registerButton(aWibox, data)
-      
+
       aWibox:add_signal("mouse::enter", function() toggleItem(true) end)
       aWibox:add_signal("mouse::leave", function() toggleItem(false) end)
       aWibox.visible = false
       draw_border(menu,data,{})
       return data
     end
-    
+
     function menu:add_existing_item(item)
         if not item then return end
         item.pMenu = menu
         registerButton(item.widget,item)
         table.insert(self.items, item)
     end
-    
+
     function menu:add_wibox(wibox,args)
         local data     = {
             widget     = wibox,
@@ -686,13 +686,7 @@ function new(args)
         for i=2, 10 do
             data["button"..i] = args["button"..i]
         end
---         if not data.button4 then
---             data.button4 = function() menu:scroll(   1   ) end
---         end
---         if not data.button5 then
---             data.button5 = function() menu:scroll(   -1   ) end
---         end
-        
+
         function data:hightlight(value) end
         draw_border(menu,data,{})
         registerButton(wibox,data)
@@ -700,7 +694,7 @@ function new(args)
         table.insert(self.items, data)
         self.hasChanged = true
     end
-    
+
     function menu:add_embeded_menu(m2,args)
         m2.is_embeded_menu = true
         m2.settings.parent = self

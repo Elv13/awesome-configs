@@ -51,11 +51,11 @@ function new(margin, args)
     local volUsage          = widget2.graph()
 
     local topCpuW           = {}
-    local infoHeaderW       = wibox({ position = "free" , screen = s , ontop = true })
-    local usageHeaderW      = wibox({ position = "free" , screen = s , ontop = true })
-    local processHeaderW    = wibox({ position = "free" , screen = s , ontop = true })
-    local modelW            = wibox({ position = "free" , screen = s , ontop = true })
-    local tableW            = wibox({ position = "free" , screen = s , ontop = true })
+    local infoHeaderW       = wibox({ position = "free" , screen = s , ontop = true, height = 20 })
+    local usageHeaderW      = wibox({ position = "free" , screen = s , ontop = true, height = 20 })
+    local processHeaderW    = wibox({ position = "free" , screen = s , ontop = true, height = 20 })
+    local modelW            = wibox({ position = "free" , screen = s , ontop = true, height = 40 })
+    local tableW            = wibox({ position = "free" , screen = s , ontop = true, height = 120})
     
     topCpuW.visible        = false
     infoHeaderW.visible    = false

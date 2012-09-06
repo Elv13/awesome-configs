@@ -25,18 +25,11 @@ module("drawer.netInfo")
 
 --DATA
 local data             = {}
-local connectionWidget = {}
-local protWidget       = {}
-local protCountWidget  = {}
-local appWidget        = {}
 local connectionInfo   = {}
 local protocolStat     = {}
 local appStat          = {}
 
 --WIBOX
-local connectionInfoW  = {}
-local protWidgetW      = {}
-local appWidgetW       = {}
 local graphHeaderW     = nil
 local ipHeaderW        = nil
 local localHeaderW     = nil
@@ -59,10 +52,8 @@ local localInfo        = capi.widget({type = "textbox"  })
 local netUsageUp       = capi.widget({type = "textbox"  })
 local downloadImg      = capi.widget({type = "imagebox" })
 local uploadImg        = capi.widget({type = "imagebox" })
-local netSpacer1       = capi.widget({type = "textbox"  })
 local netUsageDown     = capi.widget({type = "textbox"  })
-local netSpacer3       = capi.widget({type = "textbox"  })
-local netSpacer2       = capi.widget({type = "textbox"  })
+local netSpacer        = capi.widget({type = "textbox"  })
 local appHeader        = capi.widget({type = "textbox"  })
 local downlogo         = capi.widget({type = "imagebox" })
 local uplogo           = capi.widget({type = "imagebox" })
@@ -111,6 +102,7 @@ function update()
 end
 
 local function reload_conn(connMenu,data)
+    connMenu:clear()
     for i=0 , #(data.connectionInfo or {}) do
         if data.connectionInfo[i] then
             local protocol             = capi.widget({ type = "textbox"  })
@@ -162,6 +154,7 @@ local function reload_conn(connMenu,data)
 end
 
 local function reload_protstat(protMenu,data)
+    protMenu:clear()
     for v, i in next, protocolStat do
         local protocol3   = capi.widget({ type = "textbox"                        })
         local protoCount  = capi.widget({ type = "textbox"                        })
@@ -183,7 +176,7 @@ local function reload_protstat(protMenu,data)
 end
 
 local function reload_appstat(appMenu,data)
-    local count =1
+    appMenu:clear()
     for v, i in next, appStat do
         local appIcon          = capi.widget({ type = "textbox"                        })
         appIcon.width          = 25
@@ -211,16 +204,12 @@ local function reload_appstat(appMenu,data)
             end
         end
         appMenu:add_wibox(w,{height = 20, width = 200})
-        count = count +1
     end
 end
 
 local connMenu,protMenu,appMenu
 
 local function update2()
-    connMenu:clear()
-    protMenu:clear()
-    appMenu:clear()
     reload_conn(connMenu,data)
     reload_protstat(protMenu,data)
     reload_appstat(appMenu,data)
@@ -239,19 +228,16 @@ local function repaint(margin)
 
     if data.connectionInfo ~= nil then
         connMenu = menu({width=198,maxvisible=3,has_decoration=false,has_side_deco=true})
-        reload_conn(connMenu,data)
         mainMenu:add_embeded_menu(connMenu)
     end
     mainMenu:add_wibox(appHeaderW,{height = 20, width = 200})
 
     protMenu = menu({width=198,maxvisible=7,has_decoration=false,has_side_deco=true})
-    reload_protstat(protMenu,data)
     mainMenu:add_embeded_menu(protMenu)
 
     mainMenu:add_wibox(protHeaderW ,{height = 20, width = 200})
 
     appMenu = menu({width=198,maxvisible=7,has_decoration=false,has_side_deco=true})
-    reload_appstat(appMenu,data)
     mainMenu:add_embeded_menu(appMenu)
 
     mainMenu.settings.x = capi.screen[capi.mouse.screen].geometry.width - 200 + capi.screen[capi.mouse.screen].geometry.x - margin + 20
@@ -260,26 +246,26 @@ local function repaint(margin)
 end
 
 function new(margin, args)
-    graphHeaderW         = wibox({ position = "free" , screen = s , ontop = true})
-    ipHeaderW            = wibox({ position = "free" , screen = s , ontop = true})
-    localHeaderW         = wibox({ position = "free" , screen = s , ontop = true})
-    connHeaderW          = wibox({ position = "free" , screen = s , ontop = true})
-    protHeaderW          = wibox({ position = "free" , screen = s , ontop = true})
-    appHeaderW           = wibox({ position = "free" , screen = s , ontop = true})
-    graphUW              = wibox({ position = "free" , screen = s , ontop = true})
-    ipInfo               = wibox({ position = "free" , screen = s , ontop = true})
-    graphDW              = wibox({ position = "free" , screen = s , ontop = true})
+    graphHeaderW         = wibox({ position = "free" , screen = s , ontop = true,height = 20})
+    ipHeaderW            = wibox({ position = "free" , screen = s , ontop = true,height = 20})
+--     localHeaderW         = wibox({ position = "free" , screen = s , ontop = true,height = 20})
+    connHeaderW          = wibox({ position = "free" , screen = s , ontop = true,height = 20})
+    protHeaderW          = wibox({ position = "free" , screen = s , ontop = true,height = 20})
+    appHeaderW           = wibox({ position = "free" , screen = s , ontop = true,height = 20})
+    ipInfo               = wibox({ position = "free" , screen = s , ontop = true,height = 30})
+    graphUW              = wibox({ position = "free" , screen = s , ontop = true,height = 50})
+    graphDW              = wibox({ position = "free" , screen = s , ontop = true,height = 50})
 
     graphHeaderW.visible = false
     ipHeaderW.visible    = false
-    localHeaderW.visible = false
+--     localHeaderW.visible = false
     connHeaderW.visible  = false
     protHeaderW.visible  = false
     appHeaderW.visible   = false
 
     graphHeaderW.widgets = { graphHeader , layout = widget2.layout.horizontal.leftright }
     ipHeaderW.widgets    = { ipHeader    , layout = widget2.layout.horizontal.leftright }
-    localHeaderW.widgets = { localHeader , layout = widget2.layout.horizontal.leftright }
+--     localHeaderW.widgets = { localHeader , layout = widget2.layout.horizontal.leftright }
     connHeaderW.widgets  = { connHeader  , layout = widget2.layout.horizontal.leftright }
     protHeaderW.widgets  = { protHeader  , layout = widget2.layout.horizontal.leftright }
     appHeaderW.widgets   = { appHeader   , layout = widget2.layout.horizontal.leftright }
@@ -290,6 +276,19 @@ function new(margin, args)
         {ip6Info  , layout = widget2.layout.horizontal.leftright},
         layout = widget2.layout.vertical.flex
     }
+
+    local function setup_graph(g)
+        g:set_width             (190                )
+        g:set_height            (20                 )
+        g:set_scale             (true               )
+        g:set_background_color  (beautiful.bg_normal)
+        g:set_border_color      (beautiful.fg_normal)
+        g:set_color             (beautiful.fg_normal)
+    end
+    setup_graph(netUpGraph)
+    vicious.register                 (netUpGraph, vicious.widgets.net  , '${eth0 up_kb}'  ,1)
+    setup_graph(netDownGraph)
+    vicious.register                 (netDownGraph, vicious.widgets.net, '${eth0 down_kb}',1)
 
     graphUW.visible = false
     graphUW.widgets = {
@@ -302,7 +301,7 @@ function new(margin, args)
     graphDW.widgets = {
         {downloadImg  , netUsageDown , layout = widget2.layout.horizontal.leftright},
         {netDownGraph ,                layout = widget2.layout.horizontal.leftright},
-        {netSpacer2   ,                layout = widget2.layout.horizontal.leftright},
+        {netSpacer    ,                layout = widget2.layout.horizontal.leftright},
         layout = widget2.layout.vertical.flex
     }
 
@@ -324,36 +323,16 @@ function new(margin, args)
     downloadImg.image  = capi.image(config.data().iconPath .. "arrowDown.png")
     downloadImg.resize = false
     netUsageUp.text    = "<b>Up: </b>"
-    netSpacer1.text    = " "
-    netSpacer1.width   = 10
     netUsageDown.text  = "<b>Down: </b>"
-    netSpacer3.text    = "  "
-    netSpacer2.text    = " "
-    netSpacer2.width   = 10
-
-    netUpGraph:set_width             (190                )
-    netUpGraph:set_height            (20                 )
-    netUpGraph:set_scale             (true               )
-    netUpGraph:set_background_color  (beautiful.bg_normal)
-    netUpGraph:set_border_color      (beautiful.fg_normal)
-    netUpGraph:set_color             (beautiful.fg_normal)
-    vicious.register                 (netUpGraph, vicious.widgets.net  , '${eth0 up_kb}'  ,1)
-
-    netDownGraph:set_width           (190                )
-    netDownGraph:set_height          (20                 )
-    netDownGraph:set_scale           (true               )
-    netDownGraph:set_background_color(beautiful.bg_normal)
-    netDownGraph:set_border_color    (beautiful.fg_normal)
-    netDownGraph:set_color           (beautiful.fg_normal)
-    vicious.register                 (netDownGraph, vicious.widgets.net, '${eth0 down_kb}',1)
+    netSpacer.text     = " "
+    netSpacer.width    = 10
 
     function show()
-        if not data.menu then
+        if not data.menu or data.menu.settings.visible ~= true then
             update()
-            data.menu = repaint(margin)
-        end
-        if data.menu.settings.visible ~= true then
-            update()
+            if not data.menu then
+                data.menu = repaint(margin)
+            end
             update2()
             data.menu:toggle( true  )
         else
@@ -367,10 +346,8 @@ function new(margin, args)
     downlogo.image      = capi.image(config.data().iconPath .. "arrowDown.png"       )
     vicious.register(netUpWidget  , vicious.widgets.net   ,  '${eth0 up_kb}KBs'   ,1 )
     vicious.register(netDownWidget, vicious.widgets.net   ,  '${eth0 down_kb}KBs' ,1 )
-    downlogo:buttons      (util.table.join(button({ }, 1, function () show() end))   )
-    netDownWidget:buttons (util.table.join(button({ }, 1, function () show() end))   )
-    uplogo:buttons        (util.table.join(button({ }, 1, function () show() end))   )
-    netUpWidget:buttons   (util.table.join(button({ }, 1, function () show() end))   )
+    local btn = util.table.join(button({ }, 1, function () show() end))
+    for k,v in ipairs({downlogo,netDownWidget,uplogo,netUpWidget}) do v:buttons(btn) end
 
     for k,v in ipairs({downlogo,netDownWidget,uplogo,netUpWidget}) do
         v.bg = beautiful.bg_alternate

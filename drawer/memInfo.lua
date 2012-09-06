@@ -22,7 +22,7 @@ local capi = { image  = image  ,
                widget = widget ,
                client = client ,
                mouse  = mouse  ,
-	       timer  = timer  }
+               timer  = timer  }
 
 module("drawer.memInfo")
 
@@ -283,11 +283,11 @@ function update()
 end
 
 function new(margin, args)
-    infoHeaderW    = wibox({ position = "free", screen = s,ontop = true})
-    ramW           = wibox({ position = "free", screen = s,ontop = true})
-    userHeaderW    = wibox({ position = "free", screen = s,ontop = true})
-    stateHeaderW   = wibox({ position = "free", screen = s,ontop = true})
-    processHeaderW = wibox({ position = "free", screen = s,ontop = true})
+    infoHeaderW    = wibox({ position = "free", screen = s,ontop = true,height = 20})
+    ramW           = wibox({ position = "free", screen = s,ontop = true,height = 72})
+    userHeaderW    = wibox({ position = "free", screen = s,ontop = true,height = 20})
+    stateHeaderW   = wibox({ position = "free", screen = s,ontop = true,height = 20})
+    processHeaderW = wibox({ position = "free", screen = s,ontop = true,height = 20})
     infoHeaderW.visible = false
     ramW.visible = false
     userHeaderW.visible = false
