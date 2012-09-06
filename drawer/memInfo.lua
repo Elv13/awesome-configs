@@ -4,7 +4,9 @@ local pairs        = pairs
 local ipairs       = ipairs
 local print        = print
 local loadstring   = loadstring
+local tonumber     = tonumber
 local next         = next
+local type         = type
 local table        = table
 local button       = require("awful.button")
 local beautiful    = require("beautiful")
@@ -155,33 +157,36 @@ function refreshStat()
 end
 
   --memory.widgets = {layout = widget2.layout.horizontal.leftright}
-    
-function repaint(margin)
-    mainMenu = menu({arrow_x=90,nokeyboardnav=true})
-    mainMenu.settings.itemWidth = 198
-    mainMenu:add_wibox(infoHeaderW,{height = 20 , width = 200})
-    mainMenu:add_wibox(ramW       ,{height = 72, width = 200})
-    mainMenu:add_wibox(userHeaderW,{height = 20, width = 200})
-    local memStat
+
+local function reload_user(usrMenu,data)
     local totalUser = 0
-    local totalState = 0
-    
-    for v, i in next, data.users or {} do
+    local sorted = {}
+    for v, i in pairs(data.users or {}) do
+        local tmp = tonumber(i)*10
+        while sorted[tmp] do
+            tmp = tmp + 1
+        end
+        sorted[tmp] = {value=v,key=i}
+    end
+    for i2, v2 in pairs(sorted) do
+        local v,i= v2.value,v2.key
         local userW = wibox({ position = "free", screen = s,ontop = true})
         userW.visible = false
         local anUser = capi.widget({type = "textbox"})
         anUser.text = i
         local anUserLabel = capi.widget({type = "textbox"})
-        anUserLabel.text = v..":"
+        anUserLabel.text = "  "..v..":"
         anUserLabel.width = 70
         anUserLabel.bg = "#0F2051"
         userW.widgets = {anUserLabel,anUser, layout = widget2.layout.horizontal.leftright}
         totalUser = totalUser +1
-        mainMenu:add_wibox(userW,{height = 20, width = 200})
-    end  
-    
-    mainMenu:add_wibox(stateHeaderW,{height = 20 , width = 200})
-    
+        usrMenu:add_wibox(userW,{height = 20, width = 200})
+    end
+    return totalUser
+end
+
+local function reload_state(typeMenu,data)
+    local totalState = 0
     for v, i in next, data.state or {} do
         local stateW = wibox({ position = "free", screen = s,ontop = true})
         stateW.visible = false
@@ -193,22 +198,21 @@ function repaint(margin)
         anStateLabel.bg = "#0F2051"
         stateW.widgets = {anStateLabel,anState, layout = widget2.layout.horizontal.leftright}
         totalState = totalState +1
-        mainMenu:add_wibox(stateW,{height = 20, width = 200})
-    end  
-    
-    mainMenu:add_wibox(processHeaderW,{height = 20 , width = 200})
-    
-    local topMenu = menu({width=198,maxvisible=3,has_decoration=false,has_side_deco=true,nokeyboardnav=true})
+        typeMenu:add_wibox(stateW,{height = 20, width = 200})
+    end
+end
+
+local function reload_top(topMenu,data)
     for i = 0, #(data.process or {}) do
         if data.process ~= nil and data.process[i]["name"] ~= nil then
             local processW = wibox({ position = "free", screen = s,ontop = true})
             processW.visible = false
             local aProcess = capi.widget({type = "textbox"})
             aProcess.text = " "..data.process[i]["name"] or "N/A"
-            
+
             local aPid = capi.widget({type = "textbox"})
             aPid.text = data.process[i]["pid"]
-            
+
             local aMem = capi.widget({type = "textbox"})
             aMem.text = data.process[i]["mem"]
             aMem.width = 70
@@ -216,17 +220,17 @@ function repaint(margin)
             aMem.border_width = 1
             aMem.border_color = beautiful.bg_normal
             aMem.align = "right"
-            
+
             for k2,v2 in ipairs(capi.client.get()) do
                 if v2.class:lower() == data.process[i]["name"]:lower() or v2.name:lower():find(data.process[i]["name"]:lower()) ~= nil then
                     aMem.bg_image = v2.icon
                     break 
                 end
             end
-            
+
             testImage2       = capi.widget({ type = "imagebox"})
             testImage2.image = capi.image(config.data().iconPath .. "kill.png")
-            
+
             processW.widgets = {aMem, {testImage2, layout = widget2.layout.horizontal.rightleft}, layout = widget2.layout.horizontal.leftright,{
                                 aProcess , 
                                 layout = widget2.layout.horizontal.flex,
@@ -234,15 +238,46 @@ function repaint(margin)
             topMenu:add_wibox(processW,{height = 20, width = 200})
         end
     end
+end
+
+local usrMenu,typeMenu,topMenu
+
+function repaint(margin)
+    mainMenu = menu({arrow_x=90,nokeyboardnav=true})
+    mainMenu.settings.itemWidth = 198
+    mainMenu:add_wibox(infoHeaderW,{height = 20 , width = 200})
+    mainMenu:add_wibox(ramW       ,{height = 72, width = 200})
+    mainMenu:add_wibox(userHeaderW,{height = 20, width = 200})
+    local memStat
+
+    usrMenu = menu({width=198,maxvisible=10,has_decoration=false,has_side_deco=true,nokeyboardnav=true})
+    reload_user(usrMenu,data)
+    mainMenu:add_embeded_menu(usrMenu)
+
+    mainMenu:add_wibox(stateHeaderW,{height = 20 , width = 200})
+
+    typeMenu = menu({width=198,maxvisible=5,has_decoration=false,has_side_deco=true,nokeyboardnav=true})
+    reload_state(typeMenu,data)
+    mainMenu:add_embeded_menu(typeMenu)
+
+    mainMenu:add_wibox(processHeaderW,{height = 20 , width = 200})
+
+    topMenu = menu({width=198,maxvisible=3,has_decoration=false,has_side_deco=true,nokeyboardnav=true})
+    reload_top(topMenu,data)
     mainMenu:add_embeded_menu(topMenu)
-    
+
     mainMenu.settings.x = capi.screen[capi.mouse.screen].geometry.width - 200 + capi.screen[capi.mouse.screen].geometry.x - margin
     mainMenu.settings.y = 16
     return mainMenu
 end
 
 function update()
-
+    usrMenu:clear()
+    typeMenu:clear()
+    topMenu:clear()
+    reload_user(usrMenu,data)
+    reload_state(typeMenu,data)
+    reload_top(topMenu,data)
 end
 
 function new(margin, args)
@@ -267,16 +302,19 @@ function new(margin, args)
     swapLabel.bg            = beautiful.fg_normal
     swapLabel.border_color  = beautiful.bg_normal
     totalLabel.text         = "<span color='".. beautiful.bg_normal .."'>Total</span>"
+    totalLabel.align        = "center"
     totalLabel.width        = 55
     totalLabel.border_width = 1
     totalLabel.bg           = beautiful.fg_normal
     totalLabel.border_color = beautiful.bg_normal
     usedLabel.text          = "<span color='".. beautiful.bg_normal .."'>Used</span>"
+    usedLabel.align         = "center" 
     usedLabel.width         = 55
     usedLabel.border_width  = 1
     usedLabel.bg            = beautiful.fg_normal
     usedLabel.border_color  = beautiful.bg_normal
     freeLabel.text          = "<span color='".. beautiful.bg_normal .."'>Free</span>"
+    freeLabel.align         = "center"
     freeLabel.width         = 55
     freeLabel.border_width  = 1
     freeLabel.bg            = beautiful.fg_normal
@@ -321,17 +359,17 @@ function new(margin, args)
 
     refreshStat()
     data.menu = repaint(margin-memwidget:extents().width-20-10)
-    
---     mytimer = capi.timer({ timeout = 2 })
---     mytimer:add_signal("timeout", function()
---         refreshStat()
---         if data.menu.settings.visible == true then
---             data.menu:toggle(false)
---             data.menu = repaint()
---             data.menu:toggle(true)
---         end
---     end)
---     mytimer:start()
+
+    local mytimer = capi.timer({ timeout = 10 })
+    mytimer:add_signal("timeout", function()
+        if data.menu.settings.visible == true then
+            refreshStat()
+            data.menu:toggle(false)
+            update()
+            data.menu:toggle(true)
+        end
+    end)
+    mytimer:start()
 
     ramlogo       = capi.widget({ type = "imagebox", align = "right" })
     ramlogo.image = capi.image(config.data().iconPath .. "cpu.png")
@@ -340,24 +378,28 @@ function new(margin, args)
         toggleSensorBar()
     end)
     ))
-    
+
     local visible = false
     function toggle()
         if not visible then
             data.menu = repaint(margin-memwidget:extents().width-20-10)
         end
         visible = not visible
+        if visible then
+            refreshStat()
+            update()
+        end
         data.menu:toggle(visible)
     end
 
-    
+
 
 
     vicious.register(memwidget, vicious.widgets.mem, '$1%')
-    
+
     ramlogo:buttons   (util.table.join(button({ }, 1, function () toggle() end)))
     memwidget:buttons (util.table.join(button({ }, 1, function () toggle() end)))
-        
+
     ramlogo.bg = beautiful.bg_alternate
     memwidget.bg = beautiful.bg_alternate
 

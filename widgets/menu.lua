@@ -302,13 +302,13 @@ function new(args)
         menu.startat = menu.startat + step
         if menu.startat < 1 then
             menu.startat = 1
-        elseif menu.startat > #menu.items - menu.settings.maxvisible then
-            menu.startat = #menu.items - menu.settings.maxvisible
+        elseif menu.startat > #menu.items - (menu.settings.maxvisible or 999999) then
+            menu.startat = #menu.items - (menu.settings.maxvisible or 999999)
         end
         local counter = 1
         for v, i in next, self.items do
             local tmp = i.off
-            i.off = ((counter < menu.startat) or (counter - menu.startat > menu.settings.maxvisible))
+            i.off = ((counter < menu.startat) or (counter - menu.startat > (menu.settings.maxvisible or 999999)))
             if not tmp == i.off then self.hasChanged = true end
             counter = counter +1
         end
@@ -374,62 +374,63 @@ function new(args)
     end
     
     function menu:set_coords(x,y)
-      local prevX = self.settings["xPos"] or -1
-      local prevY = self.settings["yPos"] or -1
-      
-      self.settings.xPos = x or self.settings.x or prevent_toolbar_overlap("x","width")
-      self.settings.yPos = y or self.settings.y or prevent_toolbar_overlap("y","height")
-      
-      if prevX ~= self.settings["xPos"] or prevY ~= self.settings["yPos"] then
-          self.hasChanged = true
-      end
-      
-      if self.settings.visible == false or self.hasChanged == false then
-        return 0
-      end
-      
-      if self.hasChanged == true then
-          self:emit("menu::changed")
-      end
-      
-      self.hasChanged = false
-      
-      local yPadding = 0
-      if #self.items*self.settings.itemHeight + self.settings["yPos"] > capi.screen[capi.mouse.screen].geometry.height then
-          self.downOrUp = -1
-          yPadding = -self.settings.itemHeight
-      end
-      local set_geometry = function(wdg)
-        if not wdg then return end
-        if wdg.is_embeded_menu == true then
-            wdg.settings.x = self.settings.xPos
-            wdg.settings.y = self.settings.yPos+yPadding
-            yPadding = yPadding + wdg:toggle(true)
+        local prevX = self.settings["xPos"] or -1
+        local prevY = self.settings["yPos"] or -1
+
+        self.settings.xPos = x or self.settings.x or prevent_toolbar_overlap("x","width")
+        self.settings.yPos = y or self.settings.y or prevent_toolbar_overlap("y","height")
+
+        if prevX ~= self.settings["xPos"] or prevY ~= self.settings["yPos"] then
+            self.hasChanged = true
         end
-        if type(wdg) ~= "function" and wdg.hidden == false and wdg.off ~= true then
-            local geo = wdg.widget:geometry()
-            wdg.x = self.settings.xPos
-            wdg.y = self.settings.yPos+yPadding
-            if wdg.widget.x ~= wdg.x or wdg.widget.y ~= wdg.y or wdg.widget.width ~= wdg.width or wdg.widget.height ~= wdg.height then
-                wdg.widget.x = wdg.x
-                wdg.widget.y = wdg.y
-                wdg.widget.height = wdg.height
-                wdg.widget.width = wdg.width
-            end
-            yPadding = yPadding + (wdg.height or self.settings.itemHeight)*self.downOrUp
-            if type(wdg.subMenu) ~= "function" and wdg.subMenu ~= nil and wdg.subMenu.settings ~= nil then
-                wdg.subMenu.settings.x = wdg.x+wdg.width
-                wdg.subMenu.settings.y = wdg.y
-            end
+
+        if self.settings.visible == false or self.hasChanged == false then
+            return 0
         end
+
+        if self.hasChanged == true then
+            self:emit("menu::changed")
+        end
+
+        self.hasChanged = false
+
+        local yPadding = 0
+        if #self.items*self.settings.itemHeight + self.settings["yPos"] > capi.screen[capi.mouse.screen].geometry.height then
+            self.downOrUp = -1
+            yPadding = -self.settings.itemHeight
+        end
+        local function set_geometry(wdg)
+            if not wdg then return end
+            if wdg.is_embeded_menu == true then
+                wdg.settings.x = self.settings.xPos
+                wdg.settings.y = self.settings.yPos+yPadding
+                wdg.hasChanged = true
+                yPadding = yPadding + wdg:toggle(true)
+            end
+            if type(wdg) ~= "function" and wdg.hidden == false and wdg.off ~= true then
+                local geo = wdg.widget:geometry()
+                wdg.x = self.settings.xPos
+                wdg.y = self.settings.yPos+yPadding
+                if wdg.widget.x ~= wdg.x or wdg.widget.y ~= wdg.y or wdg.widget.width ~= wdg.width or wdg.widget.height ~= wdg.height then
+                    wdg.widget.x = wdg.x
+                    wdg.widget.y = wdg.y
+                    wdg.widget.height = wdg.height
+                    wdg.widget.width = wdg.width
+                end
+                yPadding = yPadding + (wdg.height or self.settings.itemHeight)*self.downOrUp
+                if type(wdg.subMenu) ~= "function" and wdg.subMenu ~= nil and wdg.subMenu.settings ~= nil then
+                    wdg.subMenu.settings.x = wdg.x+wdg.width
+                    wdg.subMenu.settings.y = wdg.y
+                end
+            end
       end
-      
+
       local function addWdg(tbl,order)
         for i=(order == -1) and #tbl or 1, (order == -1) and 1 or #tbl, order do
             set_geometry(tbl[i])
         end
       end
-      
+
       local arrowMode
       if menu.settings.parent then
           arrowMode = 3
@@ -441,7 +442,7 @@ function new(args)
       else
           arrowMode = 2
       end
-      
+
       if menu.settings.has_decoration ~= false then
           getArrowItem(menu,arrowMode)
       end
@@ -449,7 +450,7 @@ function new(args)
       if getScrollDownWdg(self) then
           table.insert(footerWdg,1,getScrollDownWdg(self))
       end
-      
+
       addWdg((self.downOrUp == -1) and footerWdg or headerWdg,self.downOrUp)
       for v, i in next, self.items do
         set_geometry(i)
@@ -684,12 +685,11 @@ function new(args)
         for i=2, 10 do
             data["button"..i] = args["button"..i]
         end
-        function data:hightlight(value)
-            
-        end
+        function data:hightlight(value) end
         draw_border(menu,data,{})
         registerButton(wibox,data)
         table.insert(self.items, data)
+        self.hasChanged = true
     end
     
     function menu:add_embeded_menu(m2,args)
