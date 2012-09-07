@@ -133,11 +133,11 @@ local function getScrollWdg_common(aMenu,widget,step)
 end
 
 local function getScrollUpWdg(aMenu)
-    return getScrollWdg_common(aMenu,"scrollUpWdg",1)
+    return getScrollWdg_common(aMenu,"scrollUpWdg",aMenu.downOrUp < 0 and 1 or -1)
 end
 
 local function getScrollDownWdg(aMenu)
-    return getScrollWdg_common(aMenu,"scrollDownWdg",-1)
+    return getScrollWdg_common(aMenu,"scrollDownWdg",aMenu.downOrUp < 0 and -1 or 1)
 end
 
 local function activateKeyboard(curMenu)
@@ -395,7 +395,7 @@ function new(args)
         self.hasChanged = false
 
         local yPadding = 0
-        if #self.items*self.settings.itemHeight + self.settings["yPos"] > capi.screen[capi.mouse.screen].geometry.height then
+        if #self.items*self.settings.itemHeight + self.settings["yPos"] > capi.screen[capi.mouse.screen].geometry.height and not self.forceDownOrUp then
             self.downOrUp = -1
             yPadding = -self.settings.itemHeight
         end
@@ -404,6 +404,8 @@ function new(args)
             if wdg.is_embeded_menu == true then
                 wdg.settings.x = self.settings.xPos
                 wdg.settings.y = self.settings.yPos+yPadding
+                wdg.downOrUp = menu.downOrUp
+                wdg.forceDownOrUp = true
                 wdg.hasChanged = true
                 yPadding = yPadding + wdg:toggle(true)
             end
@@ -664,6 +666,9 @@ function new(args)
       aWibox:add_signal("mouse::leave", function() toggleItem(false) end)
       aWibox.visible = false
       draw_border(menu,data,{})
+      if menu.settings.parent and menu.is_embeded_menu then
+          menu.settings.parent.hasChanged = true
+      end
       return data
     end
 
@@ -672,6 +677,9 @@ function new(args)
         item.pMenu = menu
         registerButton(item.widget,item)
         table.insert(self.items, item)
+        if menu.settings.parent and menu.is_embeded_menu then
+            menu.settings.parent.hasChanged = true
+        end
     end
 
     function menu:add_wibox(wibox,args)
@@ -693,6 +701,9 @@ function new(args)
         wibox:add_signal("mouse::enter", function() currentMenu = self end)
         table.insert(self.items, data)
         self.hasChanged = true
+        if menu.settings.parent and menu.is_embeded_menu then
+            menu.settings.parent.hasChanged = true
+        end
     end
 
     function menu:add_embeded_menu(m2,args)

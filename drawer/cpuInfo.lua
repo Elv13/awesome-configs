@@ -5,14 +5,17 @@ local ipairs       = ipairs
 local loadstring   = loadstring
 local print        = print
 local tonumber     = tonumber
-local beautiful    = require( "beautiful"    )
-local button       = require( "awful.button" )
-local widget2      = require( "awful.widget" )
-local config       = require( "config"       )
-local vicious      = require( "extern.vicious"      )
-local menu         = require( "widgets.menu" )
-local util         = require( "awful.util"   )
-local wibox        = require( "awful.wibox"  )
+local beautiful    = require( "beautiful"      )
+local button       = require( "awful.button"   )
+local widget2      = require( "awful.widget"   )
+local config       = require( "config"         )
+local vicious      = require( "extern.vicious" )
+local menu         = require( "widgets.menu"   )
+local util         = require( "awful.util"     )
+local wibox        = require( "awful.wibox"    )
+
+local data     = {}
+local procMenu = nil
 
 local capi = { image  = image  ,
                screen = screen ,
@@ -23,16 +26,74 @@ local capi = { image  = image  ,
 
 module("drawer.cpuInfo")
 
+local function create_core_w(width,i,text,bg,fg)
+    local aCore        = capi.widget({type = "textbox"})
+    aCore.text         = text
+    aCore.bg           = bg or beautiful.bg_normal
+    aCore.width        = width or 35
+    aCore.border_width = 1
+    aCore.border_color = fg or beautiful.fg_normal
+    aCore.align        = "center"
+    return aCore
+end
+
+local function match_icon(arr,name)
+    for k2,v2 in ipairs(arr) do
+        if k2:find(name) ~= nil then
+            return v2
+        end
+    end
+end
+
+local function reload_top(procMenu,data)
+    procMenu:clear()
+    if data.process then
+        local procIcon = {}
+        for k2,v2 in ipairs(capi.client.get()) do
+            if v2.icon then
+                procIcon[v2.class:lower()] = v2.icon
+            end
+        end
+        for i=1,#data.process do
+            local w = wibox({ position = "free" , screen = s , ontop = true })
+            w.visible = false
+
+            local wdg = {}
+            wdg.percent       = capi.widget({ type = "textbox"  })
+            wdg.percent.width = 50
+            wdg.percent.bg    = "#0F2051"
+            wdg.percent.align = "right"
+            wdg.process       = capi.widget({ type = "textbox"  })
+            wdg.kill          = capi.widget({ type = "imagebox"})
+            wdg.kill.image    = capi.image(config.data().iconPath .. "kill.png")
+
+            w.widgets = { wdg.percent,
+                            { wdg.kill, layout = widget2.layout.horizontal.rightleft }
+                            , layout = widget2.layout.horizontal.leftright,
+                            { wdg.process , layout = widget2.layout.horizontal.flex, }
+                        }
+            wdg.percent.text  = data.process[i].percent.."%"
+            wdg.process.text  = " "..data.process[i].name
+
+            if procIcon[data.process[i].name:lower()] then
+                wdg.percent.bg_image = procIcon[data.process[i].name:lower()].icon
+            else --Slower, but better chances of success
+                wdg.percent.bg_image = match_icon(procIcon,data.process[i].name:lower())
+            end
+            wdg.percent.bg_resize = true
+
+            procMenu:add_wibox(w , {height = 20  , width = 200})
+        end
+    end
+end
+
 
 function update()
 
 end
 
 function new(margin, args)
-    
-    local data              = {}
     local coreWidgets       = {}
-    local processWidgets    = {}
     local cpuInfo           = {}
 
     local infoHeader        = capi.widget({ type = "textbox"  })
@@ -56,79 +117,72 @@ function new(margin, args)
     local processHeaderW    = wibox({ position = "free" , screen = s , ontop = true, height = 20 })
     local modelW            = wibox({ position = "free" , screen = s , ontop = true, height = 40 })
     local tableW            = wibox({ position = "free" , screen = s , ontop = true, height = 120})
-    
+
     topCpuW.visible        = false
     infoHeaderW.visible    = false
     usageHeaderW.visible   = false
     processHeaderW.visible = false
     modelW.visible         = false
     tableW.visible         = false
-    
-    for i=1,10 do
-    topCpuW[i] = wibox({ position = "free" , screen = s , ontop = true })
-    topCpuW[i].visible = false
-    
-    processWidgets[i] = {}
-    processWidgets[i].percent       = capi.widget({ type = "textbox"  })
-    processWidgets[i].percent.width = 50
-    processWidgets[i].percent.bg    = "#0F2051"
-    processWidgets[i].percent.align = "right"
-    processWidgets[i].process       = capi.widget({ type = "textbox"  })
-    processWidgets[i].kill          = capi.widget({ type = "imagebox"})
-    processWidgets[i].kill.image    = capi.image(config.data().iconPath .. "kill.png")
-    
-    topCpuW[i].widgets = {
-                            processWidgets[i].percent, 
-                            {
-                                processWidgets[i].kill, layout = widget2.layout.horizontal.rightleft
-                            }
-                            , layout = widget2.layout.horizontal.leftright,
-                            {
-                                processWidgets[i].process , 
-                                layout = widget2.layout.horizontal.flex,
-                            }
-                         }
-    end
 
     infoHeaderW.widgets     = {infoHeader    , layout = widget2.layout.horizontal.leftright}
     usageHeaderW.widgets    = {usageHeader2  , layout = widget2.layout.horizontal.leftright}
     processHeaderW.widgets  = {processHeader , layout = widget2.layout.horizontal.leftright}
     modelW.widgets          = {cpuModel      , layout = widget2.layout.horizontal.leftright}
     
-    function createDrawer() 
-
-        --util.spawn("/bin/bash -c 'while true; do sleep 3 &&"..util.getdir("config") .."/Scripts/cpuInfo2.sh > /tmp/cpuStatistic.lua;done'")
-        local cpuStat = {}
+    local function loadData()
         local f = io.open('/tmp/cpuStatistic.lua','r')
+        local cpuStat = {}
         if f ~= nil then
             local text3 = f:read("*all")
             text3 = text3.." return cpuInfo"
             f:close()
             local afunction = loadstring(text3)
             if afunction ~= nil then
-            cpuStat = afunction() 
-            infoNotFound = nil
+                cpuStat = afunction() 
+                infoNotFound = nil
             else
-            infoNotFound = "N/A"
+                infoNotFound = "N/A"
             end
         else
             infoNotFound = "N/A"
         end
-        
-        if cpuStat == nil then
-            infoNotFound = "N/A"
+
+        if cpuStat then
+            data.cpuStat = cpuStat
+            cpuModel.text = cpuStat.model
         end
-        
+
+        local process = {}
+        f = io.open('/tmp/topCpu.lua','r')
+        if f ~= nil then
+            text3 = f:read("*all")
+            text3 = text3.." return cpuStat"
+            f:close()
+            local afunction = loadstring(text3) or nil
+            if afunction ~= nil then
+                process = afunction()
+            else
+                process = nil
+            end
+        end
+        if process then
+            data.process = process
+        end
+    end
+
+    local function createDrawer()
+        loadData()
         cpuWidgetArray     = {}
         infoHeader.text    = " <span color='".. beautiful.bg_normal .."'><b><tt>INFO</tt></b></span> "
         infoHeader.bg      = beautiful.fg_normal
         infoHeader.width   = 212
-        cpuModel.text      = data.cpuStat and cpuStat.model or "N/A"
+        cpuModel.text      = data.cpuStat and data.cpuStat.model or "N/A"
         cpuModel.width     = 212
         usageHeader2.text  = " <span color='".. beautiful.bg_normal .."'><b><tt>USAGE</tt></b></span> "
         usageHeader2.bg    = beautiful.fg_normal
         usageHeader2.width = 212
-        
+
         volUsage:set_width        ( 212                                  )
         volUsage:set_height       ( 30                                   )
         volUsage:set_scale        ( true                                 )
@@ -136,7 +190,7 @@ function new(margin, args)
         volUsage:set_color        ( beautiful.fg_normal                  )
         vicious.register          ( volUsage, vicious.widgets.cpu,'$1',1 )
         table.insert              ( cpuWidgetArray, volUsage             )
-        
+
         --Table header
         emptyCornerHeader.text         = " <span color='".. beautiful.bg_normal .."'>Core</span> "
         emptyCornerHeader.bg           = beautiful.fg_normal
@@ -177,39 +231,17 @@ function new(margin, args)
         coreWidgets["count"] = tonumber(coreNb)
         for i=0 , coreWidgets["count"] do
             coreWidgets[i]           = {}
-            local aCore              = capi.widget({type = "textbox"})
-            aCore.text               = " <span color='".. beautiful.bg_normal .."'>".."C"..i.."</span> "
-            aCore.bg                 = beautiful.fg_normal
-            aCore.width              = 35
-            coreWidgets[i]["core"]   = aCore
-            local aCoreClock         = capi.widget({type = "textbox"})
-            aCoreClock.width         = 30
-            aCoreClock.border_width  = 1
-            aCoreClock.border_color  = beautiful.fg_normal
-            coreWidgets[i]["clock"]  = aCoreClock
-            local aCoreTemp          = capi.widget({type = "textbox"})
-            aCoreTemp.width          = 40
-            aCoreTemp.border_width   = 1
-            aCoreTemp.border_color   = beautiful.fg_normal
-            coreWidgets[i]["temp"]   = aCoreTemp
-            local aCoreUsage         = capi.widget({type = "textbox"})
-            aCoreUsage.width         = 37
-            aCoreUsage.border_width  = 1
-            aCoreUsage.border_color  = beautiful.fg_normal
-            coreWidgets[i]["usage"]  = aCoreUsage
-            local aCoreIoWait        = capi.widget({type = "textbox"})
-            aCoreIoWait.width        = 35
-            aCoreIoWait.border_width = 1
-            aCoreIoWait.border_color = beautiful.fg_normal
-            coreWidgets[i]["wait"]   =  aCoreIoWait
-            local aCoreIdle          = capi.widget({type = "textbox"})
-            aCoreIdle.width          = 35
-            aCoreIdle.border_width   = 1
-            aCoreIdle.border_color   = beautiful.fg_normal
-            coreWidgets[i]["idle"]   = aCoreIdle
-            aCore.border_width       = 1
-            aCore.border_color       = beautiful.bg_normal
-            table.insert(cpuWidgetArray, {aCore,aCoreClock,aCoreTemp,aCoreUsage,aCoreIoWait,aCoreIdle, layout = widget2.layout.horizontal.leftright})
+            coreWidgets[i]["core"]   = create_core_w(35,i," <span color='".. beautiful.bg_normal .."'>".."C"..i.."</span> ",beautiful.fg_normal,beautiful.bg_normal)
+            coreWidgets[i]["clock"]  = create_core_w(30,i,nil,beautiful.bg_normal,beautiful.fg_normal)
+            coreWidgets[i]["temp"]   = create_core_w(40,i,nil,beautiful.bg_normal,beautiful.fg_normal)
+            coreWidgets[i]["usage"]  = create_core_w(37,i,nil,beautiful.bg_normal,beautiful.fg_normal)
+            coreWidgets[i]["wait"]   = create_core_w(35,i,nil,beautiful.bg_normal,beautiful.fg_normal)
+            coreWidgets[i]["idle"]   = create_core_w(35,i,nil,beautiful.bg_normal,beautiful.fg_normal)
+            coreWidgets[i]["clock"]  = create_core_w(30,i,nil,beautiful.bg_normal,beautiful.fg_normal)
+            coreWidgets[i]["core"].border_width       = 1
+            coreWidgets[i]["core"].border_color       = beautiful.bg_normal
+            table.insert(cpuWidgetArray, {coreWidgets[i]["core"],coreWidgets[i]["clock"],coreWidgets[i]["temp"],coreWidgets[i]["usage"],
+                coreWidgets[i]["wait"],coreWidgets[i]["idle"], layout = widget2.layout.horizontal.leftright})
         end
         cpuWidgetArray.layout = widget2.layout.vertical.flex
         tableW.widgets = cpuWidgetArray
@@ -220,47 +252,6 @@ function new(margin, args)
         processHeader.text = " <span color='".. beautiful.bg_normal .."'><b><tt>PROCESS</tt></b></span> "
         processHeader.bg = beautiful.fg_normal
         processHeader.width = 212
-    end
-
-    local function loadData()
-        local f = io.open('/tmp/cpuStatistic.lua','r')
-        local cpuStat = {}
-        if f ~= nil then
-            local text3 = f:read("*all")
-            text3 = text3.." return cpuInfo"
-            f:close()
-            local afunction = loadstring(text3)
-            if afunction ~= nil then
-                cpuStat = afunction() 
-                infoNotFound = nil
-            else
-                infoNotFound = "N/A"
-            end
-        else
-            infoNotFound = "N/A"
-        end
-
-        if cpuStat then
-            data.cpuStat = cpuStat
-            cpuModel.text = cpuStat.model
-        end
-        
-        local process = {}
-        f = io.open('/tmp/topCpu.lua','r')
-        if f ~= nil then
-            text3 = f:read("*all")
-            text3 = text3.." return cpuStat"
-            f:close()
-            local afunction = loadstring(text3) or nil
-            if afunction ~= nil then
-                process = afunction()
-            else
-                process = nil
-            end
-        end
-        if process then
-            data.process = process
-        end
     end
 
     local function updateTable()
@@ -277,12 +268,8 @@ function new(margin, args)
             end
         end
     end
-    
-    createDrawer() 
-    loadData()
-    updateTable()
-    
-    function regenMenu()
+
+    local function regenMenu()
         aMenu          = menu({arrow_x=90})
         aMenu.settings.itemWidth = 200
         aMenu:add_wibox(infoHeaderW    , {height = 20  , width = 200})
@@ -290,42 +277,30 @@ function new(margin, args)
         aMenu:add_wibox(usageHeaderW   , {height = 20  , width = 200})
         aMenu:add_wibox(tableW         , {height = 120 , width = 200})
         aMenu:add_wibox(processHeaderW , {height = 20  , width = 200})
-        local procMenu = menu({width=198,maxvisible=6,has_decoration=false,has_side_deco=true})
-        if data.process then
-            for i=1,10 do
-                if #data.process > i then
-                    processWidgets[i].percent.text  = data.process[i].percent.."%"
-                    processWidgets[i].process.text  = " "..data.process[i].name
-                    
-                    for k2,v2 in ipairs(capi.client.get()) do
-                        if v2.class:lower() == data.process[i].name:lower() or v2.name:lower():find(data.process[i].name:lower()) ~= nil then
-                            processWidgets[i].percent.bg_image = v2.icon
-                            processWidgets[i].percent.bg_resize = true
-                            break 
-                        end
-                    end
-                    
-                    procMenu:add_wibox(topCpuW[i] , {height = 20  , width = 200})
-                end
-            end
-        end
+        procMenu = menu({width=198,maxvisible=6,has_decoration=false,has_side_deco=true})
         aMenu:add_embeded_menu(procMenu)
-        
+
         aMenu.settings.x = capi.screen[capi.mouse.screen].geometry.width - 200 + capi.screen[capi.mouse.screen].geometry.x - margin + 40 + 15 + 15
         aMenu.settings.y = 16
-        aMenu:toggle(true)
         return aMenu
     end
 
     local visible = false
     function show()
-        if not visible then
+        if not data.menu then
+            createDrawer()
             data.menu = regenMenu()
+        else
+        end
+        if not visible then
+            loadData()
+            updateTable()
+            reload_top(procMenu,data)
         end
         visible = not visible
         data.menu:toggle(visible)
     end
-    
+
     cpulogo.image = capi.image(config.data().iconPath .. "brain.png")
     cpulogo.bg = beautiful.bg_alternate
     cpuwidget.width = 27
@@ -352,7 +327,7 @@ function new(margin, args)
 
   --vicious.register(cpuBar, vicious.widgets.cpu, '$1', 1, 'cpu')
   vicious.register(cpuBar, vicious.widgets.cpu,'$1',1)
-  
+
   return {logo = cpulogo, text = cpuwidget, graph = cpuBar}
 end
 

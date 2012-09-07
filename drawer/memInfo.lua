@@ -82,37 +82,14 @@ function refreshStat()
     if memStat == nil or memStat["ram"] == nil then
       statNotFound = "N/A"
     end
-    
-    totalRam.text           = statNotFound or memStat["ram"]["total"]
-    totalRam.width          = 55
-    totalRam.border_width   = 1
-    totalRam.border_color   = beautiful.fg_normal
-    
-    freeRam.text            = statNotFound or memStat["ram"]["free"]
-    freeRam.width           = 55
-    freeRam.border_width    = 1
-    freeRam.border_color    = beautiful.fg_normal
-    
-    usedRam.text            = statNotFound or memStat["ram"]["used"]
-    usedRam.width           = 55
-    usedRam.border_width    = 1
-    usedRam.border_color    = beautiful.fg_normal
-    
-    totalSwap.text          = statNotFound or memStat["swap"]["total"]
-    totalSwap.width         = 55
-    totalSwap.border_width  = 1
-    totalSwap.border_color  = beautiful.fg_normal
-    
-    freeSwap.text           = statNotFound or memStat["swap"]["free"]
-    freeSwap.width          = 55
-    freeSwap.border_width   = 1
-    freeSwap.border_color   = beautiful.fg_normal
-    
-    usedSwap.text           = statNotFound or memStat["swap"]["used"]
-    usedSwap.width          = 55
-    usedSwap.border_width   = 1
-    usedSwap.border_color   = beautiful.fg_normal
-    
+
+    totalRam.text  = statNotFound or memStat["ram"]["total"]
+    freeRam.text   = statNotFound or memStat["ram"]["free"]
+    usedRam.text   = statNotFound or memStat["ram"]["used"]
+    totalSwap.text = statNotFound or memStat["swap"]["total"]
+    freeSwap.text  = statNotFound or memStat["swap"]["free"]
+    usedSwap.text  = statNotFound or memStat["swap"]["used"]
+
     local f = io.open('/tmp/memStatistics.lua','r')
     if f ~= nil then
         local text3 = f:read("*all")
@@ -122,7 +99,6 @@ function refreshStat()
         memStat = {}
         if afunction ~= nil then
             memStat = afunction()
-            --print("Momory stat loaded successfully"..memStat["users"])
         end
         statNotFound = nil
     else
@@ -293,35 +269,21 @@ function new(margin, args)
     userHeaderW.visible = false
     stateHeaderW.visible = false
     processHeaderW.visible = false
+    for k,v in ipairs({ramLabel,swapLabel,totalLabel,usedLabel,freeLabel}) do
+        v.width          = 55
+        v.border_width   = 1
+        v.bg             = beautiful.fg_normal
+        v.border_color   = beautiful.bg_normal
+    end
     ramLabel.text           = "<span color='".. beautiful.bg_normal .."'>Ram</span>"
-    ramLabel.width          = 55
-    ramLabel.border_width   = 1
-    ramLabel.bg             = beautiful.fg_normal
-    ramLabel.border_color   = beautiful.bg_normal
     swapLabel.text          = "<span color='".. beautiful.bg_normal .."'>Swap</span>"
-    swapLabel.width         = 55
-    swapLabel.border_width  = 1
-    swapLabel.bg            = beautiful.fg_normal
-    swapLabel.border_color  = beautiful.bg_normal
     totalLabel.text         = "<span color='".. beautiful.bg_normal .."'>Total</span>"
     totalLabel.align        = "center"
-    totalLabel.width        = 55
-    totalLabel.border_width = 1
-    totalLabel.bg           = beautiful.fg_normal
-    totalLabel.border_color = beautiful.bg_normal
     usedLabel.text          = "<span color='".. beautiful.bg_normal .."'>Used</span>"
-    usedLabel.align         = "center" 
-    usedLabel.width         = 55
-    usedLabel.border_width  = 1
-    usedLabel.bg            = beautiful.fg_normal
-    usedLabel.border_color  = beautiful.bg_normal
+    usedLabel.align         = "center"
     freeLabel.text          = "<span color='".. beautiful.bg_normal .."'>Free</span>"
     freeLabel.align         = "center"
-    freeLabel.width         = 55
-    freeLabel.border_width  = 1
-    freeLabel.bg            = beautiful.fg_normal
-    freeLabel.border_color  = beautiful.bg_normal
-    
+
     infoHeader.text      = " <span color='".. beautiful.bg_normal .."'><b><tt>USAGE</tt></b></span> "
     infoHeader.bg        = beautiful.fg_normal
     infoHeader.width     = 212
@@ -337,12 +299,18 @@ function new(margin, args)
     processHeader.text   = " <span color='".. beautiful.bg_normal .."'><b><tt>PROCESS</tt></b></span> "
     processHeader.bg     = beautiful.fg_normal
     processHeader.width  = 212
-    
+
+    for k,v in ipairs({totalRam , freeRam  , usedRam  , totalSwap, freeSwap , usedSwap }) do
+        v.border_color   = beautiful.fg_normal
+        v.width          = 55
+        v.border_width   = 1
+    end
+
     infoHeaderW.widgets = {infoHeader,layout = widget2.layout.horizontal.leftright}
     userHeaderW.widgets = {userHeader,layout = widget2.layout.horizontal.leftright}
     stateHeaderW.widgets   = {stateHeader,layout = widget2.layout.horizontal.leftright}
     processHeaderW.widgets = {processHeader,layout = widget2.layout.horizontal.leftright}
-    
+
     ramW.widgets = {
                         {totalLabel,totalLabel,usedLabel,freeLabel, layout = widget2.layout.horizontal.leftright},
                         {ramLabel  ,totalRam  ,usedRam  ,freeRam  , layout = widget2.layout.horizontal.leftright},
@@ -360,7 +328,6 @@ function new(margin, args)
     ))
 
     refreshStat()
-    data.menu = repaint(margin-memwidget:extents().width-20-10)
 
     --It does work, but there is some exteral issues with the menu
 --     local mytimer = capi.timer({ timeout = 10 })
@@ -383,7 +350,7 @@ function new(margin, args)
 
     local visible = false
     function toggle()
-        if not visible then
+        if not data.menu then
             data.menu = repaint(margin-memwidget:extents().width-20-10)
         end
         visible = not visible
@@ -404,10 +371,6 @@ function new(margin, args)
 
     ramlogo.bg = beautiful.bg_alternate
     memwidget.bg = beautiful.bg_alternate
-
---     memwidget:add_signal("mouse::leave", function ()
---         data.menu:toggle(false)
---     end)
 
     membarwidget = widget2.progressbar({ layout = widget2.layout.horizontal.rightleft })
     membarwidget:set_width(40)

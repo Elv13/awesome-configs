@@ -196,10 +196,8 @@ local function createDrawer()
       layout = margins.vertical.topbottom ,
   }
 
-  
 end
 
-  
 function new(screen, args)
   local mytextclock = textclock({ align = "right" })
   data.wibox         = wibox({ position = "free", screen = capi.screen.count() })
@@ -212,7 +210,7 @@ function new(screen, args)
   img:draw_rectangle(150,0, 3, guessHeight, true, "#ffffff")
   data.wibox.shape_clip     = img
   data.wibox.border_color = beautiful.fg_normal
-  
+
   createDrawer()
 
   mytextclock:buttons (util.table.join(button({ }, 1, function () 
@@ -225,7 +223,7 @@ function new(screen, args)
       top.visible = data.wibox.visible
       bottom.visible = data.wibox.visible
   end)))
-  
+
   return mytextclock
 end
 
