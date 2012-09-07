@@ -1,6 +1,7 @@
 local setmetatable = setmetatable
 local table = table
 local io = io
+local print = print
 local string = string
 local button = require("awful.button")
 local wibox = require("awful.wibox")
@@ -120,9 +121,9 @@ function add_device(args)
   volUsage:set_border_color(beautiful.fg_normal)
   volUsage:set_color(beautiful.fg_normal)
   
-  local deviceName = string.sub(deviceNode,5) or "sda"
-  --vicious.register(volUsage, vicious.widgets.dio, "${total_kb}", 1, "sdc/sdc1")
- -- --vicious.register(volUsage, vicious.widgets.dio, "${total_kb}", 1, deviceNode)
+  local deviceName = string.sub(deviceNode,6,-2) or "sda"
+--   vicious.register(volUsage, vicious.widgets.dio, "${total_kb}", 1, "sdc/sdc1")
+ vicious.register(volUsage, vicious.widgets.dio, "${".. deviceName .." total_kb}")
   
   volfill = widget.progressbar()
   volfill:set_vertical(true)
