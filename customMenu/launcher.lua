@@ -121,7 +121,8 @@ end
 
 function new(offset, args)
     local launcherText = capi.widget({ type = "textbox", align = "left" })
-    launcherText.text  = "      Launch  "
+    launcherText:margin({ left = 30,right=7})
+    launcherText.text  = "Launch"
     launcherText.bg_image = capi.image(config.data().iconPath .. "gearA2.png")
     launcherText.bg_resize = true
     local tt = tooltip("Execute a command",{down=true})

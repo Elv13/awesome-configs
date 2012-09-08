@@ -26,8 +26,8 @@ end
 function new(screen, args)
     local tt = tooltip("Classic application menu",{down=true})
     local mylaunchertext     = capi.widget({ type = "textbox" })
-
-    mylaunchertext.text      = "      Apps  "
+    mylaunchertext:margin({ left = 30,right=7})
+    mylaunchertext.text      = "Apps"
     mylaunchertext.bg_image  = capi.image(beautiful.awesome_icon)
     mylaunchertext.bg_align  = "left"
     mylaunchertext.bg_resize = false

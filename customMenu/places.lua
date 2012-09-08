@@ -51,7 +51,8 @@ function new(offset, args)
     local tt = tooltip("Folder shortcut",{down=true})
 
     local mylauncher2text = capi.widget({ type = "textbox" })
-    mylauncher2text.text = "      Places  "
+    mylauncher2text:margin({ left = 30,right=7})
+    mylauncher2text.text = "Places"
     mylauncher2text.bg_image = capi.image(config.data().iconPath .. "tags/home2.png")
     mylauncher2text.bg_align = "left"
     mylauncher2text.bg_resize = true
