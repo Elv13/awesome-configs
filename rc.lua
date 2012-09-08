@@ -15,6 +15,16 @@ require( "customButton" )
 require( "titlebar"     )
 require( "ultiLayout"   )
 
+table.insert = function(t,i,v)
+    if v and i then
+        t[i] = v
+    else
+        t[#t+1] = i
+    end
+end
+
+
+function exec() --Wrap in a function for better startup profiling
 -- Cache result for probe used more than once
 local vicious = require("extern.vicious")
 vicious.cache( vicious.widgets.net )
@@ -418,3 +428,11 @@ end
 widgets.layout.desktopLayout.draw()
 config.save()
 config.enableAutoSave()
+end
+-- Startup profiling
+-- utils.profile.start()
+-- debug.sethook(utils.profile.trace, "crl", 1)
+exec()
+-- debug.sethook()
+-- utils.profile.stop(_G)
+awesome.quit()

@@ -718,7 +718,7 @@ function new(args)
 
     return menu
   end
-  
+
   return createMenu(args)
 end
 

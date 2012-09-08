@@ -6,5 +6,6 @@ require("utils.urxvtIntegration")
 require("utils.persistent")
 require("utils.macro")
 require("utils.theme")
+require("utils.profile")
 
 module("utils")

@@ -1,5 +1,6 @@
 local setmetatable = setmetatable
 local next = next
+local print = print
 local button = require("awful.button")
 local beautiful = require( "beautiful"       )
 local util      = require( "awful.util"      )
@@ -19,29 +20,22 @@ function update()
 
 end
 
-function new(screen, args) 
+function new(screen, args)
   local addTag  = capi.widget({ type = "imagebox", align = "left" })
   addTag.image  = capi.image(config.data().iconPath .. "tags/cross2.png")
   addTag.bg     = beautiful.bg_alternate
-  local tagMenu = menu()
-  local tt = tooltip("Add Tag",{})
+  local tagMenu = nil
+  local tt = nil
+  local init = false
 
---   local function showToolTip(show)
---      if not tt then
---        tt = 
---      end
---      tt.x = capi.mouse.coords().x - tt.width/2 -5
---      tt.y = 16
---      tt.visible = show
---   end
-
-  for v, i in next, shifty.config.tags do
-    tagMenu:add_item({text=v,onclick= function() 
-                                         shifty.add({name = v})
-                                         tagMenu:toggle(false)
-                                         delTag[capi.mouse.screen].visible = true
-                                      end})
+  local function showToolTip()
+     if not tt then
+       tt = tooltip("Add Tag",{})
+     end
+     return tt
   end
+
+  
   
   addTag:buttons( util.table.join(
     button({ }, 1, function()
@@ -49,12 +43,23 @@ function new(screen, args)
       --delTag[capi.mouse.screen].visible = true
     end),
     button({ }, 3, function()
+      if not init then
+          tagMenu = menu()
+            for v, i in next, shifty.config.tags do
+                tagMenu:add_item({text=v,onclick= function()
+                    shifty.add({name = v})
+                    tagMenu:toggle(false)
+                    delTag[capi.mouse.screen].visible = true
+                end})
+            end
+          init = true
+      end
       tagMenu:toggle()
     end)
   ))
   
-  addTag:add_signal("mouse::enter", function() tt:showToolTip(true) ;addTag.bg = beautiful.bg_normal    end)
-  addTag:add_signal("mouse::leave", function() tt:showToolTip(false);addTag.bg = beautiful.bg_alternate end)
+  addTag:add_signal("mouse::enter", function() (tt or showToolTip()):showToolTip(true) ;addTag.bg = beautiful.bg_normal    end)
+  addTag:add_signal("mouse::leave", function() (tt or showToolTip()):showToolTip(false);addTag.bg = beautiful.bg_alternate end)
   
   return addTag
 end

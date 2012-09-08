@@ -57,13 +57,6 @@ function new(screen, args)
       data[id].widget.visible = true
     end
     
-    for i=1,capi.screen.count() do
-      screenMenu:add_item({text=i, onclick = function() 
-                                                utils.tag_to_screen(data[id].selected, screen2)
-                                                screenMenu:toggle()
-                                             end})
-    end
-    
     data[id].screen = screen
     data[id].direction = direction
     
@@ -90,6 +83,15 @@ function new(screen, args)
 	  end
       end),
       button({ }, 3, function()
+          if not screenMenu then
+            screenMenu = menu()
+            for i=1,capi.screen.count() do
+                screenMenu:add_item({text=i, onclick = function() 
+                    utils.tag_to_screen(data[id].selected, screen2)
+                    screenMenu:toggle()
+                end})
+            end
+          end
           screenMenu:toggle()
       end),
       button({ }, 4, function()

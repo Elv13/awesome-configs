@@ -1,7 +1,12 @@
--- This module monkey patch (http://en.wikipedia.org/wiki/Monkey_patch) awful to add features
+-- This module monkey patch (http://en.wikipedia.org/wiki/Monkey_patch) awful to add features, improve performance
 -- @author Emmanuel Lepage Vallee <elv1313@gmail.com>
 
-
+local print = print
+local ipairs = ipairs
+local pairs = pairs
+local type = type
+local debug = debug
+local rtable = table
 local awful = require("awful")
 local capi = { screen = screen,
                mouse = mouse,
@@ -191,19 +196,19 @@ awful.widget.graph.update = function (graph)
     graph.widget.image = img
 end
 
--- awful.widget.graph.graphData = {}
--- 
--- awful.widget.graph.set_offset = function (graph, offset)
---     --if width >= 5 then
---         if awful.widget.graph.graphData[graph] == nil then
---             awful.widget.graph.graphData[graph] = {}
---         end
---         awful.widget.graph.graphData[graph].offset = offset
---         awful.widget.graph.update(graph)
---     --end
---     return graph
--- end
 
+--Elv13 (2012) rewrite for better performance http://trac.caspring.org/wiki/LuaPerformance #12 #10 #11
+awful.util.table.join = function (...)
+--     print(debug.traceback())
+    local ret,count,param = {},1,{...}
+    for i=1, #param do
+        for k, v in pairs(param[i] or {}) do
+            ret[count] = v
+            count = count + 1
+        end
+    end
+    return ret
+end
 
 awful.widget.layout.vertical.topbottom = vertical2.topbottom
 awful.widget.layout.vertical.bottomtop = vertical2.bottomtop
