@@ -216,36 +216,6 @@ local function update2()
 end
 
 local function repaint(margin)
-    local mainMenu = menu({arrow_x=90})
-    mainMenu.settings.itemWidth = 200
-    mainMenu:add_wibox(graphHeaderW ,{height = 20, width = 200})
-    mainMenu:add_wibox(graphUW      ,{height = 40, width = 200})
-    mainMenu:add_wibox(graphDW      ,{height = 50, width = 200})
-    mainMenu:add_wibox(ipHeaderW    ,{height = 20, width = 200})
-    mainMenu:add_wibox(ipInfo       ,{height = 30, width = 200})
---     mainMenu:add_wibox(localHeaderW ,{height = 20, width = 200})
-    mainMenu:add_wibox(connHeaderW  ,{height = 20, width = 200})
-
-    if data.connectionInfo ~= nil then
-        connMenu = menu({width=198,maxvisible=3,has_decoration=false,has_side_deco=true})
-        mainMenu:add_embeded_menu(connMenu)
-    end
-    mainMenu:add_wibox(appHeaderW,{height = 20, width = 200})
-
-    protMenu = menu({width=198,maxvisible=7,has_decoration=false,has_side_deco=true})
-    mainMenu:add_embeded_menu(protMenu)
-
-    mainMenu:add_wibox(protHeaderW ,{height = 20, width = 200})
-
-    appMenu = menu({width=198,maxvisible=7,has_decoration=false,has_side_deco=true})
-    mainMenu:add_embeded_menu(appMenu)
-
-    mainMenu.settings.x = capi.screen[capi.mouse.screen].geometry.width - 200 + capi.screen[capi.mouse.screen].geometry.x - margin + 20
-    mainMenu.settings.y = 16
-    return mainMenu
-end
-
-function new(margin, args)
     graphHeaderW         = wibox({ position = "free" , screen = s , ontop = true,height = 20})
     ipHeaderW            = wibox({ position = "free" , screen = s , ontop = true,height = 20})
 --     localHeaderW         = wibox({ position = "free" , screen = s , ontop = true,height = 20})
@@ -326,6 +296,50 @@ function new(margin, args)
     netUsageDown.text  = "<b>Down: </b>"
     netSpacer.text     = " "
     netSpacer.width    = 10
+    
+    
+    
+    
+    
+    local mainMenu = menu({arrow_x=90})
+    mainMenu.settings.itemWidth = 200
+    mainMenu:add_wibox(graphHeaderW ,{height = 20, width = 200})
+    mainMenu:add_wibox(graphUW      ,{height = 40, width = 200})
+    mainMenu:add_wibox(graphDW      ,{height = 50, width = 200})
+    mainMenu:add_wibox(ipHeaderW    ,{height = 20, width = 200})
+    mainMenu:add_wibox(ipInfo       ,{height = 30, width = 200})
+--     mainMenu:add_wibox(localHeaderW ,{height = 20, width = 200})
+    mainMenu:add_wibox(connHeaderW  ,{height = 20, width = 200})
+
+    if data.connectionInfo ~= nil then
+        connMenu = menu({width=198,maxvisible=3,has_decoration=false,has_side_deco=true})
+        mainMenu:add_embeded_menu(connMenu)
+    end
+    mainMenu:add_wibox(appHeaderW,{height = 20, width = 200})
+
+    protMenu = menu({width=198,maxvisible=7,has_decoration=false,has_side_deco=true})
+    mainMenu:add_embeded_menu(protMenu)
+
+    mainMenu:add_wibox(protHeaderW ,{height = 20, width = 200})
+
+    appMenu = menu({width=198,maxvisible=7,has_decoration=false,has_side_deco=true})
+    mainMenu:add_embeded_menu(appMenu)
+
+    mainMenu.settings.x = capi.screen[capi.mouse.screen].geometry.width - 200 + capi.screen[capi.mouse.screen].geometry.x - margin + 20
+    mainMenu.settings.y = 16
+    return mainMenu
+end
+
+function new(margin, args)
+    graphHeaderW = nil
+    ipHeaderW = nil
+--     localHeaderW      
+    connHeaderW = nil
+    protHeaderW = nil
+    appHeaderW = nil
+    ipInfo = nil
+    graphUW = nil
+    graphDW = nil
 
     function show()
         if not data.menu or data.menu.settings.visible ~= true then

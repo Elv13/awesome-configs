@@ -95,40 +95,28 @@ end
 function new(margin, args)
     local coreWidgets       = {}
     local cpuInfo           = {}
-
-    local infoHeader        = capi.widget({ type = "textbox"  })
-    local usageHeader       = capi.widget({ type = "textbox"  })
-    local tempHeader        = capi.widget({ type = "textbox"  })
-    local processHeader     = capi.widget({ type = "textbox"  })
-    local cpuModel          = capi.widget({ type = "textbox"  })
-    local iowaitHeader      = capi.widget({ type = "textbox"  })
-    local usageHeader2      = capi.widget({ type = "textbox"  })
-    local emptyCornerHeader = capi.widget({ type = "textbox"  })
-    local clockHeader       = capi.widget({ type = "textbox"  })
-    local idleHeader        = capi.widget({ type = "textbox"  })
     local cpulogo           = capi.widget({ type = "imagebox" })
     local cpuwidget         = capi.widget({ type = "textbox"  })
-    local spacer1           = capi.widget({ type = "textbox"  })
-    local volUsage          = widget2.graph()
 
-    local topCpuW           = {}
-    local infoHeaderW       = wibox({ position = "free" , screen = s , ontop = true, height = 20 })
-    local usageHeaderW      = wibox({ position = "free" , screen = s , ontop = true, height = 20 })
-    local processHeaderW    = wibox({ position = "free" , screen = s , ontop = true, height = 20 })
-    local modelW            = wibox({ position = "free" , screen = s , ontop = true, height = 40 })
-    local tableW            = wibox({ position = "free" , screen = s , ontop = true, height = 120})
+    local infoHeader
+    local usageHeader
+    local tempHeader
+    local processHeader
+    local cpuModel
+    local iowaitHeader
+    local usageHeader2
+    local emptyCornerHeader
+    local clockHeader
+    local idleHeader
+    local spacer1
+    local volUsage
 
-    topCpuW.visible        = false
-    infoHeaderW.visible    = false
-    usageHeaderW.visible   = false
-    processHeaderW.visible = false
-    modelW.visible         = false
-    tableW.visible         = false
-
-    infoHeaderW.widgets     = {infoHeader    , layout = widget2.layout.horizontal.leftright}
-    usageHeaderW.widgets    = {usageHeader2  , layout = widget2.layout.horizontal.leftright}
-    processHeaderW.widgets  = {processHeader , layout = widget2.layout.horizontal.leftright}
-    modelW.widgets          = {cpuModel      , layout = widget2.layout.horizontal.leftright}
+    local topCpuW
+    local infoHeaderW
+    local usageHeaderW
+    local processHeaderW
+    local modelW
+    local tableW
     
     local function loadData()
         local f = io.open('/tmp/cpuStatistic.lua','r')
@@ -172,6 +160,39 @@ function new(margin, args)
     end
 
     local function createDrawer()
+        infoHeader        = capi.widget({ type = "textbox"  })
+        usageHeader       = capi.widget({ type = "textbox"  })
+        tempHeader        = capi.widget({ type = "textbox"  })
+        processHeader     = capi.widget({ type = "textbox"  })
+        cpuModel          = capi.widget({ type = "textbox"  })
+        iowaitHeader      = capi.widget({ type = "textbox"  })
+        usageHeader2      = capi.widget({ type = "textbox"  })
+        emptyCornerHeader = capi.widget({ type = "textbox"  })
+        clockHeader       = capi.widget({ type = "textbox"  })
+        idleHeader        = capi.widget({ type = "textbox"  })
+        spacer1           = capi.widget({ type = "textbox"  })
+        volUsage          = widget2.graph()
+
+        topCpuW           = {}
+        infoHeaderW       = wibox({ position = "free" , screen = s , ontop = true, height = 20 })
+        usageHeaderW      = wibox({ position = "free" , screen = s , ontop = true, height = 20 })
+        processHeaderW    = wibox({ position = "free" , screen = s , ontop = true, height = 20 })
+        modelW            = wibox({ position = "free" , screen = s , ontop = true, height = 40 })
+        tableW            = wibox({ position = "free" , screen = s , ontop = true, height = 120})
+
+        topCpuW.visible        = false
+        infoHeaderW.visible    = false
+        usageHeaderW.visible   = false
+        processHeaderW.visible = false
+        modelW.visible         = false
+        tableW.visible         = false
+
+        infoHeaderW.widgets     = {infoHeader    , layout = widget2.layout.horizontal.leftright}
+        usageHeaderW.widgets    = {usageHeader2  , layout = widget2.layout.horizontal.leftright}
+        processHeaderW.widgets  = {processHeader , layout = widget2.layout.horizontal.leftright}
+        modelW.widgets          = {cpuModel      , layout = widget2.layout.horizontal.leftright}
+
+
         loadData()
         cpuWidgetArray     = {}
         infoHeader.text    = " <span color='".. beautiful.bg_normal .."'><b><tt>INFO</tt></b></span> "

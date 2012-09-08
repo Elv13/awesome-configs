@@ -221,44 +221,6 @@ end
 local usrMenu,typeMenu,topMenu
 
 function repaint(margin)
-    mainMenu = menu({arrow_x=90,nokeyboardnav=true})
-    mainMenu.settings.itemWidth = 198
-    mainMenu:add_wibox(infoHeaderW,{height = 20 , width = 200})
-    mainMenu:add_wibox(ramW       ,{height = 72, width = 200})
-    mainMenu:add_wibox(userHeaderW,{height = 20, width = 200})
-    local memStat
-
-    usrMenu = menu({width=198,maxvisible=10,has_decoration=false,has_side_deco=true,nokeyboardnav=true})
-    reload_user(usrMenu,data)
-    mainMenu:add_embeded_menu(usrMenu)
-
-    mainMenu:add_wibox(stateHeaderW,{height = 20 , width = 200})
-
-    typeMenu = menu({width=198,maxvisible=5,has_decoration=false,has_side_deco=true,nokeyboardnav=true})
-    reload_state(typeMenu,data)
-    mainMenu:add_embeded_menu(typeMenu)
-
-    mainMenu:add_wibox(processHeaderW,{height = 20 , width = 200})
-
-    topMenu = menu({width=198,maxvisible=3,has_decoration=false,has_side_deco=true,nokeyboardnav=true})
-    reload_top(topMenu,data)
-    mainMenu:add_embeded_menu(topMenu)
-
-    mainMenu.settings.x = capi.screen[capi.mouse.screen].geometry.width - 200 + capi.screen[capi.mouse.screen].geometry.x - margin
-    mainMenu.settings.y = 16
-    return mainMenu
-end
-
-function update()
-    usrMenu:clear()
-    typeMenu:clear()
-    topMenu:clear()
-    reload_user(usrMenu,data)
-    reload_state(typeMenu,data)
-    reload_top(topMenu,data)
-end
-
-function new(margin, args)
     infoHeaderW    = wibox({ position = "free", screen = s,ontop = true,height = 20})
     ramW           = wibox({ position = "free", screen = s,ontop = true,height = 72})
     userHeaderW    = wibox({ position = "free", screen = s,ontop = true,height = 20})
@@ -317,6 +279,44 @@ function new(margin, args)
                         {swapLabel ,totalSwap ,usedSwap ,freeSwap , layout = widget2.layout.horizontal.leftright},
                         layout = widget2.layout.vertical.flex
                     }
+    mainMenu = menu({arrow_x=90,nokeyboardnav=true})
+    mainMenu.settings.itemWidth = 198
+    mainMenu:add_wibox(infoHeaderW,{height = 20 , width = 200})
+    mainMenu:add_wibox(ramW       ,{height = 72, width = 200})
+    mainMenu:add_wibox(userHeaderW,{height = 20, width = 200})
+    local memStat
+
+    usrMenu = menu({width=198,maxvisible=10,has_decoration=false,has_side_deco=true,nokeyboardnav=true})
+    reload_user(usrMenu,data)
+    mainMenu:add_embeded_menu(usrMenu)
+
+    mainMenu:add_wibox(stateHeaderW,{height = 20 , width = 200})
+
+    typeMenu = menu({width=198,maxvisible=5,has_decoration=false,has_side_deco=true,nokeyboardnav=true})
+    reload_state(typeMenu,data)
+    mainMenu:add_embeded_menu(typeMenu)
+
+    mainMenu:add_wibox(processHeaderW,{height = 20 , width = 200})
+
+    topMenu = menu({width=198,maxvisible=3,has_decoration=false,has_side_deco=true,nokeyboardnav=true})
+    reload_top(topMenu,data)
+    mainMenu:add_embeded_menu(topMenu)
+
+    mainMenu.settings.x = capi.screen[capi.mouse.screen].geometry.width - 200 + capi.screen[capi.mouse.screen].geometry.x - margin
+    mainMenu.settings.y = 16
+    return mainMenu
+end
+
+function update()
+    usrMenu:clear()
+    typeMenu:clear()
+    topMenu:clear()
+    reload_user(usrMenu,data)
+    reload_state(typeMenu,data)
+    reload_top(topMenu,data)
+end
+
+function new(margin, args)
 
     local memwidget = capi.widget({
         type  = 'textbox',

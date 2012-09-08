@@ -15,13 +15,13 @@ require( "customButton" )
 require( "titlebar"     )
 require( "ultiLayout"   )
 
-table.insert = function(t,i,v)
-    if v and i then
-        t[i] = v
-    else
-        t[#t+1] = i
-    end
-end
+-- table.insert = function(t,i,v)
+--     if v and i then
+--         t[i] = v
+--     else
+--         t[#t+1] = i
+--     end
+-- end
 
 
 function exec() --Wrap in a function for better startup profiling
@@ -430,9 +430,8 @@ config.save()
 config.enableAutoSave()
 end
 -- Startup profiling
--- utils.profile.start()
--- debug.sethook(utils.profile.trace, "crl", 1)
+utils.profile.start()
+debug.sethook(utils.profile.trace, "crl", 1)
 exec()
--- debug.sethook()
--- utils.profile.stop(_G)
-awesome.quit()
+debug.sethook()
+utils.profile.stop(_G)

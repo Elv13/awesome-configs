@@ -27,7 +27,7 @@ function new(screen, args)
     local icon       = args.icon         or nil
     local id         = screen..direction --
     local addOrSub   = 0                 --
-    local screenMenu = menu()            --
+    local screenMenu = nil               --
     local tt = tooltip("Move Tag Screen to the "..args.direction,{})
     
     

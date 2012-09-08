@@ -91,7 +91,7 @@ globalkeys = awful.util.table.join(
     awful.key({                   }, "#95"   , utils.keyFunctions.pasteClipboard                    ),
     awful.key({ "Shift"           }, "#96"   , utils.keyFunctions.printTextBuffer                   ),
     awful.key({ "Shift"           }, "#95"   , utils.keyFunctions.printClipboard                    ),
-    awful.key({ modkey, "Shift"   }, "#96"   , utils.keyFunctions.printHexTextBuffer                   ),
+    awful.key({ modkey, "Shift"   }, "#96"   , utils.keyFunctions.printHexTextBuffer                ),
     
     
     -- Prompt
@@ -127,36 +127,36 @@ shifty.config.clientkeys = clientkeys
 -- This should map on the top row of your keyboard, usually 1 to 9.
 
 for i=1, ( 4 ) do
-  globalkeys = awful.util.table.join(globalkeys, awful.key({ }, "F"..i,
+  awful.util.table.append(globalkeys, awful.key({ }, "F"..i,
   function ()
     print("get fav")
     utils.clientSwitcher.selectFavClient(i)
   end))
-  globalkeys = awful.util.table.join(globalkeys, awful.key({ modkey }, "F"..i,
+  awful.util.table.append(globalkeys, awful.key({ modkey }, "F"..i,
   function ()
     utils.clientSwitcher.setFavClient(i, client.focus)
   end))
-  globalkeys = awful.util.table.join(globalkeys, awful.key({ "Control" }, "F"..i,
+  awful.util.table.append(globalkeys, awful.key({ "Control" }, "F"..i,
   function ()
     utils.clientSwitcher.setFavTag(i, awful.tag.selected(mouse.screen))
   end))
-  globalkeys = awful.util.table.join(globalkeys, awful.key({ "Shift" }, "F"..i,
+  awful.util.table.append(globalkeys, awful.key({ "Shift" }, "F"..i,
   function ()
     utils.clientSwitcher.setFavMacro(i)
   end))
 end
 
 for i=6, ( 8 ) do
-  globalkeys = awful.util.table.join(globalkeys, awful.key({ }, "F"..i,
+  awful.util.table.append(globalkeys, awful.key({ }, "F"..i,
   function ()
     print("get fav")
     utils.clientSwitcher.selectFavClient(i)
   end))
-  globalkeys = awful.util.table.join(globalkeys, awful.key({ modkey }, "F"..i,
+  awful.util.table.append(globalkeys, awful.key({ modkey }, "F"..i,
   function ()
     utils.clientSwitcher.setFavClient(i, client.focus)
   end))
-  globalkeys = awful.util.table.join(globalkeys, awful.key({ "Control" }, "F"..i,
+  awful.util.table.append(globalkeys, awful.key({ "Control" }, "F"..i,
   function ()
     utils.clientSwitcher.setFavTag(i, awful.tag.selected(mouse.screen))
   end))
@@ -164,23 +164,23 @@ end
 
 for i=1, ( shifty.config.maxtags or 9 ) do
   
-  globalkeys = awful.util.table.join(globalkeys, awful.key({ modkey }, i,
+  awful.util.table.append(globalkeys, awful.key({ modkey }, i,
   function ()
     local t = awful.tag.viewonly(shifty.getpos(i))
   end))
-  globalkeys = awful.util.table.join(globalkeys, awful.key({ modkey, "Control" }, i,
+  awful.util.table.append(globalkeys, awful.key({ modkey, "Control" }, i,
   function ()
     local t = shifty.getpos(i)
     t.selected = not t.selected
   end))
-  globalkeys = awful.util.table.join(globalkeys, awful.key({ modkey, "Control", "Shift" }, i,
+  awful.util.table.append(globalkeys, awful.key({ modkey, "Control", "Shift" }, i,
   function ()
     if client.focus then
       awful.client.toggletag(shifty.getpos(i))
     end
   end))
   -- move clients to other tags
-  globalkeys = awful.util.table.join(globalkeys, awful.key({ modkey, "Shift" }, i,
+  awful.util.table.append(globalkeys, awful.key({ modkey, "Shift" }, i,
     function ()
       if client.focus then
         local t = shifty.getpos(i)

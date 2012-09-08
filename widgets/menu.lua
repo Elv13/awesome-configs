@@ -191,7 +191,7 @@ local function activateKeyboard(curMenu)
 end
 
 -- Individual menu function
-function new(args) 
+function new(args)
   local subArrow  = capi.widget({type="imagebox"             } )
   subArrow.image  = capi.image ( beautiful.menu_submenu_icon   )
   
@@ -676,7 +676,7 @@ function new(args)
         if not item then return end
         item.pMenu = menu
         registerButton(item.widget,item)
-        table.insert(self.items, item)
+        self.items[#self.items+1] = item
         if menu.settings.parent and menu.is_embeded_menu then
             menu.settings.parent.hasChanged = true
         end
