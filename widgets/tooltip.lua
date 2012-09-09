@@ -60,6 +60,7 @@ function new(text, args)
        data.wibox.y = args2.y or args.y or (args.down and capi.screen[capi.mouse.screen].geometry.height - 16 - 25 or 16)
        data.wibox.visible = show
      end
+     data.text = text
   end
   return data
 end

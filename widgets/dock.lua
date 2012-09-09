@@ -35,6 +35,7 @@ local function create(screen, args)
 
     function displayInfo(anApps, name,tooltip1)
         anApps:add_signal("mouse::enter", function ()
+            if not lauchBar.visible then return end
             hide_tooltip()
             local tt,ext = tooltip1()
             visible_tt = tt
@@ -142,7 +143,7 @@ local function create(screen, args)
     lauchBar.widgets         = widgets
     lauchBar.widgets.layout  = widget2.layout.vertical.topbottom
 
-    lauchBar:add_signal("mouse::leave", function() lauchBar.visible = false; hide_tooltip() end)
+    lauchBar:add_signal("mouse::leave", function()lauchBar.visible = false; hide_tooltip() end)
     return lauchBar
 end
 
