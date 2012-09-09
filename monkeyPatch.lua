@@ -11,6 +11,7 @@ local unpack = unpack
 local awful = require("awful")
 local capi = { screen = screen,
                mouse = mouse,
+               key = key,
                widget = widget,
                client = client,
                awesome = awesome,
@@ -240,6 +241,44 @@ awful.button.new = function (mod, button, press, release)
     end
     return ret
 end
+
+--Elv13 (2012) same as button
+awful.key.new = function(mod, key, press, release)
+    local ret = {}
+    for i=1, 4 do
+        local ss,cache = subsets2[i],#mod
+        for j=1,#ss do
+            mod[cache+j] = ss[j]
+        end
+        ret[#ret + 1] = capi.key({ modifiers = mod, key = key })
+        if press then
+            ret[#ret]:add_signal("press", function(kobj, ...) press(...) end)
+        end
+        if release then
+            ret[#ret]:add_signal("release", function(kobj, ...) release(...) end)
+        end
+    end
+    return ret
+end
+
+--Elv13 (2012) little differnces, but worth it
+awful.key.match = function(key, pressed_mod, pressed_key)
+    -- First, compare key.
+    if pressed_key ~= key.key or #pressed_mod ~= #mod then return false end
+    -- Then, compare mod
+    local mod = key.modifiers
+    -- For each modifier of the key object, check that the modifier has been
+    -- pressed.
+    for _, m in ipairs(mod) do
+        -- Has it been pressed?
+        if not util.table.hasitem(pressed_mod, m) then
+            -- No, so this is failure!
+            return false
+        end
+    end
+    return true
+end
+
 
 awful.widget.layout.vertical.topbottom = vertical2.topbottom
 awful.widget.layout.vertical.bottomtop = vertical2.bottomtop

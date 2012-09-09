@@ -7,6 +7,7 @@
 local setmetatable = setmetatable
 local ipairs = ipairs
 local math = math
+local print = print
 local table = table
 local capi = { image = image,
                widget = widget }
@@ -70,75 +71,83 @@ local properties = { "width", "height", "border_color", "offset",
                      "background_color", "max_value", "scale" }
 
 local function update(graph)
-    -- Create new empty image
-    local img = capi.image.argb32(data[graph].width, data[graph].height, nil)
+    local dtg = data[graph]
+    local mval,offset = dtg.m_value,dtg.offset or 0
+    local width, height = dtg.width, dtg.height
+    local img = capi.image.argb32(width, height, nil)
 
     local border_width = 0
-    if data[graph].border_color then
+    if dtg.border_color then
         border_width = 1
-	
-	if data[graph].offset then
-            border_width = border_width + data[graph].offset
+        if dtg.offset then
+            border_width = border_width + dtg.offset
         end
     end
 
-    local values = data[graph].values
-    local max_value = data[graph].max_value
+    local old = graph.im
+    if not old then
+        old = capi.image.argb32(width, height, nil)
+        old:draw_rectangle(border_width, border_width,
+                        width - (2 * border_width) --[[- #values]],
+                        height - (2 * border_width),
+                        true, dtg.background_color or "#000000aa")
+    end
+    img:insert(old,-1,0)
 
-    if data[graph].scale then
-        for _, v in ipairs(values) do
-            if v > max_value then
-                max_value = v
+    local values = dtg.values
+    local max_value = dtg.max_value
+
+    if #values == 0 then
+        graph.widget.image = img
+        return
+    end
+
+    --Elv13 do not recompute the max value, cache it
+    local last_val = values[#values]
+    if dtg.scale then
+        if (last_val or 0) > (graph.max_val or 0) then
+            graph.max_val = last_val
+        end
+        --Redraw only when necessary
+        if mval ~= (graph.max_val or max_value or 0) then
+            for i = 0, #values - 1 do
+                local value = values[#values - i]
+                if value >= 0 then
+                    value = value / max_value
+                    img:draw_line(width - border_width - i - 1,
+                                border_width + ((height - 2 * border_width) * (1 - value)),
+                                width - border_width - i - 1,
+                                border_width,
+                                dtg.background_color or "#000000aa")
+                end
             end
         end
+        max_value = graph.max_val or max_value or 0
+        dtg.m_value = max_value
     end
+    last_val = last_val / max_value
 
-    -- Draw background
-    -- Draw full gradient
-    if data[graph].gradient_colors then
-        img:draw_rectangle_gradient(border_width, border_width,
-                                    data[graph].width - (2 * border_width),
-                                    data[graph].height - (2 * border_width),
-                                    data[graph].gradient_colors,
-                                    data[graph].gradient_angle or 270)
-    else
-        img:draw_rectangle(border_width, border_width,
-                           data[graph].width - (2 * border_width),
-                           data[graph].height - (2 * border_width),
-                           true, data[graph].color or "red")
-    end
-
-    -- No value? Draw nothing.
-    if #values ~= 0 then
-        -- Draw reverse
-        for i = 0, #values - 1 do
-            local value = values[#values - i]
-            if value >= 0 then
-                value = value / max_value
-                img:draw_line(data[graph].width - border_width - i - 1,
-                              border_width + ((data[graph].height - 2 * border_width) * (1 - value)),
-                              data[graph].width - border_width - i - 1,
-                              border_width,
-                              data[graph].background_color or "#000000aa")
-            end
-        end
-    end
-
-    -- If we did not draw values everywhere, draw a square over the last left
-    -- part to set everything to 0 :-)
-    if #values < data[graph].width - (2 * border_width) then
-        img:draw_rectangle(border_width, border_width,
-                           data[graph].width - (2 * border_width) - #values,
-                           data[graph].height - (2 * border_width),
-                           true, data[graph].background_color or "#000000aa")
-    end
+    --Draw line background
+    img:draw_line(width - border_width - 1,
+                            border_width-offset,
+                            width - border_width - 1,
+                            height-2*(border_width-offset),
+                            dtg.background_color or "#000000aa")
+    --Draw the new line
+    img:draw_line(width - border_width - 1,
+                  border_width + ((height - 2 * border_width) * (1 - last_val)),
+                  width - border_width - 1,
+                  height - border_width,
+                  dtg.color or "#000000aa")
 
     -- Draw the border last so that it overlaps other stuff
-    if data[graph].border_color then
+    if dtg.border_color then
         -- Draw border
-        img:draw_rectangle(0, 0, data[graph].width, data[graph].height,
-                           false, data[graph].border_color or "white")
+        img:draw_rectangle(0, 0, width, height, false, dtg.border_color or "white")
     end
+
+    --Cache the old value
+    graph.im = img
 
     -- Update the image
     graph.widget.image = img
@@ -149,22 +158,24 @@ end
 -- @param value The value between 0 and 1.
 local function add_value(graph, value)
     if not graph then return end
+    local dtg = data[graph]
 
     local value = value or 0
-    local max_value = data[graph].max_value
-    value = math.max(0, value)
-    if not data[graph].scale then
-        value = math.min(max_value, value)
+    local max_value = dtg.max_value
+    value = value > 0 and value or 0
+    if not dtg.scale then
+        value = max_value > value and value or max_value
     end
 
-    table.insert(data[graph].values, value)
+    local vals = dtg.values
+    vals[#vals+1] = value
 
     local border_width = 0
     if data[graph].border then border_width = 2 end
 
     -- Ensure we never have more data than we can draw
-    while #data[graph].values > data[graph].width - border_width do
-        table.remove(data[graph].values, 1)
+    while #vals > dtg.width - border_width do
+        table.remove(vals, 1)
     end
 
     update(graph)

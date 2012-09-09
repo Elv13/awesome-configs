@@ -200,20 +200,22 @@ end
 
 function new(screen, args)
   local mytextclock = textclock({ align = "right" })
-  data.wibox         = wibox({ position = "free", screen = capi.screen.count() })
-  data.wibox.ontop   = true
-  data.wibox.visible = false
-  local top,bottom = menu.gen_menu_decoration(153,{arrow_x=153 - mytextclock:extents().width/2 - 10})
-  local guessHeight = capi.screen[1].geometry.height
-  local img = capi.image.argb32(153, guessHeight, nil)
-  img:draw_rectangle(0,0, 3, guessHeight, true, "#ffffff")
-  img:draw_rectangle(150,0, 3, guessHeight, true, "#ffffff")
-  data.wibox.shape_clip     = img
-  data.wibox.border_color = beautiful.fg_normal
+  local top,bottom
+  mytextclock:buttons (util.table.join(button({ }, 1, function ()
+      if not data.wibox then
+        data.wibox         = wibox({ position = "free", screen = capi.screen.count() })
+        data.wibox.ontop   = true
+        data.wibox.visible = false
+        top,bottom = menu.gen_menu_decoration(153,{arrow_x=153 - mytextclock:extents().width/2 - 10})
+        local guessHeight = capi.screen[1].geometry.height
+        local img = capi.image.argb32(153, guessHeight, nil)
+        img:draw_rectangle(0,0, 3, guessHeight, true, "#ffffff")
+        img:draw_rectangle(150,0, 3, guessHeight, true, "#ffffff")
+        data.wibox.shape_clip     = img
+        data.wibox.border_color = beautiful.fg_normal
 
-  createDrawer()
-
-  mytextclock:buttons (util.table.join(button({ }, 1, function () 
+        createDrawer()
+      end
       data.wibox:geometry({ width = 153, height = capi.screen[capi.mouse.screen].geometry.height-140, x = capi.screen[capi.mouse.screen].geometry.width - 153 + capi.screen[capi.mouse.screen].geometry.x - 5, y = 16 + top.height})
       data.wibox.visible = not data.wibox.visible
       top.x = data.wibox.x

@@ -23,7 +23,6 @@ require( "ultiLayout"   )
 --     end
 -- end
 
-
 function exec() --Wrap in a function for better startup profiling
 -- Cache result for probe used more than once
 local vicious = require("extern.vicious")
@@ -82,7 +81,11 @@ config.load()
 config.data().themePath = awful.util.getdir("config") .. "/theme/" .. config.data().themeName .. "/"
 config.data().iconPath  = config.data().themePath       .. "/Icon/"
 beautiful.init(config.data().themePath                .. "/theme.lua")
-  
+
+-- Shifty rules
+dofile(awful.util.getdir("config") .. "/baseRule.lua")
+shifty.init()
+
 -- Create the panels
 for s = 1, screen.count() do
   wiboxTop[s] = awful.wibox({ position = "top"   , screen = s, height = 16 })
@@ -151,9 +154,6 @@ menuarrow               = utils.theme.new_arrow_widget()
 
 -- Create the hardware alarm panel
 --hardwarePanel = panel.hardware()
-
--- Shifty rules
-dofile(awful.util.getdir("config") .. "/baseRule.lua"                                  )
 
 -- Create the addTag icon (depend on shifty rule)
 addTag = customButton.addTag                      ( nil,{taglist = shifty.config.tags} )
@@ -387,7 +387,7 @@ for s = 1, screen.count() do
   awful.tag.attached_add_signal(s, "property::layout"  , function () utils.tools.addTitleBar(s) end)
 end
 
-shifty.init()
+-- shifty.init()
 
 --Start application when a tag is first used, better than using shifty.init
 local isPlayingMovie         = false
@@ -430,8 +430,8 @@ config.save()
 config.enableAutoSave()
 end
 -- Startup profiling
-utils.profile.start()
-debug.sethook(utils.profile.trace, "crl", 1)
+-- utils.profile.start()
+-- debug.sethook(utils.profile.trace, "crl", 1)
 exec()
-debug.sethook()
-utils.profile.stop(_G)
+-- debug.sethook()
+-- utils.profile.stop(_G)

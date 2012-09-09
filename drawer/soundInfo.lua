@@ -142,41 +142,41 @@ function new(mywibox3,left_margin)
   local volumepixmap = capi.widget({ type = "imagebox"})
   volumepixmap.image = capi.image(config.data().iconPath .. "vol.png")
 
-  data.wibox = wibox({ position = "free", screen = s})
-  data.wibox.ontop = true
-  data.wibox.visible = false
-  local guessHeight = capi.screen[1].geometry.height
-  local img = capi.image.argb32(240, guessHeight, nil)
-  img:draw_rectangle(0,0, 3, guessHeight, true, "#ffffff")
-  img:draw_rectangle(237,0, 3, guessHeight, true, "#ffffff")
-  data.wibox.shape_clip     = img
-  data.wibox.border_color = beautiful.fg_normal
-  local top,bottom = menu.gen_menu_decoration(240,{arrow_x=240 - (left_margin or 0) - 35 - 10})
-  soundInfo()
 
-  --volumewidget.mouse_enter = function () soundInfo() end
-  
+  local top,bottom
+
   local btn = util.table.join(
      button({ }, 1, function()
-          data.wibox:geometry({y = 16 + top.height, x = capi.screen[capi.mouse.screen].geometry.width - 240 + capi.screen[capi.mouse.screen].geometry.x, width = 240, height = 300})
-          
-        top.x = data.wibox.x
-        top.y = 16
-        bottom.x = data.wibox.x
-        bottom.y = data.wibox.y+data.wibox.height
+        if not data.wibox then
+            data.wibox = wibox({ position = "free", screen = s})
+            data.wibox.ontop = true
+            data.wibox.visible = false
+            local guessHeight = capi.screen[1].geometry.height
+            local img = capi.image.argb32(240, guessHeight, nil)
+            img:draw_rectangle(0,0, 3, guessHeight, true, "#ffffff")
+            img:draw_rectangle(237,0, 3, guessHeight, true, "#ffffff")
+            data.wibox.shape_clip     = img
+            data.wibox.border_color = beautiful.fg_normal
+            top,bottom = menu.gen_menu_decoration(240,{arrow_x=240 - (left_margin or 0) - 35 - 10})
+            soundInfo()
+            data.wibox:geometry({y = 16 + top.height, x = capi.screen[capi.mouse.screen].geometry.width - 240 + capi.screen[capi.mouse.screen].geometry.x, width = 240, height = 300})
+            top.x = data.wibox.x
+            top.y = 16
+            bottom.x = data.wibox.x
+            bottom.y = data.wibox.y+data.wibox.height
+        end
         data.wibox.visible = not data.wibox.visible
-        
+
         top.visible = data.wibox.visible
         bottom.visible = data.wibox.visible
-        
-          if mywibox3 then
+
+        if mywibox3 then
             mywibox3.visible = not mywibox3.visible
-          end
-          musicBarVisibility = true
-          
-          
---        volumepixmap.visible = not volumepixmap.visible 
---        volumewidget.visible = not volumewidget.visible 
+        end
+        musicBarVisibility = true
+
+    --        volumepixmap.visible = not volumepixmap.visible 
+    --        volumewidget.visible = not volumewidget.visible 
       end),
       button({ }, 4, function()
           util.spawn("amixer -c0 sset Master 2dB+ >/dev/null") 

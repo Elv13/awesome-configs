@@ -1,6 +1,7 @@
 local setmetatable = setmetatable
 local table = table
 local io = io
+local os  = os
 local print = print
 local string = string
 local button = require("awful.button")
@@ -18,20 +19,21 @@ module("widgets.devices")
 
 local data = {}
 local devices = {}
+local ej,ejo,hddicn,hddnicn,homeicn
 
 function update()
 
 end
 
 function new(screen, args) 
-  add_device("/dev/root,/home/lepagee")
+  add_device("/dev/root,"..os.getenv("HOME"))
   local deviceList = io.popen("/bin/mount | grep -E \"/dev/(root|sd[a-z])\" | awk '{print $1\",\"$3}'")
   if deviceList then
-    while true do
-        local line = deviceList:read("*line")
-        if line == nil then break end
+    local line = deviceList:read("*line")
+    while line do
         add_device(line, "hdd")
-    end 
+        line = deviceList:read("*line")
+    end
   end
 end
 
@@ -53,9 +55,6 @@ function add_device(args)
   
   local mywibox19 = wibox({ position = "free", screen = s})
   
-  mywibox19:add_signal("mouse::enter", function() mywibox19.bg = beautiful.fg_normal.."25" end)
-  mywibox19:add_signal("mouse::leave", function() mywibox19.bg = "#00000000" end)
-  
   --awful.wibox.rounded_corners(mywibox19,1)
   
   local relY = 50 + 100 * (#devices)
@@ -70,23 +69,39 @@ function add_device(args)
   local iconTest = capi.widget({ type = "imagebox"})
   
   if devType == "hdd" then
-    iconTest.image = capi.image(config.data().iconPath .. "hdd.png")
+    if not hddnicn then
+        hddicn = capi.image(config.data().iconPath .. "hdd.png")
+    end
+    iconTest.image = hddicn
   elseif devType == "net" then
-    iconTest.image = capi.image(config.data().iconPath .. "hddn.png")
+    if not hddnicn then
+        hddnicn = capi.image(config.data().iconPath .. "hddn.png")
+    end
+    iconTest.image = hddnicn
   elseif devType == "home" then
-    iconTest.image = capi.image(config.data().iconPath .. "home.png")
+    if not homeicn then
+        homeicn = capi.image(config.data().iconPath .. "home.png")
+    end
+    iconTest.image = homeicn
   end
   
   
   local iconTest1 = capi.widget({ type = "imagebox"})
-  iconTest1.image = capi.image(config.data().iconPath .. "tags/eject.png")
+  if not ej then
+      ej = capi.image(config.data().iconPath .. "tags/eject.png")
+  end
+  
+  iconTest1.image = ej
   
   iconTest1:add_signal("mouse::enter", function ()
-    iconTest1.image = capi.image(config.data().iconPath .. "tags/eject_over.png")
+    if not ejo then
+        ejo = capi.image(config.data().iconPath .. "tags/eject_over.png")
+    end
+    iconTest1.image = ejo
   end)
 
   iconTest1:add_signal("mouse::leave", function ()
-    iconTest1.image = capi.image(config.data().iconPath .. "tags/eject.png")
+    iconTest1.image = ej
   end)
   
   local volSpacer = capi.widget({ type = "textbox" })
@@ -95,11 +110,6 @@ function add_device(args)
   local volName = capi.widget({ type = "textbox" })
   volName.text = mountPoint
   vicious.register(volName, vicious.widgets.fs,mountPoint..' (${'..mountPoint..' size_gb} GB)')
-  
-  local volName2 = capi.widget({ type = "textbox" })
-  volName2.text = "<b>Cap:</b> 100gb"
-  
-  ----vicious.register(volName2, vicious.widgets.fs, "<b>Cap:</b> ${".. mountPoint.." size}gb", 599, true)
   
   local volName3 = capi.widget({ type = "textbox" })
   volName3.text = "<b>Used:</b> 83gb (76%)"
@@ -156,8 +166,9 @@ function add_device(args)
       layout = widget.layout.vertical.flex
     },
   }
-  
-  table.insert(devices, mywibox19)
+  mywibox19:add_signal("mouse::enter", function() mywibox19.bg = beautiful.fg_normal.."25" end)
+  mywibox19:add_signal("mouse::leave", function() mywibox19.bg = "#00000000";iconTest1.image = ej end)
+  devices[#devices+1] = mywibox19
 end
 
 

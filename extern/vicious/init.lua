@@ -9,6 +9,7 @@
 -- {{{ Setup environment
 local type  = type
 local pairs = pairs
+local print = print
 local tonumber = tonumber
 local capi  = { timer = timer }
 local os    = { time = os.time }
@@ -26,6 +27,7 @@ vicious.widgets = require("extern.vicious.widgets")
 
 -- Initialize tables
 local timers       = {}
+local timers2      = {}
 local registered   = {}
 local widget_cache = {}
 -- }}}
@@ -33,49 +35,48 @@ local widget_cache = {}
 
 -- {{{ Local functions
 -- {{{ Update a widget
+local count = 1
 local function update(widget, reg, disablecache)
     -- Check if there are any equal widgets
-    if reg == nil then
-        for w, i in pairs(registered) do
-            if w == widget then
-                for _, r in pairs(i) do
-                    update(w, r, disablecache)
-                end
+    if not reg then
+        local reg = registered[widget]
+        if reg then
+            for j=1,#reg do
+                update(widget, reg[j], disablecache)
             end
         end
-
         return
     end
 
     local t = os.time()
-    local data = {}
+    local data = nil
 
     -- Check for chached output newer than the last update
-    if widget_cache[reg.wtype] ~= nil then
-        local c = widget_cache[reg.wtype]
+    local c = widget_cache[reg.wtype]
+    if c and ((not c.time or c.time <= t-reg.timer) or disablecache) then
+        c.time, c.data = t, reg.wtype(reg.format, reg.warg)
+    end
+    data = c and c.data or reg.wtype(reg.format, reg.warg)
 
-        if (c.time == nil or c.time <= t-reg.timer) or disablecache then
-            c.time, c.data = t, reg.wtype(reg.format, reg.warg)
-        end
-
-        data = c.data
-    else
-        data = reg.wtype and reg.wtype(reg.format, reg.warg)
+    if not data then
+        return ""
     end
 
-    if type(data) == "table" then
-        if type(reg.format) == "string" then
-            data = helpers.format(reg.format, data)
-        elseif type(reg.format) == "function" then
-            data = reg.format(widget, data)
-        end
+    local ftype = type(reg.format)
+--         print(data,ftype,reg.format)
+    if ftype == "string" then
+        data = helpers.format(reg.format, data)
+    elseif ftype == "function" then
+        data = reg.format(widget, data)
     end
 
-    if widget.add_value ~= nil then
-        widget:add_value(tonumber(data) and tonumber(data)/100)
-    elseif widget.set_value ~= nil then
-        widget:set_value(tonumber(data) and tonumber(data)/100)
-    elseif widget.set_markup ~= nil then
+    if widget.add_value then
+        local number = tonumber(data)
+        widget:add_value(number and number/100)
+    elseif widget.set_value then
+        local number = tonumber(data)
+        widget:set_value(number and number/100)
+    elseif widget.set_markup then
         widget:set_markup(data)
     else
         widget.text = data
@@ -85,53 +86,59 @@ local function update(widget, reg, disablecache)
 end
 -- }}}
 
+local function common_update(tm,...)
+    local t = timers2[tm.timeout or -1]
+    if t and t.widgets then
+        local widgets = t.widgets
+        for i=1,#widgets do
+            widgets[i].update(tm,...)
+        end
+    end
+end
+
 -- {{{ Register from reg object
 local function regregister(reg)
-    if not reg.running then
+    if not reg.running and reg.timer > 0 then
         if registered[reg.widget] == nil then
-            registered[reg.widget] = {}
-            table.insert(registered[reg.widget], reg)
+            local t = {}
+            registered[reg.widget] = t
+            t[#t+1] = reg
         else
-            local already = false
-
-            for w, i in pairs(registered) do
-                if w == reg.widget then
-                    for _, v in pairs(i) do
-                        if v == reg then
-                            already = true
-                            break
-                        end
-                    end
-
-                    if already then
-                        break
-                    end
-                end
+            local t,found = registered[reg.widget],false
+            for j=1,#t do
+                found = found or t[j] == reg
             end
-
-            if not already then
-                table.insert(registered[reg.widget], reg)
+            if not found then
+                t[#t+1] = reg
             end
         end
 
         -- Start the timer
-        if reg.timer > 0 then
-            timers[reg.update] = {
-                timer = capi.timer({ timeout = reg.timer })
+        if not timers2[reg.timer] and reg.update then
+            local tm = capi.timer({ timeout = reg.timer })
+            local t = {
+                timer = tm,
+                widgets = {}
             }
+            timers[reg.update] = t
+            timers2[reg.timer] = t
 
-            local tm = timers[reg.update].timer
             if tm.connect_signal then
-                tm:connect_signal("timeout", reg.update)
+                tm:connect_signal("timeout", common_update)
             else
-                tm:add_signal("timeout", reg.update)
+                tm:add_signal("timeout", common_update)
             end
             tm:start()
 
             -- Initial update
             tm:emit_signal("timeout")
         end
-        reg.running = true
+        if reg.update then
+            local t = timers2[reg.timer]
+            t.widgets[#t.widgets+1] = reg
+            reg.running = true
+            update(reg.widget,reg)
+        end
     end
 end
 -- }}}

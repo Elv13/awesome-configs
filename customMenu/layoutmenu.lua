@@ -52,18 +52,20 @@ function new(screen, layouts)
     local screen = screen or 1
     local w = capi.widget({ type = 'imagebox', height = 10 })
     local titleBarWidget = capi.widget({ type = 'textbox', height = 10 })
-    local menu = create(screen,layouts,titleBarWidget)
+    local menu = nil
     local tt = tooltip("Change Layout",{})
     w.bg = beautiful.bg_alternate
     update(w, screen)
-    
+
     w:buttons( util.table.join(
       button({ }, 1, function()
+          if not menu then menu = create(screen,layouts,titleBarWidget) end
 	  menu:geometry({x = w:extents(screen).x or capi.mouse.coords().x, y = w:extents(screen).y or capi.mouse.coords().y})
           tt:showToolTip(false);
 	  menu:visible()
       end),
       button({ }, 3, function()
+          if not menu then menu = create(screen,layouts,titleBarWidget) end
           menu:geometry({x = w:extents(screen).x or capi.mouse.coords().x, y = w:extents(screen).y or capi.mouse.coords().y})
           tt:showToolTip(false);
           menu:visible()
@@ -75,10 +77,10 @@ function new(screen, layouts)
 	  layout.inc(layouts, -1)
       end)
     ))
-    
+
     w:add_signal("mouse::enter", function() tt:showToolTip(true) ;w.bg = beautiful.bg_normal   end)
     w:add_signal("mouse::leave", function() tt:showToolTip(false);w.bg = beautiful.bg_alternate end)
-    
+
     titleBarWidget:buttons( util.table.join(
       button({ }, 1, function()
 	  showTitleBar[tag.selected()] = showTitleBar[tag.selected()] or false
@@ -97,7 +99,6 @@ function new(screen, layouts)
 	  menu.visible = false
       end)
     ))
-  
 
     local function update_on_tag_selection(new_tag)
 	if showTitleBar[tag.selected()] == true then
@@ -113,7 +114,6 @@ function new(screen, layouts)
 
     return w
 end
-
 
 function create(s,layouts,titleBarWidget)
   local menuWibox = wibox({ position = "free", screen = s})
