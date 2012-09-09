@@ -23,7 +23,7 @@ function start()
     instr_count = 0
     last_line_instr_count = 0
     current_file = nil
-    tracefile = io.open("/tmp/lua-callgrind.txt", "w+")
+    tracefile = io.open("/tmp/awesome_profile___send_to_elv1313_at_gmail_com___.debug", "w+")
     tracefile:write("events: Instructions\n")
 
     mainfunc = nil

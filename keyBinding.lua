@@ -17,9 +17,11 @@ globalkeys = awful.util.table.join(
     awful.key({ modkey, "Control" }, "p"  , function () ultiLayout.modules.keybpard_handling.resize_w(20)     end ),
     awful.key({ modkey, "Control", "Shift" }, "o"  , function () ultiLayout.modules.keybpard_handling.resize_h(-20)     end ),
     awful.key({ modkey, "Control", "Shift" }, "p"  , function () ultiLayout.modules.keybpard_handling.resize_w(-20)     end ),
+    awful.key({ modkey,           }, "p"  , function () utils.profile.start();debug.sethook(utils.profile.trace, "crl", 1) end ),
+    awful.key({ modkey, "Shift"   }, "p"  , function () debug.sethook();utils.profile.stop(_G) end ),
     
     awful.key({ modkey,           }, "Escape", function () awful.tag.history.restore()          end ),
-    awful.key({ modkey, "Shift"   }, "p"     , function () utils.keyFunctions.moveTagToScreen() end ),
+--     awful.key({ modkey, "Shift"   }, "p"     , function () utils.keyFunctions.moveTagToScreen() end ),
     awful.key({ modkey,           }, "Tab"   , function () utils.keyFunctions.altTab()          end ),
     awful.key({ modkey, "Shift"   }, "Tab"   , function () utils.keyFunctions.altTabBack()      end ),
     awful.key({ modkey, "Control" }, "Tab"   , function () customMenu.aeroTag()                 end ),
