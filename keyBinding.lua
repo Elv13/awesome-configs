@@ -67,7 +67,7 @@ globalkeys = awful.util.table.join(
     awful.key({                   }, "#190"  , function () utils.mouseManager.switchTo(3)       end ),
     awful.key({                   }, "#208"  , function () utils.mouseManager.switchTo(4)       end ),
     awful.key({                   }, "#129"  , function () utils.mouseManager.switchTo(5)       end ),
-    
+
     --Switch client
     --              MODIFIERS         KEY                        ACTION                               
     awful.key({ "Control"         }, "#177"  , function () utils.clientSwitcher.switchTo(1)     end ),
@@ -86,7 +86,7 @@ globalkeys = awful.util.table.join(
     awful.key({                   }, "#89"   , function () awful.client.swap.byidx(  1)         end ),
     awful.key({                   }, "#84"   , function () awful.screen.focus_relative( 1)      end ),
     awful.key({                   }, "#83"   , awful.client.movetoscreen                            ),
-    
+
     -- Paste selection buffer
     --              MODIFIERS         KEY                        ACTION                               
     awful.key({                   }, "#96"   , utils.keyFunctions.pasteTextBuffer                   ),
@@ -165,7 +165,6 @@ for i=6, ( 8 ) do
 end
 
 for i=1, ( shifty.config.maxtags or 9 ) do
-  
   awful.util.table.append(globalkeys, awful.key({ modkey }, i,
   function ()
     local t = awful.tag.viewonly(shifty.getpos(i))

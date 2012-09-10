@@ -79,8 +79,8 @@ local function update(graph)
     local border_width = 0
     if dtg.border_color then
         border_width = 1
-        if dtg.offset then
-            border_width = border_width + dtg.offset
+        if offset then
+            border_width = border_width + offset
         end
     end
 

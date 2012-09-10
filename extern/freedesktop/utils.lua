@@ -6,6 +6,7 @@ local table = table
 local type = type
 local ipairs = ipairs
 local pairs = pairs
+local print = print
 
 module("extern.freedesktop.utils")
 
@@ -58,12 +59,25 @@ function file_exists(filename)
     return result
 end
 
-function lookup_icon(arg)
-    if arg.icon:sub(1, 1) == '/' and (arg.icon:find('.+%.png') or arg.icon:find('.+%.xpm')) then
-        -- icons with absolute path and supported (AFAICT) formats
-        return arg.icon
-    else
-        local icon_path = {}
+local cache_paths,cached_bysize,cached_bysize_bycat,other_path=nil,{}
+
+--Avoid making it at startup
+local function fill_bycat()
+    return {
+        apps       = {s128x128 = {}, s96x96 = {}, s72x72 = {}, s64x64 = {}, s48x48 = {}, s36x36 = {}, s32x32 = {}, s24x24 = {}, s22x22 = {}, s16x16 = {}, },
+        actions    = {s128x128 = {}, s96x96 = {}, s72x72 = {}, s64x64 = {}, s48x48 = {}, s36x36 = {}, s32x32 = {}, s24x24 = {}, s22x22 = {}, s16x16 = {}, },
+        devices    = {s128x128 = {}, s96x96 = {}, s72x72 = {}, s64x64 = {}, s48x48 = {}, s36x36 = {}, s32x32 = {}, s24x24 = {}, s22x22 = {}, s16x16 = {}, },
+        places     = {s128x128 = {}, s96x96 = {}, s72x72 = {}, s64x64 = {}, s48x48 = {}, s36x36 = {}, s32x32 = {}, s24x24 = {}, s22x22 = {}, s16x16 = {}, },
+        categories = {s128x128 = {}, s96x96 = {}, s72x72 = {}, s64x64 = {}, s48x48 = {}, s36x36 = {}, s32x32 = {}, s24x24 = {}, s22x22 = {}, s16x16 = {}, },
+        status     = {s128x128 = {}, s96x96 = {}, s72x72 = {}, s64x64 = {}, s48x48 = {}, s36x36 = {}, s32x32 = {}, s24x24 = {}, s22x22 = {}, s16x16 = {}, },
+        mimetypes  = {s128x128 = {}, s96x96 = {}, s72x72 = {}, s64x64 = {}, s48x48 = {}, s36x36 = {}, s32x32 = {}, s24x24 = {}, s22x22 = {}, s16x16 = {}, },
+    }
+end
+
+local function gen_paths()
+    cached_bysize_bycat = fill_bycat()
+    cache_paths = {}
+    local icon_path = {}
         local icon_themes = {}
         local icon_theme_paths = {}
         if icon_theme and type(icon_theme) == 'table' then
@@ -71,37 +85,78 @@ function lookup_icon(arg)
         elseif icon_theme then
             icon_themes = { icon_theme }
         end
-        for i, theme in ipairs(icon_themes) do
-            for j, path in ipairs(all_icon_paths) do
-                table.insert(icon_theme_paths, path .. theme .. '/')
+        for i=1,#icon_themes do
+            for j=1,#all_icon_paths do
+                local path = all_icon_paths[j] .. icon_themes[i] .. '/'
+                --Do not all wrong path, it will cause expodential file lookup later
+                if os.execute("ls "..path.."> /dev/null 2> /dev/null") == 0 then
+                    icon_theme_paths[#icon_theme_paths+1] = path
+                end
             end
             -- TODO also look in parent icon themes, as in freedesktop.org specification
         end
-        table.insert(icon_theme_paths, '/usr/share/icons/hicolor/') -- fallback theme cf spec
+        icon_theme_paths[#icon_theme_paths+1] = '/usr/share/icons/hicolor/' -- fallback theme cf spec
 
-        local isizes = icon_sizes
-        for i, sz in ipairs(all_icon_sizes) do
-            table.insert(isizes, sz)
-        end
+        local isizes = all_icon_sizes
 
-        for i, icon_theme_directory in ipairs(icon_theme_paths) do
-            for j, size in ipairs(arg.icon_sizes or isizes) do
-                for k, icon_type in ipairs(all_icon_types) do
-                    table.insert(icon_path, icon_theme_directory .. size .. '/' .. icon_type .. '/')
+        for i=1,#icon_theme_paths do
+            for j=1,#isizes do
+                local s = isizes[j]
+                local path = icon_theme_paths[i] ..s
+                --Again, make the lookup smaller. the execute is slow, but x1000 unecessary check is slower
+                cached_bysize[s] = cached_bysize[s] or {}
+                cached_bysize_bycat[s] = cached_bysize_bycat[s] or {}
+                local t = cached_bysize[s]
+                if os.execute("ls "..path.."> /dev/null 2> /dev/null") == 0 then
+                    for k=1,#all_icon_types do
+                        local type2 = all_icon_types[k]
+                        local cp = path .. '/' .. type2 .. '/'
+                        icon_path[#icon_path+1] = cp
+                        t[#t+1] = cp
+                        local ts = cached_bysize_bycat[type2]['s'..s]
+                        ts[#ts+1] = cp
+                    end
                 end
             end
         end
-        -- lowest priority fallbacks
-        table.insert(icon_path,  '/usr/share/pixmaps/')
-        table.insert(icon_path,  '/usr/share/icons/')
-        table.insert(icon_path,  '/usr/share/app-install/icons/')
+        cache_paths = icon_path
 
-        for i, directory in ipairs(icon_path) do
-            if (arg.icon:find('.+%.png') or arg.icon:find('.+%.xpm')) and file_exists(directory .. arg.icon) then
+        -- lowest priority fallbacks
+        other_path = {'/usr/share/pixmaps/','/usr/share/icons/','/usr/share/app-install/icons/'}
+        return icon_path
+end
+
+countt =1
+local cache = {}
+function lookup_icon(arg)
+    if arg.icon:sub(1, 1) == '/' and (arg.icon:find('.+%.png') or arg.icon:find('.+%.xpm')) then
+        -- icons with absolute path and supported (AFAICT) formats
+        return arg.icon
+    else
+        cache_paths = cache_paths or gen_paths()
+        local cached_find,paths = (arg.icon:find('.+%.png') or arg.icon:find('.+%.xpm'))
+        if arg.category and arg.icon_size then
+            paths = cached_bysize_bycat[arg.category]["s"..arg.icon_size]
+        else
+            paths = cached_bysize[arg.icon_sizes] and cached_bysize[arg.icon_size] or cache_paths or gen_paths()
+        end
+        for i=1,#paths do
+            local directory = paths[i]
+            if cached_find and file_exists(directory .. arg.icon) then
                 return directory .. arg.icon
-            elseif file_exists(directory .. arg.icon .. '.png') then
+            elseif not cached_find and file_exists(directory .. arg.icon .. '.png') then
                 return directory .. arg.icon .. '.png'
-            elseif file_exists(directory .. arg.icon .. '.xpm') then
+            elseif not cached_find and file_exists(directory .. arg.icon .. '.xpm') then
+                return directory .. arg.icon .. '.xpm'
+            end
+        end
+        for i=1,#other_path do --Separated to prevent the cost of adding these to all prefiltered paths
+            local directory = other_path[i]
+            if cached_find and file_exists(directory .. arg.icon) then
+                return directory .. arg.icon
+            elseif not cached_find and file_exists(directory .. arg.icon .. '.png') then
+                return directory .. arg.icon .. '.png'
+            elseif not cached_find and file_exists(directory .. arg.icon .. '.xpm') then
                 return directory .. arg.icon .. '.xpm'
             end
         end
@@ -176,7 +231,7 @@ function parse_desktop_file(arg)
 
     -- Look up for a icon.
     if program.Icon then
-        program.icon_path = lookup_icon({ icon = program.Icon, icon_sizes = (arg.icon_sizes or all_icon_sizes) })
+        program.icon_path = lookup_icon({ icon = program.Icon, icon_sizes = (arg.icon_sizes or all_icon_sizes),icon_size=arg.size,category=arg.category})
         if program.icon_path ~= nil and not file_exists(program.icon_path) then
            program.icon_path = nil
         end
