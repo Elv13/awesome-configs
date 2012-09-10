@@ -1,6 +1,7 @@
 local setmetatable = setmetatable
 local table        = table
 local pairs        = pairs
+local ipairs       = ipairs
 local next         = next
 local type         = type
 local print        = print
@@ -217,6 +218,7 @@ function new(args)
     arrow_x        = args.arrow_x        or nil                   ,
     has_decoration = args.has_decoration --[[or true]]            ,
     has_side_deco  = args.has_side_deco  --[[or true]]            ,
+    autoresize     = args.autoresize     or false
     },-------------------------------------------------------------
 
     -- Data
@@ -413,10 +415,13 @@ function new(args)
                 local geo = wdg.widget:geometry()
                 wdg.x = self.settings.xPos
                 wdg.y = self.settings.yPos+yPadding
-                if wdg.widget.x ~= wdg.x or wdg.widget.y ~= wdg.y or wdg.widget.width ~= wdg.width or wdg.widget.height ~= wdg.height then
+                if wdg.widget.x ~= wdg.x or wdg.widget.y ~= wdg.y or wdg.widget.width ~= wdg.width or wdg.widget.height ~= wdg.height or (menu.settings.autoresize and self.settings.itemWidth ~= wdg.widget.width) then
                     wdg.widget.x = wdg.x
                     wdg.widget.y = wdg.y
                     wdg.widget.height = wdg.height
+                    if menu.settings.autoresize then
+                        wdg.width = self.settings.itemWidth
+                    end
                     wdg.widget.width = wdg.width
                 end
                 yPadding = yPadding + (wdg.height or self.settings.itemHeight)*self.downOrUp
@@ -660,6 +665,20 @@ function new(args)
       aWibox.bg = data.bg
       data.widgets.wdg.text = "<span color=\"".. data.fg .."\" >"..(data.widgets.wdg.text or "").."</span>"
       data.widgets.wdg.align = data.align
+
+      if menu.settings.autoresize then
+        local twidth = 0
+        for k,v in pairs(data.widgets) do
+            if v then
+                twidth = twidth + v:extents().width
+            end
+        end
+        if twidth > self.settings.itemWidth then
+            self.settings.itemWidth = twidth + 40
+            self.hasChanged = true
+        end
+      end
+
       --aWibox.widgets = {{data.widgets.prefix,data.widgets.icon, {subArrow2,data.widgets.checkbox,data.widgets.suffix, layout = widget2.layout.horizontal.rightleft},data.addwidgets, layout = widget2.layout.horizontal.leftright,{data.widgets.wdg, layout = widget2.layout.horizontal.flex}}, layout = widget2.layout.vertical.flex }
       aWibox.widgets = {{data.widgets.prefix,data.widgets.icon,data.widgets.wdg, {subArrow2,data.widgets.checkbox,data.widgets.suffix, layout = widget2.layout.horizontal.rightleft},data.addwidgets, layout = widget2.layout.horizontal.leftright}, layout = widget2.layout.vertical.flex }
 

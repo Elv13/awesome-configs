@@ -54,8 +54,8 @@ theme.tasklist_sticky_ontop_floating_icon = confdir .. "/theme/darkBlue/Icon/tit
 theme.menu_submenu_icon = confdir.."/theme/darkBlue/Icon/tags/arrow.png"
 theme.menu_scrollmenu_down_icon = confdir.."/theme/darkBlue/Icon/tags/arrow_down.png"
 theme.menu_scrollmenu_up_icon = confdir.."/theme/darkBlue/Icon/tags/arrow_up.png"
-theme.menu_height   = "20"
-theme.menu_width    = "130"
+theme.menu_height   = 20
+theme.menu_width    = 130
 theme.border_width  = 1
 theme.border_color  = theme.fg_normal
 
