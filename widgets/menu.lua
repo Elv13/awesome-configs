@@ -409,7 +409,7 @@ function new(args)
                 wdg.hasChanged = true
                 yPadding = yPadding + wdg:toggle(true)
             end
-            if type(wdg) ~= "function" and wdg.hidden == false and wdg.off ~= true then
+            if type(wdg) ~= "function" and wdg.hidden == false and not (wdg.subMenu and type(wdg.subMenu) == "table" and #wdg.subMenu.items == 0) and wdg.off ~= true then
                 local geo = wdg.widget:geometry()
                 wdg.x = self.settings.xPos
                 wdg.y = self.settings.yPos+yPadding
@@ -437,7 +437,10 @@ function new(args)
       if menu.settings.parent then
           arrowMode = 3
           if self.settings.yPos - 10 > 0 and not self.is_embeded_menu then
-              self.settings.yPos = self.settings.yPos - 10
+              self.settings.yPos = self.settings.yPos - (self.settings.has_decoration ~= false and 10 or 0)
+          end
+          if self.downOrUp < 0 then
+              self.settings.yPos = self.settings.yPos + (self.items[1] and self.items[1].height or 0)
           end
       elseif self.downOrUp == 1  then
           arrowMode = 1
@@ -458,40 +461,39 @@ function new(args)
         set_geometry(i)
       end
       addWdg((self.downOrUp == 1) and footerWdg or headerWdg,self.downOrUp)
-      
+
       return yPadding or 100
     end
-    
+
     function menu:set_width(width)
         self.settings.itemWidth = width
     end
-    
-    
+
     ---Possible signals = "menu::hide", "menu::show", "menu::resize"
     function menu:add_signal(name,func)
         self.signalList[name] = self.signalList[name] or {}
         table.insert(self.signalList[name],func)
     end
-    
+
     function menu:add_key_hook(mod, key, event, func)
         if key and event and func then
             --table.insert(filterHooks,{, func = func})
             self.filterHooks[{key = key, event = event, mod = mod}] = func
         end
     end
-    
+
     function menu:toggle_sub_menu(aSubMenu,hideOld,forceValue) --TODO dead code?
       if (self.subMenu ~= nil) and (hideOld == true) then
         self.subMenu:toggle_sub_menu(nil,true,false)
         self.subMenu:toggle(false)
       end
-      
+
       if aSubMenu ~= nil and aSubMenu.toggle ~= nil then
         aSubMenu:toggle(forceValue or true)
       end
       self.subMenu = aSubMenu
     end
-    
+
     function menu:hideEverything()
         menu:toggle(false)
         local aMenu = menu.settings.parent
@@ -631,6 +633,7 @@ function new(args)
       local createWidget = function(field,type2)
         local newWdg = (data[field] ~= nil) and capi.widget({type=type2 }) or nil
         if newWdg ~= nil and type2 == "textbox" then
+            data[field] = string.gsub(data[field], "&", "and")
             newWdg.text  = data[field]
         elseif newWdg ~= nil and type2 == "imagebox" and type(data[field]) == "string" then
             newWdg.image = capi.image(data[field])

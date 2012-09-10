@@ -41,6 +41,10 @@ icon_sizes = {}
 
 local mime_types = {}
 
+function add_base_path(p)
+    all_icon_paths[#all_icon_paths+1] = p
+end
+
 function get_lines(...)
     local f = io.popen(...)
     return function () -- iterator
