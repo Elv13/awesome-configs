@@ -144,7 +144,6 @@ end
 local function activateKeyboard(curMenu)
     currentMenu = curMenu or currentMenu or nil
     if not currentMenu or grabKeyboard == true then return end
-    
     if (not currentMenu.settings.nokeyboardnav) and currentMenu.settings.visible == true then
         grabKeyboard = true
         capi.keygrabber.run(function(mod, key, event)
@@ -270,7 +269,9 @@ function new(args)
           end
       end
 
-      activateKeyboard(self)
+      if not self.settings.parent then
+        activateKeyboard(self)
+      end
       local toReturn = self:set_coords()
 
       if self.settings.autodiscard == true and self.settings.visible == false then
@@ -357,7 +358,7 @@ function new(args)
     end
     
     local filterDefault = function(item,text)
-        if item.text:find(text) ~= nil then
+        if item.text:lower():find(text) ~= nil then
             return false
         end
         return true
