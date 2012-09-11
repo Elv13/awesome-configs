@@ -179,7 +179,13 @@ local function activateKeyboard(curMenu)
             elseif currentMenu.settings.filter == true and key:len() == 1 then
                 currentMenu.filterString = currentMenu.filterString .. key:lower()
                 if getFilterWidget() ~= nil then
-                    getFilterWidget().textbox.text = getFilterWidget().textbox.text .. key:lower()
+                    local fw = getFilterWidget()
+                    fw.textbox.text = fw.textbox.text .. key:lower()
+                    if currentMenu.settings.autoresize and fw.textbox:extents().width > currentMenu.settings.itemWidth then
+                        currentMenu.settings.itemWidth = fw.textbox:extents().width + 40
+                        currentMenu.hasChanged = true
+                        currentMenu:set_coords()
+                    end
                 end
                 currentMenu:filter(currentMenu.filterString:lower())
             else
@@ -194,7 +200,7 @@ end
 function new(args)
   local subArrow  = capi.widget({type="imagebox"             } )
   subArrow.image  = capi.image ( beautiful.menu_submenu_icon   )
-  
+
   local function createMenu(args)
     args          = args or {}
     local menu    = { settings = { 
@@ -288,7 +294,7 @@ function new(args)
           --table.insert(discardedItems,i.widget) --TODO LEAK
       end
     end
-    
+
     function menu:clear()
         local v = self.settings.visible
         self.items = {}
@@ -300,7 +306,7 @@ function new(args)
             menu.settings.parent:toggle(true)
         end
     end
-    
+
     function menu:scroll(step,notoggle)
         menu.startat = menu.startat + step
         if menu.startat < 1 then
@@ -317,7 +323,7 @@ function new(args)
         end
         if not notoggle then menu:toggle(true) end
     end
-    
+
     function menu:rotate_selected(leap)
         if self.currentIndex + leap > #self.items then
             self.currentIndex = 1
@@ -339,7 +345,7 @@ function new(args)
             v(self)
         end
     end
-    
+
     function menu:highlight_item(index)
         if self.items[index] ~= nil then
             if self.items[index].widget ~= nil then
@@ -347,7 +353,7 @@ function new(args)
             end
         end
     end
-    
+
     function menu:clear_highlight()
         if #(self.highlighted) > 0 then
             for k, v in pairs(self.highlighted) do
@@ -356,14 +362,14 @@ function new(args)
             self.highlighted = {}
         end
     end
-    
+
     local filterDefault = function(item,text)
         if item.text:lower():find(text) ~= nil then
             return false
         end
         return true
     end
-    
+
     function menu:filter(text,func)
         local toExec = func or filterDefault
         for k, v in next, self.items do
@@ -375,7 +381,7 @@ function new(args)
         end
         self:toggle(self.settings.visible)
     end
-    
+
     function menu:set_coords(x,y)
         local prevX = self.settings["xPos"] or -1
         local prevY = self.settings["yPos"] or -1
@@ -511,7 +517,7 @@ function new(args)
             stopGrabber(true)
         end
       end
-      
+
       local function clickCommon(data, index)
           if data["button"..index] ~= nil then
               data["button"..index](menu,data)
@@ -524,7 +530,7 @@ function new(args)
               menu:scroll((menu.downOrUp > 0) and 1 or -1)
           end
       end
-      
+
       local function registerButton(aWibox,data)
         aWibox:buttons( util.table.join(
             button({ }, 1 , function() clickCommon(data,1 ) end),
@@ -539,7 +545,7 @@ function new(args)
             button({ }, 10, function() clickCommon(data,10) end)
         ))
       end
-    
+
     function menu:add_item(args)
       local aWibox = getWibox()
       local data = {
