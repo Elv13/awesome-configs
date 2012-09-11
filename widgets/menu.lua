@@ -223,7 +223,8 @@ function new(args)
     arrow_x        = args.arrow_x        or nil                   ,
     has_decoration = args.has_decoration --[[or true]]            ,
     has_side_deco  = args.has_side_deco  --[[or true]]            ,
-    autoresize     = args.autoresize     or false
+    autoresize     = args.autoresize     or false                 ,
+    filtersubmenu  = args.filtersubmenu  or false                 ,
     },-------------------------------------------------------------
 
     -- Data
@@ -246,11 +247,27 @@ function new(args)
     }
 
     function menu:toggle(value)
+      if menu.need_sub_cleanup and (value or not self.settings.visible) == false then
+          for k2,v2 in next, self.items do
+              if type(v2.subMenu) == "table" then
+                  for k, v in next, v2.subMenu.items do
+                      v.widget.visible = false
+                  end
+              end
+          end
+          menu.need_sub_cleanup = false
+      end
       if self.settings.visible == false and value == false then return 0 end
 
       self.settings.visible = value or not self.settings.visible
       if self.settings.visible == false then
         self:toggle_sub_menu(nil,true,false)
+        local w = getFilterWidget(self)
+        if w and menu.filterString ~= "" then
+            w.textbox.text = menu.settings.filterprefix
+            menu.filterString = ""
+            menu:filter("",nil,true)
+        end
       end
 
       if menu.settings.maxvisible ~= nil and #menu.items > menu.settings.maxvisible then
@@ -370,13 +387,34 @@ function new(args)
         return true
     end
 
-    function menu:filter(text,func)
+    function menu:filter(text,func,nocat)
         local toExec = func or filterDefault
         for k, v in next, self.items do
             if v.nofilter == false then
                 local hidden = toExec(v,text)
                 self.hasChanged = self.hasChanged or (hidden ~= v.hidden)
                 v.hidden = hidden
+            end
+        end
+        if not nocat and self.settings.filtersubmenu then
+            self.items_sub = {}
+            for k2,v2 in next, self.items do
+                if type(v2.subMenu) == "table" then
+                    for k, v in next, v2.subMenu.items do
+                        if v.nofilter == false then
+                            local hidden = toExec(v,text)
+                            self.hasChanged = self.hasChanged or (hidden ~= v.hidden)
+                            if hidden == false then
+                                self.items_sub[#self.items_sub+1] = v
+                                v.widget.visible = true
+                                menu.need_sub_cleanup = true
+                                v2.subMenu.hasChanged = true
+                            else
+                                v.widget.visible = false
+                            end
+                        end
+                    end
+                end
             end
         end
         self:toggle(self.settings.visible)
@@ -471,6 +509,11 @@ function new(args)
       addWdg((self.downOrUp == -1) and footerWdg or headerWdg,self.downOrUp)
       for v, i in next, self.items do
         set_geometry(i)
+      end
+      if self.items_sub then
+        for v, i in next, self.items_sub do
+            set_geometry(i)
+        end
       end
       addWdg((self.downOrUp == 1) and footerWdg or headerWdg,self.downOrUp)
 

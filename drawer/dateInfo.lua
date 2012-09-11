@@ -51,7 +51,7 @@ local function testFunc()
   dateInfo = dateInfo .. "\n<b>  <span size=\"x-large\">⌚</span> CST: </b><i>" ..  getHour(os.date('%H') - 1) .. ":" .. os.date('%M').. ":" .. os.date('%S') .. "</i>"
   dateInfo = dateInfo .. "\n\n<b><u>Japan:</u></b>"
   dateInfo = dateInfo .. "\n<b>  <span size=\"x-large\">⌚</span> JST: </b><i>" ..  getHour(os.date('%H') + 13) .. ":" .. os.date('%M').. ":" .. os.date('%S') .. "</i>\n\n"
-  return dateInfo  
+  return {dateInfo}
 end
 
 local function createDrawer()
