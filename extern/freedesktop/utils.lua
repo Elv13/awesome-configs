@@ -7,6 +7,7 @@ local type = type
 local ipairs = ipairs
 local pairs = pairs
 local print = print
+local config = require("config")
 
 module("extern.freedesktop.utils")
 
@@ -43,6 +44,11 @@ local mime_types = {}
 
 function add_base_path(p)
     all_icon_paths[#all_icon_paths+1] = p
+end
+
+local icon_theme_paths = {}
+function add_theme_path(p)
+    icon_theme_paths[#icon_theme_paths+1] = p
 end
 
 function get_lines(...)
@@ -83,7 +89,6 @@ local function gen_paths()
     cache_paths = {}
     local icon_path = {}
         local icon_themes = {}
-        local icon_theme_paths = {}
         if icon_theme and type(icon_theme) == 'table' then
             icon_themes = icon_theme
         elseif icon_theme then
@@ -133,12 +138,15 @@ end
 countt =1
 local cache = {}
 function lookup_icon(arg)
-    if arg.icon:sub(1, 1) == '/' and (arg.icon:find('.+%.png') or arg.icon:find('.+%.xpm')) then
+    local cached_find = (arg.icon:find('.+%.png') or arg.icon:find('.+%.xpm'))
+    if arg.icon:sub(1, 1) == '/' and cached_find then
         -- icons with absolute path and supported (AFAICT) formats
         return arg.icon
+    elseif arg.icon:sub(1, 6) == "AWECFG" then
+        return arg.icon:gsub("AWECFG", config.data().iconPath)
     else
         cache_paths = cache_paths or gen_paths()
-        local cached_find,paths = (arg.icon:find('.+%.png') or arg.icon:find('.+%.xpm'))
+        local paths = nil
         if arg.category and arg.icon_size then
             paths = cached_bysize_bycat[arg.category]["s"..arg.icon_size]
         else
@@ -150,8 +158,6 @@ function lookup_icon(arg)
                 return directory .. arg.icon
             elseif not cached_find and file_exists(directory .. arg.icon .. '.png') then
                 return directory .. arg.icon .. '.png'
-            elseif not cached_find and file_exists(directory .. arg.icon .. '.xpm') then
-                return directory .. arg.icon .. '.xpm'
             end
         end
         for i=1,#other_path do --Separated to prevent the cost of adding these to all prefiltered paths

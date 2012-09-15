@@ -1,0 +1,12 @@
+# KDE Config File
+[Desktop Entry]
+Type=Application
+Categories=Graphics
+Exec=digikam -caption "%c" %i
+Icon=AWECFG/digikam.png
+X-DocPath=digikam/index.html
+MimeType=x-content/image-dcf;x-content/image-picturecd;
+Name=digiKam
+GenericName=Photo Management Program
+Comment=Manage your photographs like a professional with the power of open source
+Terminal=false

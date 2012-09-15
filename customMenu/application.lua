@@ -7,7 +7,7 @@ local button       = require( "awful.button"               )
 local beautiful    = require( "beautiful"                  )
 local util         = require( "awful.util"                 )
 local menu2        = require( "awful.menu"                 )
-local menu         = require( "widgets.menu"             )
+local menu         = require( "widgets.menu"               )
 local tooltip      = require( "widgets.tooltip"            )
 local fdutils      = require( "extern.freedesktop.utils"   )
 local fdmenu       = require( "extern.freedesktop.menu"    )
@@ -34,8 +34,9 @@ show_generic_name = false
 --- Create menus for applications
 -- @param menu_dirs A list of application directories (optional).
 -- @return A prepared menu w/ categories
+fdutils.add_base_path("/home/kde-devel/kde/share/icons/")
+fdutils.add_theme_path("/home/kde-devel/kde/share/icons/hicolor/")
 local function gen_menu(arg)
---     fdutils.add_base_path("/home/kde-devel/kde/share/icons/")
     -- the categories and their synonyms where shamelessly copied from lxpanel
     -- source code.
     local programs = {}
