@@ -1,7 +1,7 @@
 [Desktop Entry]
 Type=Application
 Exec=kcolorchooser
-Icon=kcolorchooser
+Icon=AWECFG/picker.png
 Terminal=false
 X-DocPath=fundamentals/index.html#colors
 GenericName=Color Chooser

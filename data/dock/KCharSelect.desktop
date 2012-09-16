@@ -1,0 +1,11 @@
+[Desktop Entry]
+GenericName=Character Selector
+Exec=kcharselect -caption "%c"
+Icon=AWECFG/kcharselect.png
+Type=Application
+Terminal=false
+X-DocPath=kcharselect/index.html
+Name=KCharSelect
+X-KDE-StartupNotify=true
+X-DBUS-StartupType=Multi
+Categories=Tools
