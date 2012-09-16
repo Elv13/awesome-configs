@@ -27,8 +27,6 @@ local tag          = require( "awful.tag"           )
 local layout       = require( "awful.widget.layout" )
 local awButtons    = require( "awful.button"        )
 local config       = require( "config"              )
-local ultilayoutCG = require( "ultiLayout.clientGroup" )
-local ultilayoutC  = require( "ultiLayout.common"   )
 --local titlebar = require("widgets.titlebar")
 
 --- Tasklist widget module for awful
@@ -37,7 +35,7 @@ module("widgets.tablist")
 -- Public structures
 label = {}
 
-function widget_tasklist_label_common(tab,w)
+function widget_tasklist_label_common(tab, w)
     local numberStyle = "<span size='x-large' bgcolor='".. beautiful.fg_normal .."'color='".. beautiful.bg_normal .."'><tt><b>"
     local numberStyleEnd = "</b></tt></span> "
     local suffix, prefix = "",""
@@ -65,7 +63,7 @@ function widget_tasklist_label_common(tab,w)
     
     if not args then args = {} end
     local theme = beautiful.get()
-    return prefix..((tab.clientgroup and tab.clientgroup.title) or (tab.client and tab.client.name) or "N/A3")..suffix, bg, nil, nil, bg
+    return prefix..(tab.client.name or "N/A")..suffix, bg, nil, nil, bg
 end
 
 local function tasklist_update(tabs, w, buttons, label, data, widgets, tab)
@@ -78,7 +76,7 @@ end
 --- Create a new tasklist widget.
 -- @param label Label function to use.
 -- @param buttons A table with buttons binding to set.
-function new(label, buttons,cg)
+function new(label, buttons)
     local tabs = {}
     local w = {
         layout = layout.horizontal.flex
@@ -95,30 +93,23 @@ function new(label, buttons,cg)
                          bg_align  = "right"
                        }
     w.widgets = widgets
-    
-    w.widgets_real = {layout = layout.horizontal.flex}
-    
-    function w:get_cg()
-        return cg
-    end
-    
     local buttons2 = buttons or util.table.join(
                     awButtons({ }, 1, function (tab) 
                                         for kt, t in ipairs(tabs) do
                                           t.selected = false
                                         end
-                                        tab.selected = true
-                                        cg:set_active(tab.clientgroup)
-                                        tasklist_update(tabs, w.widgets_real, buttons2, label2, data, widgets,tab)
                                         
-                                        ultilayoutC.drag_cg(cg)
+                                        tab.selected = true 
+--                                         util.spawn('dbus-send --type=method_call --dest=org.schmorp.urxvt /term/'..(tab.title or 0)..'/control org.schmorp.urxvt.selectTab int32:'..tab.index)
+                                        
+                                        tasklist_update(tabs, w, buttons2, label2, data, widgets,tab)
                                       end),
                     awButtons({ }, 2, function (tab) 
                                           local xpos  = capi.mouse.coords().x
                                           local ypos  = capi.mouse.coords().y
                                           local wb     = wibox({position="free",width=200,height=18,x=xpos-100,y=ypos-9,ontop=true})
                                           local textb = capi.widget({type="textbox"})
-                                          textb.text  = cg.title or  "N/A2"
+                                          textb.text  = tab.client.name
                                           wb.widgets   = {textb, layout = layout.horizontal.leftright}
                                           capi.mousegrabber.run(function(mouse)
                                               if mouse.buttons[2] == false then 
@@ -128,15 +119,8 @@ function new(label, buttons,cg)
                                                   if type(obj) == "wibox" then
                                                       if obj.position ~= nil then
                                                         if config.data().titlebars[obj] ~= nil then
-                                                           w:remove_tab(tab)
-                                                           config.data().titlebars[obj]:get_cg():attach(tab.clientgroup)
-                                                           --config.data().titlebars[obj]:add_tab_cg(tab.clientgroup)
+                                                           config.data().titlebars[obj]:add_tab(tab.client)
                                                         end
-                                                      end
-                                                  elseif type(obj) == "client" then
-                                                      local possibilities = ultilayoutCG.get_cg_from_client(obj)
-                                                      if possibilities ~= nil then
-                                                          ultilayoutC.swap_client_group(tab.clientgroup,possibilities[1],true)
                                                       end
                                                   end
                                                   capi.mousegrabber.stop()
@@ -169,61 +153,27 @@ function new(label, buttons,cg)
 --     capi.client.add_signal("list", u)
 --     capi.client.add_signal("focus", u)
 --     capi.client.add_signal("unfocus", u)
+    local index =0
     function w:add_tab(c)
-      if not c then return end
       local aTab = {client = c, selected = false}
       table.insert(tabs, aTab)
-      tasklist_update(tabs, w.widgets_real, buttons2, label2, data, widgets)
+      tasklist_update(tabs, w, buttons2, label2, data, widgets)
+      index = index + 1
       return aTab
-    end
-    
-    function w:add_tab_cg(new_cg, no_focus)
-      if not new_cg then return end
-      local aTab = {clientgroup = new_cg, selected = no_focus or true}
-      table.insert(tabs, aTab)
-      
-      --cg:attach(new_cg)
-      tasklist_update(tabs, w.widgets_real, buttons2, label2, data, widgets)
-      return aTab
-    end
-    
-    function w:remove_tab(tab)
-        for k,v in pairs(tabs) do
-            if v == tab then
-                tabs[k] = nil
-                if k > 1 then
-                    tabs[k-1].selected = true
-                elseif k+1 < #tabs then
-                    tabs[k+1].selected = true
-                end
-                tasklist_update(tabs, w.widgets_real, buttons2, label2, data, widgets)
-                return
-            end
-        end
-    end
-    
-    function w:replace_tab_cg(old_cg,new_cg)
-        for k,v in pairs(tabs) do
-            if v.clientgroup == old_cg then
-                v.clientgroup = new_cg
-                tasklist_update(tabs, w.widgets_real, buttons2, label2, data, widgets)
-                return
-            end
-        end
     end
     
     function w:focus2()
       w.focus = true
-      tasklist_update(tabs, w.widgets_real, buttons2, label2, data, widgets)
+      tasklist_update(tabs, w, buttons2, label2, data, widgets)
     end
     
     function w:unfocus2()
       w.focus = false
-      tasklist_update(tabs, w.widgets_real, buttons2, label2, data, widgets)
+      tasklist_update(tabs, w, buttons2, label2, data, widgets)
     end
     
     function w:update()
-      tasklist_update(tabs, w.widgets_real, buttons2, label2, data, widgets)
+      tasklist_update(tabs, w, buttons2, label2, data, widgets)
     end
     u()
     return w
