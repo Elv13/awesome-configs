@@ -1,6 +1,7 @@
 local setmetatable = setmetatable
 local table        = table
 local pairs        = pairs
+local ipairs       = ipairs
 local print        = print
 local button       = require( "awful.button"    )
 local beautiful    = require( "beautiful"       )
@@ -134,48 +135,15 @@ local function create(screen, args)
         width = width*ratio
     end
 
-    add_items(categories.Tools)
-    add_separator()
-    add_items(categories.Development)
-    add_separator()
-    add_items(categories.Network)
-    add_separator()
-    add_items(categories.Player)
-    add_separator()
+    for k,v in ipairs({"Tools","Development","Network","Player"}) do
+        add_items(categories[v])
+        add_separator()
+    end
 
     for k,v in pairs(categories_other) do
         add_items(v)
         add_separator()
     end
-
-    local iconPath = config.data().iconPath
---     add_item("Calculator","kcalc",iconPath .. "calc.png","Tools",nil)
---     add_item("Terminal","urxvt",iconPath .. "term.png","Tools",nil)
---     add_separator()
---     add_item("Konqueror","konqueror",iconPath .. "konquror.png","FileManager",nil)
---     add_item("Konversation","konversation",iconPath .. "konversation.png","FileManager",nil)
---     add_item("Transmission","transmission-qt",iconPath .. "transmission.png","FileManager",nil)
---     add_separator()
---     add_item("LibreOffice Writer","lowriter",iconPath .. "oowriter2.png","Office",nil)
---     add_item("LibreOffice Calc","localc",iconPath .. "oocalc2.png","Office",nil)
---     add_item("LibreOffice Impress","loimpress",iconPath .. "oopres2.png","Office",nil)
---     add_item("LibreOffice Math","lomath",iconPath .. "ooformula2.png","Office",nil)
---     add_item("LibreOffice Base","oobase",iconPath .. "oobase2.png","Office",nil)
---     add_separator()
---     add_item("Inkscape","inkscape",iconPath .. "inkscape.png","Multimedia",nil)
---     add_item("Blender","blender",iconPath .. "blender.png","Multimedia",nil)
---     add_item("Cinelerra","cinelerra",iconPath .. "cinelerra.png","Multimedia",nil)
---     add_item("Gimp","gimp",iconPath .. "gimp.png","Multimedia",nil)
---     add_item("Vlc","vlc",iconPath .. "vlc.png","Multimedia",nil)
---     add_item("Amarok","amarok",iconPath .. "amarok.png","Multimedia",nil)
---     add_item("Kolourpaint","kolourpaint",iconPath .. "kolourpaint.png","Multimedia",nil)
---     add_item("Digikam","digikam",iconPath .. "digikam.png","Multimedia",nil)
---     add_item("KDenlive","kdenlive",iconPath .. "kdenlive.png","Multimedia",nil)
---     add_separator()
---     add_item("KVM","virt-manager",iconPath .. "windows.png","Developpement",nil)
---     add_item("Codeblocks","codeblocks",iconPath .. "code-blocks.png","Developpement",nil)
---     add_item("Kdevelop","kdevelop",iconPath .. "kdevelop.png","Developpement",nil)
-
 
     --Resize the dock if necessary
     if vertical_extents < lauchBar.height then
