@@ -6,5 +6,6 @@ require("customMenu.clientMenu")
 require("customMenu.altTab")
 require("customMenu.aeroTag")
 require("customMenu.launcher")
+require("customMenu.logout")
 
 module("customMenu")

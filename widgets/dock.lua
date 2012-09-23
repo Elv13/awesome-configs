@@ -17,7 +17,7 @@ local capi = { image  = image  ,
                widget = widget }
 
 module("widgets.dock")
-local lauchBar,visible_tt = nil,nil
+local lauchBar,visible_tt,sensibleArea = nil,nil,nil
 
 local function hide_tooltip(tt)
     if visible_tt then
@@ -90,10 +90,12 @@ local function create(screen, args)
                 util.spawn(command)
                 hide_tooltip()
                 lauchBar.visible = false
+                sensibleArea.visible = true
             end),
             button({ }, 3, function()
                 hide_tooltip()
                 lauchBar.visible = false
+                sensibleArea.visible = true
             end)
         ))
         table.insert(widgets,icon)
@@ -178,7 +180,7 @@ local function create(screen, args)
     lauchBar.widgets         = widgets
     lauchBar.widgets.layout  = widget2.layout.vertical.topbottom
 
-    lauchBar:add_signal("mouse::leave", function()lauchBar.visible = false; hide_tooltip() end)
+    lauchBar:add_signal("mouse::leave", function()lauchBar.visible = false;sensibleArea.visible = true; hide_tooltip() end)
     return lauchBar
 end
 
@@ -186,7 +188,7 @@ function new()
   sensibleArea = wibox({ position = "free", screen = s, width = 1 })
   sensibleArea.ontop = true
   sensibleArea:geometry({ width = 1, height = capi.screen[1].geometry.height -100, x = 0, y = 50})
-  sensibleArea:add_signal("mouse::enter", function() local l = lauchBar or create();l.visible = true end)
+  sensibleArea:add_signal("mouse::enter", function() local l = lauchBar or create();sensibleArea.visible = false;l.visible = true end)
 end
 
 setmetatable(_M, { __call = function(_, ...) return new(...) end })

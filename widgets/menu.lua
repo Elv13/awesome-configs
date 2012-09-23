@@ -48,7 +48,7 @@ local function draw_border(menu,item,args)
         img:draw_rectangle(0,0, 3, height, true, "#ffffff")
         img:draw_rectangle(width-3,0, 3, height, true, "#ffffff")
         item.widget.shape_clip     = img
-        item.widget.border_color = menu.settings.border_color or beautiful.fg_normal
+        item.widget.border_color = menu.settings.border_color or beautiful.menu_border_color or beautiful.fg_normal
     end
 end
 
@@ -60,7 +60,7 @@ local function getWibox()
 --             return wb
 --         end
 --     else
-        return wibox({ position = "free", visible = false, ontop = true, border_width = 1, border_color = beautiful.border_normal })
+        return wibox({ position = "free", visible = false, ontop = true, menu_border_width = beautiful.menu_border_width or 1, border_color = beautiful.border_normal })
 --     end
 end
 
@@ -79,7 +79,7 @@ local function getFilterWidget(aMenu)
         if menu.filterWidget == nil then
             local textbox       = capi.widget({type="textbox" })
             textbox.text        = menu.settings.filterprefix
-            local filterWibox   = wibox({ position = "free", visible = false, ontop = true, border_width = 1, border_color = beautiful.border_normal })
+            local filterWibox   = wibox({ position = "free", visible = false, ontop = true, menu_border_width = beautiful.menu_border_width or 1, border_color = beautiful.border_normal })
             filterWibox.bg = beautiful.bg_highlight
             filterWibox.widgets = { textbox, layout = widget2.layout.horizontal.leftright }
             menu.filterWidget   = {textbox = textbox, widget = filterWibox, hidden = false, width = menu.settings.itemWidth, height = menu.settings.itemHeight}
@@ -209,7 +209,7 @@ function new(args)
     itemHeight     = args.itemHeight     or beautiful.menu_height ,
     visible        = false                                        ,
     itemWidth      = args.width          or beautiful.menu_width  ,
-    bg_normal      = args.bg_normal      or beautiful.bg_normal   ,
+    bg_normal      = args.bg_normal      or beautiful.menu_bg or beautiful.bg_normal   ,
     bg_focus       = args.bg_focus       or beautiful.bg_focus    ,
     nokeyboardnav  = args.nokeyboardnav  or false                 ,
     noautohide     = args.noautohide     or false                 ,
@@ -616,7 +616,7 @@ function new(args)
         noautohide  = args.noautohide  or false                    ,
         addwidgets  = args.addwidgets  or nil                      ,
         nofilter    = args.nofilter    or false                    ,
-        bg          = args.bg          or beautiful.bg_normal      ,
+        bg          = args.bg          or beautiful.menu_bg or beautiful.bg_normal      ,
         fg          = args.fg          or beautiful.fg_normal      ,
         x           = 0                                            ,
         y           = 0                                            ,
@@ -796,12 +796,12 @@ end
 
 function gen_menu_decoration(width,args)
     local args = args or {}
-    local w,w2 = wibox({position="free",visible=false}), wibox({position="free",viaible=false})
+    local w,w2 = wibox({position="free",visible=false,bg=beautiful.menu_bg}), wibox({position="free",viaible=false,bg=beautiful.menu_bg})
     w.width,w2.width=width,width
     w.height,w2.height = (not args.down and not args.noArrow) and 23 or 10, (not args.down or args.noArrow) and 10 or 23
     w.ontop,w2.ontop = true,true
     w.visible,w2.visible = false,false
-    w.border_color,w2.border_color = beautiful.fg_normal,beautiful.fg_normal
+    w.border_color,w2.border_color = beautiful.menu_border_color or beautiful.fg_normal,beautiful.menu_border_color or beautiful.fg_normal
     local function do_gen_menu_top(width, radius,padding)
         local img = capi.image.argb32(width, 23, nil)
         if not args.down then

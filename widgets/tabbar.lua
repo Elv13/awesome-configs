@@ -6,35 +6,35 @@
 --dbus-send --type=method_call --dest=org.schmorp.urxvt /pid/12/control org.schmorp.urxvt.selectTab int32:3
 
 -- Grab environment we need
-local math = math
-local image = image
-local pairs = pairs
-local type = type
 local setmetatable = setmetatable
-local print = print
-local table = table
-local type = type
-local capi =
-{
+local math         = math
+local image        = image
+local pairs        = pairs
+local type         = type
+local print        = print
+local table        = table
+local type         = type
+local capi = {
     awesome = awesome,
-    wibox = wibox,
-    image = image,
-    widget = widget,
-    client = client,
-    dbus = dbus,
-    timer = timer,
+    wibox   = wibox  ,
+    image   = image  ,
+    widget  = widget ,
+    client  = client ,
+    dbus    = dbus   ,
+    timer   = timer  ,
 }
-local abutton = require("awful.button")
-local beautiful = require("beautiful")
-local button = require("awful.button")
-local util = require("awful.util")
-local widget = require("awful.widget")
-local mouse = require("awful.mouse")
-local client = require("awful.client")
-local layout = require("awful.widget.layout")
-local urxvtIntegration = require("utils.urxvtIntegration")
-local clientSwitcher =  require("utils.clientSwitcher")
-local tabList = require("widgets.tablist_old")
+local abutton          = require( "awful.button"           )
+local beautiful        = require( "beautiful"              )
+local button           = require( "awful.button"           )
+local util             = require( "awful.util"             )
+local widget           = require( "awful.widget"           )
+local mouse            = require( "awful.mouse"            )
+local client           = require( "awful.client"           )
+local layout           = require( "awful.widget.layout"    )
+local urxvtIntegration = require( "utils.urxvtIntegration" )
+local clientSwitcher   = require( "utils.clientSwitcher"   )
+local tabList          = require( "widgets.tablist_old"    )
+local config           = require( "config"                 )
 
 --- Titlebar module for awful
 module("widgets.tabbar")
@@ -136,25 +136,25 @@ function create(c, args)
 
     local appicon    = capi.widget({ type = "imagebox" })
     appicon.bg       = theme.fg_normal
-    appicon.image    = capi.image(util.getdir("config") .. "/theme/darkBlue/Icon/tags_invert/term.png")
+    appicon.image    = capi.image(config.data().iconPath .. "tags_invert/term.png")
 
     idxWdg[tb]       = capi.widget({ type = "textbox" })
     idxWdg[tb].text  = numberStyle .. (numbers[clientSwitcher.getIndex(c)] or "N/A") .. numberStyleEnd
     
     local ramlogo    = capi.widget({ type = "imagebox", align = "right" })
-    ramlogo.image    = capi.image(util.getdir("config") .. "/theme/darkBlue/Icon/cpu.png")
+    ramlogo.image    = capi.image(config.data().iconPath .. "cpu.png")
     
     local cpulogo    = capi.widget({ type = "imagebox", align = "right" })
-    cpulogo.image    = capi.image(util.getdir("config") .. "/theme/darkBlue/Icon/brain.png")
+    cpulogo.image    = capi.image(config.data().iconPath .. "brain.png")
     
     local testBox    = capi.widget({ type = "textbox" })
     urxvtIntegration.register(testBox,c.window,"pmem",5)
     
     local addTab     = capi.widget({ type = "imagebox", align = "left" })
-    addTab.image     = capi.image(util.getdir("config") .. "/theme/darkBlue/Icon/addTabs.png")
+    addTab.image     = capi.image(config.data().iconPath .. "addTabs.png")
     
     local bell0      = capi.widget({ type = "imagebox", align = "left" })
-    bell0.image      = capi.image(util.getdir("config") .. "/theme/darkBlue/Icon/bell2.png")
+    bell0.image      = capi.image(config.data().iconPath .. "bell2.png")
     
     -- for each button group, call create for the client.
     -- if a button set is created add the set to the

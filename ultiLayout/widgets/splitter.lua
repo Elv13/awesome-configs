@@ -1,14 +1,14 @@
 local capi = { mouse = mouse,image=image,widget=widget }
 local setmetatable = setmetatable
-local print = print
-local math = math
-local type = type
-local ipairs = ipairs
-local util = require("awful.util")
-local wibox        = require( "awful.wibox"  )
-local common       = require( "ultiLayout.common" )
-local clientGroup  = require( "ultiLayout.clientGroup" )
-local beautiful    = require( "beautiful" )
+local print        = print
+local math         = math
+local type         = type
+local ipairs       = ipairs
+local util         = require( "awful.util"              )
+local wibox        = require( "awful.wibox"             )
+local common       = require( "ultiLayout.common"       )
+local clientGroup  = require( "ultiLayout.clientGroup"  )
+local beautiful    = require( "beautiful"               )
 local object_model = require( "ultiLayout.object_model" )
 
 module("ultiLayout.widgets.splitter")

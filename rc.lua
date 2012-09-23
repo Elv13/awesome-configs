@@ -79,9 +79,8 @@ shifty.config.float_bars = true
 -- Load the theme
 config.load()
 config.data().themePath = awful.util.getdir("config") .. "/theme/" .. config.data().themeName .. "/"
-config.data().iconPath  = config.data().themePath       .. "/Icon/"
+config.data().iconPath  = config.data().themePath       .. "Icon/"
 beautiful.init(config.data().themePath                .. "/theme.lua")
-
 -- Shifty rules
 dofile(awful.util.getdir("config") .. "/baseRule.lua")
 shifty.init()
@@ -90,6 +89,8 @@ shifty.init()
 for s = 1, screen.count() do
   wiboxTop[s] = awful.wibox({ position = "top"   , screen = s, height = 16 })
   wiboxBot[s] = awful.wibox({ position = "bottom", screen = s, height = 16 })
+  utils.theme.set_wibox_background_gradient(wiboxTop[s],beautiful.bg_normal_grad)
+  utils.theme.set_wibox_background_gradient(wiboxBot[s],beautiful.bg_normal_grad)
 end
 
 -- Assign the modkey
@@ -144,10 +145,14 @@ taskarrow              = utils.theme.get_beg_arrow_widget()
 
 -- Create systray end arrow
 sysarrow               = utils.theme.get_beg_arrow_widget(nil,nil,nil,"left")
+sysarrow3              = utils.theme.get_beg_arrow_widget(beautiful.bg_alternate,beautiful.fg_normal,nil,"left")
 sysarrow2              = utils.theme.get_beg_arrow_widget(nil,beautiful.bg_alternate,nil,"left")
 
 -- Create systray end arrow
-menuarrow               = utils.theme.new_arrow_widget()
+menuarrow              = utils.theme.new_arrow_widget()
+
+-- Create the logout menu
+logoutmenu             = customMenu.logout()
 
 -- Create the music panel
 --musicBar = panel.musicBar()
@@ -270,6 +275,8 @@ for s = 1, screen.count() do
           layout = awful.widget.layout.horizontal.leftright                                           -------
       },
       --                             RULES                      EXIST            WIDGET              FALLBACK
+      ( s == config.data().scr.sec or screen.count() == 1                  ) and logoutmenu             or nil,
+      ( s == config.data().scr.sec or screen.count() == 1                  ) and sysarrow3              or nil,
       ( s == config.data().scr.sec or screen.count() == 1                  ) and clock                  or nil,
       ( s == config.data().scr.sec or screen.count() == 1                  ) and kgetwidget             or nil,
       ( s == config.data().scr.sec or screen.count() == 1                  ) and kgetpixmap             or nil,

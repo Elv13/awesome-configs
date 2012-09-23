@@ -4,15 +4,22 @@
 
 theme = {}
 
-theme.font          = "snap 8"
+theme.font          = "Arial 10"
 
-theme.bg_normal     = "#0A1535"
+theme.bg_normal     = "#616161"
 theme.bg_focus      = "#003687"
 theme.bg_urgent     = "#5B0000"
 theme.bg_minimize   = "#040A1A"
-theme.bg_highlight  = "#0E2051"
+theme.bg_highlight  = "#262626"
+theme.bg_alternate  = "#323232"
 
-theme.fg_normal     = "#1577D3"
+theme.bg_normal_grad = {
+        "#575651",
+        "#3C3A37",
+        '#302D2B'
+    }
+
+theme.fg_normal     = "#BBBBBB"
 theme.fg_focus      = "#00BBD7"
 theme.fg_urgent     = "#ABA6A6"
 theme.fg_minimize   = "#1577D3"
@@ -45,8 +52,11 @@ theme.tasklist_floating_icon = awful.util.getdir("config") .. "/theme/darkBlue/I
 -- menu_[bg|fg]_[normal|focus]
 -- menu_[border_color|border_width]
 theme.menu_submenu_icon = awful.util.getdir("config").."/theme/darkBlue/Icon/tags/arrow.png"
-theme.menu_height   = "20"
-theme.menu_width    = "130"
+theme.menu_height   = "25"
+theme.menu_width    = "150"
+theme.menu_bg       = "#0A0A0ACC"
+theme.menu_border_width  = 0
+theme.menu_border_color  = "#ACBBCD"
 
 
 -- You can add as many variables as

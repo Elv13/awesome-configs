@@ -1,24 +1,23 @@
 local setmetatable = setmetatable
-local io = io
-local ipairs = ipairs
-local table = table
-local button = require("awful.button")
-local beautiful = require("beautiful")
-local widget2 = require("awful.widget")
-local naughty = require("naughty")
-local vicious = require("extern.vicious")
-local tag = require("awful.tag")
-local util = require("awful.util")
-local shifty = require("shifty")
-local capi = { image = image,
+local io           = io
+local ipairs       = ipairs
+local table        = table
+local button    = require( "awful.button"   )
+local beautiful = require( "beautiful"      )
+local widget2   = require( "awful.widget"   )
+local naughty   = require( "naughty"        )
+local config    = require( "config"         )
+local vicious   = require( "extern.vicious" )
+local tag       = require( "awful.tag"      )
+local util      = require( "awful.util"     )
+local shifty    = require( "shifty"         )
+local capi = { image  = image ,
                screen = screen,
                widget = widget,
-               mouse = mouse,
-	       tag = tag}
+               mouse  = mouse ,
+               tag    = tag   }
 
 module("drawer.downInfo")
-
-local data = {}
 
 function update()
 
@@ -26,7 +25,7 @@ end
 
 function new(screen, args)
   kgetpixmap       = widget({ type = "imagebox", align = "right" })
-  kgetpixmap.image = image(awful.util.getdir("config") .. "/theme/darkBlue/Icon/tags/download.png")
+  kgetpixmap.image = image(config.data().iconPath .. "tags/download.png")
 
   kgetwidget = widget({
       type = 'textbox',
