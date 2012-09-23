@@ -203,7 +203,7 @@ function new(screen, args)
   local top,bottom
   mytextclock:buttons (util.table.join(button({ }, 1, function ()
       if not data.wibox then
-        data.wibox         = wibox({ position = "free", screen = capi.screen.count() })
+        data.wibox         = wibox({ position = "free", screen = capi.screen.count() , bg = beautiful.menu_bg})
         data.wibox.ontop   = true
         data.wibox.visible = false
         top,bottom = menu.gen_menu_decoration(153,{arrow_x=153 - mytextclock:extents().width/2 - 10})

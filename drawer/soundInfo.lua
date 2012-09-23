@@ -148,7 +148,7 @@ function new(mywibox3,left_margin)
   local btn = util.table.join(
      button({ }, 1, function()
         if not data.wibox then
-            data.wibox = wibox({ position = "free", screen = s})
+            data.wibox = wibox({ position = "free", screen = s, bg = beautiful.menu_bg})
             data.wibox.ontop = true
             data.wibox.visible = false
             local guessHeight = capi.screen[1].geometry.height

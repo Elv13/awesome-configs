@@ -55,7 +55,7 @@ local function reload_top(procMenu,data)
             end
         end
         for i=1,#data.process do
-            local w = wibox({ position = "free" , screen = s , ontop = true })
+            local w = wibox({ position = "free" , screen = s , ontop = true, bg = beautiful.menu_bg})
             w.visible = false
 
             local wdg = {}
@@ -174,11 +174,11 @@ function new(margin, args)
         volUsage          = widget2.graph()
 
         topCpuW           = {}
-        infoHeaderW       = wibox({ position = "free" , screen = s , ontop = true, height = 20 })
-        usageHeaderW      = wibox({ position = "free" , screen = s , ontop = true, height = 20 })
-        processHeaderW    = wibox({ position = "free" , screen = s , ontop = true, height = 20 })
-        modelW            = wibox({ position = "free" , screen = s , ontop = true, height = 40 })
-        tableW            = wibox({ position = "free" , screen = s , ontop = true, height = 120})
+        infoHeaderW       = wibox({ position = "free" , screen = s , ontop = true, height = 20  , bg=beautiful.menu_bg })
+        usageHeaderW      = wibox({ position = "free" , screen = s , ontop = true, height = 20  , bg=beautiful.menu_bg })
+        processHeaderW    = wibox({ position = "free" , screen = s , ontop = true, height = 20  , bg=beautiful.menu_bg })
+        modelW            = wibox({ position = "free" , screen = s , ontop = true, height = 40  , bg=beautiful.menu_bg })
+        tableW            = wibox({ position = "free" , screen = s , ontop = true, height = 120 , bg=beautiful.menu_bg })
 
         topCpuW.visible        = false
         infoHeaderW.visible    = false

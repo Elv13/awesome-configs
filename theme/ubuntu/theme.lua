@@ -14,10 +14,16 @@ theme.bg_highlight  = "#262626"
 theme.bg_alternate  = "#323232"
 
 theme.bg_normal_grad = {
-        "#575651",
-        "#3C3A37",
-        '#302D2B'
-    }
+    "#575651",
+    "#3C3A37",
+    '#302D2B'
+}
+
+theme.taskbar_used_grad = {
+    "#775651",
+    "#5C3A37",
+    '#502D2B'
+}
 
 theme.fg_normal     = "#BBBBBB"
 theme.fg_focus      = "#00BBD7"
@@ -112,7 +118,7 @@ theme.titlebar_maximized_button_normal_active_hover = awful.util.getdir("config"
 theme.titlebar_maximized_button_focus_active_hover = awful.util.getdir("config") .. "/theme/darkBlue/Icon/titlebar/maximized_focus_active_hover.png"
 
 -- You can use your own command to set your wallpaper
-theme.wallpaper_cmd = { "feh --bg-tile /home/lepagee/bg/final/bin_ascii_ds.png" }
+theme.wallpaper_cmd = { "feh --bg-scale "..awful.util.getdir("config") .. "/theme/ubuntu/background.png" }
 
 -- You can use your own layout icons like this:
 theme.layout_fairh           = awful.util.getdir("config") .. "/theme/darkBlue/Icon/layouts/fairh.png"

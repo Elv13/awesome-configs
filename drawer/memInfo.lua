@@ -146,7 +146,7 @@ local function reload_user(usrMenu,data)
     end
     for i2, v2 in pairs(sorted) do
         local v,i= v2.value,v2.key
-        local userW = wibox({ position = "free", screen = s,ontop = true})
+        local userW = wibox({ position = "free", screen = s,ontop = true, bg = beautiful.menu_bg})
         userW.visible = false
         local anUser = capi.widget({type = "textbox"})
         anUser.text = i
@@ -165,7 +165,7 @@ end
 local function reload_state(typeMenu,data)
     local totalState = 0
     for v, i in next, data.state or {} do
-        local stateW = wibox({ position = "free", screen = s,ontop = true})
+        local stateW = wibox({ position = "free", screen = s,ontop = true, bg = beautiful.menu_bg})
         stateW.visible = false
         local anState = capi.widget({type = "textbox"})
         anState.text = i
@@ -183,7 +183,7 @@ end
 local function reload_top(topMenu,data)
     for i = 0, #(data.process or {}) do
         if data.process ~= nil and data.process[i]["name"] ~= nil then
-            local processW = wibox({ position = "free", screen = s,ontop = true})
+            local processW = wibox({ position = "free", screen = s,ontop = true, bg = beautiful.menu_bg})
             processW.visible = false
             local aProcess = capi.widget({type = "textbox"})
             aProcess.text = " "..data.process[i]["name"] or "N/A"
@@ -221,11 +221,11 @@ end
 local usrMenu,typeMenu,topMenu
 
 function repaint(margin)
-    infoHeaderW    = wibox({ position = "free", screen = s,ontop = true,height = 20})
-    ramW           = wibox({ position = "free", screen = s,ontop = true,height = 72})
-    userHeaderW    = wibox({ position = "free", screen = s,ontop = true,height = 20})
-    stateHeaderW   = wibox({ position = "free", screen = s,ontop = true,height = 20})
-    processHeaderW = wibox({ position = "free", screen = s,ontop = true,height = 20})
+    infoHeaderW    = wibox({ position = "free", screen = s,ontop = true,height = 20, bg = beautiful.menu_bg})
+    ramW           = wibox({ position = "free", screen = s,ontop = true,height = 72, bg = beautiful.menu_bg})
+    userHeaderW    = wibox({ position = "free", screen = s,ontop = true,height = 20, bg = beautiful.menu_bg})
+    stateHeaderW   = wibox({ position = "free", screen = s,ontop = true,height = 20, bg = beautiful.menu_bg})
+    processHeaderW = wibox({ position = "free", screen = s,ontop = true,height = 20, bg = beautiful.menu_bg})
     infoHeaderW.visible = false
     ramW.visible = false
     userHeaderW.visible = false

@@ -14,6 +14,7 @@ local setmetatable = setmetatable
 local pairs = pairs
 local ipairs = ipairs
 local table = table
+local print = print
 local common = require("common")
 local util = require("awful.util")
 local config = require("config")
@@ -127,41 +128,14 @@ function label.all(t, args)
     local fg_color = nil
     local bg_image
     local icon
-    local bg_resize = false
+--     local bg_resize = false
     local is_selected = false
     if t.selected then
         bg_color = bg_focus
         fg_color = fg_focus
     elseif #(t:clients()) > 0 then
         bg_color = beautiful.bg_highlight
-    end
-    if sel then
-        if taglist_squares_sel then
-            -- Check that the selected clients is tagged with 't'.
-            local seltags = sel:tags()
-            for _, v in ipairs(seltags) do
-                if v == t then
-                    bg_image = capi.image(taglist_squares_sel)
-                    bg_resize = taglist_squares_resize == "true"
-                    is_selected = true
-                    break
-                end
-            end
-        end
-    end
-    if not is_selected then
-        local cls = t:clients()
-        if #cls > 0 and taglist_squares_unsel then
-            bg_image = capi.image(taglist_squares_unsel)
-            bg_resize = taglist_squares_resize == "true"
-        end
-        for k, c in pairs(cls) do
-            if c.urgent then
-                if bg_urgent then bg_color = bg_urgent end
-                if fg_urgent then fg_color = fg_urgent end
-                break
-            end
-        end
+        bg_image = beautiful.taskbar_used_grad
     end
     if not tag.getproperty(t, "icon_only") then
         if config.data().useListPrefix == true then

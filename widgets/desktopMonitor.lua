@@ -32,12 +32,11 @@ function new(screen2, args)
   end
   xPos = xPos - 415
 
-  local aWibox = wibox({ position = "free", screen = s})
+  local aWibox = wibox({ position = "free", screen = s, bg = beautiful.menu_bg or beautiful.bg_normal.."AA"})
   aWibox:geometry({ width = 400, height = 200, x = xPos, y = 40})
   desktopGrid.addCornerWidget(aWibox,config.data().scr.sec or config.data().scr.pri)
   --aWibox:rounded_corners(10)
   wibox.rounded_corners(aWibox,10)
-  aWibox.bg = beautiful.bg_normal.."AA"
   
   local systemWdg = capi.widget({ type = "textbox" })
   systemWdg.text = "  <b><u>System:</u></b>"

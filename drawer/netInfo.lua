@@ -117,7 +117,7 @@ local function reload_conn(connMenu,data)
             application.border_color   = beautiful.bg_normal
             local address              = capi.widget({ type = "textbox"  })
 
-            local w         = wibox({ position = "free" , screen = s , ontop = true     })
+            local w         = wibox({ position = "free" , screen = s , ontop = true, bg = beautiful.menu_bg     })
             w.visible = false
             w.widgets = {
                             application                                               ,
@@ -160,7 +160,7 @@ local function reload_protstat(protMenu,data)
         local protoCount  = capi.widget({ type = "textbox"                        })
         protoCount.bg     = "#0F2051"
         protoCount.width  = 20
-        local w           = wibox({ position = "free" , screen = s , ontop = true })
+        local w           = wibox({ position = "free" , screen = s , ontop = true , bg = beautiful.menu_bg})
         w.visible         = false
         w.widgets         = {
                                 protoCount                                   ,
@@ -186,7 +186,7 @@ local function reload_appstat(appMenu,data)
         local app2             = capi.widget({ type = "textbox"                        })
         testImage2             = capi.widget({ type = "imagebox"                       })
         testImage2.image       = capi.image (config.data().iconPath .. "kill.png"       )
-        local w                = wibox({ position = "free" , screen = s , ontop = true })
+        local w                = wibox({ position = "free" , screen = s , ontop = true , bg = beautiful.menu_bg})
         w.visible              = false
         w.widgets              = {
                                     appIcon                                                   ,
@@ -216,15 +216,15 @@ local function update2()
 end
 
 local function repaint(margin)
-    graphHeaderW         = wibox({ position = "free" , screen = s , ontop = true,height = 20})
-    ipHeaderW            = wibox({ position = "free" , screen = s , ontop = true,height = 20})
---     localHeaderW         = wibox({ position = "free" , screen = s , ontop = true,height = 20})
-    connHeaderW          = wibox({ position = "free" , screen = s , ontop = true,height = 20})
-    protHeaderW          = wibox({ position = "free" , screen = s , ontop = true,height = 20})
-    appHeaderW           = wibox({ position = "free" , screen = s , ontop = true,height = 20})
-    ipInfo               = wibox({ position = "free" , screen = s , ontop = true,height = 30})
-    graphUW              = wibox({ position = "free" , screen = s , ontop = true,height = 50})
-    graphDW              = wibox({ position = "free" , screen = s , ontop = true,height = 50})
+    graphHeaderW         = wibox({ position = "free" , screen = s , ontop = true,height = 20, bg = beautiful.menu_bg})
+    ipHeaderW            = wibox({ position = "free" , screen = s , ontop = true,height = 20, bg = beautiful.menu_bg})
+--     localHeaderW         = wibox({ position = "free" , screen = s , ontop = true,height = 20, bg = beautiful.menu_bg})
+    connHeaderW          = wibox({ position = "free" , screen = s , ontop = true,height = 20, bg = beautiful.menu_bg})
+    protHeaderW          = wibox({ position = "free" , screen = s , ontop = true,height = 20, bg = beautiful.menu_bg})
+    appHeaderW           = wibox({ position = "free" , screen = s , ontop = true,height = 20, bg = beautiful.menu_bg})
+    ipInfo               = wibox({ position = "free" , screen = s , ontop = true,height = 30, bg = beautiful.menu_bg})
+    graphUW              = wibox({ position = "free" , screen = s , ontop = true,height = 50, bg = beautiful.menu_bg})
+    graphDW              = wibox({ position = "free" , screen = s , ontop = true,height = 50, bg = beautiful.menu_bg})
 
     graphHeaderW.visible = false
     ipHeaderW.visible    = false

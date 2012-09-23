@@ -50,9 +50,9 @@ function list_update(w, buttons, label, data, widgets, objects,args)
             end
             w[i+offset] = ib
             w[i + label_index + offset] = tb
-            w[i + 1 + offset]:margin({ left = widgets.textbox.margin.left, right = widgets.textbox.margin.right })
-            w[i + 1 + offset].bg_resize = widgets.textbox.bg_resize or false
-            w[i + 1 + offset].bg_align = widgets.textbox.bg_align or ""
+            tb:margin({ left = widgets.textbox.margin.left, right = widgets.textbox.margin.right })
+            tb.bg_resize = widgets.textbox.bg_resize or false
+            tb.bg_align = widgets.textbox.bg_align or ""
 
         end
     -- Remove widgets
@@ -87,11 +87,21 @@ function list_update(w, buttons, label, data, widgets, objects,args)
         end
 
         local text, bg, bg_image, icon, ib_bg, text_bg,idx = label(o)
-        w[k + label_index+offset].text, w[k + label_index+offset].bg, w[k + label_index+offset].bg_image = text, text_bg or bg, bg_image
+        local tb2,bg_image_orig = w[k + label_index+offset]
+        tb2.text, tb2.bg = text, text_bg or bg
+        local bg_is_grad = type(bg_image) == "table"
+        if bg_is_grad then
+            local tb_width =tb2:extents().width
+            local img = capi.image.argb32(tb_width, 16, nil)
+            img:draw_rectangle_gradient(0, 0, tb_width, 16, beautiful.taskbar_used_grad,0)
+            bg_image_orig = bg_image
+            bg_image = img
+        end
+        tb2.bg_image = bg_image
         w[k+offset].bg, w[k+offset].image = ib_bg or bg, icon
 
         if args.have_arrow then
-            w[k + ((widget_count < 5) and 1 or 2) + offset].image = themeUtils.get_beg_arrow(text_bg or bg,nil,3)
+            w[k + ((widget_count < 5) and 1 or 2) + offset].image = themeUtils.get_beg_arrow(bg_image_orig or text_bg or bg,nil,3)
         end
         if args.have_index then
             w[k + 1 + offset].text = idx or "[?]"
@@ -99,9 +109,9 @@ function list_update(w, buttons, label, data, widgets, objects,args)
         end
         if args.have_arrow then
             if not w[k+label_index+1+offset+1] then
-                w[k+label_index+1+offset].image = themeUtils.get_end_arrow(text_bg or bg,beautiful.bg_alternate,3)
+                w[k+label_index+1+offset].image = themeUtils.get_end_arrow(bg_image_orig or text_bg or bg,beautiful.bg_alternate,3)
             else
-                w[k+label_index+1+offset].image = themeUtils.get_end_arrow(text_bg or bg,nil,3)
+                w[k+label_index+1+offset].image = themeUtils.get_end_arrow(bg_image_orig or text_bg or text_bg or bg,nil,3)
             end
         end
 
