@@ -19,6 +19,12 @@ theme.bg_normal_grad = {
     '#302D2B'
 }
 
+theme.taskbar_selected_grad = {
+    "#292825",
+    '#0A0908',
+    "#292825",
+}
+
 theme.taskbar_used_grad = {
     "#775651",
     "#5C3A37",
@@ -26,7 +32,7 @@ theme.taskbar_used_grad = {
 }
 
 theme.fg_normal     = "#BBBBBB"
-theme.fg_focus      = "#00BBD7"
+theme.fg_focus      = "#DADADA"
 theme.fg_urgent     = "#ABA6A6"
 theme.fg_minimize   = "#1577D3"
 
@@ -63,6 +69,9 @@ theme.menu_width    = "150"
 theme.menu_bg       = "#0A0A0ACC"
 theme.menu_border_width  = 0
 theme.menu_border_color  = "#ACBBCD"
+
+
+theme.dock_bg       = "#0A0A0ACC"
 
 
 -- You can add as many variables as

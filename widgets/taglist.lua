@@ -131,8 +131,9 @@ function label.all(t, args)
 --     local bg_resize = false
     local is_selected = false
     if t.selected then
-        bg_color = bg_focus
+--         bg_color = bg_focus
         fg_color = fg_focus
+        bg_image = beautiful.taskbar_selected_grad
     elseif #(t:clients()) > 0 then
         bg_color = beautiful.bg_highlight
         bg_image = beautiful.taskbar_used_grad

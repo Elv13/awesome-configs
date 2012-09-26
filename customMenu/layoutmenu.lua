@@ -116,7 +116,7 @@ function new(screen, layouts)
 end
 
 function create(s,layouts,titleBarWidget)
-  local menuWibox = wibox({ position = "free", screen = s})
+  local menuWibox = wibox({ position = "free", screen = s,bg = beautiful.menu_bg})
   local top,bottom = menu2.gen_menu_decoration(90)
   menuWibox.visible = false
   menuWibox.ontop,top.ontop,bottom.ontop = true,true,true

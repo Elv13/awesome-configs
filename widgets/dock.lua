@@ -48,7 +48,7 @@ local function create(screen, args)
     local entries = load_from_dir()
     local height,separator = capi.screen[1].geometry.height -100,capi.widget({type="imagebox"})
     local vertical_extents,widgets,img = 0,{},capi.image.argb32(width, 7, nil)
-    lauchBar = wibox({ position = "free", screen = s, width = width+9 })
+    lauchBar = wibox({ position = "free", screen = s, width = width+9, bg = beautiful.dock_bg})
     lauchBar:geometry({ width = width, height = height, x = 0, y = 50})
     lauchBar.ontop = true
     lauchBar.border_color = beautiful.fg_normal

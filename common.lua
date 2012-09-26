@@ -93,7 +93,7 @@ function list_update(w, buttons, label, data, widgets, objects,args)
         if bg_is_grad then
             local tb_width =tb2:extents().width
             local img = capi.image.argb32(tb_width, 16, nil)
-            img:draw_rectangle_gradient(0, 0, tb_width, 16, beautiful.taskbar_used_grad,0)
+            img:draw_rectangle_gradient(0, 0, tb_width, 16, bg_image,0)
             bg_image_orig = bg_image
             bg_image = img
         end
