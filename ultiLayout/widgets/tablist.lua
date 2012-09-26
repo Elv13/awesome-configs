@@ -23,9 +23,9 @@ local object_model = require( "ultiLayout.object_model" )
 
 module("ultiLayout.widgets.tablist")
 
-local function create_tab(no_focus)
+local function create_tab(no_focus,tabs)
     local tab = {}
-    local private_data = {selected = no_focus or true,title="N/A"}
+    local private_data = {selected = no_focus or true,title="N/A",tabs = tabs}
     local get_map, set_map = {},{}
     object_model(tab,get_map,set_map,private_data,{
         autogen_getmap      = true ,
@@ -41,6 +41,9 @@ end
 function widget_tasklist_label_common(tab,w)
     local color = ((tab.selected == true) and "_active" or "_innactive") .. ((w.focus == true) and "_focus" or "_normal")
     local suffix,prefix,bg = "</span>",(w.count >1) and "<span color='"..w["fg"..color].."'>" or nil, (w.count >1) and w["bg"..color] or nil
+    if tab.tabs and (#tab.tabs == 1) or (not tab.selected and #tab.tabs > 1) then
+        bg = "#00000000"
+    end
     return (prefix or "<span>")..tab.title..suffix, bg, nil, nil, bg
 end
 
@@ -101,7 +104,7 @@ function new(label, buttons)
     end
     
     function w:add_tab(no_focus)
-        local aTab = create_tab(no_focus)
+        local aTab = create_tab(no_focus,tabs)
         aTab:add_signal( "changed"    ,tasklist_update)
         table.insert(tabs, aTab)
         tasklist_update()

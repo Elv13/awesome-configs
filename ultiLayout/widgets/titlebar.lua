@@ -44,16 +44,16 @@ local function create(cg, args)
     local buttons      = {}
     local focus        = false
     args               = args or {}
-    args.height        = args.height or capi.awesome.font_height * 1.5
+    args.height        = args.height or beautiful.titlebar_height or capi.awesome.font_height * 1.5
     
     -- Store colors
     local titlebar     = {tabs={}}
     local tb = wibox(args)
     local tl = tabList.new(nil,nil,cg)
     titlebar.client    = cg
-    titlebar.fg        = args.fg       or theme.titlebar_fg_normal or theme.fg_normal
+    titlebar.fg        = args.fg       or theme.titlebar_fg_normal or theme.titlebar_fg_normal or theme.fg_normal
     titlebar.bg        = args.bg       or theme.titlebar_bg_normal or theme.bg_normal
-    titlebar.fg_focus  = args.fg_focus or theme.titlebar_fg_focus  or theme.fg_focus
+    titlebar.fg_focus  = args.fg_focus or theme.titlebar_fg_focus  or theme.titlebar_fg_focus or theme.fg_focus
     titlebar.bg_focus  = args.bg_focus or theme.titlebar_bg_focus  or theme.bg_focus
     titlebar.font      = args.font     or theme.titlebar_font      or theme.font
     titlebar.width     = args.width    --
@@ -63,10 +63,28 @@ local function create(cg, args)
         focus = value
         tl.focus = value
         tb.bg = (value == true) and titlebar.bg_focus or titlebar.bg
+        if beautiful.titlebar_bg_normal_grad and beautiful.titlebar_bg_focus_grad then
+            tb.bg = "#00000000"
+            local img = capi.image.argb32(tb.width,tb.height,nil)
+            img:draw_rectangle_gradient(0,0,tb.width,tb.height,value and beautiful.titlebar_bg_focus_grad or beautiful.titlebar_bg_normal_grad,0)
+            tb.bg_image = img
+        else
+            tb.bg = (value == true) and titlebar.bg_focus or titlebar.bg
+        end
         tb.fg = (value == true) and titlebar.fg_focus or titlebar.fg
     end
     
     object_model(titlebar,{focus = function() return focus end,visible=function() print("dfgdfgdgf") end},{focus = set_focus,visible = function(val)print("ertert") end},{},{autogen_getmap = true,autogen_signals = true})
+    
+    if beautiful.titlebar_mask then
+        tb:add_signal("property::width",function()
+            print("HERE",tb.width)
+            local mask = beautiful.titlebar_mask(tb.width,tb.height)
+            tb.shape_clip      = mask
+            tb.shape_bounding  = mask
+            print(tb.shape_clip,mask)
+        end)
+    end
     
     --Buttons creation
     function titlebar:button_group(args)

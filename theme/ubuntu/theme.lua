@@ -117,6 +117,34 @@ theme.titlebar_maximized_button_focus_inactive_hover = awful.util.getdir("config
 theme.titlebar_maximized_button_normal_active_hover = awful.util.getdir("config") .. "/theme/darkBlue/Icon/titlebar/maximized_normal_active_hover.png"
 theme.titlebar_maximized_button_focus_active_hover = awful.util.getdir("config") .. "/theme/darkBlue/Icon/titlebar/maximized_focus_active_hover.png"
 
+theme.titlebar_bg_normal_grad = {
+    "#191919",
+    "#121212",
+    "#101010",
+    "#161616",
+}
+
+theme.titlebar_bg_focus_grad = {
+    "#1C1C1C",
+    "#151515",
+    "#131313",
+    "#191919",
+}
+
+theme.titlebar_mask = function(width,height)
+    local img = image.argb32(width,height,nil)
+    img:draw_rectangle(0,0,width,height,true,"#ffffff")
+    img:draw_rectangle(0,5,width,height-5,true,"#000000")
+    img:draw_rectangle(6,0,width-12,5,true,"#000000")
+    img:draw_circle(6, 6, 5, 5, true, "#000000")
+    img:draw_circle(width-6, 6, 5, 5, true, "#000000")
+    return img
+end
+
+theme.titlebar_height = 18
+theme.titlebar_fg_normal = "#727272"
+theme.titlebar_fg_focus = "#C3C3C3"
+
 -- You can use your own command to set your wallpaper
 theme.wallpaper_cmd = { "feh --bg-scale "..awful.util.getdir("config") .. "/theme/ubuntu/background.png" }
 

@@ -41,24 +41,27 @@ function widget_tasklist_label_common(tab, w)
     local suffix, prefix = "",""
     if w.focus == true then
       if tab.selected == false then
-        prefix = "<span color='"..util.color_strip_alpha(beautiful.fg_normal).."'>"
+        prefix = "<span color='"..util.color_strip_alpha(beautiful.titlebar_fg_normal or beautiful.fg_normal).."'>"
         bg = beautiful.bg_highlight
         suffix = "</span>"
       else
         bg = beautiful.bg_focus
-        prefix = "<span color='"..util.color_strip_alpha(beautiful.fg_focus).."'>"
+        prefix = "<span color='"..util.color_strip_alpha(beautiful.titlebar_fg_focus or beautiful.fg_focus).."'>"
         suffix = "</span>"
       end
     else
       if tab.selected == false then
-        prefix = "<span color='"..util.color_strip_alpha(beautiful.fg_focus).."'>"
+        prefix = "<span color='"..util.color_strip_alpha(beautiful.titlebar_fg_focus or beautiful.fg_focus).."'>"
         bg = beautiful.bg_focus
         suffix = "</span>"
       else
         bg = beautiful.bg_normal
-        prefix = "<span color='"..util.color_strip_alpha(beautiful.fg_normal).."'>"
+        prefix = "<span color='"..util.color_strip_alpha(beautiful.titlebar_fg_normal or beautiful.fg_normal).."'>"
         suffix = "</span>"
       end
+    end
+    if tab.tabs and #tab.tabs == 1 then
+        bg = "#00000000"
     end
     
     if not args then args = {} end
@@ -155,7 +158,7 @@ function new(label, buttons)
 --     capi.client.add_signal("unfocus", u)
     local index =0
     function w:add_tab(c)
-      local aTab = {client = c, selected = false}
+      local aTab = {client = c, selected = false, tabs = tabs}
       table.insert(tabs, aTab)
       tasklist_update(tabs, w, buttons2, label2, data, widgets)
       index = index + 1
