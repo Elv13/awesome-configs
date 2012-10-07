@@ -58,7 +58,7 @@ function new(offset, args)
     mylauncher2text.bg_resize = true
 
     mylauncher2text:add_signal("mouse::enter", function() tt:showToolTip(true) ;mylauncher2text.bg = beautiful.bg_highlight end)
-    mylauncher2text:add_signal("mouse::leave", function() tt:showToolTip(false);mylauncher2text.bg = beautiful.bg_normal end)
+    mylauncher2text:add_signal("mouse::leave", function() tt:showToolTip(false);mylauncher2text.bg = nil                    end)
 
     mylauncher2text:buttons( util.table.join(
         button({ }, 1, function()

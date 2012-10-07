@@ -133,7 +133,7 @@ function new(offset, args)
     end)
     launcherText:add_signal("mouse::leave", function()
         tt:showToolTip(false)
-        launcherText.bg = beautiful.bg_normal 
+        launcherText.bg = nil
     end)
     
     launcherText:buttons( util.table.join(

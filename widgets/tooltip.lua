@@ -27,7 +27,8 @@ function new(text, args)
        w.width = width
        w.height = 25
        w.ontop = true
-       
+       w.bg = beautiful.tooltip_bg
+
        local x_padding = args.left and 5 or 0
        local down = args.down or args.left
 

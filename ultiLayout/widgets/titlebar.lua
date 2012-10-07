@@ -43,8 +43,9 @@ local function create(cg, args)
     local theme        = beautiful.get()
     local buttons      = {}
     local focus        = false
+    local mini         = (not cg.floating and theme.titlebar_mini_height)
     args               = args or {}
-    args.height        = args.height or beautiful.titlebar_height or capi.awesome.font_height * 1.5
+    args.height        = args.height or (not cg.floating and theme.titlebar_mini_height) or beautiful.titlebar_height or capi.awesome.font_height * 1.5
     
     -- Store colors
     local titlebar     = {tabs={}}
@@ -78,11 +79,9 @@ local function create(cg, args)
     
     if beautiful.titlebar_mask then
         tb:add_signal("property::width",function()
-            print("HERE",tb.width)
             local mask = beautiful.titlebar_mask(tb.width,tb.height)
             tb.shape_clip      = mask
             tb.shape_bounding  = mask
-            print(tb.shape_clip,mask)
         end)
     end
     
@@ -108,10 +107,14 @@ local function create(cg, args)
         function data:setImage(hover)
             local curfocus    = (focus == true) and "focus" or "normal"
             local curactive   = ((((type(data.checked) == "function") and data.checked() or data.checked) == true) and "active" or "inactive")
-            data.widget.image = capi.image((beautiful["titlebar_"..data.field .."_button_"..curfocus .."_"..curactive.. ((hover == true) and "_hover" or "")]) 
-                or  (beautiful["titlebar_"..data.field .."_button_"..curfocus .. ((hover == true) and "_hover" or "")])
-                or  (beautiful["titlebar_"..data.field .."_button_"..curfocus.."_"..curactive])
-                or  (beautiful["titlebar_"..data.field .."_button_"..curfocus]))
+            local curmini     = mini and "mini_" or ""
+            local img = capi.image((beautiful["titlebar_" ..curmini..data.field.."_button_"..curfocus .."_"..curactive.. ((hover == true) and "_hover" or "")]) 
+                or  (beautiful["titlebar_" ..curmini..data.field.."_button_"..curfocus .. ((hover == true) and "_hover" or "")])
+                or  (beautiful["titlebar_"..curmini..data.field .."_button_"..curfocus.."_"..curactive])
+                or  (beautiful["titlebar_" ..curmini..data.field.."_button_"..curfocus]))
+            if img then --If it's not there, at least don't diaplay nil
+                data.widget.image = img
+            end
         end
         
         function data:createWidget()
@@ -216,6 +219,12 @@ local function create(cg, args)
         end)
         --child_cg:add_signal("cg::swapped",function(...) data:swap(...) end)
         titlebar.tabs[child_cg]=tab
+
+        if tl.count > 1 then
+            args.height = beautiful.titlebar_height or capi.awesome.font_height * 1.5
+            tb.height = args.height
+            mini = false
+        end
         return tab
     end
     

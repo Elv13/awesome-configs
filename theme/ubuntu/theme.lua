@@ -72,6 +72,7 @@ theme.menu_border_color  = "#ACBBCD"
 
 
 theme.dock_bg       = "#0A0A0ACC"
+theme.tooltip_bg    = "#0A0A0ACC"
 
 
 -- You can add as many variables as
@@ -126,6 +127,53 @@ theme.titlebar_maximized_button_focus_inactive_hover = awful.util.getdir("config
 theme.titlebar_maximized_button_normal_active_hover = awful.util.getdir("config") .. "/theme/darkBlue/Icon/titlebar/maximized_normal_active_hover.png"
 theme.titlebar_maximized_button_focus_active_hover = awful.util.getdir("config") .. "/theme/darkBlue/Icon/titlebar/maximized_focus_active_hover.png"
 
+--Mini titlebar
+theme.titlebar_mini_close_button_normal = awful.util.getdir("config") .. "/theme/ubuntu/Icon/titlebar/close_mini_normal_inactive.png"
+theme.titlebar_mini_close_button_focus = awful.util.getdir("config") .. "/theme/ubuntu/Icon/titlebar/close_mini_focus_inactive.png"
+
+theme.titlebar_mini_ontop_button_normal_inactive = awful.util.getdir("config") .. "/theme/ubuntu/Icon/titlebar/ontop_mini_normal_inactive.png"
+theme.titlebar_mini_ontop_button_focus_inactive = awful.util.getdir("config") .. "/theme/ubuntu/Icon/titlebar/ontop_mini_focus_inactive.png"
+theme.titlebar_mini_ontop_button_normal_active = awful.util.getdir("config") .. "/theme/ubuntu/Icon/titlebar/ontop_mini_normal_active.png"
+theme.titlebar_mini_ontop_button_focus_active = awful.util.getdir("config") .. "/theme/ubuntu/Icon/titlebar/ontop_mini_focus_active.png"
+
+theme.titlebar_mini_sticky_button_normal_inactive = awful.util.getdir("config") .. "/theme/ubuntu/Icon/titlebar/sticky_mini_normal_inactive.png"
+theme.titlebar_mini_sticky_button_focus_inactive = awful.util.getdir("config") .. "/theme/ubuntu/Icon/titlebar/sticky_mini_focus_inactive.png"
+theme.titlebar_mini_sticky_button_normal_active = awful.util.getdir("config") .. "/theme/ubuntu/Icon/titlebar/sticky_mini_normal_active.png"
+theme.titlebar_mini_sticky_button_focus_active = awful.util.getdir("config") .. "/theme/ubuntu/Icon/titlebar/sticky_mini_focus_active.png"
+
+theme.titlebar_mini_floating_button_normal_inactive = awful.util.getdir("config") .. "/theme/ubuntu/Icon/titlebar/floating_mini_normal_inactive.png"
+theme.titlebar_mini_floating_button_focus_inactive = awful.util.getdir("config") .. "/theme/ubuntu/Icon/titlebar/floating_mini_focus_inactive.png"
+theme.titlebar_mini_floating_button_normal_active = awful.util.getdir("config") .. "/theme/ubuntu/Icon/titlebar/floating_mini_normal_active.png"
+theme.titlebar_mini_floating_button_focus_active = awful.util.getdir("config") .. "/theme/ubuntu/Icon/titlebar/floating_mini_focus_active.png"
+
+theme.titlebar_mini_maximized_button_normal_inactive = awful.util.getdir("config") .. "/theme/ubuntu/Icon/titlebar/maximized_mini_normal_inactive.png"
+theme.titlebar_mini_maximized_button_focus_inactive = awful.util.getdir("config") .. "/theme/ubuntu/Icon/titlebar/maximized_mini_focus_inactive.png"
+theme.titlebar_mini_maximized_button_normal_active = awful.util.getdir("config") .. "/theme/ubuntu/Icon/titlebar/maximized_mini_normal_active.png"
+theme.titlebar_mini_maximized_button_focus_active = awful.util.getdir("config") .. "/theme/ubuntu/Icon/titlebar/maximized_mini_focus_active.png"
+
+theme.titlebar_mini_close_button_normal_hover = awful.util.getdir("config") .. "/theme/ubuntu/Icon/titlebar/close_mini_normal_inactive_hover.png"
+theme.titlebar_mini_close_button_focus_hover = awful.util.getdir("config") .. "/theme/ubuntu/Icon/titlebar/close_mini_focus_inactive_hover.png"
+
+theme.titlebar_mini_ontop_button_normal_inactive_hover = awful.util.getdir("config") .. "/theme/ubuntu/Icon/titlebar/ontop_mini_normal_inactive_hover.png"
+theme.titlebar_mini_ontop_button_focus_inactive_hover = awful.util.getdir("config") .. "/theme/ubuntu/Icon/titlebar/ontop_mini_focus_inactive_hover.png"
+theme.titlebar_mini_ontop_button_normal_active_hover = awful.util.getdir("config") .. "/theme/ubuntu/Icon/titlebar/ontop_mini_normal_active_hover.png"
+theme.titlebar_mini_ontop_button_focus_active_hover = awful.util.getdir("config") .. "/theme/ubuntu/Icon/titlebar/ontop_mini_focus_active_hover.png"
+
+theme.titlebar_mini_sticky_button_normal_inactive_hover = awful.util.getdir("config") .. "/theme/ubuntu/Icon/titlebar/sticky_mini_normal_inactive_hover.png"
+theme.titlebar_mini_sticky_button_focus_inactive_hover = awful.util.getdir("config") .. "/theme/ubuntu/Icon/titlebar/sticky_mini_focus_inactive_hover.png"
+theme.titlebar_mini_sticky_button_normal_active_hover = awful.util.getdir("config") .. "/theme/ubuntu/Icon/titlebar/sticky_mini_normal_active_hover.png"
+theme.titlebar_mini_sticky_button_focus_active_hover = awful.util.getdir("config") .. "/theme/ubuntu/Icon/titlebar/sticky_mini_focus_active_hover.png"
+
+theme.titlebar_mini_floating_button_normal_inactive_hover = awful.util.getdir("config") .. "/theme/ubuntu/Icon/titlebar/floating_mini_normal_inactive_hover.png"
+theme.titlebar_mini_floating_button_focus_inactive_hover = awful.util.getdir("config") .. "/theme/ubuntu/Icon/titlebar/floating_mini_focus_inactive_hover.png"
+theme.titlebar_mini_floating_button_normal_active_hover = awful.util.getdir("config") .. "/theme/ubuntu/Icon/titlebar/floating_mini_normal_active_hover.png"
+theme.titlebar_mini_floating_button_focus_active_hover = awful.util.getdir("config") .. "/theme/ubuntu/Icon/titlebar/floating_mini_focus_active_hover.png"
+
+theme.titlebar_mini_maximized_button_normal_inactive_hover = awful.util.getdir("config") .. "/theme/ubuntu/Icon/titlebar/maximized_mini_normal_inactive_hover.png"
+theme.titlebar_mini_maximized_button_focus_inactive_hover = awful.util.getdir("config") .. "/theme/ubuntu/Icon/titlebar/maximized_mini_focus_inactive_hover.png"
+theme.titlebar_mini_maximized_button_normal_active_hover = awful.util.getdir("config") .. "/theme/ubuntu/Icon/titlebar/maximized_mini_normal_active_hover.png"
+theme.titlebar_mini_maximized_button_focus_active_hover = awful.util.getdir("config") .. "/theme/ubuntu/Icon/titlebar/maximized_mini_focus_active_hover.png"
+
 theme.titlebar_bg_normal_grad = {
     "#191919",
     "#121212",
@@ -151,6 +199,7 @@ theme.titlebar_mask = function(width,height)
 end
 
 theme.titlebar_height = 18
+theme.titlebar_mini_height = 6
 theme.titlebar_fg_normal = "#727272"
 theme.titlebar_fg_focus = "#C3C3C3"
 

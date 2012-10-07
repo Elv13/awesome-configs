@@ -77,7 +77,7 @@ function new(screen, args)
     mylaunchertext.bg_resize = false
 
     mylaunchertext:add_signal("mouse::enter", function() tt:showToolTip(true) ;mylaunchertext.bg = beautiful.bg_highlight end)
-    mylaunchertext:add_signal("mouse::leave", function() tt:showToolTip(false);mylaunchertext.bg = beautiful.bg_normal    end)
+    mylaunchertext:add_signal("mouse::leave", function() tt:showToolTip(false);mylaunchertext.bg = nil                    end)
 
     mylaunchertext:buttons( util.table.join(
         button({ }, 1, function()

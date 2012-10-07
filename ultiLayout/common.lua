@@ -202,6 +202,12 @@ function wrap_stack(new_cg)
     local stack = clientGroup()
     stack:set_layout(get_layout_list().stack)
     stack:attach(new_cg)
+-- <<<<<<< HEAD
+-- =======
+--     if new_cg.client and not meta_unit[new_cg.client] then
+--         meta_unit[new_cg.client] = stack
+--     end
+-- >>>>>>> parent of 9974517... Add new abstraction layer to support the same decorations in multiple cg/tags/layout
     return stack
 end
 
@@ -335,6 +341,26 @@ capi.client.add_signal("manage", function (c, startup)
         end
         cg:repaint()
     end
+-- <<<<<<< HEAD
+-- =======
+--     c:add_signal("tagged",function(c,t)
+--         print("tagged")
+--         local tCg = top_level_cg[t]
+--         if tCg then
+--             local unit = wrap_client(c)
+--             tCg:attach(unit)
+--         end
+--     end)
+--     c:add_signal("untagged",function(c,t)
+--         for k,v in pairs(layouts[t] or {}) do
+--             local units = clientGroup.get_units_from_client(c,v)
+--             for k2,v2 in ipairs(units) do
+--                 v2.parent:detach(v2)
+--             end
+--         end
+--         print("untagged")
+--     end)
+-- >>>>>>> parent of 9974517... Add new abstraction layer to support the same decorations in multiple cg/tags/layout
 end)
 
 setmetatable(_M, { __call = function(_, ...) return new(...) end })
