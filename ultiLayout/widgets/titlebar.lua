@@ -42,6 +42,7 @@ local function create(cg, args)
     if not cg then return end
     local theme        = beautiful.get()
     local buttons      = {}
+    local appicon      = capi.widget({type="imagebox"})
     local focus        = false
     local mini         = (not cg.floating and theme.titlebar_mini_height)
     args               = args or {}
@@ -59,8 +60,9 @@ local function create(cg, args)
     titlebar.font      = args.font     or theme.titlebar_font      or theme.font
     titlebar.width     = args.width    --
     data[cg]           = titlebar
-    
+
     local function set_focus(value)
+        local value = value or tl.focus or false
         focus = value
         tl.focus = value
         tb.bg = (value == true) and titlebar.bg_focus or titlebar.bg
@@ -74,16 +76,33 @@ local function create(cg, args)
         end
         tb.fg = (value == true) and titlebar.fg_focus or titlebar.fg
     end
-    
+
     object_model(titlebar,{focus = function() return focus end,visible=function() print("dfgdfgdgf") end},{focus = set_focus,visible = function(val)print("ertert") end},{},{autogen_getmap = true,autogen_signals = true})
-    
-    if beautiful.titlebar_mask then
-        tb:add_signal("property::width",function()
+
+    function titlebar:update()
+        appicon.image = cg.icon
+        for k,v in pairs(buttons) do
+            v:setImage()
+        end
+    end
+
+    local function gen_mask(force)
+        if beautiful.titlebar_mask then
+            tb:add_signal("property::width",function()
+                local mask = beautiful.titlebar_mask(tb.width,tb.height)
+                tb.shape_clip      = mask
+                tb.shape_bounding  = mask
+            end)
+        end
+        if force then
             local mask = beautiful.titlebar_mask(tb.width,tb.height)
             tb.shape_clip      = mask
             tb.shape_bounding  = mask
-        end)
+            titlebar:update()
+            set_focus()
+        end
     end
+    gen_mask()
     
     --Buttons creation
     function titlebar:button_group(args)
@@ -168,7 +187,6 @@ local function create(cg, args)
     )
     tb:buttons(bts)
     
-    local appicon = capi.widget({type="imagebox"})
     
     local userWidgets
     if hooks[cg.class] ~= nil then
@@ -193,7 +211,6 @@ local function create(cg, args)
     end
     
     function data:swap(_cg,old_cg,new_cg)
-        --sdfdsfds()
         if _cg.parent ~= cg then
             --_cg:remove_signal("cg::swapped",swap) --TODO name changed
             titlebar.tabs[old_cg].clientgroup = new_cg
@@ -224,6 +241,7 @@ local function create(cg, args)
             args.height = beautiful.titlebar_height or capi.awesome.font_height * 1.5
             tb.height = args.height
             mini = false
+            gen_mask(true)
         end
         return tab
     end
@@ -239,13 +257,6 @@ local function create(cg, args)
         end
         self.activeCg = child_cg
         return self.tabs[child_cg]
-    end
-    
-    function titlebar:update()
-        appicon.image = cg.icon
-        for k,v in pairs(buttons) do
-            v:setImage()
-        end
     end
     
     titlebar:emit_signal('client_changed',titlebar.client)
