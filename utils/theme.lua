@@ -16,7 +16,6 @@ module("utils.theme")
 local cacheE,cacheB = {},{}
 
 function get_image_from_gradient(grad,width,height)
-    print("GOT",width,height)
     local grad = grad or beautiful.bg_normal_grad
     local final_img = capi.image.argb32(width, height, nil)
     final_img:draw_rectangle_gradient(0,0,width,height,grad,0)
@@ -26,7 +25,6 @@ end
 function set_wibox_background_gradient(w,g)
     if not g then return end
     w.bg = "#00000000"
-    print(w.screen,capi.screen[w.screen or 1].geometry.width,w.height)
     w.bg_image = get_image_from_gradient(g,w.width or capi.screen[w.screen or 1].geometry.width,w.height or capi.screen[w.screen or 1].geometry.height)
 end
 

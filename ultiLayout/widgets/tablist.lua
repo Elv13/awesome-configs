@@ -60,6 +60,7 @@ end
 -- @param label Label function to use.
 -- @param buttons A table with buttons binding to set.
 function new(label, buttons)
+    local selected = nil
     local tabs,w,private_data = {},{},{
         focus                      = false,
         bg_active_focus            = beautiful.bg_focus,
@@ -99,7 +100,11 @@ function new(label, buttons)
     end
     local buttons2 = buttons or util.table.join(unpack(buttons_t))
     
-    local function tasklist_update()
+    local function tasklist_update(tab)
+        if tab and tab.selected and selected and selected ~= tab then
+            selected.selected = false
+        end
+        selected = (tab and tab.selected) and tab or selected
         common.list_update(w.widgets_real, buttons2, label2, data, widgets, tabs)
     end
     
@@ -107,7 +112,7 @@ function new(label, buttons)
         local aTab = create_tab(no_focus,tabs)
         aTab:add_signal( "changed"    ,tasklist_update)
         table.insert(tabs, aTab)
-        tasklist_update()
+        tasklist_update(aTab)
         return aTab
     end
     

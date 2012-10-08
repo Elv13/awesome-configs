@@ -64,8 +64,8 @@ theme.tasklist_floating_icon = awful.util.getdir("config") .. "/theme/darkBlue/I
 -- menu_[bg|fg]_[normal|focus]
 -- menu_[border_color|border_width]
 theme.menu_submenu_icon = awful.util.getdir("config").."/theme/darkBlue/Icon/tags/arrow.png"
-theme.menu_height   = "25"
-theme.menu_width    = "150"
+theme.menu_height   = 25
+theme.menu_width    = 150
 theme.menu_bg       = "#0A0A0ACC"
 theme.menu_border_width  = 0
 theme.menu_border_color  = "#ACBBCD"

@@ -95,9 +95,11 @@ local function create(cg, args)
             end)
         end
         if force then
-            local mask = beautiful.titlebar_mask(tb.width,tb.height)
-            tb.shape_clip      = mask
-            tb.shape_bounding  = mask
+            if beautiful.titlebar_mask then
+                local mask = beautiful.titlebar_mask(tb.width,tb.height)
+                tb.shape_clip      = mask
+                tb.shape_bounding  = mask
+            end
             titlebar:update()
             set_focus()
         end

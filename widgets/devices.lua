@@ -55,7 +55,7 @@ function add_device(args)
   
   local mywibox19 = wibox({ position = "free", screen = s})
   
-  --awful.wibox.rounded_corners(mywibox19,1)
+--   wibox.rounded_corners(mywibox19,1)
   
   local relY = 50 + 100 * (#devices)
   
