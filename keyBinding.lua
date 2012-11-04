@@ -17,9 +17,11 @@ globalkeys = awful.util.table.join(
     awful.key({ modkey, "Control" }, "p"  , function () ultiLayout.modules.keybpard_handling.resize_w(20)     end ),
     awful.key({ modkey, "Control", "Shift" }, "o"  , function () ultiLayout.modules.keybpard_handling.resize_h(-20)     end ),
     awful.key({ modkey, "Control", "Shift" }, "p"  , function () ultiLayout.modules.keybpard_handling.resize_w(-20)     end ),
+    awful.key({ modkey,           }, "p"  , function () utils.profile.start();debug.sethook(utils.profile.trace, "crl", 1) end ),
+    awful.key({ modkey, "Shift"   }, "p"  , function () debug.sethook();utils.profile.stop(_G) end ),
     
     awful.key({ modkey,           }, "Escape", function () awful.tag.history.restore()          end ),
-    awful.key({ modkey, "Shift"   }, "p"     , function () utils.keyFunctions.moveTagToScreen() end ),
+--     awful.key({ modkey, "Shift"   }, "p"     , function () utils.keyFunctions.moveTagToScreen() end ),
     awful.key({ modkey,           }, "Tab"   , function () utils.keyFunctions.altTab()          end ),
     awful.key({ modkey, "Shift"   }, "Tab"   , function () utils.keyFunctions.altTabBack()      end ),
     awful.key({ modkey, "Control" }, "Tab"   , function () customMenu.aeroTag()                 end ),
@@ -29,7 +31,7 @@ globalkeys = awful.util.table.join(
     awful.key({ modkey, "Control" }, "a"     , function () ultiLayout.common.set_layout_by_name("righttile") end ),
     awful.key({ modkey, "Control" }, "d"     , function () ultiLayout.common.toggle_visibility() end ),
     awful.key({ modkey, "Control" }, "f"     , function () ultiLayout.common.toggle_splitters() end ),
-    awful.key({ modkey, "Control" }, "g"     , function () ultiLayout.common.clear_splitter_box() end ),
+--    awful.key({ modkey, "Control" }, "g"     , function () ultiLayout.common.clear_splitter_box() end ),
     awful.key({ modkey, "Control" }, "h"     , function () ultiLayout.common.rotate_layout(1) end ),
 
     -- Layout manipulation
@@ -60,19 +62,34 @@ globalkeys = awful.util.table.join(
 
     --Switch screen
     --              MODIFIERS         KEY                        ACTION                               
-    awful.key({                   }, "#177"  , function () utils.mouseManager.switchTo(1)       end ),
-    awful.key({                   }, "#152"  , function () utils.mouseManager.switchTo(2)       end ),
-    awful.key({                   }, "#190"  , function () utils.mouseManager.switchTo(3)       end ),
-    awful.key({                   }, "#208"  , function () utils.mouseManager.switchTo(4)       end ),
-    awful.key({                   }, "#129"  , function () utils.mouseManager.switchTo(5)       end ),
-    
+    awful.key({                   }, "#177"  , function () utils.mouseManager.switchTo(3)       end ),
+    awful.key({                   }, "#152"  , function () utils.mouseManager.switchTo(4)       end ),
+    awful.key({                   }, "#190"  , function () utils.mouseManager.switchTo(5)       end ),
+    awful.key({                   }, "#208"  , function () utils.mouseManager.switchTo(1)       end ),
+    awful.key({                   }, "#129"  , function () utils.mouseManager.switchTo(2)       end ),
+
+    --Move current client to tag on <screen>
+    --              MODIFIERS         KEY                        ACTION                               
+    awful.key({ modkey            }, "#177"  , function () client.focus:tags({awful.tag.selected(3)})       end ),
+    awful.key({ modkey            }, "#152"  , function () client.focus:tags({awful.tag.selected(4)})       end ),
+    awful.key({ modkey            }, "#190"  , function () client.focus:tags({awful.tag.selected(5)})       end ),
+    awful.key({ modkey            }, "#208"  , function () client.focus:tags({awful.tag.selected(1)})       end ),
+    awful.key({ modkey            }, "#129"  , function () client.focus:tags({awful.tag.selected(2)})       end ),
+
+    --Move current tag to screen and mouse mouse
+    --              MODIFIERS         KEY                        ACTION                               
+    awful.key({ "Control"         }, "#177"  , function () utils.tools.tag_to_screen(awful.tag.selected(mouse.screen), 3)     end ),
+    awful.key({ "Control"         }, "#152"  , function () utils.tools.tag_to_screen(awful.tag.selected(mouse.screen), 4)     end ),
+    awful.key({ "Control"         }, "#190"  , function () utils.tools.tag_to_screen(awful.tag.selected(mouse.screen), 5)     end ),
+    awful.key({ "Control"         }, "#208"  , function () utils.tools.tag_to_screen(awful.tag.selected(mouse.screen), 1)     end ),
+    awful.key({ "Control"         }, "#129"  , function () utils.tools.tag_to_screen(awful.tag.selected(mouse.screen), 2)     end ),
     --Switch client
     --              MODIFIERS         KEY                        ACTION                               
-    awful.key({ "Control"         }, "#177"  , function () utils.clientSwitcher.switchTo(1)     end ),
-    awful.key({ "Control"         }, "#152"  , function () utils.clientSwitcher.switchTo(2)     end ),
-    awful.key({ "Control"         }, "#190"  , function () utils.clientSwitcher.switchTo(3)     end ),
-    awful.key({ "Control"         }, "#208"  , function () utils.clientSwitcher.switchTo(4)     end ),
-    awful.key({ "Control"         }, "#129"  , function () utils.clientSwitcher.switchTo(5)     end ),
+--     awful.key({ "Control"         }, "#177"  , function () utils.clientSwitcher.switchTo(1)     end ),
+--     awful.key({ "Control"         }, "#152"  , function () utils.clientSwitcher.switchTo(2)     end ),
+--     awful.key({ "Control"         }, "#190"  , function () utils.clientSwitcher.switchTo(3)     end ),
+--     awful.key({ "Control"         }, "#208"  , function () utils.clientSwitcher.switchTo(4)     end ),
+--     awful.key({ "Control"         }, "#129"  , function () utils.clientSwitcher.switchTo(5)     end ),
     awful.key({ modkey            }, "a"     , widgets.radialSelect.radial_client_select            ),
 
     --awful.keys.ignore_modifiers = { "Lock" }
@@ -84,14 +101,14 @@ globalkeys = awful.util.table.join(
     awful.key({                   }, "#89"   , function () awful.client.swap.byidx(  1)         end ),
     awful.key({                   }, "#84"   , function () awful.screen.focus_relative( 1)      end ),
     awful.key({                   }, "#83"   , awful.client.movetoscreen                            ),
-    
+
     -- Paste selection buffer
     --              MODIFIERS         KEY                        ACTION                               
     awful.key({                   }, "#96"   , utils.keyFunctions.pasteTextBuffer                   ),
     awful.key({                   }, "#95"   , utils.keyFunctions.pasteClipboard                    ),
     awful.key({ "Shift"           }, "#96"   , utils.keyFunctions.printTextBuffer                   ),
     awful.key({ "Shift"           }, "#95"   , utils.keyFunctions.printClipboard                    ),
-    awful.key({ modkey, "Shift"   }, "#96"   , utils.keyFunctions.printHexTextBuffer                   ),
+    awful.key({ modkey, "Shift"   }, "#96"   , utils.keyFunctions.printHexTextBuffer                ),
     
     
     -- Prompt
@@ -127,60 +144,59 @@ shifty.config.clientkeys = clientkeys
 -- This should map on the top row of your keyboard, usually 1 to 9.
 
 for i=1, ( 4 ) do
-  globalkeys = awful.util.table.join(globalkeys, awful.key({ }, "F"..i,
+  awful.util.table.append(globalkeys, awful.key({ }, "F"..i,
   function ()
     print("get fav")
     utils.clientSwitcher.selectFavClient(i)
   end))
-  globalkeys = awful.util.table.join(globalkeys, awful.key({ modkey }, "F"..i,
+  awful.util.table.append(globalkeys, awful.key({ modkey }, "F"..i,
   function ()
     utils.clientSwitcher.setFavClient(i, client.focus)
   end))
-  globalkeys = awful.util.table.join(globalkeys, awful.key({ "Control" }, "F"..i,
+  awful.util.table.append(globalkeys, awful.key({ "Control" }, "F"..i,
   function ()
     utils.clientSwitcher.setFavTag(i, awful.tag.selected(mouse.screen))
   end))
-  globalkeys = awful.util.table.join(globalkeys, awful.key({ "Shift" }, "F"..i,
+  awful.util.table.append(globalkeys, awful.key({ "Shift" }, "F"..i,
   function ()
     utils.clientSwitcher.setFavMacro(i)
   end))
 end
 
 for i=6, ( 8 ) do
-  globalkeys = awful.util.table.join(globalkeys, awful.key({ }, "F"..i,
+  awful.util.table.append(globalkeys, awful.key({ }, "F"..i,
   function ()
     print("get fav")
     utils.clientSwitcher.selectFavClient(i)
   end))
-  globalkeys = awful.util.table.join(globalkeys, awful.key({ modkey }, "F"..i,
+  awful.util.table.append(globalkeys, awful.key({ modkey }, "F"..i,
   function ()
     utils.clientSwitcher.setFavClient(i, client.focus)
   end))
-  globalkeys = awful.util.table.join(globalkeys, awful.key({ "Control" }, "F"..i,
+  awful.util.table.append(globalkeys, awful.key({ "Control" }, "F"..i,
   function ()
     utils.clientSwitcher.setFavTag(i, awful.tag.selected(mouse.screen))
   end))
 end
 
 for i=1, ( shifty.config.maxtags or 9 ) do
-  
-  globalkeys = awful.util.table.join(globalkeys, awful.key({ modkey }, i,
+  awful.util.table.append(globalkeys, awful.key({ modkey }, i,
   function ()
     local t = awful.tag.viewonly(shifty.getpos(i))
   end))
-  globalkeys = awful.util.table.join(globalkeys, awful.key({ modkey, "Control" }, i,
+  awful.util.table.append(globalkeys, awful.key({ modkey, "Control" }, i,
   function ()
     local t = shifty.getpos(i)
     t.selected = not t.selected
   end))
-  globalkeys = awful.util.table.join(globalkeys, awful.key({ modkey, "Control", "Shift" }, i,
+  awful.util.table.append(globalkeys, awful.key({ modkey, "Control", "Shift" }, i,
   function ()
     if client.focus then
       awful.client.toggletag(shifty.getpos(i))
     end
   end))
   -- move clients to other tags
-  globalkeys = awful.util.table.join(globalkeys, awful.key({ modkey, "Shift" }, i,
+  awful.util.table.append(globalkeys, awful.key({ modkey, "Shift" }, i,
     function ()
       if client.focus then
         local t = shifty.getpos(i)

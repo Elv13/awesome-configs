@@ -1,0 +1,14 @@
+# KDE Config File
+[Desktop Entry]
+Type=Application
+Exec=kcachegrind -caption "%c" %u
+MimeType=application/x-kcachegrind;
+Icon=AWECFG/kcachegrind.png
+X-DocPath=kcachegrind/index.html
+Terminal=false
+Name=KCachegrind
+GenericName=Profiler Frontend
+Comment=Visualization of Performance Profiling Data
+X-DBUS-StartupType=Multi
+X-DBUS-ServiceName=net.sf.kcachegrind
+Categories=Development

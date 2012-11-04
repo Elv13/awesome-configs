@@ -25,7 +25,7 @@ local top_level_cg        = {} -- tag -> cg
 local layout_list         = {} -- string -> layout func
 local currentTag          = {} -- screen -> cg
 local wibox_to_cg         = {}
-local meta_unit           = {} -- client -> cg
+local vertices            = {}
 local splitter_visible    = false
 
 function add_new_layout(name, func)
@@ -143,28 +143,28 @@ function swap_client_group(cg1,cg2,force)
     end
 end
 
--- function get_closest_vertex(point)
---     
--- end
--- 
--- function resize_closest()
---     local v      = get_closest_vertex()
---     local coords = capi.mouse.coords
---     local vx1    = v.x1
---     local vy1    = v.y1
---     capi.mousegrabber.run(function(mouse)
---         if mouse.buttons[1] == false and mouse.buttons[3] == false then
---             return false
---         end
---         if v.orientation == "v" then
---             local dx = coords.x - mouse.x
---         elseif v.orientation == "h" then
---             local dy = coords.y - mouse.y
---         end
---         return true
---     end,"fleur")
---     
--- end
+function get_closest_vertex(point)
+    
+end
+
+function resize_closest()
+    local v      = get_closest_vertex()
+    local coords = capi.mouse.coords
+    local vx1    = v.x1
+    local vy1    = v.y1
+    capi.mousegrabber.run(function(mouse)
+        if mouse.buttons[1] == false and mouse.buttons[3] == false then
+            return false
+        end
+        if v.orientation == "v" then
+            local dx = coords.x - mouse.x
+        elseif v.orientation == "h" then
+            local dy = coords.y - mouse.y
+        end
+        return true
+    end,"fleur")
+    
+end
 
 function get_layout_list()
     return layout_list
@@ -186,9 +186,9 @@ function wrap_client(c)
     aCG:geometry(c:geometry())
     aCG:set_layout(layout_list.unit,c)
     
-    if client.floating.get(c) ~= true then
+    if client.floating.get(c) == false then
         return aCG
-    else
+    elseif client.floating.get(c) == true then
         local aStack = clientGroup()
         aStack:geometry(c:geometry())
         aStack:set_layout(layout_list.stack)
@@ -202,9 +202,12 @@ function wrap_stack(new_cg)
     local stack = clientGroup()
     stack:set_layout(get_layout_list().stack)
     stack:attach(new_cg)
-    if new_cg.client and not meta_unit[new_cg.client] then
-        meta_unit[new_cg.client] = stack
-    end
+-- <<<<<<< HEAD
+-- =======
+--     if new_cg.client and not meta_unit[new_cg.client] then
+--         meta_unit[new_cg.client] = stack
+--     end
+-- >>>>>>> parent of 9974517... Add new abstraction layer to support the same decorations in multiple cg/tags/layout
     return stack
 end
 
@@ -285,6 +288,7 @@ function set_layout_by_name(name,t)
 end
 
 function rotate_layout(inc,t)
+    print("rotating")
     local inc = inc or 1
     local t = t or tag.selected(capi.mouse.screen)
     local layout_array = ordered or get_layout_name_list()
@@ -323,7 +327,6 @@ capi.client.add_signal("unmanage", function (c, startup)
     for k,v in pairs(units) do
         v.parent:detach(v)
     end
-    meta_unit[c] = nil
 end)
 
 capi.client.add_signal("manage", function (c, startup)
@@ -338,23 +341,26 @@ capi.client.add_signal("manage", function (c, startup)
         end
         cg:repaint()
     end
-    c:add_signal("tagged",function(c,t)
-        print("tagged")
-        local tCg = top_level_cg[t]
-        if tCg then
-            local unit = wrap_client(c)
-            tCg:attach(unit)
-        end
-    end)
-    c:add_signal("untagged",function(c,t)
-        for k,v in pairs(layouts[t] or {}) do
-            local units = clientGroup.get_units_from_client(c,v)
-            for k2,v2 in ipairs(units) do
-                v2.parent:detach(v2)
-            end
-        end
-        print("untagged")
-    end)
+-- <<<<<<< HEAD
+-- =======
+--     c:add_signal("tagged",function(c,t)
+--         print("tagged")
+--         local tCg = top_level_cg[t]
+--         if tCg then
+--             local unit = wrap_client(c)
+--             tCg:attach(unit)
+--         end
+--     end)
+--     c:add_signal("untagged",function(c,t)
+--         for k,v in pairs(layouts[t] or {}) do
+--             local units = clientGroup.get_units_from_client(c,v)
+--             for k2,v2 in ipairs(units) do
+--                 v2.parent:detach(v2)
+--             end
+--         end
+--         print("untagged")
+--     end)
+-- >>>>>>> parent of 9974517... Add new abstraction layer to support the same decorations in multiple cg/tags/layout
 end)
 
 setmetatable(_M, { __call = function(_, ...) return new(...) end })

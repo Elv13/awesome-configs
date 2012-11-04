@@ -26,7 +26,7 @@ ulti_titlebar.add_signal("create",function(_tb,widgets,titlebar)
     widgets.wibox.widgets = {                                      --
         {                                                          --
           widgets.icon                                              ,
-          menuTb                                                    ,
+--           menuTb                                                    ,
           layout = awful.widget.layout.horizontal.leftright         ,
         }                                                           ,
         widgets.buttons.close.widget                                ,

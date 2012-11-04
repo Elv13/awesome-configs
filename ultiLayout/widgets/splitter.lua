@@ -1,14 +1,14 @@
 local capi = { mouse = mouse,image=image,widget=widget }
 local setmetatable = setmetatable
-local print = print
-local math = math
-local type = type
-local ipairs = ipairs
-local util = require("awful.util")
-local wibox        = require( "awful.wibox"  )
-local common       = require( "ultiLayout.common" )
-local clientGroup  = require( "ultiLayout.clientGroup" )
-local beautiful    = require( "beautiful" )
+local print        = print
+local math         = math
+local type         = type
+local ipairs       = ipairs
+local util         = require( "awful.util"              )
+local wibox        = require( "awful.wibox"             )
+local common       = require( "ultiLayout.common"       )
+local clientGroup  = require( "ultiLayout.clientGroup"  )
+local beautiful    = require( "beautiful"               )
 local object_model = require( "ultiLayout.object_model" )
 
 module("ultiLayout.widgets.splitter")
@@ -168,6 +168,8 @@ local function gen_splitter_bar_mask(i_mul, start_pos)
     end
     return img2
 end
+
+
 function create_splitter_bar(cg)
     local wbs = {}
     local data = {}
@@ -238,6 +240,61 @@ function create_splitter_bar(cg)
         end
         wbs = nil
         data = nil
+    end)
+    
+--     local get_map = {
+--         x = function() return x end,
+--         y = function() return y end
+--     }
+--     local set_map = {}
+--     object_model(tab,get_map,set_map,p_data,{
+--         autogen_getmap      = true ,
+--         autogen_signals     = true ,
+--         auto_signal_changed = true ,
+--         force_private       = {
+--             selected        = true ,
+--             title           = true }
+--     })
+    return data
+end
+
+local add_tab_mask_img,add_tab_widget = nil,nil
+function create_tab_splitter(cg)
+    local w = nil
+    local data = {}
+    local x,y = 0,0
+    
+    if not add_tab_mask_img then
+        add_tab_mask_img = capi.image(util.getdir("config") .. "/ultiLayout/widgets/data/default_addtab_mask2.png")
+        add_tab_widget = capi.widget({type="imagebox"})
+        add_tab_widget.image = capi.image(util.getdir("config") .. "/ultiLayout/widgets/data/default_addtab.png")
+    end
+    
+    function data:update()
+        local visible = cg.visible and common.are_splitter_visible()
+        if visible then
+            if not w then
+                w = wibox({position="free"})
+                w.width = add_tab_mask_img.width
+                w.height = add_tab_mask_img.height
+                w.shape_bounding = add_tab_mask_img
+                w.shape_clip     = add_tab_mask_img
+                w.ontop          = true
+                w.widgets = {add_tab_widget}
+                common.register_wibox(w, cg, function(new_cg) cg:attach(new_cg) end)
+            end
+            w.x = cg.x + cg.width - add_tab_mask_img.width
+            w.y = cg.y + (#cg:childs() == 1 and beautiful.titlebar_mini_height or beautiful.titlebar_height or 16)
+        end
+        if w then
+            w.visible = visible
+        end
+    end
+    cg:add_signal("destroyed",function()
+        for i=1,6 do
+            w.visible = false
+            w = nil
+        end
     end)
     
 --     local get_map = {

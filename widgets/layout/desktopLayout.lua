@@ -123,8 +123,8 @@ end
 
 function addCornerWidget(wdg,screen,corner,args)
     local wdgSet = addWidget(wdg,args,true)
-    wdgSet.x     = usableSpace(screen).width - wdgSet.width
-    wdgSet.y     = usableSpace(screen).height - wdgSet.height
+    wdgSet.x     = capi.screen[(screen <= capi.screen.count()) and screen or 1].geometry.x+usableSpace(screen).width - wdgSet.width
+    wdgSet.y     = 30--usableSpace(screen).height - wdgSet.height
 end
 
 function addWidget(wdg,args,reserved)

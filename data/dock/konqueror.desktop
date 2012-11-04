@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Exec=kfmclient openProfile webbrowsing
+Icon=AWECFG/konqueror.png
+X-DocPath=konqueror/index.html
+
+Name=Konqueror
+GenericName=Web Browser
+Categories=Qt;KDE;Network;WebBrowser;

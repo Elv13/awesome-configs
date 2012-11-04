@@ -6,6 +6,7 @@ local shifty       = require( "shifty"       )
 local beautiful    = require( "beautiful"    )
 local utils        = require( "utils.tools"  )
 local menu         = require( "widgets.menu" )
+local tooltip   = require( "widgets.tooltip" )
 
 local capi = { image  = image  ,
                screen = screen ,
@@ -14,7 +15,49 @@ local capi = { image  = image  ,
 module("customButton.tagmover")
 
 local data = {}
+local screenMenu = nil               --
 
+local function btn1(id,addOrSub)
+    if data[id].selected ~= nil then
+        local screen2 = data[id].selected.screen + addOrSub
+        if screen2 > capi.screen.count() then
+            screen2 = 1
+        end
+        utils.tag_to_screen(data[id].selected, screen2)
+        data[id].selected = tag.selected(screen)
+    end
+end
+local function btn3(id,addOrSub)
+        if not screenMenu then
+        screenMenu = menu()
+        for i=1,capi.screen.count() do
+            screenMenu:add_item({text=i, onclick = function()
+                utils.tag_to_screen(data[screenMenu.id].selected, screen2)
+                screenMenu:toggle()
+            end})
+        end
+        end
+        screenMenu.id = id
+        screenMenu:toggle()
+end
+local function btn4(id,addOrSub)
+    if data[id].selected ~= nil then
+        local screen2 = data[id].selected.screen + addOrSub
+        if screen2 > capi.screen.count() then
+            screen2 = 1
+        end
+        utils.tag_to_screen(data[id].selected, screen2)
+    end
+end
+local function btn5(id,addOrSub)
+    if data[id].selected ~= nil then
+        local screen2 = data[id].selected.screen - addOrSub
+        if screen2 == 0 then
+            screen2 = capi.screen.count()
+        end
+        utils.tag_to_screen(data[id].selected, screen2)
+    end
+end
 
 --Screen the screen number
 --args:
@@ -26,7 +69,7 @@ function new(screen, args)
     local icon       = args.icon         or nil
     local id         = screen..direction --
     local addOrSub   = 0                 --
-    local screenMenu = menu()            --
+    local tt = tooltip("Move Tag Screen to the "..args.direction,{})
     
     
     if direction == "left" then
@@ -45,6 +88,7 @@ function new(screen, args)
       data[id].widget       = capi.widget({ type = "textbox",  align = "left" })
       data[id].widget.text  = direction
     end
+    data[id].widget.bg = beautiful.bg_alternate
     
     if direction == "left" and screen == 1 then
       data[id].widget.visible = false
@@ -54,57 +98,25 @@ function new(screen, args)
       data[id].widget.visible = true
     end
     
-    for i=1,capi.screen.count() do
-      screenMenu:add_item({text=i, onclick = function() 
-                                                utils.tag_to_screen(data[id].selected, screen2)
-                                                screenMenu:toggle()
-                                             end})
-    end
-    
     data[id].screen = screen
     data[id].direction = direction
     
-    data[id].widget:add_signal("mouse::enter", function () 
+    data[id].widget:add_signal("mouse::enter", function ()
+                                                  tt:showToolTip(true)
                                                   data[id].selected = tag.selected() 
-                                                  data[id].widget.bg = beautiful.bg_highlight
-                                                end)
-    data[id].widget:add_signal("mouse::leave", function () 
-                                                  data[id].selected = nil 
                                                   data[id].widget.bg = beautiful.bg_normal
                                                 end)
-    
+    data[id].widget:add_signal("mouse::leave", function ()
+                                                  tt:showToolTip(false)
+                                                  data[id].selected = nil 
+                                                  data[id].widget.bg = beautiful.bg_alternate
+                                                end)
+
     data[id].widget:buttons( util.table.join(
-      button({ }, 1, function()
-	  if data[id].selected ~= nil then
-	    local screen2 = data[id].selected.screen + addOrSub
-	    if screen2 > capi.screen.count() then
-	      screen2 = 1
-	    end
-	    utils.tag_to_screen(data[id].selected, screen2)
-	    data[id].selected = tag.selected(screen)
-	  end
-      end),
-      button({ }, 3, function()
-          screenMenu:toggle()
-      end),
-      button({ }, 4, function()
-	  if data[id].selected ~= nil then
-	    local screen2 = data[id].selected.screen + addOrSub
-	    if screen2 > capi.screen.count() then
-	      screen2 = 1
-	    end
-	    utils.tag_to_screen(data[id].selected, screen2)
-	  end
-      end),
-      button({ }, 5, function()
-	  if data[id].selected ~= nil then
-	    local screen2 = data[id].selected.screen - addOrSub
-	    if screen2 == 0 then
-	      screen2 = capi.screen.count()
-	    end
-	    utils.tag_to_screen(data[id].selected, screen2)
-	  end
-      end)
+      button({ }, 1, function() btn1(id,addOrSub) end),
+      button({ }, 3, function() btn3(id,addOrSub) end),
+      button({ }, 4, function() btn4(id,addOrSub) end),
+      button({ }, 5, function() btn5(id,addOrSub) end)
     ))
     
 

@@ -3,7 +3,7 @@ require( "awful"        )
 require( "beautiful"    )
 require( "naughty"      )
 require( "shifty"       )
-require( "vicious"      )
+require( "extern"       )
 require( "panel"        )
 require( "monkeyPatch"  )
 require( "config"       )
@@ -15,11 +15,23 @@ require( "customButton" )
 require( "titlebar"     )
 require( "ultiLayout"   )
 
+-- table.insert = function(t,i,v)
+--     if v and i then
+--         t[i] = v
+--     else
+--         t[#t+1] = i
+--     end
+-- end
+
+function exec() --Wrap in a function for better startup profiling
 -- Cache result for probe used more than once
+local vicious = require("extern.vicious")
 vicious.cache( vicious.widgets.net )
 vicious.cache( vicious.widgets.fs  )
 vicious.cache( vicious.widgets.dio )
 vicious.cache( vicious.widgets.cpu )
+vicious.cache( vicious.widgets.mem )
+vicious.cache( vicious.widgets.dio )
 
 -- Some widget for every screens
 wiboxTop        = {}; promptbox = {}; notifibox = {}; layoutmenu = {}; wiboxBot = {}
@@ -67,13 +79,18 @@ shifty.config.float_bars = true
 -- Load the theme
 config.load()
 config.data().themePath = awful.util.getdir("config") .. "/theme/" .. config.data().themeName .. "/"
-config.data().iconPath  = config.data().themePath       .. "/Icon/"
+config.data().iconPath  = config.data().themePath       .. "Icon/"
 beautiful.init(config.data().themePath                .. "/theme.lua")
-  
+-- Shifty rules
+dofile(awful.util.getdir("config") .. "/baseRule.lua")
+shifty.init()
+
 -- Create the panels
 for s = 1, screen.count() do
   wiboxTop[s] = awful.wibox({ position = "top"   , screen = s, height = 16 })
   wiboxBot[s] = awful.wibox({ position = "bottom", screen = s, height = 16 })
+  utils.theme.set_wibox_background_gradient(wiboxTop[s],beautiful.bg_normal_grad)
+  utils.theme.set_wibox_background_gradient(wiboxBot[s],beautiful.bg_normal_grad)
 end
 
 -- Assign the modkey
@@ -86,13 +103,13 @@ shifty.modkey          = modkey
 desktopGrid            = widgets.layout.desktopLayout({padBottom=20,padTop=35,padDef=8})
 
 -- Create the application menu
-applicationMenu        = customMenu.application   ( nil                                )
+appMenu        = customMenu.application           ( nil                                )
 
 -- Create the place menu TODO use the KDE list instead of the hardcoded one
-placesMenu             = customMenu.places        ( nil                                )
+placesMenu             = customMenu.places        ( appMenu:extents().width            )
 
 -- Call the laucher wibox
-launcher               = customMenu.launcher      ( nil                                )
+launcher               = customMenu.launcher      ( appMenu:extents().width + placesMenu:extents().width+8)
 
 -- Create the laucher dock
 lauchDock              = widgets.dock             ( nil                                )
@@ -101,34 +118,44 @@ lauchDock              = widgets.dock             ( nil                         
 desktopPix             = customButton.showDesktop ( nil                                )
 
 -- Create the clock
-mytextclock            = drawer.dateinfo          ( nil                                )
-
--- Create the memory manager
-meminfo                = drawer.memInfo           ( screen.count()                     )
-
--- Create the cpu manager
-cpuinfo                = drawer.cpuInfo           ( nil                                )
-
--- Create the net manager
-netinfo                = drawer.netInfo           ( nil                                )
+clock                  = drawer.dateinfo          ( nil                                )
+clock.bg               = beautiful.bg_alternate
 
 -- Create the volume box
-soundWidget            = drawer.soundInfo         ( wiboxTop3                          )
+soundWidget            = drawer.soundInfo         ( wiboxTop3, clock:extents().width   )
+
+-- Create the net manager
+netinfo                = drawer.netInfo           ( clock:extents().width + 60         )
+
+-- Create the memory manager
+meminfo                = drawer.memInfo           ( clock:extents().width + 210        )
+
+-- Create the cpu manager
+cpuinfo                = drawer.cpuInfo           ( clock:extents().width + 210 + 130  )
 
 -- Create the keyboard layout switcher, feel free to add your contry and push it to master
 keyboardSwitcherWidget = widgets.keyboardSwitcher ( nil                                )
 
 -- Create a systray
-mysystray              = widget                   ( { type = "systray"               } )
+mysystray              = widget                   ( { type = "systray", bg = beautiful.fg_normal } )
+mysystray.bg           = beautiful.fg_normal
+
+-- Create systray end arrow
+taskarrow              = utils.theme.get_beg_arrow_widget()
+
+-- Create systray end arrow
+sysarrow               = utils.theme.get_beg_arrow_widget(nil,nil,nil,"left")
+sysarrow3              = utils.theme.get_beg_arrow_widget(beautiful.bg_alternate,beautiful.fg_normal,nil,"left")
+sysarrow2              = utils.theme.get_beg_arrow_widget(nil,beautiful.bg_alternate,nil,"left")
+
+-- Create the logout menu
+logoutmenu             = customMenu.logout()
 
 -- Create the music panel
 --musicBar = panel.musicBar()
 
 -- Create the hardware alarm panel
 --hardwarePanel = panel.hardware()
-
--- Shifty rules
-dofile(awful.util.getdir("config") .. "/baseRule.lua"                                  )
 
 -- Create the addTag icon (depend on shifty rule)
 addTag = customButton.addTag                      ( nil,{taglist = shifty.config.tags} )
@@ -201,6 +228,8 @@ root.buttons(awful.util.table.join(
 
 --Some spacers with dirrent text
 spacer3 = widgets.spacer({text = "| "}); spacer2 = widgets.spacer({text = "  |"}); spacer4 = widgets.spacer({text = "|"})
+spacer5 = widgets.spacer({text = "",width=5})
+spacer2.bg,spacer5.bg,spacer4.bg = beautiful.bg_alternate,beautiful.bg_alternate,beautiful.bg_alternate
 
 -- The widget array with different possible screens configuration
 for s = 1, screen.count() do
@@ -212,6 +241,9 @@ for s = 1, screen.count() do
   
   -- Create a taglist widget
   mytaglist[s]  = widgets.taglist       ( s, widgets.taglist.label.all, mytaglist.buttons )
+  
+  -- Create the arrow after the last taglist button
+  local arrow  = utils.theme.new_arrow_widget(beautiful.bg_alternate,beautiful.bg_normal,3)
 
   -- Create the delTag button
   delTag[s]     = customButton.delTag   ( s                                               )
@@ -236,10 +268,13 @@ for s = 1, screen.count() do
           movetagL   [s]                                                                              or nil,
           movetagR   [s]                                                                              or nil,
           layoutmenu [s]                                                                              or nil,
+          arrow                                                                                       or nil,
           layout = awful.widget.layout.horizontal.leftright                                           -------
       },
       --                             RULES                      EXIST            WIDGET              FALLBACK
-      ( s == config.data().scr.sec or screen.count() == 1                  ) and mytextclock            or nil,
+      ( s == config.data().scr.sec or screen.count() == 1                  ) and logoutmenu             or nil,
+      ( s == config.data().scr.sec or screen.count() == 1                  ) and sysarrow3              or nil,
+      ( s == config.data().scr.sec or screen.count() == 1                  ) and clock                  or nil,
       ( s == config.data().scr.sec or screen.count() == 1                  ) and kgetwidget             or nil,
       ( s == config.data().scr.sec or screen.count() == 1                  ) and kgetpixmap             or nil,
       ((s == config.data().scr.sec or screen.count() == 1) and soundWidget ) and soundWidget.wid        or nil,
@@ -254,10 +289,11 @@ for s = 1, screen.count() do
       ((s == config.data().scr.sec or screen.count() == 1) and meminfo     ) and meminfo.text           or nil,
       ((s == config.data().scr.sec or screen.count() == 1) and meminfo     ) and meminfo.logo           or nil,
       ( s == config.data().scr.sec or screen.count() == 1                  ) and spacer2                or nil,
-      ((s == config.data().scr.sec or screen.count() == 1) and cpuinto     ) and cpuinfo.graph          or nil,
+      ((s == config.data().scr.sec or screen.count() == 1) and cpuinfo     ) and cpuinfo.graph          or nil,
       ((s == config.data().scr.sec or screen.count() == 1) and cpuinfo     ) and cpuinfo.text           or nil,
       ((s == config.data().scr.sec or screen.count() == 1) and cpuinfo     ) and cpuinfo.logo           or nil,
-      ( s == config.data().scr.sec or screen.count() == 1                  ) and spacer3                or nil,
+      ( s == config.data().scr.sec or screen.count() == 1                  ) and spacer5                or nil,
+      ( s == config.data().scr.sec or screen.count() == 1                  ) and sysarrow2              or nil,
       layout = awful.widget.layout.horizontal.rightleft,                                              ------
       {                                                                                               ------
         notifibox[s]                                                                                  or nil,
@@ -268,21 +304,20 @@ for s = 1, screen.count() do
   -- Bottom wibox widgets
   wiboxBot[s].widgets = {
     --           RULES                                                         WIDGET                FALLBACK
-    ( s == config.data().scr.pri                                           ) and applicationMenu        or nil,
+    ( s == config.data().scr.pri                                           ) and appMenu                or nil,
     ( s == config.data().scr.pri                                           ) and placesMenu             or nil,
-    ( s == config.data().scr.pri                                           ) and recentMenu             or nil,
     ( s == config.data().scr.pri                                           ) and launcher               or nil,
     ( s == config.data().scr.pri                                           ) and desktopPix             or nil,
-    promptbox[s]                                                                                      or nil,
-    spacer3                                                                                           or nil,
-    {                                                                                                 ------
+    promptbox[s]                                                                                        or nil,
+    ( s == config.data().scr.pri                                           ) and taskarrow              or nil,
+    {                                                                                                   ------
       (s == config.data().scr.pri                                          ) and keyboardSwitcherWidget or nil,
-      spacer3                                                                                         or nil,
+      ( s == config.data().scr.pri                                         ) and sysarrow               or nil,
       (s == config.data().scr.pri                                          ) and mysystray              or nil,
-      layout = awful.widget.layout.horizontal.rightleft,                                              ------
-    },                                                                                                ------
-    layout = awful.widget.layout.horizontal.leftright,                                                ------
-    mytasklist[s]                                                                                     or nil,
+      layout = awful.widget.layout.horizontal.rightleft,                                                ------
+    },                                                                                                  ------
+    layout = awful.widget.layout.horizontal.leftright,                                                  ------
+    mytasklist[s]                                                                                       or nil,
   }  
 end
 
@@ -359,7 +394,7 @@ for s = 1, screen.count() do
   awful.tag.attached_add_signal(s, "property::layout"  , function () utils.tools.addTitleBar(s) end)
 end
 
-shifty.init()
+-- shifty.init()
 
 --Start application when a tag is first used, better than using shifty.init
 local isPlayingMovie         = false
@@ -377,7 +412,7 @@ for s = 1, screen.count() do
       enableAmarokCtrl(true)
     end
       isPlayingMovie = false
-      
+
       -- Run or raise options
       if tag.name     == "Files"    then
         utils.tools.run_or_raise(filemanager.cmd, { class = filemanager.class })
@@ -400,3 +435,10 @@ end
 widgets.layout.desktopLayout.draw()
 config.save()
 config.enableAutoSave()
+end
+-- Startup profiling
+-- utils.profile.start()
+-- debug.sethook(utils.profile.trace, "crl", 1)
+exec()
+-- debug.sethook()
+-- utils.profile.stop(_G)

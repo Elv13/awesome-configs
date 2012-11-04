@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=KCalc
+Exec=kcalc -caption "%c"
+Icon=AWECFG/calc.png
+X-DocPath=kcalc/index.html
+GenericName=Scientific Calculator
+Terminal=false
+Type=Application
+X-KDE-StartupNotify=true
+Categories=Tools

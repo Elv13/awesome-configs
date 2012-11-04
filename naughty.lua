@@ -35,7 +35,12 @@ local loopCounter =0
 commonTimer:add_signal("timeout", function () 
     if type(timerEvent[1]) == "function" then
         if timerEvent[1]() == false then
-            timerEvent[1] = nil
+            if #timerEvent > 1 then
+                timerEvent[1] = timerEvent[#timerEvent]
+                timerEvent[#timerEvent] = nil
+            else
+                timerEvent[1] = nil
+            end
             loopCounter = 0
         end
     end
@@ -43,7 +48,12 @@ commonTimer:add_signal("timeout", function ()
     
     --Prevent infinite loop due to pango error or something like that
     if loopCounter > 40 then
-        timerEvent[1] = nil
+        if #timerEvent > 1 then
+            timerEvent[1] = timerEvent[#timerEvent]
+            timerEvent[#timerEvent] = nil
+        else
+            timerEvent[1] = nil
+        end
         loopCounter = 0
     end
     if #timerEvent == 0 then

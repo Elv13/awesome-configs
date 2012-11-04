@@ -1,0 +1,9 @@
+[Desktop Entry]
+Name=MySQL Workbench
+Comment=MySQL Database Design, Administration and Development Tool
+Exec=/usr/bin/mysql-workbench
+Terminal=false
+Type=Application
+Icon=AWECFG/mysql.png
+MimeType=application/vnd.mysql-workbench-model;
+Categories=Development

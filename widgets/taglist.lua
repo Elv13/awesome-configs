@@ -14,6 +14,7 @@ local setmetatable = setmetatable
 local pairs = pairs
 local ipairs = ipairs
 local table = table
+local print = print
 local common = require("common")
 local util = require("awful.util")
 local config = require("config")
@@ -36,7 +37,7 @@ local function taglist_update (screen, w, label, buttons, data, widgets)
             table.insert(showntags, t)
         end
     end
-    common.list_update(w, buttons, label, data, widgets, showntags)
+    common.list_update(w, buttons, label, data, widgets, showntags,{have_index=true,have_arrow=true})
 end
 
 --- Get the tag object the given widget appears on.
@@ -94,6 +95,8 @@ function new(screen, label, buttons)
     return w
 end
 
+local bg_imgs= {}
+
 --- Return labels for a taglist widget with all tag from screen.
 -- It returns the tag name and set a special
 -- foreground and background color for selected tags.
@@ -111,7 +114,7 @@ end
 function label.all(t, args)
     if not args then args = {} end
     local theme = beautiful.get()
-    local numberStyle = "<span size='large' bgcolor='".. theme.fg_normal .."'color='".. theme.bg_normal .."'><tt><b>"--"<span size='x-large' bgcolor='".. theme.fg_normal .."'color='".. theme.bg_normal .."'><tt><b>"
+    local numberStyle = "<span size='x-large' bgcolor='".. theme.fg_normal .."'color='".. theme.bg_normal .."'><tt><b>"--"<span size='x-large' bgcolor='".. theme.fg_normal .."'color='".. theme.bg_normal .."'><tt><b>"
     local numberStyleEnd = "</b></tt></span>"--"</b></tt></span> "
     local fg_focus = args.fg_focus or theme.taglist_fg_focus or theme.fg_focus
     local bg_focus = args.bg_focus or theme.taglist_bg_focus or theme.bg_focus
@@ -127,56 +130,44 @@ function label.all(t, args)
     local fg_color = nil
     local bg_image
     local icon
-    local bg_resize = false
+--     local bg_resize = false
     local is_selected = false
     if t.selected then
-        bg_color = bg_focus
+--         bg_color = bg_focus
         fg_color = fg_focus
+        if beautiful.taglist_bg_image_selected then
+            if not bg_imgs[beautiful.taglist_bg_image_selected] then
+                bg_imgs[beautiful.taglist_bg_image_selected] = capi.image(beautiful.taglist_bg_image_selected)
+            end
+            bg_image = {image = bg_imgs[beautiful.taglist_bg_image_selected],pattern=true,name="sel"}
+        else
+            bg_image = beautiful.taskbar_selected_grad
+        end
     elseif #(t:clients()) > 0 then
         bg_color = beautiful.bg_highlight
-    end
-    if sel then
-        if taglist_squares_sel then
-            -- Check that the selected clients is tagged with 't'.
-            local seltags = sel:tags()
-            for _, v in ipairs(seltags) do
-                if v == t then
-                    bg_image = capi.image(taglist_squares_sel)
-                    bg_resize = taglist_squares_resize == "true"
-                    is_selected = true
-                    break
-                end
+        if beautiful.taglist_bg_image_used then
+            if not bg_imgs[beautiful.taglist_bg_image_used] then
+                bg_imgs[beautiful.taglist_bg_image_used] = capi.image(beautiful.taglist_bg_image_used)
             end
-        end
-    end
-    if not is_selected then
-        local cls = t:clients()
-        if #cls > 0 and taglist_squares_unsel then
-            bg_image = capi.image(taglist_squares_unsel)
-            bg_resize = taglist_squares_resize == "true"
-        end
-        for k, c in pairs(cls) do
-            if c.urgent then
-                if bg_urgent then bg_color = bg_urgent end
-                if fg_urgent then fg_color = fg_urgent end
-                break
-            end
+            bg_image = {image = bg_imgs[beautiful.taglist_bg_image_used],pattern=true,name="used"}
+        else
+            bg_image = beautiful.taskbar_used_grad
         end
     end
     if not tag.getproperty(t, "icon_only") then
         if config.data().useListPrefix == true then
           if fg_color then
-            text = text .. numberStyle..config.data().listPrefix[tag.getidx(t)]..numberStyleEnd.."<span color='"..util.color_strip_alpha(fg_color).."'>"
-            text = text .. " " .. (util.escape(t.name) or "") .." </span>"
+            text = text .. "<span color='"..util.color_strip_alpha(fg_color).."'>"
+            text = text .. "" .. (util.escape(t.name) or "") .."</span>"
           else
-            text = text .. numberStyle..config.data().listPrefix[tag.getidx(t)]..numberStyleEnd.. " " .. (util.escape(t.name) or "") .. " "
+            text = text .. "" .. (util.escape(t.name) or "") .. ""
           end
         else
           if fg_color then
             text = text .. "<span color='"..util.color_strip_alpha(fg_color).."'>"
-            text = text .. " " .. (util.escape(t.name) or "") .." </span>"
+            text = text .. "" .. (util.escape(t.name) or "") .."</span>"
           else
-            text = text .. " " .. (util.escape(t.name) or "") .. " "
+            text = text .. "" .. (util.escape(t.name) or "") .. ""
           end
         end
     end
@@ -187,7 +178,7 @@ function label.all(t, args)
         icon = capi.image(tag.geticon(t))
     end
 
-    return text, bg_color, bg_image, icon, (config.data().useListPrefix == true and beautiful.fg_normal or bg_color)
+    return text, bg_color, bg_image, icon, (config.data().useListPrefix == true and beautiful.fg_normal or bg_color),nil,numberStyle..config.data().listPrefix[tag.getidx(t)]..numberStyleEnd
 end
 
 --- Return labels for a taglist widget with all *non empty* tags from screen.

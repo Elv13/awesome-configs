@@ -11,6 +11,7 @@ theme.bg_focus      = "#003687"
 theme.bg_urgent     = "#5B0000"
 theme.bg_minimize   = "#040A1A"
 theme.bg_highlight  = "#0E2051"
+theme.bg_alternate  = "#0F2766"
 
 theme.fg_normal     = "#1577D3"
 theme.fg_focus      = "#00BBD7"
@@ -39,15 +40,28 @@ theme.border_marked = "#91231c"
 -- Display the taglist squares
 theme.taglist_squares_sel = confdir .. "/default/star2.png"
 theme.taglist_squares_unsel = confdir .. "/default/star.png"
+theme.taglist_bg_image_empty    = nil
+theme.taglist_bg_image_selected = confdir .. "/theme/darkBlue/Icon/bg/selected_bg.png"
+theme.taglist_bg_image_used     = confdir .. "/theme/darkBlue/Icon/bg/used_bg.png"
 
-theme.tasklist_floating_icon = confdir .. "/theme/darkBlue/Icon/titlebar/floating.png"
+
+theme.tasklist_floating_icon              = confdir .. "/theme/darkBlue/Icon/titlebar/floating.png"
+theme.tasklist_ontop_icon                 = confdir .. "/theme/darkBlue/Icon/titlebar/ontop.png"
+theme.tasklist_ontop_floating_icon        = confdir .. "/theme/darkBlue/Icon/titlebar/ontop_float.png"
+theme.tasklist_sticky_icon                = confdir .. "/theme/darkBlue/Icon/titlebar/sticky.png"
+theme.tasklist_sticky_floating_icon       = confdir .. "/theme/darkBlue/Icon/titlebar/sticky_float.png"
+theme.tasklist_sticky_ontop_floating_icon = confdir .. "/theme/darkBlue/Icon/titlebar/sticky_ontop_float.png"
 
 -- Variables set for theming menu
 -- menu_[bg|fg]_[normal|focus]
 -- menu_[border_color|border_width]
 theme.menu_submenu_icon = confdir.."/theme/darkBlue/Icon/tags/arrow.png"
-theme.menu_height   = "20"
-theme.menu_width    = "130"
+theme.menu_scrollmenu_down_icon = confdir.."/theme/darkBlue/Icon/tags/arrow_down.png"
+theme.menu_scrollmenu_up_icon = confdir.."/theme/darkBlue/Icon/tags/arrow_up.png"
+theme.menu_height   = 20
+theme.menu_width    = 130
+theme.border_width  = 1
+theme.border_color  = theme.fg_normal
 
 
 -- You can add as many variables as

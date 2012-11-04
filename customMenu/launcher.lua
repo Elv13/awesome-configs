@@ -4,13 +4,15 @@ local print        = print
 local ipairs       = ipairs
 local pairs        = pairs
 local io           = io
-local button       = require( "awful.button" )
-local beautiful    = require( "beautiful"    )
-local naughty      = require( "naughty"      )
-local tag          = require( "awful.tag"    )
-local menu         = require( "widgets.menu" )
-local util         = require( "awful.util"   )
-local config       = require( "config"       )
+local tooltip      = require( "widgets.tooltip" )
+local button       = require( "awful.button"    )
+local beautiful    = require( "beautiful"       )
+local naughty      = require( "naughty"         )
+local tag          = require( "awful.tag"       )
+local menu         = require( "widgets.menu"    )
+local util         = require( "awful.util"      )
+local config       = require( "config"          )
+local themeutils   = require( "utils.theme"     )
 
 local capi = { image  = image  ,
                widget = widget ,
@@ -29,7 +31,7 @@ local function save(command)
     file:close()
 end
 
-function createMenu(center)
+function createMenu(offset)
     
     local numberStyle = "<span size='large' color='".. beautiful.bg_normal .."'><tt><b>"
     local numberStyleEnd = "</b></tt></span> "
@@ -62,8 +64,8 @@ function createMenu(center)
 
     table.sort(commandArray2, compare)
   
-    mainMenu = menu({filter = true, showfilter = true, filterprefix = "<b>Run: </b>", y = capi.screen[1].geometry.height - 18, x = 147, autodiscard = true,maxvisible=20})
-    mainMenu:set_width(((screen or capi.screen[capi.mouse.screen]).geometry.width)/2)
+    mainMenu = menu({filter = true, showfilter = true, filterprefix = "<b>Run: </b>", y = capi.screen[1].geometry.height - 18, x = 147, autodiscard = true,maxvisible=20,has_decoration=false,autoresize= true})
+--     mainMenu:set_width(((screen or capi.screen[capi.mouse.screen]).geometry.width)/2)
     
     mainMenu:add_key_hook({}, "Return", "press", function(menu)
         util.spawn(menu.filterString)
@@ -113,21 +115,36 @@ function createMenu(center)
     end)
     
     mainMenu:toggle(true)
+    mainMenu:set_coords(offset or 0,capi.screen[capi.mouse.screen].geometry.height-16)
     
     return mainMenu
 end
 
-function new(screen, args)
+function new(offset, args)
     local launcherText = capi.widget({ type = "textbox", align = "left" })
-    launcherText.text  = "      Launch  |"
-    launcherText.bg_image = capi.image(config.data().iconPath .. "gearA2.png")
+    launcherText:margin({ left = 30,right=17})
+    launcherText.text  = "Launch"
     launcherText.bg_resize = true
     
+    local head_img      = capi.image(config.data().iconPath .. "gearA2.png")
+    local extents       = launcherText:extents()
+    extents.height      = 16
+    local normal_bg_img = themeutils.gen_button_bg(head_img,extents,false)
+    local focus_bg_img  --= themeutils.gen_button_bg(head_img,extents,true )
+    
+    launcherText.bg_image = normal_bg_img
+    local tt = tooltip("Execute a command",{down=true})
+    
     launcherText:add_signal("mouse::enter", function()
-        launcherText.bg = beautiful.bg_highlight
+        tt:showToolTip(true)
+        if not focus_bg_img then
+            focus_bg_img  = themeutils.gen_button_bg(head_img,extents,true )
+        end
+        launcherText.bg_image = focus_bg_img
     end)
-    launcherText:add_signal("mouse::leave", function() 
-        launcherText.bg = beautiful.bg_normal 
+    launcherText:add_signal("mouse::leave", function()
+        tt:showToolTip(false)
+        launcherText.bg_image = normal_bg_img
     end)
     
     launcherText:buttons( util.table.join(
@@ -135,7 +152,7 @@ function new(screen, args)
         if currentMenu ~= nil then
             currentMenu:toggle(false)
         else
-            currentMenu = createMenu()
+            currentMenu = createMenu(offset)
         end
     end)
     ))

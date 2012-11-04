@@ -2,12 +2,14 @@ local setmetatable = setmetatable
 local tonumber = tonumber
 local table = table
 local io = io
+local print = print
 local button = require("awful.button")
-local vicious = require("vicious")
+local vicious = require("extern.vicious")
 local wibox = require("awful.wibox")
 local widget2 = require("awful.widget")
 local config = require("config")
 local beautiful = require("beautiful")
+local menu = require( "widgets.menu"                 )
 local util = require("awful.util")
 local capi = { image = image,
                screen = screen,
@@ -95,7 +97,7 @@ function soundInfo()
     f2:close()
     
     channal = capi.widget({type = "textbox"})
-    channal.text = aChannal
+    --channal.text = aChannal
     channal.width = 107
         
     mute = capi.widget({ type = "imagebox", align = "left" })
@@ -133,70 +135,62 @@ function soundInfo()
   data.wibox:geometry({height = counter*19 + 19})
 end
   
-function new(mywibox3)
-
-  data.wibox = wibox({ position = "free", screen = s})
-  data.wibox.ontop = true
-  data.wibox.visible = false
-  data.wibox:geometry({y = 20, x = capi.screen[capi.mouse.screen].geometry.width - 240 + capi.screen[capi.mouse.screen].geometry.x, width = 240, height = 300})
-  soundInfo() 
-  volumewidget = capi.widget({
-      type = 'textbox',
-      name = 'volumewidget',
-      align='right'
+function new(mywibox3,left_margin)
+  local volumewidget = capi.widget({
+      type = 'textbox'
   })
-
-  --volumewidget.mouse_enter = function () soundInfo() end
-
-  volumewidget:buttons( util.table.join(button({ }, 1, function ()
-      data.wibox.visible = true
-  end)))
-  
-  --volumewidget.mouse_leave = function () naughty.destroy(alsaInfo[3]) end
-
-  volumewidget:buttons( util.table.join(
-     button({ }, 1, function()
-          data.wibox.visible = not data.wibox.visible
-          if mywibox3 then
-            --mywibox3.visible = not mywibox3.visible
-          end
-	  musicBarVisibility = true
--- 	  volumepixmap.visible = not volumepixmap.visible 
--- 	  volumewidget.visible = not volumewidget.visible 
-      end),
-      button({ }, 4, function()
-	  util.spawn("amixer -c0 sset Master 2dB+ >/dev/null") 
-      end),
-      button({ }, 5, function()
-	  util.spawn("amixer -c0 sset Master 2dB- >/dev/null") 
-      end)
-  ))
-
-
-  volumepixmap       = capi.widget({ type = "imagebox", align = "right" })
+  local volumepixmap = capi.widget({ type = "imagebox"})
   volumepixmap.image = capi.image(config.data().iconPath .. "vol.png")
-  volumepixmap:buttons( util.table.join(
-      button({ }, 1, function()
-          data.wibox.visible = not data.wibox.visible
-          if mywibox3 then
-            --mywibox3.visible = not mywibox3.visible
-          end
--- 	  volumepixmap.visible = not volumepixmap.visible 
--- 	  volumewidget.visible = not volumewidget.visible 
+
+
+  local top,bottom
+
+  local btn = util.table.join(
+     button({ }, 1, function()
+        if not data.wibox then
+            data.wibox = wibox({ position = "free", screen = s, bg = beautiful.menu_bg})
+            data.wibox.ontop = true
+            data.wibox.visible = false
+            local guessHeight = capi.screen[1].geometry.height
+            local img = capi.image.argb32(240, guessHeight, nil)
+            img:draw_rectangle(0,0, 3, guessHeight, true, "#ffffff")
+            img:draw_rectangle(237,0, 3, guessHeight, true, "#ffffff")
+            data.wibox.shape_clip     = img
+            data.wibox.border_color = beautiful.fg_normal
+            top,bottom = menu.gen_menu_decoration(240,{arrow_x=240 - (left_margin or 0) - 35 - 10})
+            soundInfo()
+            data.wibox:geometry({y = 16 + top.height, x = capi.screen[capi.mouse.screen].geometry.width - 240 + capi.screen[capi.mouse.screen].geometry.x, width = 240, height = 300})
+            top.x = data.wibox.x
+            top.y = 16
+            bottom.x = data.wibox.x
+            bottom.y = data.wibox.y+data.wibox.height
+        end
+        data.wibox.visible = not data.wibox.visible
+
+        top.visible = data.wibox.visible
+        bottom.visible = data.wibox.visible
+
+        if mywibox3 then
+            mywibox3.visible = not mywibox3.visible
+        end
+        musicBarVisibility = true
+
+    --        volumepixmap.visible = not volumepixmap.visible 
+    --        volumewidget.visible = not volumewidget.visible 
       end),
       button({ }, 4, function()
-	  util.spawn("amixer -c0 sset Master 2dB+ >/dev/null") 
+          util.spawn("amixer -c0 sset Master 2dB+ >/dev/null") 
       end),
       button({ }, 5, function()
-	  util.spawn("amixer -c0 sset Master 2dB- >/dev/null") 
+          util.spawn("amixer -c0 sset Master 2dB- >/dev/null") 
       end)
-  ))
+  )
 
+  volumewidget:buttons(btn)
+  volumepixmap:buttons(btn)
   
-  volumepixmap:buttons( util.table.join(button({ }, 1, function ()
-      data.wibox.visible = true
-  end)))
-
+  volumewidget.bg = beautiful.bg_alternate
+  volumepixmap.bg = beautiful.bg_alternate
 
   vicious.register(volumewidget, amixer_volume_int, '$1%  | ')
   return {pix = volumepixmap, wid = volumewidget}

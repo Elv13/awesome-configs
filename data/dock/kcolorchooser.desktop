@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Exec=kcolorchooser
+Icon=AWECFG/picker.png
+Terminal=false
+X-DocPath=fundamentals/index.html#colors
+GenericName=Color Chooser
+Name=KColorChooser
+
+X-DBUS-StartupType=Multi
+Categories=Tools

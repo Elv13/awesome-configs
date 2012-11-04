@@ -1,0 +1,13 @@
+[Desktop Entry]
+Type=Application
+Version=1.0
+Name=Amarok
+GenericName=Audio Player
+Exec=amarok %U
+Comment=Amarok - Rediscover Your Music!
+Icon=AWECFG/amarok.png
+# Add pure audio formats here, for other formats see amarok_*.desktop files
+# See bug 242292
+MimeType=audio/aac;audio/mp4;audio/mpeg;audio/mpegurl;audio/vnd.rn-realaudio;audio/vorbis;audio/x-flac;audio/x-mp3;audio/x-mpegurl;audio/x-ms-wma;audio/x-musepack;audio/x-oggflac;audio/x-pn-realaudio;audio/x-scpls;audio/x-speex;audio/x-vorbis;audio/x-wav;application/x-ogm-audio;audio/x-vorbis+ogg;audio/ogg;
+Terminal=false
+Categories=Player

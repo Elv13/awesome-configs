@@ -1,0 +1,12 @@
+[Desktop Entry]
+GenericName=Screen Ruler
+Name=KRuler
+X-DocPath=kruler/index.html
+MimeType=
+Exec=kruler
+Type=Application
+Icon=AWECFG/kruler.png
+Terminal=false
+X-KDE-StartupNotify=true
+X-DBUS-StartupType=Multi
+Categories=Tools

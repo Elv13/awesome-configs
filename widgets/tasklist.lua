@@ -23,6 +23,8 @@ local config = require("config")
 local layout = require("awful.widget.layout")
 local clientSwitcher = require("utils.clientSwitcher")
 
+local status_img,status_init = {},false
+
 --- Tasklist widget module for awful
 module("widgets.tasklist")
 
@@ -84,6 +86,16 @@ function new(label, buttons)
     capi.client.add_signal("focus", u)
     capi.client.add_signal("unfocus", u)
     u()
+    
+    local theme = beautiful.get()
+    status_img[1]   = theme.tasklist_floating_icon
+    status_img[10]  = theme.tasklist_ontop_icon
+    status_img[11]  = theme.tasklist_ontop_floating_icon
+    status_img[100] = theme.tasklist_sticky_icon
+    status_img[101] = theme.tasklist_sticky_floating_icon
+    status_img[111] = theme.tasklist_sticky_ontop_floating_icon
+    status_init = true
+    
     return w
 end
 
@@ -101,15 +113,27 @@ local function widget_tasklist_label_common(c, args)
     local bg_urgent = args.bg_urgent or theme.tasklist_bg_urgent or theme.bg_urgent
     local fg_minimize = args.fg_minimize or theme.tasklist_fg_minimize or theme.fg_minimize
     local bg_minimize = args.bg_minimize or theme.tasklist_bg_minimize or theme.bg_minimize
-    local floating_icon = args.floating_icon or theme.tasklist_floating_icon
     local font = args.font or theme.tasklist_font or theme.font or ""
     local bg = nil
     local text = "<span font_desc='"..font.."'>"
     local name
-    local status_image
-    if client.floating.get(c) and floating_icon then
-        status_image = capi.image(floating_icon)
+    local status_image,status_idx=nil,0
+    if client.floating.get(c) then
+        status_idx = status_idx + 1
     end
+    
+    if c.ontop == true then
+        status_idx = status_idx + 10
+    end
+    
+    if c.sticky == true then
+        status_idx = status_idx + 100
+    end
+    
+    if status_img[status_idx] then
+        status_image = capi.image(status_img[status_idx])
+    end
+    
     if c.minimized then
         name = util.escape(c.icon_name) or util.escape(c.name) or util.escape("<untitled>")
     else

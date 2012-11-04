@@ -146,3 +146,21 @@ function stripHtml(str)
     end
     return safeStr
 end
+
+function scale_image(path,final_width,final_height,padding,bg_color)
+    --Final image
+    local final = capi.image.argb32(final_width, final_height, nil)
+    final:draw_rectangle(0 ,0, final_width, final_height, true, bg_color or beautiful.bg_normal)
+    local source = capi.image(path)
+    local ratio = 1--source.width/source.height
+    
+    --Scaling with alpha is not very nice, get rid of it
+    local temp = capi.image.argb32(source.width, source.height, nil)
+    temp:draw_rectangle(0 ,0, source.width, source.height, true, bg_color or beautiful.bg_normal)
+    temp:insert(source,0,0)
+    
+    --Scale source into final image
+    final:insert(temp:crop_and_scale(0,0,source.width,source.height,(final_width-padding*2)*ratio,(final_height-padding*2)*ratio),padding,padding)
+    
+    return final
+end

@@ -98,7 +98,7 @@ function new(screen, args)
         end)
         
         local testImg = capi.widget({type="imagebox"})
-        testImg.image = capi.image(util.getdir("config") .. "/theme/darkBlue/Icon/titlebar/ontop_normal_inactive.png")
+        testImg.image = capi.image(config.data().iconPath .. "titlebar/ontop_normal_inactive.png")
         
         itemCount = 1
         for k,v in ipairs(capi.client.get(screen)) do

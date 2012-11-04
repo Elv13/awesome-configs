@@ -1,16 +1,17 @@
 local setmetatable = setmetatable
-local io = io
-local button = require("awful.button")
-local beautiful = require("beautiful")
-local ipairs = ipairs
-local tag = require("awful.tag")
-local util = require("awful.util")
-local shifty = require("shifty")
-local menu = require("widgets.menu")
-local capi = { image = image,
-               widget = widget,
-               mouse = mouse,
-               screen = screen}
+local io           = io
+local ipairs       = ipairs
+local button    = require( "awful.button"  )
+local beautiful = require( "beautiful"     )
+local tag       = require( "awful.tag"     )
+local util      = require( "awful.util"    )
+local shifty    = require( "shifty"        )
+local config    = require( "config"        )
+local menu      = require( "widgets.menu"  )
+local capi = { image  = image  ,
+               widget = widget ,
+               mouse  = mouse  ,
+               screen = screen }
 
 module("customMenu.tagOption")
 
@@ -91,7 +92,7 @@ function new(screen, args)
   
   local mainMenu2 = createMenu()
   
-  local f = io.popen('find '..util.getdir("config") .. "/theme/darkBlue/Icon/tags/ -maxdepth 1 -iname \"*.png\" -type f","r")
+  local f = io.popen('find '..config.data().iconPath .. "tags/ -maxdepth 1 -iname \"*.png\" -type f","r")
   local counter = 0
   while true do
     local file = f:read("*line")

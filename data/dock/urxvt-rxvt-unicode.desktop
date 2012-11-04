@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=rxvt-unicode
+Type=Application
+Comment=rxvt clone with xft and unicode support
+Exec=urxvt
+TryExec=urxvt
+Icon=AWECFG/term.png
+Categories=Tools

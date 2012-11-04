@@ -231,7 +231,7 @@ local shifty_rules = {
 {match = { "Thunderbird"   , "kmail"          , "evolution" ,                                      } , tag = "Mail"               } ,
 {match = { "ksnapshot"     , "pinentry"       , "gtksu"     , "kcalc"        , "xcalc"               ,                             --
            "feh"           , "Gradient editor", "About KDE" , "Paste Special", "Background color"    ,                             --
-           "kcolorchooser" , "plasmoidviewer" , "plasmaengineexplorer"                             } , intrusive = true,          } ,
+           "kcolorchooser" , "plasmoidviewer" , "plasmaengineexplorer" , "Xephyr" , "kruler"       } , intrusive = true,          } ,
 {match = { "rssStock"      ,                                                                       } , tag = "RSS"                  ,
                                                                                                        honorsizehints = false     } ,
 {match = { "gimp"          ,                                                                       } , honorsizehints = false       ,
@@ -261,6 +261,7 @@ local shifty_rules = {
            "New Form"     , "Insert Picture"  , "kcharselect", "mythfrontend" , "plasmoidviewer"   } , float = true               } ,
 {match = { "Konversation" , "Opera"           , "Firefox"    , "Chrome"       , "Okular"             ,                             --
            "*OpenOffice*" , "OpenOffice"      , "Qt Designer",                                     } , float = false              } ,
+{match = { "Xephyr"       , "ksnapshot"       , "kruler"                                           } , ontop = true               } ,
 -------------------------------------------------------------------------------------------------------------------------------------
 
 

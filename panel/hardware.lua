@@ -14,7 +14,7 @@ local wibox = require("awful.wibox")
 local topbottom = require("awful.widget.layout.vertical")
 local layout = require("awful.widget.layout")
 local config = require("config")
-local vicious = require("vicious")
+local vicious = require("extern.vicious")
 local capi = { image = image,
                screen = screen,
                widget = widget,

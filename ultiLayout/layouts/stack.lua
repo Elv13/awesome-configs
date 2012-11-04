@@ -8,7 +8,7 @@ module("ultiLayout.layouts.stack")
 
 function new(cg,have_tiltebar)
    if not cg then return end
-   local data,tb,asplitter = {},nil,splitter.create_splitter_bar(cg)
+   local data,tb,asplitter,tabsplitter = {},nil,splitter.create_splitter_bar(cg),splitter.create_tab_splitter(cg)
    cg.orientation = "stack"
    cg.swapable = true
 
@@ -18,6 +18,7 @@ function new(cg,have_tiltebar)
             v:geometry({width  = cg.workarea.width-(margin*2), height = cg.workarea.height-(margin*2), x = cg.workarea.x+(margin/2), y = cg.workarea.y+(margin/2)})
         end
         asplitter:update()
+        tabsplitter:update()
    end
 
     function data:set_active(sub_cg)

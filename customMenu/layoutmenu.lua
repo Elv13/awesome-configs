@@ -11,6 +11,8 @@ local util = require("awful.util")
 local config = require("config")
 local beautiful = require("beautiful")
 local wibox = require("awful.wibox")
+local tooltip   = require( "widgets.tooltip" )
+local menu2 = require("widgets.menu")
 local capi = { image = image,
                screen = screen,
                widget = widget,
@@ -50,17 +52,23 @@ function new(screen, layouts)
     local screen = screen or 1
     local w = capi.widget({ type = 'imagebox', height = 10 })
     local titleBarWidget = capi.widget({ type = 'textbox', height = 10 })
-    local menu = create(screen,layouts,titleBarWidget)
+    local menu = nil
+    local tt = tooltip("Change Layout",{})
+    w.bg = beautiful.bg_alternate
     update(w, screen)
-    
+
     w:buttons( util.table.join(
       button({ }, 1, function()
+          if not menu then menu = create(screen,layouts,titleBarWidget) end
 	  menu:geometry({x = w:extents(screen).x or capi.mouse.coords().x, y = w:extents(screen).y or capi.mouse.coords().y})
-	  menu.visible = not menu.visible
+          tt:showToolTip(false);
+	  menu:visible()
       end),
       button({ }, 3, function()
+          if not menu then menu = create(screen,layouts,titleBarWidget) end
           menu:geometry({x = w:extents(screen).x or capi.mouse.coords().x, y = w:extents(screen).y or capi.mouse.coords().y})
-          menu.visible = not menu.visible
+          tt:showToolTip(false);
+          menu:visible()
       end),
       button({ }, 4, function()
 	  layout.inc(layouts, 1)
@@ -69,14 +77,14 @@ function new(screen, layouts)
 	  layout.inc(layouts, -1)
       end)
     ))
-    
-    w:add_signal("mouse::enter", function() w.bg = beautiful.bg_highlight end)
-    w:add_signal("mouse::leave", function() w.bg = beautiful.bg_normal end)
-    
+
+    w:add_signal("mouse::enter", function() tt:showToolTip(true) ;w.bg = beautiful.bg_normal   end)
+    w:add_signal("mouse::leave", function() tt:showToolTip(false);w.bg = beautiful.bg_alternate end)
+
     titleBarWidget:buttons( util.table.join(
       button({ }, 1, function()
 	  showTitleBar[tag.selected()] = showTitleBar[tag.selected()] or false
-	  menu.visible = false
+	  menu:visible(false)
 	  showTitleBar[tag.selected()] = not showTitleBar[tag.selected()]
 	  
 	  if showTitleBar[tag.selected()] == true then
@@ -88,10 +96,9 @@ function new(screen, layouts)
 	  enableTitleBar(showTitleBar[tag.selected()])
       end),
       button({ }, 3, function()
-	  menu.visible = false
+	  menu:visible(false)
       end)
     ))
-  
 
     local function update_on_tag_selection(new_tag)
 	if showTitleBar[tag.selected()] == true then
@@ -108,17 +115,26 @@ function new(screen, layouts)
     return w
 end
 
-
 function create(s,layouts,titleBarWidget)
-  if menuWibox == nil then
-    menuWibox = {}
-  end
-  menuWibox[s] = wibox({ position = "free", screen = s})
-  menuWibox[s].visible = false
-  menuWibox[s].ontop = true
+  local menuWibox = wibox({ position = "free", screen = s,bg = beautiful.menu_bg})
+  local top,bottom = menu2.gen_menu_decoration(90)
+  menuWibox.visible = false
+  menuWibox.ontop,top.ontop,bottom.ontop = true,true,true
   layoutArray = {}
-  local counter = 0
-  local currentRow = {}
+  local counter,currentRow,data = 0, {},{}
+
+  function data:geometry(geo)
+    top:geometry({x=geo.x-30,y=geo.y})
+    menuWibox:geometry({x=geo.x-30,y=geo.y+23})
+    bottom:geometry({x=geo.x-30,y=geo.y+23+menuWibox.height})
+  end
+
+  function data:visible(vis)
+    local vis = vis or not menuWibox.visible
+    for k,v in ipairs({top,bottom,menuWibox}) do
+      v.visible = vis
+    end
+  end
   
   for i, layout_real in ipairs(layouts) do
     local layout2 = layout.getname(layout_real)
@@ -129,11 +145,11 @@ function create(s,layouts,titleBarWidget)
 	r_widget.layout.margins[tmp] = { right = 10}
 	tmp:buttons( util.table.join(
 	  button({ }, 1, function()
-	      menuWibox[s].visible = false
+	      data:visible(false)
 	      layout.set(layout_real)
 	  end),
 	  button({ }, 3, function()
-	      menuWibox[s].visible = false
+	      data:visible(false)
 	  end)
 	))
 	
@@ -158,11 +174,20 @@ function create(s,layouts,titleBarWidget)
   titleBarWidget.align = "center"
   table.insert(layoutArray, {titleBarWidget, layout= r_widget.layout.horizontal.flex})
   
-  menuWibox[s]:geometry({ width = 90, height = (30*#layoutArray)})
+  menuWibox:geometry({ width = 90, height = (30*#layoutArray)})
+
+  --Add border on both side
+  local img = capi.image.argb32(90, (30*#layoutArray) or 10, nil)
+  img:draw_rectangle(0,0, 3, (30*#layoutArray), true, "#ffffff")
+  img:draw_rectangle(87,0, 3, (30*#layoutArray), true, "#ffffff")
+
+  menuWibox.shape_clip     = img
+  menuWibox.border_color = beautiful.fg_normal
+    --w2.shape_bounding = do_gen_menu_bottom(width,10,0)
   
   layoutArray["layout"] = r_widget.layout.vertical.flex
   
-  menuWibox[s].widgets = layoutArray
-  return menuWibox[s]
+  menuWibox.widgets = layoutArray
+  return data
 end
 setmetatable(_M, { __call = function(_, ...) return new(...) end })

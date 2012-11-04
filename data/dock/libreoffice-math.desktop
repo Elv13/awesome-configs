@@ -1,0 +1,15 @@
+[Desktop Entry]
+Version=1.0
+Terminal=false
+NoDisplay=true
+Icon=libreoffice-math
+Type=Application
+Categories=Office;X-Red-Hat-Base;X-SuSE-Core-Office;X-MandrivaLinux-Office-Other;
+Exec=libreoffice --math %U
+MimeType=application/vnd.oasis.opendocument.formula;application/vnd.sun.xml.math;application/vnd.stardivision.math;
+Name=LibreOffice Math
+GenericName=Formula Editor
+GenericName[en]=Formula Editor
+Comment=Create and edit scientific formulas and equations by using Math.
+Comment[en]=Create and edit scientific formulas and equations by using Math.
+InitialPreference=5

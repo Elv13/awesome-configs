@@ -48,6 +48,8 @@ config.prompt_matchers = { "^", ":", "" }
 
 local matchp = ""
 local index_cache = {}
+
+local isinit = true
 for i = 1, screen.count() do index_cache[i] = {} end
 -- }}}
 
@@ -331,7 +333,9 @@ function add(args)
   set(t, args)
 
   -- unless forbidden or if first tag on the screen, show the tag
-  if not (awful.tag.getproperty(t,"nopopup") or args.noswitch) or #screen[t.screen]:tags() == 1 then awful.tag.viewonly(t) end
+  if not isinit then --Faster startup
+    if not (awful.tag.getproperty(t,"nopopup") or args.noswitch) or #screen[t.screen]:tags() == 1 then awful.tag.viewonly(t) end
+  end
 
   -- get the name or rename
   if args.name then
@@ -666,6 +670,7 @@ function init()
       end
     end
   end
+  isinit = false
 end
 --}}}
 

@@ -16,5 +16,6 @@ require( "widgets.layout.desktopLayout" )
 require( "widgets.radialSelect"         )
 require( "widgets.menuDeco"             )
 require( "widgets.overlay"              )
+require( "widgets.tooltip"              )
 
 module("widgets")

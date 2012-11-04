@@ -23,9 +23,9 @@ local object_model = require( "ultiLayout.object_model" )
 
 module("ultiLayout.widgets.tablist")
 
-local function create_tab(no_focus)
+local function create_tab(no_focus,tabs)
     local tab = {}
-    local private_data = {selected = no_focus or true,title="N/A"}
+    local private_data = {selected = no_focus or true,title="N/A",tabs = tabs}
     local get_map, set_map = {},{}
     object_model(tab,get_map,set_map,private_data,{
         autogen_getmap      = true ,
@@ -41,6 +41,9 @@ end
 function widget_tasklist_label_common(tab,w)
     local color = ((tab.selected == true) and "_active" or "_innactive") .. ((w.focus == true) and "_focus" or "_normal")
     local suffix,prefix,bg = "</span>",(w.count >1) and "<span color='"..w["fg"..color].."'>" or nil, (w.count >1) and w["bg"..color] or nil
+    if tab.tabs and (#tab.tabs == 1) or (not tab.selected and #tab.tabs > 1) then
+        bg = "#00000000"
+    end
     return (prefix or "<span>")..tab.title..suffix, bg, nil, nil, bg
 end
 
@@ -57,6 +60,7 @@ end
 -- @param label Label function to use.
 -- @param buttons A table with buttons binding to set.
 function new(label, buttons)
+    local selected = nil
     local tabs,w,private_data = {},{},{
         focus                      = false,
         bg_active_focus            = beautiful.bg_focus,
@@ -96,15 +100,19 @@ function new(label, buttons)
     end
     local buttons2 = buttons or util.table.join(unpack(buttons_t))
     
-    local function tasklist_update()
+    local function tasklist_update(tab)
+        if tab and tab.selected and selected and selected ~= tab then
+            selected.selected = false
+        end
+        selected = (tab and tab.selected) and tab or selected
         common.list_update(w.widgets_real, buttons2, label2, data, widgets, tabs)
     end
     
     function w:add_tab(no_focus)
-        local aTab = create_tab(no_focus)
+        local aTab = create_tab(no_focus,tabs)
         aTab:add_signal( "changed"    ,tasklist_update)
         table.insert(tabs, aTab)
-        tasklist_update()
+        tasklist_update(aTab)
         return aTab
     end
     

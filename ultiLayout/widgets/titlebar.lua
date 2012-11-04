@@ -42,31 +42,69 @@ local function create(cg, args)
     if not cg then return end
     local theme        = beautiful.get()
     local buttons      = {}
+    local appicon      = capi.widget({type="imagebox"})
     local focus        = false
+    local mini         = (not cg.floating and theme.titlebar_mini_height)
     args               = args or {}
-    args.height        = args.height or capi.awesome.font_height * 1.5
+    args.height        = args.height or (not cg.floating and theme.titlebar_mini_height) or beautiful.titlebar_height or capi.awesome.font_height * 1.5
     
     -- Store colors
     local titlebar     = {tabs={}}
     local tb = wibox(args)
     local tl = tabList.new(nil,nil,cg)
     titlebar.client    = cg
-    titlebar.fg        = args.fg       or theme.titlebar_fg_normal or theme.fg_normal
+    titlebar.fg        = args.fg       or theme.titlebar_fg_normal or theme.titlebar_fg_normal or theme.fg_normal
     titlebar.bg        = args.bg       or theme.titlebar_bg_normal or theme.bg_normal
-    titlebar.fg_focus  = args.fg_focus or theme.titlebar_fg_focus  or theme.fg_focus
+    titlebar.fg_focus  = args.fg_focus or theme.titlebar_fg_focus  or theme.titlebar_fg_focus or theme.fg_focus
     titlebar.bg_focus  = args.bg_focus or theme.titlebar_bg_focus  or theme.bg_focus
     titlebar.font      = args.font     or theme.titlebar_font      or theme.font
     titlebar.width     = args.width    --
     data[cg]           = titlebar
-    
+
     local function set_focus(value)
+        local value = value or tl.focus or false
         focus = value
         tl.focus = value
         tb.bg = (value == true) and titlebar.bg_focus or titlebar.bg
+        if beautiful.titlebar_bg_normal_grad and beautiful.titlebar_bg_focus_grad then
+            tb.bg = "#00000000"
+            local img = capi.image.argb32(tb.width,tb.height,nil)
+            img:draw_rectangle_gradient(0,0,tb.width,tb.height,value and beautiful.titlebar_bg_focus_grad or beautiful.titlebar_bg_normal_grad,0)
+            tb.bg_image = img
+        else
+            tb.bg = (value == true) and titlebar.bg_focus or titlebar.bg
+        end
         tb.fg = (value == true) and titlebar.fg_focus or titlebar.fg
     end
-    
+
     object_model(titlebar,{focus = function() return focus end,visible=function() print("dfgdfgdgf") end},{focus = set_focus,visible = function(val)print("ertert") end},{},{autogen_getmap = true,autogen_signals = true})
+
+    function titlebar:update()
+        appicon.image = cg.icon
+        for k,v in pairs(buttons) do
+            v:setImage()
+        end
+    end
+
+    local function gen_mask(force)
+        if beautiful.titlebar_mask then
+            tb:add_signal("property::width",function()
+                local mask = beautiful.titlebar_mask(tb.width,tb.height)
+                tb.shape_clip      = mask
+                tb.shape_bounding  = mask
+            end)
+        end
+        if force then
+            if beautiful.titlebar_mask then
+                local mask = beautiful.titlebar_mask(tb.width,tb.height)
+                tb.shape_clip      = mask
+                tb.shape_bounding  = mask
+            end
+            titlebar:update()
+            set_focus()
+        end
+    end
+    gen_mask()
     
     --Buttons creation
     function titlebar:button_group(args)
@@ -90,10 +128,14 @@ local function create(cg, args)
         function data:setImage(hover)
             local curfocus    = (focus == true) and "focus" or "normal"
             local curactive   = ((((type(data.checked) == "function") and data.checked() or data.checked) == true) and "active" or "inactive")
-            data.widget.image = capi.image((beautiful["titlebar_"..data.field .."_button_"..curfocus .."_"..curactive.. ((hover == true) and "_hover" or "")]) 
-                or  (beautiful["titlebar_"..data.field .."_button_"..curfocus .. ((hover == true) and "_hover" or "")])
-                or  (beautiful["titlebar_"..data.field .."_button_"..curfocus.."_"..curactive])
-                or  (beautiful["titlebar_"..data.field .."_button_"..curfocus]))
+            local curmini     = mini and "mini_" or ""
+            local img = capi.image((beautiful["titlebar_" ..curmini..data.field.."_button_"..curfocus .."_"..curactive.. ((hover == true) and "_hover" or "")]) 
+                or  (beautiful["titlebar_" ..curmini..data.field.."_button_"..curfocus .. ((hover == true) and "_hover" or "")])
+                or  (beautiful["titlebar_"..curmini..data.field .."_button_"..curfocus.."_"..curactive])
+                or  (beautiful["titlebar_" ..curmini..data.field.."_button_"..curfocus]))
+            if img then --If it's not there, at least don't diaplay nil
+                data.widget.image = img
+            end
         end
         
         function data:createWidget()
@@ -147,7 +189,6 @@ local function create(cg, args)
     )
     tb:buttons(bts)
     
-    local appicon = capi.widget({type="imagebox"})
     
     local userWidgets
     if hooks[cg.class] ~= nil then
@@ -172,7 +213,6 @@ local function create(cg, args)
     end
     
     function data:swap(_cg,old_cg,new_cg)
-        --sdfdsfds()
         if _cg.parent ~= cg then
             --_cg:remove_signal("cg::swapped",swap) --TODO name changed
             titlebar.tabs[old_cg].clientgroup = new_cg
@@ -198,6 +238,13 @@ local function create(cg, args)
         end)
         --child_cg:add_signal("cg::swapped",function(...) data:swap(...) end)
         titlebar.tabs[child_cg]=tab
+
+        if tl.count > 1 then
+            args.height = beautiful.titlebar_height or capi.awesome.font_height * 1.5
+            tb.height = args.height
+            mini = false
+            gen_mask(true)
+        end
         return tab
     end
     
@@ -212,13 +259,6 @@ local function create(cg, args)
         end
         self.activeCg = child_cg
         return self.tabs[child_cg]
-    end
-    
-    function titlebar:update()
-        appicon.image = cg.icon
-        for k,v in pairs(buttons) do
-            v:setImage()
-        end
     end
     
     titlebar:emit_signal('client_changed',titlebar.client)

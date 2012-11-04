@@ -9,7 +9,8 @@ local margins      = require( "awful.widget.layout"          )
 local wibox        = require( "awful.wibox"                  )
 local button       = require( "awful.button"                 )
 local topbottom    = require( "awful.widget.layout.vertical" )
-local vicious      = require( "vicious"                      )
+local vicious      = require( "extern.vicious"               )
+local menu         = require( "widgets.menu"                 )
 
 local capi = { image  = image  ,
                screen = screen ,
@@ -50,7 +51,7 @@ local function testFunc()
   dateInfo = dateInfo .. "\n<b>  <span size=\"x-large\">⌚</span> CST: </b><i>" ..  getHour(os.date('%H') - 1) .. ":" .. os.date('%M').. ":" .. os.date('%S') .. "</i>"
   dateInfo = dateInfo .. "\n\n<b><u>Japan:</u></b>"
   dateInfo = dateInfo .. "\n<b>  <span size=\"x-large\">⌚</span> JST: </b><i>" ..  getHour(os.date('%H') + 13) .. ":" .. os.date('%M').. ":" .. os.date('%S') .. "</i>\n\n"
-  return dateInfo  
+  return {dateInfo}
 end
 
 local function createDrawer()
@@ -195,21 +196,36 @@ local function createDrawer()
       layout = margins.vertical.topbottom ,
   }
 
-  
 end
 
-  
 function new(screen, args)
-  data.wibox         = wibox({ position = "free", screen = capi.screen.count() })
-  data.wibox.ontop   = true
-  data.wibox.visible = false
-  createDrawer() 
-  data.wibox:geometry({ width = 147, height = 994, x = capi.screen[capi.mouse.screen].geometry.width - 147 + capi.screen[capi.mouse.screen].geometry.x, y = 20})
-  
-  mytextclock = textclock({ align = "right" })
+  local mytextclock = textclock({ align = "right" })
+  local top,bottom
+  mytextclock:buttons (util.table.join(button({ }, 1, function ()
+      if not data.wibox then
+        data.wibox         = wibox({ position = "free", screen = capi.screen.count() , bg = beautiful.menu_bg})
+        data.wibox.ontop   = true
+        data.wibox.visible = false
+        top,bottom = menu.gen_menu_decoration(153,{arrow_x=153 - mytextclock:extents().width/2 - 10})
+        local guessHeight = capi.screen[1].geometry.height
+        local img = capi.image.argb32(153, guessHeight, nil)
+        img:draw_rectangle(0,0, 3, guessHeight, true, "#ffffff")
+        img:draw_rectangle(150,0, 3, guessHeight, true, "#ffffff")
+        data.wibox.shape_clip     = img
+        data.wibox.border_color = beautiful.fg_normal
 
-  mytextclock:buttons (util.table.join(button({ }, 1, function () data.wibox.visible = not data.wibox.visible end)))
-  
+        createDrawer()
+      end
+      data.wibox:geometry({ width = 153, height = capi.screen[capi.mouse.screen].geometry.height-140, x = capi.screen[capi.mouse.screen].geometry.width - 153 + capi.screen[capi.mouse.screen].geometry.x - 5, y = 16 + top.height})
+      data.wibox.visible = not data.wibox.visible
+      top.x = data.wibox.x
+      top.y = 16
+      bottom.x = data.wibox.x
+      bottom.y = data.wibox.y+data.wibox.height
+      top.visible = data.wibox.visible
+      bottom.visible = data.wibox.visible
+  end)))
+
   return mytextclock
 end
 

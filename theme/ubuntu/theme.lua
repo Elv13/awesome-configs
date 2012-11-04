@@ -4,16 +4,35 @@
 
 theme = {}
 
-theme.font          = "snap 8"
+theme.font          = "Arial 10"
 
-theme.bg_normal     = "#0A1535"
+theme.bg_normal     = "#616161"
 theme.bg_focus      = "#003687"
 theme.bg_urgent     = "#5B0000"
 theme.bg_minimize   = "#040A1A"
-theme.bg_highlight  = "#0E2051"
+theme.bg_highlight  = "#262626"
+theme.bg_alternate  = "#323232"
 
-theme.fg_normal     = "#1577D3"
-theme.fg_focus      = "#00BBD7"
+theme.bg_normal_grad = {
+    "#575651",
+    "#3C3A37",
+    '#302D2B'
+}
+
+theme.taskbar_selected_grad = {
+    "#292825",
+    '#0A0908',
+    "#292825",
+}
+
+theme.taskbar_used_grad = {
+    "#775651",
+    "#5C3A37",
+    '#502D2B'
+}
+
+theme.fg_normal     = "#BBBBBB"
+theme.fg_focus      = "#DADADA"
 theme.fg_urgent     = "#ABA6A6"
 theme.fg_minimize   = "#1577D3"
 
@@ -38,6 +57,9 @@ theme.border_marked = "#91231c"
 -- Display the taglist squares
 theme.taglist_squares_sel = awful.util.getdir("config") .. "/default/star2.png"
 theme.taglist_squares_unsel = awful.util.getdir("config") .. "/default/star.png"
+-- theme.taglist_bg_image_empty    = nil
+-- theme.taglist_bg_image_selected = "/home/lepagee/test2.png"
+-- theme.taglist_bg_image_used     = "/home/lepagee/test2.png"
 
 theme.tasklist_floating_icon = awful.util.getdir("config") .. "/theme/darkBlue/Icon/titlebar/floating.png"
 
@@ -45,8 +67,15 @@ theme.tasklist_floating_icon = awful.util.getdir("config") .. "/theme/darkBlue/I
 -- menu_[bg|fg]_[normal|focus]
 -- menu_[border_color|border_width]
 theme.menu_submenu_icon = awful.util.getdir("config").."/theme/darkBlue/Icon/tags/arrow.png"
-theme.menu_height   = "20"
-theme.menu_width    = "130"
+theme.menu_height   = 25
+theme.menu_width    = 150
+theme.menu_bg       = "#0A0A0ACC"
+theme.menu_border_width  = 0
+theme.menu_border_color  = "#ACBBCD"
+
+
+theme.dock_bg       = "#0A0A0ACC"
+theme.tooltip_bg    = "#0A0A0ACC"
 
 
 -- You can add as many variables as
@@ -101,8 +130,84 @@ theme.titlebar_maximized_button_focus_inactive_hover = awful.util.getdir("config
 theme.titlebar_maximized_button_normal_active_hover = awful.util.getdir("config") .. "/theme/darkBlue/Icon/titlebar/maximized_normal_active_hover.png"
 theme.titlebar_maximized_button_focus_active_hover = awful.util.getdir("config") .. "/theme/darkBlue/Icon/titlebar/maximized_focus_active_hover.png"
 
+--Mini titlebar
+theme.titlebar_mini_close_button_normal = awful.util.getdir("config") .. "/theme/ubuntu/Icon/titlebar/close_mini_normal_inactive.png"
+theme.titlebar_mini_close_button_focus = awful.util.getdir("config") .. "/theme/ubuntu/Icon/titlebar/close_mini_focus_inactive.png"
+
+theme.titlebar_mini_ontop_button_normal_inactive = awful.util.getdir("config") .. "/theme/ubuntu/Icon/titlebar/ontop_mini_normal_inactive.png"
+theme.titlebar_mini_ontop_button_focus_inactive = awful.util.getdir("config") .. "/theme/ubuntu/Icon/titlebar/ontop_mini_focus_inactive.png"
+theme.titlebar_mini_ontop_button_normal_active = awful.util.getdir("config") .. "/theme/ubuntu/Icon/titlebar/ontop_mini_normal_active.png"
+theme.titlebar_mini_ontop_button_focus_active = awful.util.getdir("config") .. "/theme/ubuntu/Icon/titlebar/ontop_mini_focus_active.png"
+
+theme.titlebar_mini_sticky_button_normal_inactive = awful.util.getdir("config") .. "/theme/ubuntu/Icon/titlebar/sticky_mini_normal_inactive.png"
+theme.titlebar_mini_sticky_button_focus_inactive = awful.util.getdir("config") .. "/theme/ubuntu/Icon/titlebar/sticky_mini_focus_inactive.png"
+theme.titlebar_mini_sticky_button_normal_active = awful.util.getdir("config") .. "/theme/ubuntu/Icon/titlebar/sticky_mini_normal_active.png"
+theme.titlebar_mini_sticky_button_focus_active = awful.util.getdir("config") .. "/theme/ubuntu/Icon/titlebar/sticky_mini_focus_active.png"
+
+theme.titlebar_mini_floating_button_normal_inactive = awful.util.getdir("config") .. "/theme/ubuntu/Icon/titlebar/floating_mini_normal_inactive.png"
+theme.titlebar_mini_floating_button_focus_inactive = awful.util.getdir("config") .. "/theme/ubuntu/Icon/titlebar/floating_mini_focus_inactive.png"
+theme.titlebar_mini_floating_button_normal_active = awful.util.getdir("config") .. "/theme/ubuntu/Icon/titlebar/floating_mini_normal_active.png"
+theme.titlebar_mini_floating_button_focus_active = awful.util.getdir("config") .. "/theme/ubuntu/Icon/titlebar/floating_mini_focus_active.png"
+
+theme.titlebar_mini_maximized_button_normal_inactive = awful.util.getdir("config") .. "/theme/ubuntu/Icon/titlebar/maximized_mini_normal_inactive.png"
+theme.titlebar_mini_maximized_button_focus_inactive = awful.util.getdir("config") .. "/theme/ubuntu/Icon/titlebar/maximized_mini_focus_inactive.png"
+theme.titlebar_mini_maximized_button_normal_active = awful.util.getdir("config") .. "/theme/ubuntu/Icon/titlebar/maximized_mini_normal_active.png"
+theme.titlebar_mini_maximized_button_focus_active = awful.util.getdir("config") .. "/theme/ubuntu/Icon/titlebar/maximized_mini_focus_active.png"
+
+theme.titlebar_mini_close_button_normal_hover = awful.util.getdir("config") .. "/theme/ubuntu/Icon/titlebar/close_mini_normal_inactive_hover.png"
+theme.titlebar_mini_close_button_focus_hover = awful.util.getdir("config") .. "/theme/ubuntu/Icon/titlebar/close_mini_focus_inactive_hover.png"
+
+theme.titlebar_mini_ontop_button_normal_inactive_hover = awful.util.getdir("config") .. "/theme/ubuntu/Icon/titlebar/ontop_mini_normal_inactive_hover.png"
+theme.titlebar_mini_ontop_button_focus_inactive_hover = awful.util.getdir("config") .. "/theme/ubuntu/Icon/titlebar/ontop_mini_focus_inactive_hover.png"
+theme.titlebar_mini_ontop_button_normal_active_hover = awful.util.getdir("config") .. "/theme/ubuntu/Icon/titlebar/ontop_mini_normal_active_hover.png"
+theme.titlebar_mini_ontop_button_focus_active_hover = awful.util.getdir("config") .. "/theme/ubuntu/Icon/titlebar/ontop_mini_focus_active_hover.png"
+
+theme.titlebar_mini_sticky_button_normal_inactive_hover = awful.util.getdir("config") .. "/theme/ubuntu/Icon/titlebar/sticky_mini_normal_inactive_hover.png"
+theme.titlebar_mini_sticky_button_focus_inactive_hover = awful.util.getdir("config") .. "/theme/ubuntu/Icon/titlebar/sticky_mini_focus_inactive_hover.png"
+theme.titlebar_mini_sticky_button_normal_active_hover = awful.util.getdir("config") .. "/theme/ubuntu/Icon/titlebar/sticky_mini_normal_active_hover.png"
+theme.titlebar_mini_sticky_button_focus_active_hover = awful.util.getdir("config") .. "/theme/ubuntu/Icon/titlebar/sticky_mini_focus_active_hover.png"
+
+theme.titlebar_mini_floating_button_normal_inactive_hover = awful.util.getdir("config") .. "/theme/ubuntu/Icon/titlebar/floating_mini_normal_inactive_hover.png"
+theme.titlebar_mini_floating_button_focus_inactive_hover = awful.util.getdir("config") .. "/theme/ubuntu/Icon/titlebar/floating_mini_focus_inactive_hover.png"
+theme.titlebar_mini_floating_button_normal_active_hover = awful.util.getdir("config") .. "/theme/ubuntu/Icon/titlebar/floating_mini_normal_active_hover.png"
+theme.titlebar_mini_floating_button_focus_active_hover = awful.util.getdir("config") .. "/theme/ubuntu/Icon/titlebar/floating_mini_focus_active_hover.png"
+
+theme.titlebar_mini_maximized_button_normal_inactive_hover = awful.util.getdir("config") .. "/theme/ubuntu/Icon/titlebar/maximized_mini_normal_inactive_hover.png"
+theme.titlebar_mini_maximized_button_focus_inactive_hover = awful.util.getdir("config") .. "/theme/ubuntu/Icon/titlebar/maximized_mini_focus_inactive_hover.png"
+theme.titlebar_mini_maximized_button_normal_active_hover = awful.util.getdir("config") .. "/theme/ubuntu/Icon/titlebar/maximized_mini_normal_active_hover.png"
+theme.titlebar_mini_maximized_button_focus_active_hover = awful.util.getdir("config") .. "/theme/ubuntu/Icon/titlebar/maximized_mini_focus_active_hover.png"
+
+theme.titlebar_bg_normal_grad = {
+    "#191919",
+    "#121212",
+    "#101010",
+    "#161616",
+}
+
+theme.titlebar_bg_focus_grad = {
+    "#1C1C1C",
+    "#151515",
+    "#131313",
+    "#191919",
+}
+
+theme.titlebar_mask = function(width,height)
+    local img = image.argb32(width,height,nil)
+    img:draw_rectangle(0,0,width,height,true,"#ffffff")
+    img:draw_rectangle(0,5,width,height-5,true,"#000000")
+    img:draw_rectangle(6,0,width-12,5,true,"#000000")
+    img:draw_circle(6, 6, 5, 5, true, "#000000")
+    img:draw_circle(width-6, 6, 5, 5, true, "#000000")
+    return img
+end
+
+theme.titlebar_height = 18
+theme.titlebar_mini_height = 6
+theme.titlebar_fg_normal = "#727272"
+theme.titlebar_fg_focus = "#C3C3C3"
+
 -- You can use your own command to set your wallpaper
-theme.wallpaper_cmd = { "feh --bg-tile /home/lepagee/bg/final/bin_ascii_ds.png" }
+theme.wallpaper_cmd = { "feh --bg-scale "..awful.util.getdir("config") .. "/theme/ubuntu/background.png" }
 
 -- You can use your own layout icons like this:
 theme.layout_fairh           = awful.util.getdir("config") .. "/theme/darkBlue/Icon/layouts/fairh.png"
