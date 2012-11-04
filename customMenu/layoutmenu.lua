@@ -84,7 +84,7 @@ function new(screen, layouts)
     titleBarWidget:buttons( util.table.join(
       button({ }, 1, function()
 	  showTitleBar[tag.selected()] = showTitleBar[tag.selected()] or false
-	  menu.visible = false
+	  menu:visible(false)
 	  showTitleBar[tag.selected()] = not showTitleBar[tag.selected()]
 	  
 	  if showTitleBar[tag.selected()] == true then
@@ -96,7 +96,7 @@ function new(screen, layouts)
 	  enableTitleBar(showTitleBar[tag.selected()])
       end),
       button({ }, 3, function()
-	  menu.visible = false
+	  menu:visible(false)
       end)
     ))
 

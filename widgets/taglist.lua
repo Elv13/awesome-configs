@@ -95,6 +95,8 @@ function new(screen, label, buttons)
     return w
 end
 
+local bg_imgs= {}
+
 --- Return labels for a taglist widget with all tag from screen.
 -- It returns the tag name and set a special
 -- foreground and background color for selected tags.
@@ -133,10 +135,24 @@ function label.all(t, args)
     if t.selected then
 --         bg_color = bg_focus
         fg_color = fg_focus
-        bg_image = beautiful.taskbar_selected_grad
+        if beautiful.taglist_bg_image_selected then
+            if not bg_imgs[beautiful.taglist_bg_image_selected] then
+                bg_imgs[beautiful.taglist_bg_image_selected] = capi.image(beautiful.taglist_bg_image_selected)
+            end
+            bg_image = {image = bg_imgs[beautiful.taglist_bg_image_selected],pattern=true,name="sel"}
+        else
+            bg_image = beautiful.taskbar_selected_grad
+        end
     elseif #(t:clients()) > 0 then
         bg_color = beautiful.bg_highlight
-        bg_image = beautiful.taskbar_used_grad
+        if beautiful.taglist_bg_image_used then
+            if not bg_imgs[beautiful.taglist_bg_image_used] then
+                bg_imgs[beautiful.taglist_bg_image_used] = capi.image(beautiful.taglist_bg_image_used)
+            end
+            bg_image = {image = bg_imgs[beautiful.taglist_bg_image_used],pattern=true,name="used"}
+        else
+            bg_image = beautiful.taskbar_used_grad
+        end
     end
     if not tag.getproperty(t, "icon_only") then
         if config.data().useListPrefix == true then

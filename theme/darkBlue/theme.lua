@@ -40,6 +40,10 @@ theme.border_marked = "#91231c"
 -- Display the taglist squares
 theme.taglist_squares_sel = confdir .. "/default/star2.png"
 theme.taglist_squares_unsel = confdir .. "/default/star.png"
+theme.taglist_bg_image_empty    = nil
+theme.taglist_bg_image_selected = confdir .. "/theme/darkBlue/Icon/bg/selected_bg.png"
+theme.taglist_bg_image_used     = confdir .. "/theme/darkBlue/Icon/bg/used_bg.png"
+
 
 theme.tasklist_floating_icon              = confdir .. "/theme/darkBlue/Icon/titlebar/floating.png"
 theme.tasklist_ontop_icon                 = confdir .. "/theme/darkBlue/Icon/titlebar/ontop.png"

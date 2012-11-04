@@ -6,13 +6,14 @@
 ---------------------------------------------------------------------------
 
 -- Grab environment we need
-local math   = math
-local type   = type
-local ipairs = ipairs
+local math         = math
+local type         = type
+local ipairs       = ipairs
+local print        = print
 local setmetatable = setmetatable
-local themeUtils = require("utils.theme")
-local beautiful  = require( "beautiful"    )
-local capi   = { widget = widget, button = button,image = image }
+local themeUtils   = require("utils.theme")
+local beautiful    = require( "beautiful"    )
+local capi = { widget = widget, button = button,image = image }
 
 --- Common widget code
 module("common")
@@ -89,11 +90,26 @@ function list_update(w, buttons, label, data, widgets, objects,args)
         local text, bg, bg_image, icon, ib_bg, text_bg,idx = label(o)
         local tb2,bg_image_orig = w[k + label_index+offset]
         tb2.text, tb2.bg = text, text_bg or bg
-        local bg_is_grad = type(bg_image) == "table"
+        local tbg = type(bg_image)
+        local bg_is_grad    = tbg == "table" and not bg_image.pattern
+        local bg_is_pattern = tbg == "table" and bg_image.pattern
+        local bg_is_image   = tbg == "image"
         if bg_is_grad then
             local tb_width =tb2:extents().width
             local img = capi.image.argb32(tb_width, 16, nil)
             img:draw_rectangle_gradient(0, 0, tb_width, 16, bg_image,0)
+            bg_image_orig = bg_image
+            bg_image = img
+        elseif bg_is_pattern and args.have_arrow then
+            local tb_width =tb2:extents().width
+            local img = capi.image.argb32(tb_width, 16, nil)
+            img:insert(bg_image.image)
+            bg_image_orig = bg_image
+            bg_image = img--bg_image.image
+        elseif bg_is_image and args.have_arrow then
+            local tb_width =tb2:extents().width
+            local img = capi.image.argb32(tb_width, 16, nil)
+            img:insert(bg_image)
             bg_image_orig = bg_image
             bg_image = img
         end

@@ -5,6 +5,7 @@ local util         = require( "awful.util"               )
 local menu         = require( "widgets.menu"             )
 local tooltip      = require( "widgets.tooltip"          )
 local fdutils      = require( "extern.freedesktop.utils" )
+local themeutils   = require( "utils.theme"              )
 local capi = { image  = image  ,
                screen = screen ,
                widget = widget }
@@ -68,16 +69,33 @@ local function gen_menu(arg)
     return m
 end
 
+
+
 function new(screen, args)
     local tt = tooltip("Classic application menu",{down=true})
+
+
     local mylaunchertext     = capi.widget({ type = "textbox" })
-    mylaunchertext:margin({ left = 30,right=7})
+    mylaunchertext:margin({ left = 30,right=17})
     mylaunchertext.text      = "Apps"
-    mylaunchertext.bg_image  = capi.image(beautiful.awesome_icon)
     mylaunchertext.bg_resize = false
 
-    mylaunchertext:add_signal("mouse::enter", function() tt:showToolTip(true) ;mylaunchertext.bg = beautiful.bg_highlight end)
-    mylaunchertext:add_signal("mouse::leave", function() tt:showToolTip(false);mylaunchertext.bg = nil                    end)
+    local head_img      = capi.image(beautiful.awesome_icon)
+    local extents       = mylaunchertext:extents()
+    extents.height      = 16
+    local normal_bg_img = themeutils.gen_button_bg(head_img,extents,false)
+    local focus_bg_img  --= themeutils.gen_button_bg(head_img,extents,true )
+
+    mylaunchertext.bg_image  = normal_bg_img
+
+    mylaunchertext:add_signal("mouse::enter", function()
+        tt:showToolTip(true)
+        if not focus_bg_img then 
+            focus_bg_img  = themeutils.gen_button_bg(head_img,extents,true )
+        end
+        mylaunchertext.bg_image = focus_bg_img
+    end)
+    mylaunchertext:add_signal("mouse::leave", function() tt:showToolTip(false);mylaunchertext.bg_image = normal_bg_img  end)
 
     mylaunchertext:buttons( util.table.join(
         button({ }, 1, function()

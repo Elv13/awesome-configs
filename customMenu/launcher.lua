@@ -12,6 +12,7 @@ local tag          = require( "awful.tag"       )
 local menu         = require( "widgets.menu"    )
 local util         = require( "awful.util"      )
 local config       = require( "config"          )
+local themeutils   = require( "utils.theme"     )
 
 local capi = { image  = image  ,
                widget = widget ,
@@ -121,19 +122,29 @@ end
 
 function new(offset, args)
     local launcherText = capi.widget({ type = "textbox", align = "left" })
-    launcherText:margin({ left = 30,right=7})
+    launcherText:margin({ left = 30,right=17})
     launcherText.text  = "Launch"
-    launcherText.bg_image = capi.image(config.data().iconPath .. "gearA2.png")
     launcherText.bg_resize = true
+    
+    local head_img      = capi.image(config.data().iconPath .. "gearA2.png")
+    local extents       = launcherText:extents()
+    extents.height      = 16
+    local normal_bg_img = themeutils.gen_button_bg(head_img,extents,false)
+    local focus_bg_img  --= themeutils.gen_button_bg(head_img,extents,true )
+    
+    launcherText.bg_image = normal_bg_img
     local tt = tooltip("Execute a command",{down=true})
     
     launcherText:add_signal("mouse::enter", function()
         tt:showToolTip(true)
-        launcherText.bg = beautiful.bg_highlight
+        if not focus_bg_img then
+            focus_bg_img  = themeutils.gen_button_bg(head_img,extents,true )
+        end
+        launcherText.bg_image = focus_bg_img
     end)
     launcherText:add_signal("mouse::leave", function()
         tt:showToolTip(false)
-        launcherText.bg = nil
+        launcherText.bg_image = normal_bg_img
     end)
     
     launcherText:buttons( util.table.join(

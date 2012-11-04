@@ -63,11 +63,18 @@ local properties = { "width", "height", "offset", "border_color",
 local function update(pbar)
     local width = data[pbar].width or 100
     local height  = data[pbar].height or 20
+    local value = data[pbar].value
+    if data[pbar].prev_value == value then return end
+    data[pbar].prev_value = value
 
     if data[pbar].width < 5 or data[pbar].height < 2 then return end
+    
+    local bg_color = data[pbar].background_color or "red"
+    
 
     -- Create new empty image
     local img = capi.image.argb32(width, height, nil)
+    img:draw_rectangle(0, 0,width,height,true,bg_color)
 
     local over_drawn_width = width
     local over_drawn_height = height
@@ -97,6 +104,10 @@ local function update(pbar)
         img:draw_rectangle_gradient(border_width, border_width + (data[pbar].margin_top or 0),
                                     over_drawn_width, over_drawn_height - ((data[pbar].margin_bottom or 0)+(data[pbar].margin_top or 0)),
                                     data[pbar].gradient_colors, angle)
+    elseif data[pbar].bg_image then
+        local img2 = data[pbar].bg_image
+        local img4 = img2:crop(0,0,over_drawn_width,over_drawn_height)
+        img:insert(img4,border_width, border_width + (data[pbar].margin_top or 0))
     else
         img:draw_rectangle(border_width, border_width + (data[pbar].margin_top or 0),
                            over_drawn_width, over_drawn_height - ((data[pbar].margin_bottom or 0)+(data[pbar].margin_top or 0)),
@@ -105,19 +116,19 @@ local function update(pbar)
 
     -- Cover the part that is not set with a rectangle
     if data[pbar].vertical then
-        local rel_height = math.floor(over_drawn_height * (1 - data[pbar].value))
+        local rel_height = math.floor(over_drawn_height * (1 - value))
         img:draw_rectangle(border_width,
                            border_width,
                            over_drawn_width,
                            rel_height,
-                           true, data[pbar].background_color or "#000000aa")
+                           true, bg_color or "#000000aa")
     else
-        local rel_x = math.floor(over_drawn_width * data[pbar].value)
+        local rel_x = math.floor(over_drawn_width * value)
         img:draw_rectangle(border_width + rel_x,
                            border_width + (data[pbar].margin_top or 0),
                            over_drawn_width - rel_x,
                            over_drawn_height - ((data[pbar].margin_bottom or 0)+(data[pbar].margin_top or 0)),
-                           true, data[pbar].background_color or "#000000aa")
+                           true, bg_color or "#000000aa")
     end
 
     -- Update the image
@@ -224,6 +235,10 @@ function new(args)
     -- Set methods
     for _, prop in ipairs(properties) do
         pbar["set_" .. prop] = _M["set_" .. prop]
+    end
+
+    function pbar:set_bg_image(img)
+        data[pbar].bg_image = img
     end
 
     pbar.layout = args.layout or layout.horizontal.leftright

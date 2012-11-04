@@ -10,6 +10,7 @@ local menu         = require( "widgets.menu"             )
 local config       = require( "config"                   )
 local tooltip      = require( "widgets.tooltip"          )
 local fdutil       = require( "extern.freedesktop.utils" )
+local themeutils   = require( "utils.theme"              )
 local capi = { image  = image  ,
                screen = screen ,
                widget = widget ,
@@ -51,14 +52,27 @@ function new(offset, args)
     local tt = tooltip("Folder shortcut",{down=true})
 
     local mylauncher2text = capi.widget({ type = "textbox" })
-    mylauncher2text:margin({ left = 30,right=7})
+    mylauncher2text:margin({ left = 30,right = 17})
     mylauncher2text.text = "Places"
-    mylauncher2text.bg_image = capi.image(config.data().iconPath .. "tags/home2.png")
     mylauncher2text.bg_align = "left"
     mylauncher2text.bg_resize = true
 
-    mylauncher2text:add_signal("mouse::enter", function() tt:showToolTip(true) ;mylauncher2text.bg = beautiful.bg_highlight end)
-    mylauncher2text:add_signal("mouse::leave", function() tt:showToolTip(false);mylauncher2text.bg = nil                    end)
+    local head_img      = capi.image(config.data().iconPath .. "tags/home2.png")
+    local extents       = mylauncher2text:extents()
+    extents.height      = 16
+    local normal_bg_img = themeutils.gen_button_bg(head_img,extents,false)
+    local focus_bg_img  --= themeutils.gen_button_bg(head_img,extents,true )
+
+    mylauncher2text.bg_image = normal_bg_img
+
+    mylauncher2text:add_signal("mouse::enter", function()
+        tt:showToolTip(true)
+        if not focus_bg_img then 
+            focus_bg_img  = themeutils.gen_button_bg(head_img,extents,true )
+        end
+        mylauncher2text.bg_image = focus_bg_img
+    end)
+    mylauncher2text:add_signal("mouse::leave", function() tt:showToolTip(false);mylauncher2text.bg_image = normal_bg_img  end)
 
     mylauncher2text:buttons( util.table.join(
         button({ }, 1, function()

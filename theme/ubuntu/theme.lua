@@ -57,6 +57,9 @@ theme.border_marked = "#91231c"
 -- Display the taglist squares
 theme.taglist_squares_sel = awful.util.getdir("config") .. "/default/star2.png"
 theme.taglist_squares_unsel = awful.util.getdir("config") .. "/default/star.png"
+-- theme.taglist_bg_image_empty    = nil
+-- theme.taglist_bg_image_selected = "/home/lepagee/test2.png"
+-- theme.taglist_bg_image_used     = "/home/lepagee/test2.png"
 
 theme.tasklist_floating_icon = awful.util.getdir("config") .. "/theme/darkBlue/Icon/titlebar/floating.png"
 

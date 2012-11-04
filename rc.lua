@@ -148,9 +148,6 @@ sysarrow               = utils.theme.get_beg_arrow_widget(nil,nil,nil,"left")
 sysarrow3              = utils.theme.get_beg_arrow_widget(beautiful.bg_alternate,beautiful.fg_normal,nil,"left")
 sysarrow2              = utils.theme.get_beg_arrow_widget(nil,beautiful.bg_alternate,nil,"left")
 
--- Create systray end arrow
-menuarrow              = utils.theme.new_arrow_widget()
-
 -- Create the logout menu
 logoutmenu             = customMenu.logout()
 
@@ -308,11 +305,8 @@ for s = 1, screen.count() do
   wiboxBot[s].widgets = {
     --           RULES                                                         WIDGET                FALLBACK
     ( s == config.data().scr.pri                                           ) and appMenu                or nil,
-    ( s == config.data().scr.pri                                           ) and menuarrow              or nil,
     ( s == config.data().scr.pri                                           ) and placesMenu             or nil,
-    ( s == config.data().scr.pri                                           ) and menuarrow              or nil,
     ( s == config.data().scr.pri                                           ) and launcher               or nil,
-    ( s == config.data().scr.pri                                           ) and menuarrow              or nil,
     ( s == config.data().scr.pri                                           ) and desktopPix             or nil,
     promptbox[s]                                                                                        or nil,
     ( s == config.data().scr.pri                                           ) and taskarrow              or nil,
