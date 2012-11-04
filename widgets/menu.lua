@@ -41,15 +41,19 @@ local function prevent_toolbar_overlap(x_or_y,width_or_height)
 end
 
 local function draw_border(menu,item,args)
+    local width,height=item.width,item.widget.height+10
+    local img = capi.image.argb32(width, height, nil)
+    img:draw_rectangle(0,0, width, height, true, "#000000")
     if menu.settings.has_decoration ~= false or menu.settings.has_side_deco == true then
-        local width,height=item.width,item.widget.height+10
-        local img = capi.image.argb32(width, height, nil)
-        img:draw_rectangle(0,0, width, height, true, "#000000")
         img:draw_rectangle(0,0, 3, height, true, "#ffffff")
         img:draw_rectangle(width-3,0, 3, height, true, "#ffffff")
-        item.widget.shape_clip     = img
-        item.widget.border_color = menu.settings.border_color or beautiful.menu_border_color or beautiful.fg_normal
+    else
+        img:draw_rectangle(0,0, 1, height, true, "#ffffff")
+        img:draw_rectangle(width-1,0, 1, height, true, "#ffffff")
     end
+    img:draw_rectangle(0,0, width, 1, true, "#ffffff")
+    item.widget.shape_clip   = img
+    item.widget.border_color = menu.settings.border_color or beautiful.menu_border_color or beautiful.fg_normal
 end
 
 local function getWibox()
@@ -225,6 +229,7 @@ function new(args)
     has_side_deco  = args.has_side_deco  --[[or true]]            ,
     autoresize     = args.autoresize     or false                 ,
     filtersubmenu  = args.filtersubmenu  or false                 ,
+    noarrow        = args.noarrow        or false
     },-------------------------------------------------------------
 
     -- Data
@@ -467,7 +472,11 @@ function new(args)
                     if menu.settings.autoresize then
                         wdg.width = self.settings.itemWidth
                     end
+                    local width_changed = wdg.widget.width ~= wdg.width
                     wdg.widget.width = wdg.width
+                    if width_changed then
+                        draw_border(self,wdg)
+                    end
                 end
                 yPadding = yPadding + (wdg.height or self.settings.itemHeight)*self.downOrUp
                 if type(wdg.subMenu) ~= "function" and wdg.subMenu ~= nil and wdg.subMenu.settings ~= nil then
@@ -484,22 +493,24 @@ function new(args)
       end
 
       local arrowMode
-      if menu.settings.parent then
-          arrowMode = 3
-          if self.settings.yPos - 10 > 0 and not self.is_embeded_menu then
-              self.settings.yPos = self.settings.yPos - (self.settings.has_decoration ~= false and 10 or 0)
-          end
-          if self.downOrUp < 0 then
-              self.settings.yPos = self.settings.yPos + (self.items[1] and self.items[1].height or 0)
-          end
-      elseif self.downOrUp == 1  then
-          arrowMode = 1
-      else
-          arrowMode = 2
+      if not self.settings.noarrow then
+        if menu.settings.parent then
+            arrowMode = 3
+            if self.settings.yPos - 10 > 0 and not self.is_embeded_menu then
+                self.settings.yPos = self.settings.yPos - (self.settings.has_decoration ~= false and 10 or 0)
+            end
+            if self.downOrUp < 0 then
+                self.settings.yPos = self.settings.yPos + (self.items[1] and self.items[1].height or 0)
+            end
+        elseif self.downOrUp == 1  then
+            arrowMode = 1
+        else
+            arrowMode = 2
+        end
       end
 
       if menu.settings.has_decoration ~= false then
-          getArrowItem(menu,arrowMode)
+          getArrowItem(menu,self.settings.noarrow and 3 or arrowMode)
       end
       local headerWdg,footerWdg = {self.topArrow,getScrollUpWdg(self)},{getFilterWidget(self),self.bottomArrow}
       if getScrollDownWdg(self) then
