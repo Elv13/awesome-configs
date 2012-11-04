@@ -62,19 +62,34 @@ globalkeys = awful.util.table.join(
 
     --Switch screen
     --              MODIFIERS         KEY                        ACTION                               
-    awful.key({                   }, "#177"  , function () utils.mouseManager.switchTo(1)       end ),
-    awful.key({                   }, "#152"  , function () utils.mouseManager.switchTo(2)       end ),
-    awful.key({                   }, "#190"  , function () utils.mouseManager.switchTo(3)       end ),
-    awful.key({                   }, "#208"  , function () utils.mouseManager.switchTo(4)       end ),
-    awful.key({                   }, "#129"  , function () utils.mouseManager.switchTo(5)       end ),
+    awful.key({                   }, "#177"  , function () utils.mouseManager.switchTo(3)       end ),
+    awful.key({                   }, "#152"  , function () utils.mouseManager.switchTo(4)       end ),
+    awful.key({                   }, "#190"  , function () utils.mouseManager.switchTo(5)       end ),
+    awful.key({                   }, "#208"  , function () utils.mouseManager.switchTo(1)       end ),
+    awful.key({                   }, "#129"  , function () utils.mouseManager.switchTo(2)       end ),
 
+    --Move current client to tag on <screen>
+    --              MODIFIERS         KEY                        ACTION                               
+    awful.key({ modkey            }, "#177"  , function () client.focus:tags({awful.tag.selected(3)})       end ),
+    awful.key({ modkey            }, "#152"  , function () client.focus:tags({awful.tag.selected(4)})       end ),
+    awful.key({ modkey            }, "#190"  , function () client.focus:tags({awful.tag.selected(5)})       end ),
+    awful.key({ modkey            }, "#208"  , function () client.focus:tags({awful.tag.selected(1)})       end ),
+    awful.key({ modkey            }, "#129"  , function () client.focus:tags({awful.tag.selected(2)})       end ),
+
+    --Move current tag to screen and mouse mouse
+    --              MODIFIERS         KEY                        ACTION                               
+    awful.key({ "Control"         }, "#177"  , function () utils.tools.tag_to_screen(awful.tag.selected(mouse.screen), 3)     end ),
+    awful.key({ "Control"         }, "#152"  , function () utils.tools.tag_to_screen(awful.tag.selected(mouse.screen), 4)     end ),
+    awful.key({ "Control"         }, "#190"  , function () utils.tools.tag_to_screen(awful.tag.selected(mouse.screen), 5)     end ),
+    awful.key({ "Control"         }, "#208"  , function () utils.tools.tag_to_screen(awful.tag.selected(mouse.screen), 1)     end ),
+    awful.key({ "Control"         }, "#129"  , function () utils.tools.tag_to_screen(awful.tag.selected(mouse.screen), 2)     end ),
     --Switch client
     --              MODIFIERS         KEY                        ACTION                               
-    awful.key({ "Control"         }, "#177"  , function () utils.clientSwitcher.switchTo(1)     end ),
-    awful.key({ "Control"         }, "#152"  , function () utils.clientSwitcher.switchTo(2)     end ),
-    awful.key({ "Control"         }, "#190"  , function () utils.clientSwitcher.switchTo(3)     end ),
-    awful.key({ "Control"         }, "#208"  , function () utils.clientSwitcher.switchTo(4)     end ),
-    awful.key({ "Control"         }, "#129"  , function () utils.clientSwitcher.switchTo(5)     end ),
+--     awful.key({ "Control"         }, "#177"  , function () utils.clientSwitcher.switchTo(1)     end ),
+--     awful.key({ "Control"         }, "#152"  , function () utils.clientSwitcher.switchTo(2)     end ),
+--     awful.key({ "Control"         }, "#190"  , function () utils.clientSwitcher.switchTo(3)     end ),
+--     awful.key({ "Control"         }, "#208"  , function () utils.clientSwitcher.switchTo(4)     end ),
+--     awful.key({ "Control"         }, "#129"  , function () utils.clientSwitcher.switchTo(5)     end ),
     awful.key({ modkey            }, "a"     , widgets.radialSelect.radial_client_select            ),
 
     --awful.keys.ignore_modifiers = { "Lock" }

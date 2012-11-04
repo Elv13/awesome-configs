@@ -17,7 +17,7 @@ module("customButton.tagmover")
 local data = {}
 local screenMenu = nil               --
 
-local function btn1(id)
+local function btn1(id,addOrSub)
     if data[id].selected ~= nil then
         local screen2 = data[id].selected.screen + addOrSub
         if screen2 > capi.screen.count() then
@@ -27,7 +27,7 @@ local function btn1(id)
         data[id].selected = tag.selected(screen)
     end
 end
-local function btn3(id)
+local function btn3(id,addOrSub)
         if not screenMenu then
         screenMenu = menu()
         for i=1,capi.screen.count() do
@@ -40,7 +40,7 @@ local function btn3(id)
         screenMenu.id = id
         screenMenu:toggle()
 end
-local function btn4(id)
+local function btn4(id,addOrSub)
     if data[id].selected ~= nil then
         local screen2 = data[id].selected.screen + addOrSub
         if screen2 > capi.screen.count() then
@@ -49,7 +49,7 @@ local function btn4(id)
         utils.tag_to_screen(data[id].selected, screen2)
     end
 end
-local function btn5(id)
+local function btn5(id,addOrSub)
     if data[id].selected ~= nil then
         local screen2 = data[id].selected.screen - addOrSub
         if screen2 == 0 then
@@ -113,10 +113,10 @@ function new(screen, args)
                                                 end)
 
     data[id].widget:buttons( util.table.join(
-      button({ }, 1, function() btn1(id) end),
-      button({ }, 3, function() btn3(id) end),
-      button({ }, 4, function() btn4(id) end),
-      button({ }, 5, function() btn5(id) end)
+      button({ }, 1, function() btn1(id,addOrSub) end),
+      button({ }, 3, function() btn3(id,addOrSub) end),
+      button({ }, 4, function() btn4(id,addOrSub) end),
+      button({ }, 5, function() btn5(id,addOrSub) end)
     ))
     
 
