@@ -27,8 +27,9 @@ function moveTagToScreen()
     end
 end
 
-function altTab()
-    customMenu(nil,{leap = 1})
+function altTab(args)
+    local args = args or {}
+    customMenu(nil,{leap = 1,auto_release = args.auto_release})
     
     if not capi.client.focus then
        return 
@@ -38,8 +39,9 @@ function altTab()
     --if capi.client.focus then capi.client.focus:raise() end --TODO
 end
 
-function altTabBack()
-    customMenu(nil,{leap = -1})
+function altTabBack(args)
+    local args = args or {}
+    customMenu(nil,{leap = -1,auto_release = args.auto_release})
     --if not capi.client.focus then
     --   return 
     --end

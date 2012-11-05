@@ -41,6 +41,7 @@ local function prevent_toolbar_overlap(x_or_y,width_or_height)
 end
 
 local function draw_border(menu,item,args)
+    local args = args or {}
     local width,height=item.width,item.widget.height+10
     local img = capi.image.argb32(width, height, nil)
     img:draw_rectangle(0,0, width, height, true, "#000000")
@@ -51,7 +52,9 @@ local function draw_border(menu,item,args)
         img:draw_rectangle(0,0, 1, height, true, "#ffffff")
         img:draw_rectangle(width-1,0, 1, height, true, "#ffffff")
     end
-    img:draw_rectangle(0,0, width, 1, true, "#ffffff")
+    if args.no_horizontal ~= true then
+        img:draw_rectangle(0,0, width, 1, true, "#ffffff")
+    end
     item.widget.shape_clip   = img
     item.widget.border_color = menu.settings.border_color or beautiful.menu_border_color or beautiful.fg_normal
 end
@@ -151,10 +154,6 @@ local function activateKeyboard(curMenu)
     if (not currentMenu.settings.nokeyboardnav) and currentMenu.settings.visible == true then
         grabKeyboard = true
         capi.keygrabber.run(function(mod, key, event)
-            if event == "release" then
-                return true
-            end
-
             for k,v in pairs(currentMenu.filterHooks) do --TODO modkeys
                 if k.key == key and k.event == event then
                     local retval = v(currentMenu)
@@ -163,6 +162,9 @@ local function activateKeyboard(curMenu)
                     end
                     return retval
                 end
+            end
+            if event == "release" then
+                return true
             end
 
             if (currentMenu.keyShortcut[{mod,key}] or key == 'Return') and currentMenu.items[currentMenu.currentIndex] and currentMenu.items[currentMenu.currentIndex].button1 then
@@ -779,7 +781,7 @@ function new(args)
         end
 
         function data:hightlight(value) end
-        draw_border(menu,data,{})
+        draw_border(menu,data,{no_horizontal=false})
         registerButton(wibox,data)
         wibox:add_signal("mouse::enter", function() currentMenu = self end)
         table.insert(self.items, data)

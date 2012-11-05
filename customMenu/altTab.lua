@@ -80,11 +80,12 @@ local function button_group(args)
     return widget
 end
 
-function new(screen, args) 
+function new(screen, args)
+    local args = args or {}
     local numberStyle = "<span size='large' bgcolor='".. beautiful.fg_normal .."'color='".. beautiful.bg_normal .."'><tt><b>"
     local numberStyleEnd = "</b></tt></span> "
 
-    if isVisible == false then    
+    if isVisible == false then
 
         local menuX = ((screen or capi.screen[capi.mouse.screen]).geometry.width)/4
         local menuY = ((screen or capi.screen[capi.mouse.screen]).geometry.height - (beautiful.menu_height*#capi.client.get(screen)))/2
@@ -96,6 +97,14 @@ function new(screen, args)
             item.button1()
             return true
         end)
+        
+        if args.auto_release then
+            currentMenu:add_key_hook({}, "Alt_L", "release", function(menu)
+            currentMenu.items[currentMenu.currentIndex].button1()
+            currentMenu:toggle(false)
+            return false
+        end)
+        end
         
         local testImg = capi.widget({type="imagebox"})
         testImg.image = capi.image(config.data().iconPath .. "titlebar/ontop_normal_inactive.png")

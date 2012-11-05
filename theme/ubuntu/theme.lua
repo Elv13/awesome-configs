@@ -1,7 +1,6 @@
 ---------------------------
 -- Default awesome theme --
 ---------------------------
-
 theme = {}
 
 theme.font          = "Arial 10"
