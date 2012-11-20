@@ -87,9 +87,9 @@ local function update(graph)
     local old = graph.im
     if not old then
         old = capi.image.argb32(width, height, nil)
-        old:draw_rectangle(border_width, border_width,
-                        width - (2 * border_width) --[[- #values]],
-                        height - (2 * border_width),
+        old:draw_rectangle(1, 1,
+                        width - (border_width) --[[- #values]],
+                        height - (border_width),
                         true, dtg.background_color or "#000000aa")
     end
     img:insert(old,-1,0)
@@ -135,10 +135,32 @@ local function update(graph)
                             dtg.background_color or "#000000aa")
     --Draw the new line
     img:draw_line(width - border_width - 1,
-                  border_width + ((height - 2 * border_width) * (1 - last_val)),
+                  border_width + ((height - 2 * border_width) * (1 - last_val))-offset,
                   width - border_width - 1,
-                  height - border_width,
+                  height - border_width -offset,
                   dtg.color or "#000000aa")
+
+    --Border
+    img:draw_line(border_width,
+                            height -2,
+                            width - border_width,
+                            height -2,
+                            dtg.background_color or "#000000aa")
+    img:draw_line(width-2,
+                            1,
+                            width-2,
+                            height-border_width,
+                            dtg.background_color or "#000000aa")
+    img:draw_line(1,
+                            1,
+                            1,
+                            height-border_width,
+                            dtg.background_color or "#000000aa")
+    img:draw_line(1,
+                            1,
+                            width-2,
+                            1,
+                            dtg.background_color or "#000000aa")
 
     -- Draw the border last so that it overlaps other stuff
     if dtg.border_color then
