@@ -155,7 +155,7 @@ local function reload_user(usrMenu,data)
         anUserLabel.text = v..":"
         anUserLabel.width = 70
         anUserLabel.bg = "#0F2051"
-        userW.widgets = {anUserLabel,anUser, layout = widget2.layout.horizontal.leftright}
+        userW.widgets = {anUserLabel,anUser, layout = widget2.layout.horizontal.leftrightcached}
         totalUser = totalUser +1
         usrMenu:add_wibox(userW,{height = 20, width = 200})
     end
@@ -174,7 +174,7 @@ local function reload_state(typeMenu,data)
         anStateLabel.text = v..":"
         anStateLabel.width = 70
         anStateLabel.bg = "#0F2051"
-        stateW.widgets = {anStateLabel,anState, layout = widget2.layout.horizontal.leftright}
+        stateW.widgets = {anStateLabel,anState, layout = widget2.layout.horizontal.leftrightcached}
         totalState = totalState +1
         typeMenu:add_wibox(stateW,{height = 20, width = 200})
     end
@@ -209,9 +209,9 @@ local function reload_top(topMenu,data)
             testImage2       = capi.widget({ type = "imagebox"})
             testImage2.image = capi.image(config.data().iconPath .. "kill.png")
 
-            processW.widgets = {aMem, {testImage2, layout = widget2.layout.horizontal.rightleft}, layout = widget2.layout.horizontal.leftright,{
+            processW.widgets = {aMem, {testImage2, layout = widget2.layout.horizontal.rightleftcached}, layout = widget2.layout.horizontal.leftrightcached,{
                                 aProcess , 
-                                layout = widget2.layout.horizontal.flex,
+                                layout = widget2.layout.horizontal.flexcached,
                                 }}
             topMenu:add_wibox(processW,{height = 20, width = 200})
         end
@@ -268,16 +268,16 @@ function repaint(margin)
         v.border_width   = 1
     end
 
-    infoHeaderW.widgets = {infoHeader,layout = widget2.layout.horizontal.leftright}
-    userHeaderW.widgets = {userHeader,layout = widget2.layout.horizontal.leftright}
-    stateHeaderW.widgets   = {stateHeader,layout = widget2.layout.horizontal.leftright}
-    processHeaderW.widgets = {processHeader,layout = widget2.layout.horizontal.leftright}
+    infoHeaderW.widgets = {infoHeader,layout = widget2.layout.horizontal.leftrightcached}
+    userHeaderW.widgets = {userHeader,layout = widget2.layout.horizontal.leftrightcached}
+    stateHeaderW.widgets   = {stateHeader,layout = widget2.layout.horizontal.leftrightcached}
+    processHeaderW.widgets = {processHeader,layout = widget2.layout.horizontal.leftrightcached}
 
     ramW.widgets = {
-                        {totalLabel,totalLabel,usedLabel,freeLabel, layout = widget2.layout.horizontal.leftright},
-                        {ramLabel  ,totalRam  ,usedRam  ,freeRam  , layout = widget2.layout.horizontal.leftright},
-                        {swapLabel ,totalSwap ,usedSwap ,freeSwap , layout = widget2.layout.horizontal.leftright},
-                        layout = widget2.layout.vertical.flex
+                        {totalLabel,totalLabel,usedLabel,freeLabel, layout = widget2.layout.horizontal.leftrightcached},
+                        {ramLabel  ,totalRam  ,usedRam  ,freeRam  , layout = widget2.layout.horizontal.leftrightcached},
+                        {swapLabel ,totalSwap ,usedSwap ,freeSwap , layout = widget2.layout.horizontal.leftrightcached},
+                        layout = widget2.layout.vertical.flexcached
                     }
     mainMenu = menu({arrow_x=90,nokeyboardnav=true})
     mainMenu.settings.itemWidth = 198
@@ -366,13 +366,14 @@ function new(margin, args)
 
     vicious.register(memwidget, vicious.widgets.mem, '$1%')
 
-    ramlogo:buttons   (util.table.join(button({ }, 1, function () toggle() end)))
-    memwidget:buttons (util.table.join(button({ }, 1, function () toggle() end)))
+    local buttonclick = util.table.join(button({ }, 1, function () toggle() end))
+    ramlogo:buttons   (buttonclick)
+    memwidget:buttons (buttonclick)
 
     ramlogo.bg = beautiful.bg_alternate
     memwidget.bg = beautiful.bg_alternate
 
-    membarwidget = widget2.progressbar({ layout = widget2.layout.horizontal.rightleft })
+    membarwidget = widget2.progressbar()
     membarwidget:set_width(40)
     membarwidget:set_height(14)
     if (widget2.progressbar.set_offset ~= nil) then
@@ -394,7 +395,7 @@ function new(margin, args)
 
     vicious.register(membarwidget, vicious.widgets.mem, '$1', 1, 'mem')
 
-    return { logo = ramlogo, text = memwidget, bar = membarwidget}
+    return { logo = ramlogo, text = memwidget, bar = membarwidget.widget}
 end
 
 

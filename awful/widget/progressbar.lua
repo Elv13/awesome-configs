@@ -241,7 +241,7 @@ function new(args)
         data[pbar].bg_image = img
     end
 
-    pbar.layout = args.layout or layout.horizontal.leftright
+--     pbar.layout = args.layout or layout.horizontal.leftright
 
     return pbar
 end

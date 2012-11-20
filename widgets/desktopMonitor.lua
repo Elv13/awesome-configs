@@ -167,7 +167,7 @@ function new(screen2, args)
   diskUsageUp.text = "I\O Read: 10kbs"
   diskUsageUp.width = 190
   
- vicious.register(diskUsageUp, vicious.widgets.dio, "I/O Read: ${sda read_kb}kbs", 1, "sdb")
+ vicious.register(diskUsageUp, vicious.widgets.dio, "I/O Read: ${sda read_kb}kbs", 3, "sdb")
   
   local diskSpacer1 = capi.widget({ type = "textbox" })
   diskSpacer1.text = " "
@@ -177,7 +177,7 @@ function new(screen2, args)
   diskUsageDown.text = "I\O Write: 10kbs"
   diskUsageDown.width = 190
   
- vicious.register(diskUsageDown, vicious.widgets.dio, "I/O Write: ${sda write_kb}kbs", 1, "sdb")
+ vicious.register(diskUsageDown, vicious.widgets.dio, "I/O Write: ${sda write_kb}kbs", 3, "sdb")
   
   local diskSpacer3 = capi.widget({ type = "textbox" })
   diskSpacer3.text = "  "
@@ -193,7 +193,7 @@ function new(screen2, args)
     diskUpGraph:set_offset(1)
   end
   
- vicious.register(diskUpGraph, vicious.widgets.dio, "${sda read_kb}", 1, "sdb")
+ vicious.register(diskUpGraph, vicious.widgets.dio, "${sda read_kb}", 3, "sdb")
   
   local diskSpacer2 = capi.widget({ type = "textbox" })
   diskSpacer2.text = " "
@@ -210,7 +210,7 @@ function new(screen2, args)
     diskDownGraph:set_offset(1)
   end
   
- vicious.register(diskDownGraph, vicious.widgets.dio, "${sda write_kb}", 1, "sdb")
+ vicious.register(diskDownGraph, vicious.widgets.dio, "${sda write_kb}", 3, "sdb")
   
   local bottomSpacer = capi.widget({ type = "textbox" })
   bottomSpacer.text = " "
@@ -221,12 +221,12 @@ function new(screen2, args)
     {
       upTime,
       load,
-      layout = widget.layout.horizontal.leftright
+      layout = widget.layout.horizontal.leftrightcached
     },
     {
       cpuUsage,
-      cpuBar,
-      layout = widget.layout.horizontal.leftright
+      cpuBar.widget,
+      layout = widget.layout.horizontal.leftrightcached
     },
     sectionSpacer2,
     netWdg,
@@ -236,14 +236,14 @@ function new(screen2, args)
       netUsageDown,
       uploadImg,
       netUsageUp,
-      layout = widget.layout.horizontal.leftright
+      layout = widget.layout.horizontal.leftrightcached
     },
     {
       netSpacer3,
-      netDownGraph,
+      netDownGraph.widget,
       netSpacer2,
-      netUpGraph,
-      layout = widget.layout.horizontal.leftright
+      netUpGraph.widget,
+      layout = widget.layout.horizontal.leftrightcached
     },
     strangeSpacer,
     serverWdg,
@@ -260,17 +260,17 @@ function new(screen2, args)
       diskUsageDown,
       uploadImg,
       diskUsageUp,
-      layout = widget.layout.horizontal.leftright
+      layout = widget.layout.horizontal.leftrightcached
     },
     {
       diskSpacer3,
-      diskDownGraph,
+      diskDownGraph.widget,
       diskSpacer2,
-      diskUpGraph,
-      layout = widget.layout.horizontal.leftright
+      diskUpGraph.widget,
+      layout = widget.layout.horizontal.leftrightcached
     },
     bottomSpacer,
-    layout = widget.layout.vertical.flex,
+    layout = widget.layout.vertical.flexcached,
   }
 end
 

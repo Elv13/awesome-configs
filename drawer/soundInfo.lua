@@ -125,7 +125,7 @@ function soundInfo()
     minus = capi.widget({ type = "imagebox", align = "left" })
     minus.image = capi.image(config.data().iconPath .. "tags/minus2.png")
     counter = counter +1
-    table.insert(widgetTable, {mute, channal, plus, volume, minus, layout = widget2.layout.horizontal.leftright})
+    table.insert(widgetTable, {mute, channal, plus, volume, minus, layout = widget2.layout.horizontal.leftrightcached})
   end
   f:close()
 

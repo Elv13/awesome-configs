@@ -109,17 +109,17 @@ function add_device(args)
 
   local volName = capi.widget({ type = "textbox" })
   volName.text = mountPoint
-  vicious.register(volName, vicious.widgets.fs,mountPoint..' (${'..mountPoint..' size_gb} GB)')
+  vicious.register(volName, vicious.widgets.fs,mountPoint..' (${'..mountPoint..' size_gb} GB)',3600)
 
   local volName3 = capi.widget({ type = "textbox" })
   volName3.text = "<b>Used:</b> 83gb (76%)"
-  vicious.register(volName3, vicious.widgets.fs,'<b>Used:</b> ${'..mountPoint..' used_gb}GB (${'..mountPoint..' used_p}%)')
+  vicious.register(volName3, vicious.widgets.fs,'<b>Used:</b> ${'..mountPoint..' used_gb}GB (${'..mountPoint..' used_p}%)',900)
 
   ----vicious.register(volName3, vicious.widgets.fs, "<b>Used:</b> ${".. mountPoint .." used}gb", 599, true)
 
   local volName4 = capi.widget({ type = "textbox" })
   volName4.text = "<b>Avail:</b> 17gb (14%)"
-  vicious.register(volName4, vicious.widgets.fs,'<b>Avail:</b> ${'..mountPoint..' avail_gb}GB (${'..mountPoint..' avail_p}%)')
+  vicious.register(volName4, vicious.widgets.fs,'<b>Avail:</b> ${'..mountPoint..' avail_gb}GB (${'..mountPoint..' avail_p}%)',900)
 
   ----vicious.register(volName4, vicious.widgets.fs, "<b>Avail:</b> ${".. mountPoint .." avail}gb", 599, true)
 
@@ -133,9 +133,9 @@ function add_device(args)
 
   local deviceName = string.sub(deviceNode,6,-2) or "sda"
 --   vicious.register(volUsage, vicious.widgets.dio, "${total_kb}", 1, "sdc/sdc1")
- vicious.register(volUsage, vicious.widgets.dio, "${".. deviceName .." total_kb}")
+ vicious.register(volUsage, vicious.widgets.dio, "${".. deviceName .." total_kb}",900)
 
-  volfill = widget.progressbar()
+  volfill = widget.progressbar({ layout = widget.layout.horizontal.leftrightcached })
   volfill:set_vertical(true)
   volfill:set_width(10)
   volfill:set_height(50)
@@ -148,23 +148,23 @@ function add_device(args)
   volfill:set_color(beautiful.fg_normal)
   volfill:set_value(50)
 
-  vicious.register(volfill, vicious.widgets.fs,'${'..mountPoint..' used_p}')
+  vicious.register(volfill, vicious.widgets.fs,'${'..mountPoint..' used_p}',900)
 
   mywibox19.widgets = {
     iconTest,
-    volfill,
+    volfill.widget,
     volSpacer,
-    layout = widget.layout.horizontal.leftright,
+    layout = widget.layout.horizontal.leftrightcached,
     {
       iconTest1,
-      layout = widget.layout.horizontal.rightleft,
+      layout = widget.layout.horizontal.rightleftcached,
     },
     {
       volName,
       volName3,
       volName4,
-      volUsage,
-      layout = widget.layout.vertical.flex
+      volUsage.widget,
+      layout = widget.layout.vertical.flexcached
     },
   }
   mywibox19:add_signal("mouse::enter", function() mywibox19.bg = beautiful.fg_normal.."25" end)

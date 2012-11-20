@@ -155,7 +155,7 @@ function create(s,layouts,titleBarWidget)
 	
 	if counter ~= 0 then 
 	  if counter % 3 == 0 then
-	    currentRow["layout"] = r_widget.layout.horizontal.leftright
+	    currentRow["layout"] = r_widget.layout.horizontal.leftrightcached
 	    table.insert(layoutArray, currentRow)
 	    currentRow = {}
 	  end
@@ -165,14 +165,14 @@ function create(s,layouts,titleBarWidget)
     end
   end
   if #currentRow > 0 then
-    currentRow["layout"] = r_widget.layout.horizontal.leftright
+    currentRow["layout"] = r_widget.layout.horizontal.leftrightcached
     table.insert(layoutArray, currentRow)
   end
   
   titleBarWidget.text = "Titlebar"
   titleBarWidget.height = 10
   titleBarWidget.align = "center"
-  table.insert(layoutArray, {titleBarWidget, layout= r_widget.layout.horizontal.flex})
+  table.insert(layoutArray, {titleBarWidget, layout= r_widget.layout.horizontal.flexcached})
   
   menuWibox:geometry({ width = 90, height = (30*#layoutArray)})
 
@@ -185,7 +185,7 @@ function create(s,layouts,titleBarWidget)
   menuWibox.border_color = beautiful.fg_normal
     --w2.shape_bounding = do_gen_menu_bottom(width,10,0)
   
-  layoutArray["layout"] = r_widget.layout.vertical.flex
+  layoutArray["layout"] = r_widget.layout.vertical.flexcached
   
   menuWibox.widgets = layoutArray
   return data

@@ -25,7 +25,7 @@ function new(screen, args)
   local icon     = capi.widget({type="imagebox"})
   icon.image     = capi.image(config.data().iconPath .. "home.png")
   textTest.text  = "   text"
-  aWibox.widgets = {icon,textTest, layout = widget2.layout.horizontal.leftright }
+  aWibox.widgets = {icon,textTest, layout = widget2.layout.horizontal.leftrightcached }
   aWibox.bg      = "#ff000000"
   aWibox:add_signal("mouse::enter", function() aWibox.bg = beautiful.fg_normal.."25" end)
   aWibox:add_signal("mouse::leave", function() aWibox.bg = "#00000000"               end)

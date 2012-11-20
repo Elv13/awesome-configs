@@ -68,9 +68,9 @@ local function reload_top(procMenu,data)
             wdg.kill.image    = capi.image(config.data().iconPath .. "kill.png")
 
             w.widgets = { wdg.percent,
-                            { wdg.kill, layout = widget2.layout.horizontal.rightleft }
-                            , layout = widget2.layout.horizontal.leftright,
-                            { wdg.process , layout = widget2.layout.horizontal.flex, }
+                            { wdg.kill, layout = widget2.layout.horizontal.rightleftcached }
+                            , layout = widget2.layout.horizontal.leftrightcached,
+                            { wdg.process , layout = widget2.layout.horizontal.flexcached, }
                         }
             wdg.percent.text  = data.process[i].percent.."%"
             wdg.process.text  = " "..data.process[i].name
@@ -187,10 +187,10 @@ function new(margin, args)
         modelW.visible         = false
         tableW.visible         = false
 
-        infoHeaderW.widgets     = {infoHeader    , layout = widget2.layout.horizontal.leftright}
-        usageHeaderW.widgets    = {usageHeader2  , layout = widget2.layout.horizontal.leftright}
-        processHeaderW.widgets  = {processHeader , layout = widget2.layout.horizontal.leftright}
-        modelW.widgets          = {cpuModel      , layout = widget2.layout.horizontal.leftright}
+        infoHeaderW.widgets     = {infoHeader    , layout = widget2.layout.horizontal.leftrightcached}
+        usageHeaderW.widgets    = {usageHeader2  , layout = widget2.layout.horizontal.leftrightcached}
+        processHeaderW.widgets  = {processHeader , layout = widget2.layout.horizontal.leftrightcached}
+        modelW.widgets          = {cpuModel      , layout = widget2.layout.horizontal.leftrightcached}
 
 
         loadData()
@@ -243,7 +243,7 @@ function new(margin, args)
         idleHeader.width               = 35
         idleHeader.border_width        = 1
         idleHeader.border_color        = beautiful.bg_normal
-        table.insert(cpuWidgetArray, {emptyCornerHeader,clockHeader,tempHeader,usageHeader,iowaitHeader,idleHeader, layout = widget2.layout.horizontal.leftright})
+        table.insert(cpuWidgetArray, {emptyCornerHeader,clockHeader,tempHeader,usageHeader,iowaitHeader,idleHeader, layout = widget2.layout.horizontal.leftrightcached})
 
 
         local f2 = io.popen("cat /proc/cpuinfo | grep processor | tail -n1 | grep -e'[0-9]*' -o")
@@ -262,9 +262,9 @@ function new(margin, args)
             coreWidgets[i]["core"].border_width       = 1
             coreWidgets[i]["core"].border_color       = beautiful.bg_normal
             table.insert(cpuWidgetArray, {coreWidgets[i]["core"],coreWidgets[i]["clock"],coreWidgets[i]["temp"],coreWidgets[i]["usage"],
-                coreWidgets[i]["wait"],coreWidgets[i]["idle"], layout = widget2.layout.horizontal.leftright})
+                coreWidgets[i]["wait"],coreWidgets[i]["idle"], layout = widget2.layout.horizontal.leftrightcached})
         end
-        cpuWidgetArray.layout = widget2.layout.vertical.flex
+        cpuWidgetArray.layout = widget2.layout.vertical.flexcached
         tableW.widgets = cpuWidgetArray
         
         --   spacer1.text = ""
@@ -328,14 +328,16 @@ function new(margin, args)
     cpuwidget.bg = beautiful.bg_alternate
   vicious.register(cpuwidget, vicious.widgets.cpu,'$1%')
 
-  cpuwidget:buttons (util.table.join(button({ }, 1, function () show() end)))
-  cpulogo:buttons   (util.table.join(button({ }, 1, function () show() end)))
+  local buttons2 = util.table.join(button({ }, 1, function () show() end))
+
+  cpuwidget:buttons (buttons2)
+  cpulogo:buttons   (buttons2)
 
 --   mytimer = capi.timer({ timeout = 2 })
 --   mytimer:add_signal("timeout", updateTable)
 --   mytimer:start()
 
-  local cpuBar = widget2.graph({ layout = widget2.layout.horizontal.rightleft })
+  local cpuBar = widget2.graph()
   cpuBar:set_width(40)
   cpuBar:set_height(14)
   cpuBar:set_background_color(beautiful.bg_alternate)
@@ -349,7 +351,7 @@ function new(margin, args)
   --vicious.register(cpuBar, vicious.widgets.cpu, '$1', 1, 'cpu')
   vicious.register(cpuBar, vicious.widgets.cpu,'$1',1)
 
-  return {logo = cpulogo, text = cpuwidget, graph = cpuBar}
+  return {logo = cpulogo, text = cpuwidget, graph = cpuBar.widget}
 end
 
 setmetatable(_M, { __call = function(_, ...) return new(...) end })

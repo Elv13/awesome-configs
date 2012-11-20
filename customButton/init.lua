@@ -1,4 +1,3 @@
-require("customButton.launcher")
 require("customButton.showDesktop")
 require("customButton.addTag")
 require("customButton.delTag")

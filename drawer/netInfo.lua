@@ -121,9 +121,9 @@ local function reload_conn(connMenu,data)
             w.visible = false
             w.widgets = {
                             application                                               ,
-                            {protocol,layout = widget2.layout.horizontal.rightleft}   ,
-                            layout = widget2.layout.horizontal.leftright              ,
-                            {address,layout = widget2.layout.horizontal.flex}         ,
+                            {protocol,layout = widget2.layout.horizontal.rightleftcached}   ,
+                            layout = widget2.layout.horizontal.leftrightcached              ,
+                            {address,layout = widget2.layout.horizontal.flexcached}         ,
                         }
 
             application:margin({ left = 7, right = 7 })
@@ -165,7 +165,7 @@ local function reload_protstat(protMenu,data)
         w.widgets         = {
                                 protoCount                                   ,
                                 protocol3                                    ,
-                                layout = widget2.layout.horizontal.leftright ,
+                                layout = widget2.layout.horizontal.leftrightcached ,
                             }
         protoCount:margin({ left = 7, right = 7 })
         protoCount.text = "x"..i
@@ -190,9 +190,9 @@ local function reload_appstat(appMenu,data)
         w.visible              = false
         w.widgets              = {
                                     appIcon                                                   ,
-                                    {testImage2,layout = widget2.layout.horizontal.rightleft} ,
-                                    layout = widget2.layout.horizontal.leftright              ,
-                                    {app2,layout = widget2.layout.horizontal.flex}            ,
+                                    {testImage2,layout = widget2.layout.horizontal.rightleftcached} ,
+                                    layout = widget2.layout.horizontal.leftrightcached              ,
+                                    {app2,layout = widget2.layout.horizontal.flexcached}            ,
                                  }
 
         app2.text = " " .. v .."("..i..")"
@@ -233,18 +233,18 @@ local function repaint(margin)
     protHeaderW.visible  = false
     appHeaderW.visible   = false
 
-    graphHeaderW.widgets = { graphHeader , layout = widget2.layout.horizontal.leftright }
-    ipHeaderW.widgets    = { ipHeader    , layout = widget2.layout.horizontal.leftright }
+    graphHeaderW.widgets = { graphHeader , layout = widget2.layout.horizontal.leftrightcached }
+    ipHeaderW.widgets    = { ipHeader    , layout = widget2.layout.horizontal.leftrightcached }
 --     localHeaderW.widgets = { localHeader , layout = widget2.layout.horizontal.leftright }
-    connHeaderW.widgets  = { connHeader  , layout = widget2.layout.horizontal.leftright }
-    protHeaderW.widgets  = { protHeader  , layout = widget2.layout.horizontal.leftright }
-    appHeaderW.widgets   = { appHeader   , layout = widget2.layout.horizontal.leftright }
+    connHeaderW.widgets  = { connHeader  , layout = widget2.layout.horizontal.leftrightcached }
+    protHeaderW.widgets  = { protHeader  , layout = widget2.layout.horizontal.leftrightcached }
+    appHeaderW.widgets   = { appHeader   , layout = widget2.layout.horizontal.leftrightcached }
 
     ipInfo.visible = false
     ipInfo.widgets = {
-        {ip4Info  , layout = widget2.layout.horizontal.leftright},
-        {ip6Info  , layout = widget2.layout.horizontal.leftright},
-        layout = widget2.layout.vertical.flex
+        {ip4Info  , layout = widget2.layout.horizontal.leftrightcached},
+        {ip6Info  , layout = widget2.layout.horizontal.leftrightcached},
+        layout = widget2.layout.vertical.flexcached
     }
 
     local function setup_graph(g)
@@ -260,19 +260,28 @@ local function repaint(margin)
     setup_graph(netDownGraph)
     vicious.register                 (netDownGraph, vicious.widgets.net, '${eth0 down_kb}',1)
 
+    uploadImg.image    = capi.image(config.data().iconPath .. "arrowUp.png"  )
+    uploadImg.resize   = false
+    downloadImg.image  = capi.image(config.data().iconPath .. "arrowDown.png")
+    downloadImg.resize = false
+    netUsageUp.text    = "<b>Up: </b>"
+    netUsageDown.text  = "<b>Down: </b>"
+    netSpacer.text     = " "
+    netSpacer.width    = 10
+
     graphUW.visible = false
     graphUW.widgets = {
-        {uploadImg    , netUsageUp   , layout = widget2.layout.horizontal.leftright},
-        {netUpGraph   ,                layout = widget2.layout.horizontal.leftright},
-        layout = widget2.layout.vertical.flex
+        {uploadImg    , netUsageUp   , layout = widget2.layout.horizontal.leftrightcached},
+        {netUpGraph   ,                layout = widget2.layout.horizontal.leftrightcached},
+        layout = widget2.layout.vertical.flexcached
     }
 
     graphDW.visible = false
     graphDW.widgets = {
-        {downloadImg  , netUsageDown , layout = widget2.layout.horizontal.leftright},
-        {netDownGraph ,                layout = widget2.layout.horizontal.leftright},
-        {netSpacer    ,                layout = widget2.layout.horizontal.leftright},
-        layout = widget2.layout.vertical.flex
+        {downloadImg  , netUsageDown , layout = widget2.layout.horizontal.leftrightcached},
+        {netDownGraph ,                layout = widget2.layout.horizontal.leftrightcached},
+        {netSpacer    ,                layout = widget2.layout.horizontal.leftrightcached},
+        layout = widget2.layout.vertical.flexcached
     }
 
     function formatHeader(wdg,txt)
@@ -288,19 +297,6 @@ local function repaint(margin)
     formatHeader(protHeader  ,"APPLICATIONS"  )
     formatHeader(appHeader   ,"PROTOCOLS"     )
 
-    uploadImg.image    = capi.image(config.data().iconPath .. "arrowUp.png"  )
-    uploadImg.resize   = false
-    downloadImg.image  = capi.image(config.data().iconPath .. "arrowDown.png")
-    downloadImg.resize = false
-    netUsageUp.text    = "<b>Up: </b>"
-    netUsageDown.text  = "<b>Down: </b>"
-    netSpacer.text     = " "
-    netSpacer.width    = 10
-    
-    
-    
-    
-    
     local mainMenu = menu({arrow_x=90})
     mainMenu.settings.itemWidth = 200
     mainMenu:add_wibox(graphHeaderW ,{height = 20, width = 200})

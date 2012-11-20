@@ -88,7 +88,7 @@ local function getFilterWidget(aMenu)
             textbox.text        = menu.settings.filterprefix
             local filterWibox   = wibox({ position = "free", visible = false, ontop = true, menu_border_width = beautiful.menu_border_width or 1, border_color = beautiful.border_normal })
             filterWibox.bg = beautiful.bg_highlight
-            filterWibox.widgets = { textbox, layout = widget2.layout.horizontal.leftright }
+            filterWibox.widgets = { textbox, layout = widget2.layout.horizontal.leftrightcached }
             menu.filterWidget   = {textbox = textbox, widget = filterWibox, hidden = false, width = menu.settings.itemWidth, height = menu.settings.itemHeight}
             filterWibox:buttons( util.table.join(button({},3,function() menu:toggle(false) end)))
             draw_border(menu,menu.filterWidget,{})
@@ -128,7 +128,7 @@ local function getScrollWdg_common(aMenu,widget,step)
                     ))
             local test2 = capi.widget({type="textbox"})
             test2.text = " "
-            wb.widgets = {test2,arrow,test2,layout = widget2.layout.horizontal.flex}
+            wb.widgets = {test2,arrow,test2,layout = widget2.layout.horizontal.flexcached}
             menu[widget] = {widget = wb, hidden = false, width = menu.settings.itemWidth, height = menu.settings.itemHeight}
             draw_border(menu,menu[widget],{})
             wb:add_signal("mouse::enter", function() wb.bg = beautiful.bg_alternate end)
@@ -743,7 +743,7 @@ function new(args)
       end
 
       --aWibox.widgets = {{data.widgets.prefix,data.widgets.icon, {subArrow2,data.widgets.checkbox,data.widgets.suffix, layout = widget2.layout.horizontal.rightleft},data.addwidgets, layout = widget2.layout.horizontal.leftright,{data.widgets.wdg, layout = widget2.layout.horizontal.flex}}, layout = widget2.layout.vertical.flex }
-      aWibox.widgets = {{data.widgets.prefix,data.widgets.icon,data.widgets.wdg, {subArrow2,data.widgets.checkbox,data.widgets.suffix, layout = widget2.layout.horizontal.rightleft},data.addwidgets, layout = widget2.layout.horizontal.leftright}, layout = widget2.layout.vertical.flex }
+      aWibox.widgets = {{data.widgets.prefix,data.widgets.icon,data.widgets.wdg, {subArrow2,data.widgets.checkbox,data.widgets.suffix, layout = widget2.layout.horizontal.rightleftcached},data.addwidgets, layout = widget2.layout.horizontal.leftrightcached}, layout = widget2.layout.vertical.flexcached }
 
       registerButton(aWibox, data)
 

@@ -137,7 +137,7 @@ function addWidget(wdg,args,reserved)
         local aWb       = wibox({position="free"})
         wdgSet.height   = (wdg.height ~=0) and wdg.height or nil
         wdgSet.width    = (wdg.width  ~=0) and wdg.width  or nil
-        aWb.widgets     = {wdg, layout = widget.horizontal.leftright}
+        aWb.widgets     = {wdg, layout = widget.horizontal.leftrightcached}
         wb = aWb
     end
     local saved = {}
