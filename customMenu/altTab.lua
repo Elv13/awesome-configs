@@ -1,18 +1,15 @@
 local setmetatable = setmetatable
-local table        = table
-local print        = print
 local type         = type
 local ipairs       = ipairs
 local pairs        = pairs
+local print        = print
 local button       = require( "awful.button"     )
 local beautiful    = require( "beautiful"        )
-local naughty      = require( "naughty"          )
 local tag          = require( "awful.tag"        )
-local menu         = require( "widgets.menu"     )
-local tooltip      = require( "awful.tooltip"    )
+local menu         = require( "radical.box"      )
 local util         = require( "awful.util"       )
 local config       = require( "config"           )
-local widget2      = require( "awful.widget"     )
+local wibox        = require( "wibox"            )
 local capi = { image      = image,
                widget     = widget,
                client     = client,
@@ -31,15 +28,8 @@ local fkeyMapping  = {}
 
 local function keyboardNavigation(leap)
     if currentMenu then
-        if currentIndex + leap > itemCount then
-            currentIndex = 1
-        elseif currentIndex + leap < 1 then
-            currentIndex = itemCount
-        else
-            currentIndex = currentIndex + leap
-        end
-        currentMenu:clear_highlight()
-        currentMenu:highlight_item(currentIndex) 
+        local item = currentMenu.next_item
+        item.selected = true
     end
 end
 
@@ -62,11 +52,11 @@ local function button_group(args)
     local function setImage(hover)
         local curfocus  = (hover == true) and "hover" or ((((type(focus) == "function") and focus() or focus) == true) and "focus" or "normal")
         local curactive = ((((type(checked) == "function") and checked() or checked) == true) and "active" or "inactive")
-        widget.image    = capi.image( config.data().themePath.. "Icon/titlebar/" .. field .."_"..curfocus .."_"..curactive..".png"  )
+        widget:set_image( config.data().themePath.. "Icon/titlebar/" .. field .."_"..curfocus .."_"..curactive..".png"  )
     end
     
     local function createWidget()
-        local wdg = capi.widget({type="imagebox"})
+        local wdg = wibox.widget.imagebox()
         for k,v in pairs(wdgprop) do
             wdg[k] = v
         end
@@ -89,25 +79,26 @@ function new(screen, args)
 
         local menuX = ((screen or capi.screen[capi.mouse.screen]).geometry.width)/4
         local menuY = ((screen or capi.screen[capi.mouse.screen]).geometry.height - (beautiful.menu_height*#capi.client.get(screen)))/2
-        currentMenu = menu({x= menuX, y= menuY, filter = true, showfilter=true, autodiscard = true,noarrow=true})
-        currentMenu:set_width(((screen or capi.screen[capi.mouse.screen]).geometry.width)/2)
+        currentMenu = menu({x= menuX, y= menuY, filter = true, show_filter=true, autodiscard = true,noarrow=true,fkeys_prefix=true})
+        currentMenu.width = (((screen or capi.screen[capi.mouse.screen]).geometry.width)/2)
         
         currentMenu:add_key_hook({}, "Tab", "press", function(menu)
-            local item = currentMenu:rotate_selected(1)
+            local item = currentMenu.next_item
+            item.selected = true
             item.button1()
             return true
         end)
         
         if args.auto_release then
             currentMenu:add_key_hook({}, "Alt_L", "release", function(menu)
-            currentMenu.items[currentMenu.currentIndex].button1()
-            currentMenu:toggle(false)
+--             currentMenu.items[currentMenu.currentIndex].button1()
+            currentMenu.visible = false
             return false
         end)
         end
         
-        local testImg = capi.widget({type="imagebox"})
-        testImg.image = capi.image(config.data().iconPath .. "titlebar/ontop_normal_inactive.png")
+        local testImg = wibox.widget.imagebox()
+        testImg:set_image(config.data().iconPath .. "titlebar/ontop_normal_inactive.png")
         
         itemCount = 1
         for k,v in ipairs(capi.client.get(screen)) do
@@ -116,40 +107,40 @@ function new(screen, args)
             local floating  = button_group({client = v, width=5, field = "floating",  focus = false, checked = function() return v.floating end , onclick = function() v.floating = not v.floating end   })
             local sticky    = button_group({client = v, width=5, field = "sticky",    focus = false, checked = function() return v.sticky end   , onclick = function() v.sticky = not v.sticky end       })
             local maximized = button_group({client = v, width=5, field = "maximized", focus = false, checked = function() return v.maximized end, onclick = function() v.maximized = not v.maximized end })
+
+            local l = wibox.layout.fixed.horizontal()
+            l:add( close     )
+            l:add( ontop     )
+            l:add( maximized )
+            l:add( sticky    )
+            l:add( floating  )
+
+            print("sdfsdf")
             fkeyMapping[itemCount] = currentMenu:add_item({
                 prefix  = numberStyle.."[F".. itemCount .."]"..numberStyleEnd, 
                 text    = v.name, 
-                onclick = function() 
-                    if v:tags()[1].selected == false then
+                button1 = function() 
+                    if v:tags()[1] and v:tags()[1].selected == false then
                         tag.viewonly(v:tags()[1])
                     end
                     capi.client.focus = v 
                 end, 
                 icon    = v.icon,
-                addwidgets = {
-                                close,
-                                ontop, 
-                                maximized,
-                                sticky,
-                                floating,
-                                layout = widget2.layout.horizontal.rightleft
-                             }
+                suffix_widget = l
             })
             fkeyMapping[itemCount].c = v
             itemCount = itemCount + 1
         end
-        
-        currentMenu:toggle(true)
-        currentMenu:set_coords(menuX,menuY)
-        currentMenu:add_signal("menu::hide",function()
+
+        currentMenu.visible  = true
+        currentMenu:connect_signal("menu::hide",function()
             currentMenu = nil
             isVisible   = false
             --capi.keygrabber.stop()
         end)
-        
-        
-        currentMenu:clear_highlight()
-        currentMenu:highlight_item(currentIndex)
+
+--         currentMenu:clear_highlight()
+        currentMenu.items[currentIndex].selected = true
         isVisible = true
     else
         keyboardNavigation(args.leap or 1)

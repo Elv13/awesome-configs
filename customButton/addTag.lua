@@ -1,16 +1,20 @@
+
+local capi = { image = image,
+               widget = widget,
+               mouse = mouse}
 local setmetatable = setmetatable
 local next = next
+local unpack = unpack
 local print = print
 local button = require("awful.button")
 local beautiful = require( "beautiful"       )
 local util      = require( "awful.util"      )
-local shifty    = require( "shifty"          )
+local tag       = require( "awful.tag"       )
+local mouse     = require( "awful.mouse"     )
 local config    = require( "config"          )
 local menu      = require( "widgets.menu"    )
-local tooltip   = require( "widgets.tooltip" )
-local capi = { image = image,
-               widget = widget,
-               mouse = mouse}
+local tooltip2  = require( "widgets.tooltip2" )
+local wibox = require("wibox")
 
 module("customButton.addTag")
 
@@ -21,25 +25,23 @@ function update()
 end
 
 function new(screen, args)
-  local addTag  = capi.widget({ type = "imagebox", align = "left" })
-  addTag.image  = capi.image(config.data().iconPath .. "tags/cross2.png")
+  local addTag  = wibox.widget.imagebox()
+  addTag:set_image(config.data().iconPath .. "tags/cross2.png")
   addTag.bg     = beautiful.bg_alternate
   local tagMenu = nil
-  local tt = nil
   local init = false
 
-  local function showToolTip()
-     if not tt then
-       tt = tooltip("Add Tag",{})
-     end
-     return tt
+   local wiboxes = {}
+   local orig_wibox = wibox
+   wibox = function(...)
+    local res = orig_wibox(...)
+    wiboxes[res._drawable] = res
+    return res 
   end
-
-  
   
   addTag:buttons( util.table.join(
     button({ }, 1, function()
-      shifty.add({name = "NewTag"})
+      tag.add("NewTag",{screen=capi.mouse.screen})
       --delTag[capi.mouse.screen].visible = true
     end),
     button({ }, 3, function()
@@ -58,11 +60,21 @@ function new(screen, args)
     end)
   ))
   
-  addTag:add_signal("mouse::enter", function() (tt or showToolTip()):showToolTip(true) ;addTag.bg = beautiful.bg_normal    end)
-  addTag:add_signal("mouse::leave", function() (tt or showToolTip()):showToolTip(false);addTag.bg = beautiful.bg_alternate end)
+--   addTag:connect_signal("mouse::enter", function(self,geometry)
+--     (tt or showToolTip()):showToolTip(true);
+--     print("HER@@@",geometry.x,geometry.y,geometry.width,geometry.height)
+-- --     print("WIBOX",mouse.wibox_under_pointer(),capi.mouse.screen,capi.mouse.coords().x)
+-- --     mouse.wibox_under_pointer()._drawable:find_widgets(unpack(capi.mouse.coords()))
+-- --     addTag.bg = beautiful.bg_normal
+--   end)
+
+--   addTag:connect_signal("mouse::leave", function() (tt or showToolTip()):showToolTip(false);addTag.bg = beautiful.bg_alternate end)
+  
+  tooltip2(addTag,"Add Tag")
   
   return addTag
 end
 
 
 setmetatable(_M, { __call = function(_, ...) return new(...) end })
+-- kate: space-indent on; indent-width 2; replace-tabs on;

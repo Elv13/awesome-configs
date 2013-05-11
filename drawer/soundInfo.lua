@@ -2,10 +2,11 @@ local setmetatable = setmetatable
 local tonumber = tonumber
 local table = table
 local io = io
+local type = type
 local print = print
 local button = require("awful.button")
 local vicious = require("extern.vicious")
-local wibox = require("awful.wibox")
+local wibox = require("wibox")
 local widget2 = require("awful.widget")
 local config = require("config")
 local beautiful = require("beautiful")
@@ -32,31 +33,31 @@ local function amixer_volume(format)
    local l = f:read()
    f:close()
    if l+0 == 0 then
-    if volumepixmap == not nil then
+    if volumepixmap then
       volumepixmap.image = capi.image(config.data().iconPath .. "volm.png")
     end
-    if volumepixmap2 == not nil then
+    if volumepixmap2 then
       volumepixmap2.image = capi.image(config.data().iconPath .. "volm.png")
     end
    elseif l+0 < 15 then
-   if volumepixmap == not nil then
+   if volumepixmap then
       volumepixmap.image = capi.image(config.data().iconPath .. "vol1.png")
     end
-    if volumepixmap2 == not nil then
+    if volumepixmap2 then
       volumepixmap2.image = capi.image(config.data().iconPath .. "vol1.png")
     end
    elseif l+0 < 35 then
-   if volumepixmap == not nil then
+   if volumepixmap then
       volumepixmap.image = capi.image(config.data().iconPath .. "vol2.png")
     end
-    if volumepixmap2 == not nil then
+    if volumepixmap2 then
       volumepixmap2.image = capi.image(config.data().iconPath .. "vol2.png")
     end
    else
-    if volumepixmap == not nil then
+    if volumepixmap then
       volumepixmap.image = capi.image(config.data().iconPath .. "vol3.png")
     end
-    if volumepixmap2 == not nil then
+    if volumepixmap2 then
       volumepixmap2.image = capi.image(config.data().iconPath .. "vol3.png")
     end
    end
@@ -79,13 +80,14 @@ end
 function soundInfo() 
   local f = io.popen('amixer | grep "Simple mixer control" | cut -f 2 -d "\'" | sort -u')
   
-  local soundHeader = capi.widget({type = "textbox"})
+  local soundHeader = wibox.widget.textbox()
   soundHeader.text = " <span color='".. beautiful.bg_normal .."'><b><tt>CHANALS</tt></b></span> "
   soundHeader.bg = beautiful.fg_normal
   soundHeader.width = 240
   table.insert(widgetTable, soundHeader)
   
   local counter = 0
+  local l = wibox.layout.fixed.vertical()
   while true do
     local aChannal = f:read("*line")
     if aChannal == nil then
@@ -96,18 +98,18 @@ function soundInfo()
     local aVolume = (tonumber(f2:read("*line")) or 0) / 100
     f2:close()
     
-    channal = capi.widget({type = "textbox"})
+    channal = wibox.widget.textbox()
     --channal.text = aChannal
     channal.width = 107
         
-    mute = capi.widget({ type = "imagebox", align = "left" })
+    mute = wibox.widget.imagebox()
     mute.image = capi.image(config.data().iconPath .. "volm.png")
     mute.width = 25
     mute.bg = "#0F2051"
     mute.border_width = 1
     mute.border_color = beautiful.bg_normal
     
-    plus = capi.widget({ type = "imagebox", align = "left" })
+    plus = wibox.widget.imagebox()
     plus.image = capi.image(config.data().iconPath .. "tags/cross2.png")
 
     volume = widget2.progressbar()
@@ -122,25 +124,30 @@ function soundInfo()
     end
     --volume:set_margin({top=6,bottom=6})
     
-    minus = capi.widget({ type = "imagebox", align = "left" })
+    minus = wibox.widget.imagebox()
     minus.image = capi.image(config.data().iconPath .. "tags/minus2.png")
     counter = counter +1
-    table.insert(widgetTable, {mute, channal, plus, volume, minus, layout = widget2.layout.horizontal.leftrightcached})
+--     table.insert(widgetTable, {mute, channal, plus, volume, minus, layout = widget2.layout.horizontal.leftrightcached})
+    local l2 = wibox.layout.fixed.horizontal()
+    l2:add(mute)
+    l2:add(channal)
+    l2:add(plus)
+    l2:add(volume)
+    l2:add(minus)
+    l:add(l2)
   end
   f:close()
 
-  widgetTable["layout"] = widget2.layout.vertical.flex
+--   widgetTable["layout"] = widget2.layout.vertical.flex
             
-  data.wibox.widgets = widgetTable
+  data.wibox.widgets = l
   data.wibox:geometry({height = counter*19 + 19})
 end
   
 function new(mywibox3,left_margin)
-  local volumewidget = capi.widget({
-      type = 'textbox'
-  })
-  local volumepixmap = capi.widget({ type = "imagebox"})
-  volumepixmap.image = capi.image(config.data().iconPath .. "vol.png")
+  local volumewidget = wibox.widget.textbox()
+  local volumepixmap =  wibox.widget.imagebox()
+  volumepixmap:set_image(config.data().iconPath .. "vol.png")
 
 
   local top,bottom
@@ -151,26 +158,26 @@ function new(mywibox3,left_margin)
             data.wibox = wibox({ position = "free", screen = s, bg = beautiful.menu_bg})
             data.wibox.ontop = true
             data.wibox.visible = false
-            local guessHeight = capi.screen[1].geometry.height
-            local img = capi.image.argb32(240, guessHeight, nil)
-            img:draw_rectangle(0,0, 3, guessHeight, true, "#ffffff")
-            img:draw_rectangle(237,0, 3, guessHeight, true, "#ffffff")
-            data.wibox.shape_clip     = img
-            data.wibox.border_color = beautiful.fg_normal
-            top,bottom = menu.gen_menu_decoration(240,{arrow_x=240 - (left_margin or 0) - 35 - 10})
+--             local guessHeight = capi.screen[1].geometry.height
+--             local img = capi.image.argb32(240, guessHeight, nil)
+--             img:draw_rectangle(0,0, 3, guessHeight, true, "#ffffff")
+--             img:draw_rectangle(237,0, 3, guessHeight, true, "#ffffff")
+--             data.wibox.shape_clip     = img
+--             data.wibox.border_color = beautiful.fg_normal
+--             top,bottom = menu.gen_menu_decoration(240,{arrow_x=240 - (left_margin or 0) - 35 - 10})
             soundInfo()
-            data.wibox:geometry({y = 16 + top.height, x = capi.screen[capi.mouse.screen].geometry.width - 240 + capi.screen[capi.mouse.screen].geometry.x, width = 240, height = 300})
-            top.x = data.wibox.x
-            top.y = 16
-            bottom.x = data.wibox.x
-            bottom.y = data.wibox.y+data.wibox.height
+            data.wibox:geometry({y = 16 + (top and top.height or 0), x = capi.screen[capi.mouse.screen].geometry.width - 240 + capi.screen[capi.mouse.screen].geometry.x, width = 240, height = 300})
+--             top.x = data.wibox.x
+--             top.y = 16
+--             bottom.x = data.wibox.x
+--             bottom.y = data.wibox.y+data.wibox.height
         end
         data.wibox.visible = not data.wibox.visible
 
-        top.visible = data.wibox.visible
-        bottom.visible = data.wibox.visible
+--         top.visible = data.wibox.visible
+--         bottom.visible = data.wibox.visible
 
-        if mywibox3 then
+        if mywibox3 and type(mywibox3) == "wibox" then
             mywibox3.visible = not mywibox3.visible
         end
         musicBarVisibility = true
@@ -192,8 +199,11 @@ function new(mywibox3,left_margin)
   volumewidget.bg = beautiful.bg_alternate
   volumepixmap.bg = beautiful.bg_alternate
 
-  vicious.register(volumewidget, amixer_volume_int, '$1%  | ')
-  return {pix = volumepixmap, wid = volumewidget}
+--   vicious.register(volumewidget, amixer_volume_int, '$1%  | ')
+  local l = wibox.layout.fixed.horizontal()
+  l:add(volumepixmap)
+  l:add(volumewidget)
+  return l--{pix = volumepixmap, wid = volumewidget}
 end
 
 

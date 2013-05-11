@@ -5,7 +5,7 @@ local button    = require( "awful.button"  )
 local beautiful = require( "beautiful"     )
 local tag       = require( "awful.tag"     )
 local util      = require( "awful.util"    )
-local shifty    = require( "shifty"        )
+-- local shifty    = require( "shifty"        )
 local config    = require( "config"        )
 local menu      = require( "widgets.menu"  )
 local capi = { image  = image  ,

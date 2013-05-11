@@ -1,12 +1,15 @@
 local setmetatable = setmetatable
+local print = print
+local ipairs = ipairs
 local button       = require( "awful.button" )
 local tag          = require( "awful.tag"    )
 local util         = require( "awful.util"   )
-local shifty       = require( "shifty"       )
+-- local shifty       = require( "shifty"       )
 local beautiful    = require( "beautiful"    )
 local utils        = require( "utils.tools"  )
 local menu         = require( "widgets.menu" )
-local tooltip   = require( "widgets.tooltip" )
+local tooltip2   = require( "widgets.tooltip2" )
+local wibox = require("wibox")
 
 local capi = { image  = image  ,
                screen = screen ,
@@ -19,11 +22,12 @@ local screenMenu = nil               --
 
 local function btn1(id,addOrSub)
     if data[id].selected ~= nil then
-        local screen2 = data[id].selected.screen + addOrSub
+        local screen2 = tag.getscreen(data[id].selected) + addOrSub
         if screen2 > capi.screen.count() then
             screen2 = 1
         end
-        utils.tag_to_screen(data[id].selected, screen2)
+        tag.setscreen(data[id].selected,screen2)
+        tag.viewonly(data[id].selected)
         data[id].selected = tag.selected(screen)
     end
 end
@@ -32,7 +36,8 @@ local function btn3(id,addOrSub)
         screenMenu = menu()
         for i=1,capi.screen.count() do
             screenMenu:add_item({text=i, onclick = function()
-                utils.tag_to_screen(data[screenMenu.id].selected, screen2)
+--                 utils.tag_to_screen(data[screenMenu.id].selected, screen2)
+                tag.setscreen(data[screenMenu.id].selected,screen2)
                 screenMenu:toggle()
             end})
         end
@@ -42,20 +47,22 @@ local function btn3(id,addOrSub)
 end
 local function btn4(id,addOrSub)
     if data[id].selected ~= nil then
-        local screen2 = data[id].selected.screen + addOrSub
+        local screen2 = tag.getscreen(data[id].selected) + addOrSub
         if screen2 > capi.screen.count() then
             screen2 = 1
         end
-        utils.tag_to_screen(data[id].selected, screen2)
+--         utils.tag_to_screen(data[id].selected, screen2)
+        tag.setscreen(data[id].selected,screen2)
     end
 end
 local function btn5(id,addOrSub)
     if data[id].selected ~= nil then
-        local screen2 = data[id].selected.screen - addOrSub
+        local screen2 = tag.getscreen(data[id].selected) - addOrSub
         if screen2 == 0 then
             screen2 = capi.screen.count()
         end
-        utils.tag_to_screen(data[id].selected, screen2)
+--         utils.tag_to_screen(data[id].selected, screen2)
+        tag.setscreen(data[id].selected,screen2)
     end
 end
 
@@ -69,7 +76,6 @@ function new(screen, args)
     local icon       = args.icon         or nil
     local id         = screen..direction --
     local addOrSub   = 0                 --
-    local tt = tooltip("Move Tag Screen to the "..args.direction,{})
     
     
     if direction == "left" then
@@ -82,11 +88,18 @@ function new(screen, args)
     
     data[id] = {}
     if icon ~= nil then
-      data[id].widget       = capi.widget({ type = "imagebox", align = "left" })
-      data[id].widget.image = capi.image(icon)
+      data[id].widget       = wibox.widget.imagebox()
+      tooltip2(data[id].widget ,"Move Tag Screen to the "..args.direction,{})
+      if direction == "left" and screen == 1 then
+        return data[id].widget
+      elseif direction == "right" and screen == capi.screen.count() then
+        return data[id].widget
+      end
+      data[id].widget.visible = false
+      data[id].widget:set_image(icon)
     else
-      data[id].widget       = capi.widget({ type = "textbox",  align = "left" })
-      data[id].widget.text  = direction
+      data[id].widget       = wibox.widget.textbox()
+      data[id].widget:set_text(direction)
     end
     data[id].widget.bg = beautiful.bg_alternate
     
@@ -101,14 +114,14 @@ function new(screen, args)
     data[id].screen = screen
     data[id].direction = direction
     
-    data[id].widget:add_signal("mouse::enter", function ()
-                                                  tt:showToolTip(true)
-                                                  data[id].selected = tag.selected() 
+    data[id].widget:connect_signal("mouse::enter", function ()
+--                                                   tt:showToolTip(true)
+                                                  data[id].selected = tag.selected()
                                                   data[id].widget.bg = beautiful.bg_normal
                                                 end)
-    data[id].widget:add_signal("mouse::leave", function ()
-                                                  tt:showToolTip(false)
-                                                  data[id].selected = nil 
+    data[id].widget:connect_signal("mouse::leave", function ()
+--                                                   tt:showToolTip(false)
+                                                  data[id].selected = nil
                                                   data[id].widget.bg = beautiful.bg_alternate
                                                 end)
 

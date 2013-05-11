@@ -7,7 +7,7 @@ local table        = table
 local print        = print
 local beautiful    = require( "beautiful"      )
 local widget2      = require( "awful.widget"   )
-local wibox        = require( "awful.wibox"    )
+local wibox        = require( "wibox"          )
 local button       = require( "awful.button"   )
 local vicious      = require( "extern.vicious" )
 local util         = require( "awful.util"     )
@@ -40,25 +40,23 @@ local graphUW          = nil
 local graphDW          = nil
 
 --WIDGET
-local graphHeader      = capi.widget({type = "textbox"  })
-local ipHeader         = capi.widget({type = "textbox"  })
-local localHeader      = capi.widget({type = "textbox"  })
-local connHeader       = capi.widget({type = "textbox"  })
-local protHeader       = capi.widget({type = "textbox"  })
-local appHeader        = capi.widget({type = "textbox"  })
-local ip4Info          = capi.widget({type = "textbox"  })
-local ip6Info          = capi.widget({type = "textbox"  })
-local localInfo        = capi.widget({type = "textbox"  })
-local netUsageUp       = capi.widget({type = "textbox"  })
-local downloadImg      = capi.widget({type = "imagebox" })
-local uploadImg        = capi.widget({type = "imagebox" })
-local netUsageDown     = capi.widget({type = "textbox"  })
-local netSpacer        = capi.widget({type = "textbox"  })
-local appHeader        = capi.widget({type = "textbox"  })
-local downlogo         = capi.widget({type = "imagebox" })
-local uplogo           = capi.widget({type = "imagebox" })
-local netDownWidget    = capi.widget({type = 'textbox'  })
-local netUpWidget      = capi.widget({type = 'textbox'  })
+local graphHeader      = wibox.widget.textbox()
+local ipHeader         = wibox.widget.textbox()
+local localHeader      = wibox.widget.textbox()
+local connHeader       = wibox.widget.textbox()
+local protHeader       = wibox.widget.textbox()
+local appHeader        = wibox.widget.textbox()
+local ip4Info          = wibox.widget.textbox()
+local ip6Info          = wibox.widget.textbox()
+local localInfo        = wibox.widget.textbox()
+local netUsageUp       = wibox.widget.textbox()
+local downloadImg      = wibox.widget.imagebox()
+local uploadImg        = wibox.widget.imagebox()
+local netUsageDown     = wibox.widget.textbox()
+local netSpacer        = wibox.widget.textbox()
+local appHeader        = wibox.widget.textbox()
+local downlogo         = wibox.widget.imagebox()
+local uplogo           = wibox.widget.imagebox()
 local netUpGraph       = widget2.graph(                  )
 local netDownGraph     = widget2.graph(                  )
 
@@ -88,8 +86,8 @@ function update()
     local ip6Value = "<i><b>  v6: </b>" .. (f:read("*line") or "") .. "</i>\n\n"
     f:close()
 
-    ip4Info.text = ip4Value
-    ip6Info.text = ip6Value
+    ip4Info:set_markup(ip4Value)
+    ip6Info:set_markup(ip6Value)
 
     local localValue = ""
     f = io.open('/tmp/localNetLookup','r')
@@ -98,37 +96,43 @@ function update()
         f:close()
     end
 
-    localInfo.text = localValue
+    localInfo:set_text(localValue)
 end
 
 local function reload_conn(connMenu,data)
     connMenu:clear()
     for i=0 , #(data.connectionInfo or {}) do
         if data.connectionInfo[i] then
-            local protocol             = capi.widget({ type = "textbox"  })
+            local protocol             = wibox.widget.textbox()
             protocol.width             = 25
             protocol.bg                = "#0F2051"
             protocol.border_width      = 1
             protocol.border_color      = beautiful.bg_normal
-            local application          = capi.widget({ type = "textbox"  })
+            local application          = wibox.widget.textbox()
             application.width          = 40
             application.bg             = "#0F2051"
             application.border_width   = 1
             application.border_color   = beautiful.bg_normal
-            local address              = capi.widget({ type = "textbox"  })
+            local address              = wibox.widget.textbox()
 
             local w         = wibox({ position = "free" , screen = s , ontop = true, bg = beautiful.menu_bg     })
             w.visible = false
-            w.widgets = {
-                            application                                               ,
-                            {protocol,layout = widget2.layout.horizontal.rightleftcached}   ,
-                            layout = widget2.layout.horizontal.leftrightcached              ,
-                            {address,layout = widget2.layout.horizontal.flexcached}         ,
-                        }
+--             w.widgets = {
+--                             application                                               ,
+--                             {protocol,layout = widget2.layout.horizontal.rightleftcached}   ,
+--                             layout = widget2.layout.horizontal.leftrightcached              ,
+--                             {address,layout = widget2.layout.horizontal.flexcached}         ,
+--                         }
 
-            application:margin({ left = 7, right = 7 })
-            application.text =        (data.connectionInfo[i]['protocol']    or "")
-            address.text     = " " .. (data.connectionInfo[i]['site']        or "")
+            local protocolH1l = wibox.layout.align.horizontal()
+            protocolH1l:set_left(application)
+            protocolH1l:set_middle(address)
+            protocolH1l:set_right(protocol)
+            w:set_widget(protocolH1l)
+
+--             application:margin({ left = 7, right = 7 })
+            application:set_text(data.connectionInfo[i]['protocol']    or "")
+            address:set_text(" " .. (data.connectionInfo[i]['site']        or ""))
 
             local found = false
             for k2,v2 in ipairs(capi.client.get()) do
@@ -141,10 +145,10 @@ local function reload_conn(connMenu,data)
             end
 
             if found == false then
-                protocol.text =  (data.connectionInfo[i]['application']    or "")
+                protocol:set_text(data.connectionInfo[i]['application']    or "")
                 protocol.bg_image = nil
             else
-                protocol.text = ""
+                protocol:set_text("")
             end
             appStat[data.connectionInfo[i]['application'  ] ] = (protocolStat[data.connectionInfo[i]['application'] ] or 0) + 1
             protocolStat[data.connectionInfo[i]['protocol'] ] = (protocolStat[data.connectionInfo[i]['protocol'   ] ] or 0) + 1
@@ -156,21 +160,25 @@ end
 local function reload_protstat(protMenu,data)
     protMenu:clear()
     for v, i in next, protocolStat do
-        local protocol3   = capi.widget({ type = "textbox"                        })
-        local protoCount  = capi.widget({ type = "textbox"                        })
+        local protocol3   = wibox.widget.textbox()
+        local protoCount  = wibox.widget.textbox()
         protoCount.bg     = "#0F2051"
         protoCount.width  = 20
         local w           = wibox({ position = "free" , screen = s , ontop = true , bg = beautiful.menu_bg})
         w.visible         = false
-        w.widgets         = {
-                                protoCount                                   ,
-                                protocol3                                    ,
-                                layout = widget2.layout.horizontal.leftrightcached ,
-                            }
-        protoCount:margin({ left = 7, right = 7 })
-        protoCount.text = "x"..i
-        protocol3:margin({ left = 7, right = 7 })
-        protocol3.text = v
+--         w.widgets         = {
+--                                 protoCount                                   ,
+--                                 protocol3                                    ,
+--                                 layout = widget2.layout.horizontal.leftrightcached ,
+--                             }
+        local statHl = wibox.layout.fixed.horizontal()
+        statHl:add(protoCount)
+        statHl:add(protocol3)
+        w:set_widget(statHl)
+--         protoCount:margin({ left = 7, right = 7 })
+        protoCount:set_text("x"..i)
+--         protocol3:margin({ left = 7, right = 7 })
+        protocol3:set_text(v)
         protMenu:add_wibox(w,{height = 20, width = 200})
     end
 end
@@ -178,24 +186,28 @@ end
 local function reload_appstat(appMenu,data)
     appMenu:clear()
     for v, i in next, appStat do
-        local appIcon          = capi.widget({ type = "textbox"                        })
+        local appIcon          = wibox.widget.textbox()
         appIcon.width          = 25
         appIcon.bg             = "#0F2051"
         appIcon.border_color   = beautiful.bg_normal
         appIcon.border_width   = 1
-        local app2             = capi.widget({ type = "textbox"                        })
-        testImage2             = capi.widget({ type = "imagebox"                       })
-        testImage2.image       = capi.image (config.data().iconPath .. "kill.png"       )
+        local app2             = wibox.widget.textbox()
+        testImage2             = wibox.widget.imagebox()
+        testImage2:set_image(config.data().iconPath .. "kill.png"       )
         local w                = wibox({ position = "free" , screen = s , ontop = true , bg = beautiful.menu_bg})
         w.visible              = false
-        w.widgets              = {
-                                    appIcon                                                   ,
-                                    {testImage2,layout = widget2.layout.horizontal.rightleftcached} ,
-                                    layout = widget2.layout.horizontal.leftrightcached              ,
-                                    {app2,layout = widget2.layout.horizontal.flexcached}            ,
-                                 }
+--         w.widgets              = {
+--                                     appIcon                                                   ,
+--                                     {testImage2,layout = widget2.layout.horizontal.rightleftcached} ,
+--                                     layout = widget2.layout.horizontal.leftrightcached              ,
+--                                     {app2,layout = widget2.layout.horizontal.flexcached}            ,
+--                                  }
+        local appstatHl = wibox.layout.align.horizontal()
+        appstatHl:set_left(appIcon)
+        appstatHl:set_middle(app2)
+        appstatHl:set_right(testImage2)
 
-        app2.text = " " .. v .."("..i..")"
+        app2:set_text(" " .. v .."("..i..")")
         for k2,v2 in ipairs(capi.client.get()) do
             if v2.class:lower() == v:lower() or v2.name:lower():find(v:lower()) ~= nil then
                 appIcon.bg_image  = v2.icon
@@ -225,6 +237,14 @@ local function repaint(margin)
     ipInfo               = wibox({ position = "free" , screen = s , ontop = true,height = 30, bg = beautiful.menu_bg})
     graphUW              = wibox({ position = "free" , screen = s , ontop = true,height = 50, bg = beautiful.menu_bg})
     graphDW              = wibox({ position = "free" , screen = s , ontop = true,height = 50, bg = beautiful.menu_bg})
+    
+    graphHeaderW:set_bg(beautiful.fg_normal)
+    ipHeaderW:set_bg(beautiful.fg_normal)
+    connHeaderW:set_bg(beautiful.fg_normal)
+    protHeaderW:set_bg(beautiful.fg_normal)
+    appHeaderW:set_bg(beautiful.fg_normal)
+    
+    
 
     graphHeaderW.visible = false
     ipHeaderW.visible    = false
@@ -233,19 +253,33 @@ local function repaint(margin)
     protHeaderW.visible  = false
     appHeaderW.visible   = false
 
-    graphHeaderW.widgets = { graphHeader , layout = widget2.layout.horizontal.leftrightcached }
-    ipHeaderW.widgets    = { ipHeader    , layout = widget2.layout.horizontal.leftrightcached }
+    local graphHeaderWl = wibox.layout.fixed.horizontal();graphHeaderWl:add( graphHeader )
+    local ipHeaderWl    = wibox.layout.fixed.horizontal();ipHeaderWl:add   ( ipHeader    )
+    local connHeaderWl  = wibox.layout.fixed.horizontal();connHeaderWl:add ( connHeader  )
+    local protHeaderWl  = wibox.layout.fixed.horizontal();protHeaderWl:add ( protHeader  )
+    local appHeaderWl   = wibox.layout.fixed.horizontal();appHeaderWl:add  ( appHeader   )
+    
+    graphHeaderW:set_widget(graphHeaderWl)
+    ipHeaderW:set_widget(ipHeaderWl)
 --     localHeaderW.widgets = { localHeader , layout = widget2.layout.horizontal.leftright }
-    connHeaderW.widgets  = { connHeader  , layout = widget2.layout.horizontal.leftrightcached }
-    protHeaderW.widgets  = { protHeader  , layout = widget2.layout.horizontal.leftrightcached }
-    appHeaderW.widgets   = { appHeader   , layout = widget2.layout.horizontal.leftrightcached }
+    connHeaderW:set_widget(connHeaderWl)
+    protHeaderW:set_widget(protHeaderWl)
+    appHeaderW:set_widget(appHeaderWl)
 
     ipInfo.visible = false
-    ipInfo.widgets = {
-        {ip4Info  , layout = widget2.layout.horizontal.leftrightcached},
-        {ip6Info  , layout = widget2.layout.horizontal.leftrightcached},
-        layout = widget2.layout.vertical.flexcached
-    }
+--     ipInfo.widgets = {
+--         {ip4Info  , layout = widget2.layout.horizontal.leftrightcached},
+--         {ip6Info  , layout = widget2.layout.horizontal.leftrightcached},
+--         layout = widget2.layout.vertical.flexcached
+--     }
+    local ipInfoVl  = wibox.layout.fixed.vertical()
+    local ipInfoH1l = wibox.layout.fixed.horizontal()
+    ipInfoH1l:add(ip4Info)
+    local ipInfoH2l = wibox.layout.fixed.horizontal()
+    ipInfoH2l:add(ip6Info)
+    ipInfoVl:add(ipInfoH1l)
+    ipInfoVl:add(ipInfoH2l)
+    ipInfo:set_widget(ipInfoVl)
 
     local function setup_graph(g)
         g:set_width             (190                )
@@ -260,32 +294,52 @@ local function repaint(margin)
     setup_graph(netDownGraph)
     vicious.register                 (netDownGraph, vicious.widgets.net, '${eth0 down_kb}',1)
 
-    uploadImg.image    = capi.image(config.data().iconPath .. "arrowUp.png"  )
+    uploadImg:set_image(config.data().iconPath .. "arrowUp.png"  )
     uploadImg.resize   = false
-    downloadImg.image  = capi.image(config.data().iconPath .. "arrowDown.png")
+    downloadImg:set_image(config.data().iconPath .. "arrowDown.png")
     downloadImg.resize = false
-    netUsageUp.text    = "<b>Up: </b>"
-    netUsageDown.text  = "<b>Down: </b>"
-    netSpacer.text     = " "
+    netUsageUp:set_markup("<b>Up: </b>")
+    netUsageDown:set_markup("<b>Down: </b>")
+    netSpacer:set_text(" ")
     netSpacer.width    = 10
 
     graphUW.visible = false
-    graphUW.widgets = {
-        {uploadImg    , netUsageUp   , layout = widget2.layout.horizontal.leftrightcached},
-        {netUpGraph   ,                layout = widget2.layout.horizontal.leftrightcached},
-        layout = widget2.layout.vertical.flexcached
-    }
+--     graphUW.widgets = {
+--         {uploadImg    , netUsageUp   , layout = widget2.layout.horizontal.leftrightcached},
+--         {netUpGraph   ,                layout = widget2.layout.horizontal.leftrightcached},
+--         layout = widget2.layout.vertical.flexcached
+--     }
+    local graphUWVl  = wibox.layout.fixed.vertical  ()
+    local graphUWH1l = wibox.layout.fixed.horizontal()
+    local graphUWH2l = wibox.layout.fixed.horizontal()
+    graphUWH1l:add( uploadImg  )
+    graphUWH1l:add( netUsageUp )
+    graphUWH2l:add( netUpGraph )
+    graphUWVl:add ( graphUWH1l )
+    graphUWVl:add ( graphUWH2l )
+    graphUW:set_widget(graphUWVl)
 
     graphDW.visible = false
-    graphDW.widgets = {
-        {downloadImg  , netUsageDown , layout = widget2.layout.horizontal.leftrightcached},
-        {netDownGraph ,                layout = widget2.layout.horizontal.leftrightcached},
-        {netSpacer    ,                layout = widget2.layout.horizontal.leftrightcached},
-        layout = widget2.layout.vertical.flexcached
-    }
+--     graphDW.widgets = {
+--         {downloadImg  , netUsageDown , layout = widget2.layout.horizontal.leftrightcached},
+--         {netDownGraph ,                layout = widget2.layout.horizontal.leftrightcached},
+--         {netSpacer    ,                layout = widget2.layout.horizontal.leftrightcached},
+--         layout = widget2.layout.vertical.flexcached
+--     }
+    local graphDWVl  = wibox.layout.fixed.vertical  ()
+    local graphDWH1l = wibox.layout.fixed.horizontal()
+    local graphDWH2l = wibox.layout.fixed.horizontal()
+    graphDWH1l:add( downloadImg  )
+    graphDWH1l:add( netUsageDown )
+    graphDWH2l:add( netDownGraph )
+    graphUWVl:add ( graphDWH1l   )
+    graphUWVl:add ( graphDWH2l   )
+    graphUWVl:add ( netSpacer    )
+    graphDW:set_widget(graphUWVl)
+    
 
     function formatHeader(wdg,txt)
-        wdg.text= " <span color='".. beautiful.bg_normal .."'><b><tt>".. txt .."</tt></b></span> "
+        wdg:set_markup(" <span color='".. beautiful.bg_normal .."'><b><tt>".. txt .."</tt></b></span> ")
         wdg.bg     = beautiful.fg_normal
         wdg.width  = 240
     end
@@ -350,22 +404,40 @@ function new(margin, args)
         end
     end
 
+    local netDownWidget    = wibox.widget.textbox()
+    local netUpWidget      = wibox.widget.textbox()
     netDownWidget.width = 55
     netUpWidget.width   = 55
-    uplogo.image        = capi.image(config.data().iconPath .. "arrowUp.png"         )
-    downlogo.image      = capi.image(config.data().iconPath .. "arrowDown.png"       )
-    vicious.register(netUpWidget  , vicious.widgets.net   ,  '${eth0 up_kb}KBs'   ,1 )
-    vicious.register(netDownWidget, vicious.widgets.net   ,  '${eth0 down_kb}KBs' ,1 )
+    uplogo:set_image(config.data().iconPath .. "arrowUp.png"         )
+    downlogo:set_image(config.data().iconPath .. "arrowDown.png"       )
+    vicious.register(netUpWidget  , vicious.widgets.net   ,  '${eth0 up_kb}KBs'   ,3 )
+    vicious.register(netDownWidget, vicious.widgets.net   ,  '${eth0 down_kb}KBs' ,3 )
     local btn = util.table.join(button({ }, 1, function () show() end))
     for k,v in ipairs({downlogo,netDownWidget,uplogo,netUpWidget}) do v:buttons(btn) end
 
     for k,v in ipairs({downlogo,netDownWidget,uplogo,netUpWidget}) do
         v.bg = beautiful.bg_alternate
     end
-    return {down_logo = downlogo      ,
+    
+    netDownWidget.fit = function(box, w, h)
+        local w, h = wibox.widget.textbox.fit(box, w, h)
+        return 55, h
+    end
+    
+    netUpWidget.fit = function(box, w, h)
+        local w, h = wibox.widget.textbox.fit(box, w, h)
+        return 55, h
+    end
+
+    local l = wibox.layout.fixed.horizontal()
+    l:add(downlogo)
+    l:add(netDownWidget)
+    l:add(uplogo)
+    l:add(netUpWidget)
+    return l--[[{down_logo = downlogo      ,
             down_text = netDownWidget ,
             up_logo   = uplogo        ,
-            up_text   = netUpWidget   }
+            up_text   = netUpWidget   }]]
 end
 
 setmetatable(_M, { __call = function(_, ...) return new(...) end })

@@ -3,7 +3,7 @@ local table = table
 local button = require("awful.button")
 local beautiful = require("beautiful")
 local naughty = require("naughty")
-local wibox = require("awful.wibox")
+local wibox = require("wibox")
 local tag = require("awful.tag")
 local util = require("awful.util")
 local config = require("config")
@@ -33,25 +33,26 @@ function new(screen2, args)
   xPos = xPos - 415
 
   local aWibox = wibox({ position = "free", screen = s, bg = beautiful.menu_bg or beautiful.bg_normal.."AA"})
+  aWibox.visible = true
   aWibox:geometry({ width = 400, height = 200, x = xPos, y = 40})
-  desktopGrid.addCornerWidget(aWibox,config.data().scr.sec or config.data().scr.pri)
+  desktopGrid.addCornerWidget(aWibox,config.data().scr.sec or config.data().scr.pri,nil,{type = "wibox"})
   --aWibox:rounded_corners(10)
-  wibox.rounded_corners(aWibox,10)
+--   wibox.rounded_corners(aWibox,10)
   
-  local systemWdg = capi.widget({ type = "textbox" })
+  local systemWdg = wibox.widget.textbox()
   systemWdg.text = "  <b><u>System:</u></b>"
   
-  local upTime = capi.widget({ type = "textbox" })
+  local upTime = wibox.widget.textbox()
   upTime.text = "  uptime: 12d 23:32"
   
   vicious.register(upTime, vicious.widgets.uptime,'  uptime: $2d $3h $4m $5s',1)
   
-  local load = capi.widget({ type = "textbox" })
+  local load = wibox.widget.textbox()
   load.text = ", load: 0.032, 0.453, 0.123"
   
   --vicious.register(load, vicious.widgets.load,', load: $1 $2 $3')//TODO restore
   
-  local cpuUsage = capi.widget({ type = "textbox" })
+  local cpuUsage = wibox.widget.textbox()
   cpuUsage.text = "  CPU usage: 30% "
   cpuUsage.width = 110
   
@@ -74,35 +75,35 @@ function new(screen2, args)
   vicious.register(cpuBar, vicious.widgets.cpu,'$1',1)
   
   
-  local sectionSpacer2 = capi.widget({ type = "textbox" })
+  local sectionSpacer2 = wibox.widget.textbox()
   sectionSpacer2.text = "_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _"
   
-  local netWdg = capi.widget({ type = "textbox" })
-  netWdg.text = "  <b><u>Networking:</u></b>"
+  local netWdg = wibox.widget.textbox()
+  netWdg:set_markup("  <b><u>Networking:</u></b>")
   
-  local uploadImg = capi.widget({ type = "imagebox"})
-  uploadImg.image = capi.image(config.data().iconPath .. "arrowUp.png")
+  local uploadImg = wibox.widget.imagebox()
+  uploadImg:set_image(config.data().iconPath .. "arrowUp.png")
   
-  local downloadImg = capi.widget({ type = "imagebox"})
-  downloadImg.image = capi.image(config.data().iconPath .. "arrowDown.png")
+  local downloadImg = wibox.widget.imagebox()
+  downloadImg:set_image(config.data().iconPath .. "arrowDown.png")
   
-  local netUsageUp = capi.widget({ type = "textbox" })
+  local netUsageUp = wibox.widget.textbox()
   netUsageUp.text = "Upload: 10kbs"
   netUsageUp.width = 190
   
   vicious.register(netUsageUp, vicious.widgets.net, 'Upload: ${eth0 up_kb}KBs',1)
   
-  local netSpacer1 = capi.widget({ type = "textbox" })
+  local netSpacer1 = wibox.widget.textbox()
   netSpacer1.text = " "
   netSpacer1.width = 10
   
-  local netUsageDown = capi.widget({ type = "textbox" })
+  local netUsageDown = wibox.widget.textbox()
   netUsageDown.text = "Download: 10kbs"
   netUsageDown.width = 190
   
   vicious.register(netUsageDown, vicious.widgets.net, 'Download: ${eth0 down_kb}KBs',1)
   
-  local netSpacer3 = capi.widget({ type = "textbox" })
+  local netSpacer3 = wibox.widget.textbox()
   netSpacer3.text = "  "
   
   local netUpGraph = widget.graph()
@@ -118,7 +119,7 @@ function new(screen2, args)
   
   vicious.register(netUpGraph, vicious.widgets.net, '${eth0 up_kb}',1)
   
-  local netSpacer2 = capi.widget({ type = "textbox" })
+  local netSpacer2 = wibox.widget.textbox()
   netSpacer2.text = " "
   netSpacer2.width = 10
   
@@ -135,7 +136,7 @@ function new(screen2, args)
   
   vicious.register(netDownGraph, vicious.widgets.net, '${eth0 down_kb}',1)
   
-  local strangeSpacer = capi.widget({ type = "textbox" })
+  local strangeSpacer = wibox.widget.textbox()
   strangeSpacer.text = " "
   --Fake
 --   
@@ -157,29 +158,29 @@ function new(screen2, args)
 --   local vmSrv = widget({ type = "textbox" })
 --   vmSrv.text = "    <u>VM server:</u> up <i>(uptime: 12d 20h 24m, ip: 192.168.2.1</i>)"
   
-  local sectionSpacer = capi.widget({ type = "textbox" })
+  local sectionSpacer = wibox.widget.textbox()
   sectionSpacer.text = "_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _"
   
-  local diskWdg = capi.widget({ type = "textbox" })
+  local diskWdg = wibox.widget.textbox()
   diskWdg.text = "  <b><u>Disk:</u></b>"
   
-  local diskUsageUp = capi.widget({ type = "textbox" })
+  local diskUsageUp = wibox.widget.textbox()
   diskUsageUp.text = "I\O Read: 10kbs"
   diskUsageUp.width = 190
   
  vicious.register(diskUsageUp, vicious.widgets.dio, "I/O Read: ${sda read_kb}kbs", 3, "sdb")
   
-  local diskSpacer1 = capi.widget({ type = "textbox" })
+  local diskSpacer1 = wibox.widget.textbox()
   diskSpacer1.text = " "
   diskSpacer1.width = 10
   
-  local diskUsageDown = capi.widget({ type = "textbox" })
+  local diskUsageDown = wibox.widget.textbox()
   diskUsageDown.text = "I\O Write: 10kbs"
   diskUsageDown.width = 190
   
  vicious.register(diskUsageDown, vicious.widgets.dio, "I/O Write: ${sda write_kb}kbs", 3, "sdb")
   
-  local diskSpacer3 = capi.widget({ type = "textbox" })
+  local diskSpacer3 = wibox.widget.textbox()
   diskSpacer3.text = "  "
   
   local diskUpGraph = widget.graph()
@@ -195,7 +196,7 @@ function new(screen2, args)
   
  vicious.register(diskUpGraph, vicious.widgets.dio, "${sda read_kb}", 3, "sdb")
   
-  local diskSpacer2 = capi.widget({ type = "textbox" })
+  local diskSpacer2 = wibox.widget.textbox()
   diskSpacer2.text = " "
   diskSpacer2.width = 10
   
@@ -212,66 +213,66 @@ function new(screen2, args)
   
  vicious.register(diskDownGraph, vicious.widgets.dio, "${sda write_kb}", 3, "sdb")
   
-  local bottomSpacer = capi.widget({ type = "textbox" })
+  local bottomSpacer = wibox.widget.textbox()
   bottomSpacer.text = " "
   bottomSpacer.width = 10
   
-  aWibox.widgets = {
-    systemWdg,
-    {
-      upTime,
-      load,
-      layout = widget.layout.horizontal.leftrightcached
-    },
-    {
-      cpuUsage,
-      cpuBar.widget,
-      layout = widget.layout.horizontal.leftrightcached
-    },
-    sectionSpacer2,
-    netWdg,
-    {
-      diskSpacer3,
-      downloadImg,
-      netUsageDown,
-      uploadImg,
-      netUsageUp,
-      layout = widget.layout.horizontal.leftrightcached
-    },
-    {
-      netSpacer3,
-      netDownGraph.widget,
-      netSpacer2,
-      netUpGraph.widget,
-      layout = widget.layout.horizontal.leftrightcached
-    },
-    strangeSpacer,
-    serverWdg,
-    --gatewaySrv,
-    --webSrv,
-    --fileSrv,
-    --mediaSrv,
-    --vmSrv,
-    sectionSpacer,
-    diskWdg,
-    {
-      diskSpacer3,
-      downloadImg,
-      diskUsageDown,
-      uploadImg,
-      diskUsageUp,
-      layout = widget.layout.horizontal.leftrightcached
-    },
-    {
-      diskSpacer3,
-      diskDownGraph.widget,
-      diskSpacer2,
-      diskUpGraph.widget,
-      layout = widget.layout.horizontal.leftrightcached
-    },
-    bottomSpacer,
-    layout = widget.layout.vertical.flexcached,
-  }
+--   aWibox.widgets = {
+--     systemWdg,
+--     {
+--       upTime,
+--       load,
+--       layout = widget.layout.horizontal.leftrightcached
+--     },
+--     {
+--       cpuUsage,
+--       cpuBar.widget,
+--       layout = widget.layout.horizontal.leftrightcached
+--     },
+--     sectionSpacer2,
+--     netWdg,
+--     {
+--       diskSpacer3,
+--       downloadImg,
+--       netUsageDown,
+--       uploadImg,
+--       netUsageUp,
+--       layout = widget.layout.horizontal.leftrightcached
+--     },
+--     {
+--       netSpacer3,
+--       netDownGraph.widget,
+--       netSpacer2,
+--       netUpGraph.widget,
+--       layout = widget.layout.horizontal.leftrightcached
+--     },
+--     strangeSpacer,
+--     serverWdg,
+--     --gatewaySrv,
+--     --webSrv,
+--     --fileSrv,
+--     --mediaSrv,
+--     --vmSrv,
+--     sectionSpacer,
+--     diskWdg,
+--     {
+--       diskSpacer3,
+--       downloadImg,
+--       diskUsageDown,
+--       uploadImg,
+--       diskUsageUp,
+--       layout = widget.layout.horizontal.leftrightcached
+--     },
+--     {
+--       diskSpacer3,
+--       diskDownGraph.widget,
+--       diskSpacer2,
+--       diskUpGraph.widget,
+--       layout = widget.layout.horizontal.leftrightcached
+--     },
+--     bottomSpacer,
+--     layout = widget.layout.vertical.flexcached,
+--   }
 end
 
 

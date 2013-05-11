@@ -1,7 +1,7 @@
 local setmetatable = setmetatable
 local menu2        = require("widgets.menu")
 local beautiful    = require( "beautiful"                    )
-local shifty    = require( "shifty"       )
+-- local shifty    = require( "shifty"       )
 local util    = require( "awful.util"                    )
 local type = type
 local config = require("config")

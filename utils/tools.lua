@@ -8,12 +8,12 @@ local beautiful = require("beautiful")
 local tag = require("awful.tag")
 local layout = require("awful.layout")
 local client = require("awful.client")
-local titlebar = require("widgets.titlebar")
+-- local titlebar = require("widgets.titlebar")
 local tabbar = require("widgets.tabbar")
 local config = require("config")
 local layoutmenu = require("customMenu.layoutmenu")
 local util = require("awful.util")
-local shifty = require("shifty")
+-- local shifty = require("shifty")
 
 local capi = { image = image,
                mouse = mouse,
@@ -54,9 +54,9 @@ function tag_to_screen(t, scr)
     if not ts then
         return
     end
+    tag.setscreen(t,src)
     tag.history.restore(ts.screen,1)
-    shifty.set(ts, { screen = scr or
-                    util.cycle(screen.count(), ts.screen + 1)})
+--     shifty.set(ts, { screen = scr or util.cycle(screen.count(), ts.screen + 1)})
     tag.viewonly(ts)
     --capi.mouse.screen = ts.screen
 

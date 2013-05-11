@@ -9,10 +9,15 @@ local button       = require( "awful.button"    )
 local beautiful    = require( "beautiful"       )
 local naughty      = require( "naughty"         )
 local tag          = require( "awful.tag"       )
-local menu         = require( "widgets.menu"    )
+local menu         = require( "radical.context"            )
 local util         = require( "awful.util"      )
 local config       = require( "config"          )
 local themeutils   = require( "utils.theme"     )
+local wibox        = require( "wibox"           )
+local style        = require( "radical.style.classic"      )
+local item_style   = require( "radical.item_style.classic" )
+local color = require("gears.color")
+local cairo = require("lgi").cairo
 
 local capi = { image  = image  ,
                widget = widget ,
@@ -64,8 +69,9 @@ function createMenu(offset)
 
     table.sort(commandArray2, compare)
   
-    mainMenu = menu({filter = true, showfilter = true, filterprefix = "<b>Run: </b>", y = capi.screen[1].geometry.height - 18, x = 147, autodiscard = true,maxvisible=20,has_decoration=false,autoresize= true})
---     mainMenu:set_width(((screen or capi.screen[capi.mouse.screen]).geometry.width)/2)
+    mainMenu = menu({filter = true, showfilter = true, y = capi.screen[1].geometry.height - 18, x = offset, 
+    autodiscard = true,has_decoration=false,x=0,filtersubmenu=true,maxvisible=20,style=style,item_style=item_style,
+    show_filter=true})
     
     mainMenu:add_key_hook({}, "Return", "press", function(menu)
         util.spawn(menu.filterString)
@@ -100,9 +106,9 @@ function createMenu(offset)
        counter = counter + 1
     end
     
-    mainMenu:add_signal("menu::hide", function() currentMenu = nil end)
+    mainMenu:connect_signal("visible::changed", function() currentMenu = nil end)
     
-    mainMenu:add_signal("menu::changed",  function(menu) 
+    mainMenu:connect_signal("menu::changed",  function(menu) 
         local counter = 1
         fkeymap = {}
         for k, v in pairs(menu.items) do
@@ -114,49 +120,64 @@ function createMenu(offset)
         end
     end)
     
-    mainMenu:toggle(true)
-    mainMenu:set_coords(offset or 0,capi.screen[capi.mouse.screen].geometry.height-16)
+--     mainMenu.visible = true
+--     mainMenu:set_coords(offset or 0,capi.screen[capi.mouse.screen].geometry.height-16)
     
     return mainMenu
 end
 
 function new(offset, args)
-    local launcherText = capi.widget({ type = "textbox", align = "left" })
-    launcherText:margin({ left = 30,right=17})
-    launcherText.text  = "Launch"
+    local launcherText = wibox.widget.textbox()
+--     launcherText:margin({ left = 30,right=17})
+    launcherText:set_text("Launch")
     launcherText.bg_resize = true
     
-    local head_img      = capi.image(config.data().iconPath .. "gearA2.png")
-    local extents       = launcherText:extents()
-    extents.height      = 16
-    local normal_bg_img = themeutils.gen_button_bg(head_img,extents,false)
+    local head_img      = config.data().iconPath .. "gearA2.png"
+--     local extents       = launcherText:extents()
+--     extents.height      = 16
+--     local normal_bg_img = themeutils.gen_button_bg(head_img,extents,false)
     local focus_bg_img  --= themeutils.gen_button_bg(head_img,extents,true )
+    
+    local bgb = wibox.widget.background()
+    local l = wibox.layout.fixed.horizontal()
+    local m = wibox.layout.margin(launcherText)
+    m:set_left(30)
+    m:set_right(10)
+    l:add(m)
+    l:fill_space(true)
+    bgb:set_widget(l)
+    local wdg_width = launcherText._layout:get_pixel_extents().width
+    local img2 = cairo.ImageSurface.create(cairo.Format.ARGB32, wdg_width+42, beautiful.default_height)
+    local arr = themeutils.get_end_arrow2({bg_color=beautiful.fg_normal})
+    themeutils.apply_pattern(img2,beautiful.taglist_bg_image_used)
+    img2 = themeutils.compose({img2,head_img,{layer = arr,y=0,x=wdg_width+33}})
+    bgb:set_bgimage(img2)
     
     launcherText.bg_image = normal_bg_img
     local tt = tooltip("Execute a command",{down=true})
     
-    launcherText:add_signal("mouse::enter", function()
+    bgb:connect_signal("mouse::enter", function()
         tt:showToolTip(true)
         if not focus_bg_img then
-            focus_bg_img  = themeutils.gen_button_bg(head_img,extents,true )
+--             focus_bg_img  = themeutils.gen_button_bg(head_img,extents,true )
         end
         launcherText.bg_image = focus_bg_img
     end)
-    launcherText:add_signal("mouse::leave", function()
+    bgb:connect_signal("mouse::leave", function()
         tt:showToolTip(false)
-        launcherText.bg_image = normal_bg_img
+--         launcherText.bg_image = normal_bg_img
     end)
     
-    launcherText:buttons( util.table.join(
-    button({ }, 1, function()
-        if currentMenu ~= nil then
-            currentMenu:toggle(false)
-        else
+    bgb:buttons( util.table.join(
+    button({ }, 1, function(geo)
+        if not currentMenu then
             currentMenu = createMenu(offset)
         end
+        currentMenu.parent_geometry = geo
+        currentMenu.visible = not currentMenu.visible
     end)
     ))
-    return launcherText
+    return bgb
 end
 
 

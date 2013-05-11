@@ -18,7 +18,7 @@ local beautiful = require("beautiful")
 local client = require("awful.client")
 local util = require("awful.util")
 local tag = require("awful.tag")
-local layout = require("awful.widget.layout")
+local layout = require( "wibox.layout" )
 local awButtons = require("awful.button")
 
 --- Tasklist widget module for awful

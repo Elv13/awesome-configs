@@ -2,11 +2,16 @@ local setmetatable = setmetatable
 local print        = print
 local tostring = tostring
 local type         = type
+local ipairs       = ipairs
+local math         = math
+local surface      = require("gears.surface")
 local button       = require( "awful.button" )
 local beautiful    = require( "beautiful"    )
 local naughty      = require( "naughty"      )
 local tag          = require( "awful.tag"    )
-local wibox        = require( "awful.wibox"  )
+local wibox        = require( "wibox"  )
+local color = require("gears.color")
+local cairo = require("lgi").cairo
 
 local capi = { image  = image  ,
                widget = widget,
@@ -16,111 +21,130 @@ module("utils.theme")
 
 local cacheE,cacheB = {},{}
 
-function get_image_from_gradient(grad,width,height)
-    local grad = grad or beautiful.bg_normal_grad
-    local final_img = capi.image.argb32(width, height, nil)
-    final_img:draw_rectangle_gradient(0,0,width,height,grad,0)
-    return final_img
+local function move_and_apply(cr,pat,x,y)
+    cr:set_source_surface(surface.load(pat),x or 0,y or 0)
+    cr:paint()
 end
 
-function set_wibox_background_gradient(w,g)
-    if not g then return end
-    w.bg = "#00000000"
-    w.bg_image = get_image_from_gradient(g,w.width or capi.screen[w.screen or 1].geometry.width,w.height or capi.screen[w.screen or 1].geometry.height)
-end
-
-function get_end_arrow(bg_color,fg_color,padding,direction)
-    local fcolor = fg_color or beautiful.fg_normal
-    local bcolor = bg_color or beautiful.bg_normal_grad  or beautiful.bg_normal
-    local bcolor_type  = type(bcolor) == "table" and not bcolor.pattern
-    local bcolor_type2 = type(bcolor) == "table" and bcolor.pattern == true
-    local hash = bcolor_type2 and bcolor or (fcolor..(bcolor_type and bcolor[1] or bcolor.name or bcolor)..(padding or 0)..(direction or ""))
-    local search = cacheE[hash]
-    if search then return search end
-    local img = capi.image.argb32(9+(padding or 0), 16, nil)
-    if bcolor_type then
-        img:draw_rectangle_gradient(padding or 0, 0, 9, 16, bcolor,0)
-        img:draw_rectangle_gradient(0, 0, padding or 0, 16, bcolor,0)
-    elseif bcolor_type2 then
-        img:insert(bcolor.image)
-    else
-        img:draw_rectangle(padding or 0, 0, 9, 16, true, bcolor)
-        img:draw_rectangle(0, 0, padding or 0, 16, true, bcolor)
+local end_cache = {}
+function get_end_arrow2(args)--bg_color,fg_color,padding,direction
+    local args = args or {}
+    local default_height = beautiful.default_height or 16
+    local hash = (args.width or default_height+1)..(args.padding or 0)..(args.height or default_height)..(args.bg_color or beautiful.fg_normal or "")..(args.direction or "")
+    if end_cache[hash] then
+        return end_cache[hash]
     end
-    for i=0,(8) do
-        img:draw_rectangle((padding or 0) +i,i, 9-i, 1, true, fcolor)
-        img:draw_rectangle((padding or 0)+i,16-i,9-i, 1, true, fcolor)
+    local img = cairo.ImageSurface(cairo.Format.ARGB32, (args.width or default_height/2+1)+(args.padding or 0), args.height or default_height)
+    local cr = cairo.Context(img)
+    cr:move_to(0,0)
+    cr:set_source(color(args.bg_color or beautiful.bg_normal))
+    cr:set_antialias(0)
+    for i=0,(default_height/2+1) do
+        cr:rectangle((args.direction == "left") and 0 or i+1, i               , default_height/2-i, 1)
+        cr:rectangle((args.direction == "left") and 0 or i+1, default_height-i, default_height/2-i, 1)
     end
-    if direction == "left" then
-        img:rotate(2)
-    end
-    cacheE[hash] = img
+    cr:stroke()
+    end_cache[hash] = img
     return img
 end
 
-function get_beg_arrow(bg_color,fg_color,padding,direction)
-    local fcolor = fg_color or beautiful.fg_normal
-    local bcolor = bg_color or beautiful.bg_normal_grad or beautiful.bg_normal
-    local bcolor_type = type(bcolor) == "table" and not bcolor.pattern
-    local bcolor_type2 = type(bcolor) == "table" and bcolor.pattern == true
-    local hash = bcolor_type2 and bcolor or (fcolor..(bcolor_type and bcolor[1] or bcolor.name or bcolor)..(padding or 0)..(direction or ""))
-    local search = cacheB[hash]
-    if search then return search end
-    local img = capi.image.argb32((direction == "left") and 8 or 9+(padding or 0), 16, nil)
-    if bcolor_type then
-        img:draw_rectangle_gradient(padding or 0, 0, 9, 16, bcolor,0)
-    elseif bcolor_type2 then
-        img:insert(bcolor.image)
-    else
-        img:draw_rectangle(0, 0, 9+(padding or 0), 16, true, bcolor)
+function get_end_arrow_wdg2(args)
+    local ib = wibox.widget.imagebox()
+    ib:set_image(get_end_arrow2(args))
+    return ib
+end
+
+local beg_cache = {}
+function get_beg_arrow2(args)--bg_color,fg_color,padding,direction
+    local args = args or {}
+    local default_height = beautiful.default_height or 16
+    local hash = (args.width or default_height/2 + 1)..(args.padding or 0)..(args.height or default_height)..(args.bg_color or beautiful.fg_normal or "")..(args.direction or "")
+    if beg_cache[hash] then
+        return beg_cache[hash]
     end
-    for i=0,(8) do
-        img:draw_rectangle((direction == "left") and 8-i+(padding or 0) or 0,i    , i, 1, true, fcolor)
-        img:draw_rectangle((direction == "left") and 8-i+(padding or 0) or 0,16- i, i, 1, true, fcolor)
+    local img = cairo.ImageSurface(cairo.Format.ARGB32, (args.width or default_height/2)+(args.padding or 0), args.height or default_height)
+    local cr = cairo.Context(img)
+    cr:move_to(0,0)
+    cr:set_source(color(args.bg_color or beautiful.fg_normal))
+    cr:set_antialias(0)
+    for i=0,(default_height/2) do
+        cr:rectangle((args.direction == "left") and default_height/2-i+(args.padding or 0) or 0, i   , i, 1)
+        cr:rectangle((args.direction == "left") and default_height/2-i+(args.padding or 0) or 0, default_height-i, i, 1)
     end
-    if direction == "left" then
-        img:rotate(2)
-    end
-    cacheB[hash] = img
+    cr:fill()
+    beg_cache[hash] = img
     return img
 end
 
-function new_arrow_widget(bg_color,fg_color,padding,direction)
-    local wdg = capi.widget({type="imagebox"})
-    wdg.image = get_end_arrow(bg_color,fg_color,padding,direction)
-    return wdg
+function get_beg_arrow_wdg2(args)
+    local ib = wibox.widget.imagebox()
+    ib:set_image(get_beg_arrow2(args))
+    return ib
 end
 
-function get_beg_arrow_widget(bg_color,fg_color,padding,direction)
-    local imgw = capi.widget({type="imagebox"})
-    imgw.image = get_beg_arrow(bg_color,fg_color,padding,direction)
-    return imgw
-end
+--Take multiple layers or path_to_png and add them on top of each other
+function compose(layer_array)
+    local base,cr = nil,nil
+    for k=1,#layer_array do --Do NOT use ipairs here as the array have some nils
+        local v = layer_array[k]
+        if not base then
+            base = v
+            if type(base) == "string" then
+                base = cairo.ImageSurface.create_from_png(base)
+            end
+            cr = cairo.Context(base)
+        elseif v then
+            local s,x,y,matrix,scale,height = v,0,0,nil,false,nil
+            local layer_type=type(s)
+            if layer_type == "table" then
+                x,y,matrix,scale,height = v.x,v.y,v.matrix,v.scale,v.height
+                s = s.layer
+                layer_type = type(s)
+            end
+            if layer_type == "string" then
+                s = cairo.ImageSurface.create_from_png(s)
+            elseif layer_type == "userdata" then
+                s = surface.load(s)
+            end
 
-function gen_background_image(head_img,bg,tail_img,extents)
-    local img = capi.image.argb32(extents.width, extents.height, nil)
-    img:draw_rectangle(0, 0, extents.width, extents.height, true, bg)
-    img:insert(head_img)
-    img:insert(tail_img,extents.width -12)
-    return img
-end
-
---Create composited background image for buttons
-local arr_nor,arr_foc
-function gen_button_bg(head_img,extents,focus)
-    local arr,bg
-    if focus then
-        if not arr_foc then
-            arr_foc = get_end_arrow(beautiful.bg_highlight,nil,3)
+            if scale then
+                local sw,sh = s:get_width(),s:get_height()
+                local ratio = ((sw > sh) and sw or sh) / ((height or 16)-4)
+                local matrix2 = cairo.Matrix()
+                cairo.Matrix.init_scale(matrix2,ratio,ratio)
+                matrix2:translate(-x,-y)
+                local pattern = cairo.Pattern.create_for_surface(s)
+                pattern:set_matrix(matrix2)
+                cr:set_source(pattern)
+            elseif matrix then
+                local pattern = cairo.Pattern.create_for_surface(s)
+                pattern:set_matrix(matrix)
+                cr:set_source(pattern)
+                cr:move_to(x,y)
+            else
+                cr:set_source_surface(s,x,y)
+            end
+            cr:paint()
         end
-        arr = arr_foc
-        bg  = beautiful.bg_highlight
-    else
-        if not arr_nor then
-            arr_nor = get_end_arrow(beautiful.bg_normal,nil,3)
-        end
-        arr = arr_nor
-        bg  = beautiful.bg_normal
     end
-    return gen_background_image(head_img,bg,arr,extents)
+    return base
+end
+
+--Take a surface or string and apply it on the base
+function apply_pattern(base,pattern)
+    if not pattern then return end
+    local width,height = base:get_width(),base:get_height()
+    local cr = cairo.Context(base)
+    if type(pattern) == "string" then
+        pattern = cairo.ImageSurface.create_from_png(pattern)
+    end
+    cr:set_source_surface(pattern)
+    local pat_width = pattern:get_width()
+    if width/pat_width > 1 then
+        for i=0,math.ceil((width/pat_width)-1) do
+            move_and_apply(cr,pattern,i*pat_width,0)
+        end
+    else
+        move_and_apply(cr,pattern,0,0)
+    end
 end

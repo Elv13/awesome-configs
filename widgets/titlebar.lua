@@ -21,7 +21,7 @@ local button         = require( "awful.button"         )
 local util           = require( "awful.util"           )
 local mouse          = require( "awful.mouse"          )
 local client         = require( "awful.client"         )
-local layout         = require( "awful.widget.layout"  )
+-- local layout         = require( "awful.widget.layout"  )
 local wibox          = require( "awful.wibox"          )
 local tabList        = require( "widgets.tablist"      )
 local config         = require( "config"               )
@@ -175,19 +175,19 @@ local function create(c, args)
         userWidgets = signals['create'][1]({buttons=buttons,icon=appicon,tabbar=tl,wibox=tb},titlebar)
     end
     if not tb.widgets then
-        tb.widgets =                {             --
-            {                                     --
-            appicon                                ,
-            layout = layout.horizontal.leftright   ,
-            }                                      ,
-            buttons.close.widget                   ,
-            buttons.ontop.widget                   , 
-            buttons.maximized.widget               ,
-            buttons.sticky.widget                  ,
-            buttons.floating.widget                ,
-            layout = layout.horizontal.rightleft   ,
-            tl                                     ,
-        }
+--         tb.widgets =                {             --
+--             {                                     --
+--             appicon                                ,
+--             layout = layout.horizontal.leftright   ,
+--             }                                      ,
+--             buttons.close.widget                   ,
+--             buttons.ontop.widget                   , 
+--             buttons.maximized.widget               ,
+--             buttons.sticky.widget                  ,
+--             buttons.floating.widget                ,
+--             layout = layout.horizontal.rightleft   ,
+--             tl                                     ,
+--         }
     end
     
     function titlebar:update(c,event)

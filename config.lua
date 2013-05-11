@@ -50,15 +50,15 @@ function settable_eventW (table, key,value)
     local function digg(val,parent,k2,realT)
         if type(val) == "table" then
             rawset(parent,k2,{["__real_table"]=realT[k2]})
-            
+
             local function mirrorR(table2, key3)
                 return realT[k2][key3]
             end
-            
+
             local function mirrorLen(table2)
                 return #realT[k2]
             end
-            
+
             local function mirrorW(table, key,value)
                 if realT[k2][key] ~= value then
                     realT[k2][key] = value
@@ -67,7 +67,7 @@ function settable_eventW (table, key,value)
                     return realT[k2][key]
                 end
             end
-            
+
             setmetatable(parent[k2], { __index = mirrorR, __newindex = mirrorW, __len =  mirrorLen})
             for k,v in pairs(val) do
                 if type(v) == "table" then
@@ -76,7 +76,7 @@ function settable_eventW (table, key,value)
             end
         end
     end
-    
+
     if data2[key] ~= value then
         startTimer()
         data2[key] = value

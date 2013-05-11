@@ -1,17 +1,21 @@
 local setmetatable = setmetatable
-local table        = table
-local pairs        = pairs
-local ipairs       = ipairs
+local table,math   = table,math
+local pairs,ipairs = pairs,ipairs
 local print        = print
-local button       = require( "awful.button"    )
-local beautiful    = require( "beautiful"       )
-local widget2      = require( "awful.widget"    )
-local config       = require( "config"          )
-local util         = require( "awful.util"      )
-local tools        = require( "utils.tools"     )
-local wibox        = require( "awful.wibox"     )
-local tooltip      = require( "widgets.tooltip" )
-local fdutils      = require( "extern.freedesktop.utils"   )
+local awful        = require( "awful" )
+local tracker      = require( "tyrannical.extra.tracker" )
+local menu4        = require( "radical.context"          )
+local button       = require( "awful.button"             )
+local util         = require( "awful.util"               )
+local widget2      = require( "awful.widget"             )
+local beautiful    = require( "beautiful"                )
+local config       = require( "config"                   )
+local tools        = require( "utils.tools"              )
+local wibox        = require( "wibox"                    )
+local tooltip2     = require( "widgets.tooltip2"         )
+local fdutils      = require( "extern.freedesktop.utils" )
+local color        = require( "gears.color"              )
+local cairo        = require( "lgi"                      ).cairo
 local capi = { image  = image  ,
                screen = screen ,
                widget = widget }
@@ -19,12 +23,54 @@ local capi = { image  = image  ,
 module("widgets.dock")
 local lauchBar,visible_tt,sensibleArea = nil,nil,nil
 
+local function draw_item(data,instances,width)
+    print(data.class)
+    local instances = instances or tracker:get_instances(data.class or "")
+    if not data.icon_surface then
+        data.icon_surface = cairo.ImageSurface.create_from_png(data.icon_path)
+    end
+    if data.damage_w ~= width then
+        local sw,sh = data.icon_surface:get_width(),data.icon_surface:get_height()
+        local ratio = ((sw > sh) and sw or sh) / (width-6)
+        data.icon_surface_pattern = cairo.Pattern.create_for_surface(data.icon_surface)
+        local matrix = cairo.Matrix()
+        cairo.Matrix.init_scale(matrix,ratio,ratio)
+        matrix:translate(-3,-3)
+        data.icon_surface_pattern:set_matrix(matrix)
+        data.damage_w = width
+    end
+    local img4 = cairo.ImageSurface.create(cairo.Format.ARGB32, width, width)
+    cr = cairo.Context(img4)
+    cr:move_to(3,3)
+    cr:set_source(data.icon_surface_pattern)
+    cr:paint()
+    if #instances > 1 then
+        cr:set_source(color("#9A1C00"))
+        cr:arc(width-5-2,5,5,0,2*math.pi)
+        cr:fill()
+        cr:set_source(color("#BDC4BE"))
+        cr:move_to(width-5-6,8)
+        cr:select_font_face("Verdana", cairo.FontSlant.NORMAL, cairo.FontWeight.BOLD)
+        cr:set_font_size(10)
+        cr:show_text(#instances)
+    end
+    if #instances > 0 then
+        cr:set_source(color("#8A0B00"))
+--         cr:set_line_width(0.5)
+--         cr:rectangle(0, 6, 1, width -10)
+--         cr:stroke()
+        cr:arc(0,width/2,3,0,2*math.pi)
+        cr:fill()
+    end
+    data.icon:set_image(img4)
+end
+
 local function hide_tooltip(tt)
     if visible_tt then
-        visible_tt:showToolTip(false)
+        visible_tt:hide()
     end
     if tt then
-        tt:showToolTip(false)
+        tt:hide()
     end
     visible_tt = nil
 end
@@ -43,48 +89,65 @@ local function load_from_dir()
     return toReturn
 end
 
+local function mask(width,height,radius,offset,anti,bg,fg)
+    local img = cairo.ImageSurface.create(cairo.Format.ARGB32, width, height)
+    local cr = cairo.Context(img)
+    cr:set_operator(cairo.Operator.SOURCE)
+    cr:set_antialias(anti)
+    cr:rectangle(0, 0, width, height)
+    cr:set_source(bg)
+    cr:fill()
+    cr:set_source(fg)
+    cr:arc(width-radius-1-offset,radius+offset*2,radius,0,2*math.pi)
+    cr:arc(width-radius-1-offset,height-radius-2*offset,radius,0,2*math.pi)
+    cr:rectangle(0, offset, width-radius-1, height-2*offset)
+    cr:rectangle(width-radius-1-offset, radius+2*offset, radius, height-2*radius-2*offset)
+    cr:fill()
+    return img
+end
+
 local function create(screen, args)
     local width = 40
+    local menu = nil
     local entries = load_from_dir()
-    local height,separator = capi.screen[1].geometry.height -100,capi.widget({type="imagebox"})
-    local vertical_extents,widgets,img = 0,{},capi.image.argb32(width, 7, nil)
-    lauchBar = wibox({ position = "free", screen = s, width = width+9, bg = beautiful.dock_bg})
+    local height,separator = capi.screen[screen or 1].geometry.height -100,wibox.widget.imagebox()
+    local vertical_extents,widgetsL,img = 0, wibox.layout.fixed.vertical()
+    local img = cairo.ImageSurface(cairo.Format.ARGB32, width, 7)
+    local cr = cairo.Context(img)
+    lauchBar = wibox({ position = "free", screen = screen, width = width+9, bg = beautiful.dock_bg})
     lauchBar:geometry({ width = width, height = height, x = 0, y = 50})
     lauchBar.ontop = true
     lauchBar.border_color = beautiful.fg_normal
 
     function displayInfo(anApps, name,tooltip1)
-        anApps:add_signal("mouse::enter", function ()
+        anApps:connect_signal("mouse::enter", function ()
             if not lauchBar.visible then return end
-            hide_tooltip()
             local tt,ext = tooltip1()
             visible_tt = tt
-            tt:showToolTip(true,{x=width,y=lauchBar.y + ext-30})
         end)
 
-        anApps:add_signal("mouse::leave", function ()
+        anApps:connect_signal("mouse::leave", function ()
             local tt,ext = tooltip1()
-            hide_tooltip(visible_tt)
-            hide_tooltip(tt)
         end)
     end
 
-    img:draw_rectangle(0 ,0, width, 11 , true, beautiful.bg_normal)
-    img:draw_rectangle(3 ,4, width-7, 1  , true, beautiful.fg_normal)
-    separator.image = img
+    cr:set_line_width(1)
+    cr:rectangle(3, 2, width -6, 1)
+    cr:set_source(color(beautiful.fg_normal))
+    cr:stroke()
+    separator:set_image(img)
 
     local function add_item(name,command,icon_path,category,description)
-        local icon = capi.widget({ type = "imagebox", align = "left" })
-        icon.image = tools.scale_image(icon_path,width,width,5)
-        vertical_extents = vertical_extents + icon:extents().height
+        local icon = wibox.widget.imagebox()
+--         icon:set_image(icon_path)
+        vertical_extents = vertical_extents + 40--icon:extents().height
         local self_extents,tt = vertical_extents,nil
         local function getTooltip()
             if not tt then
-                tt = tooltip(name,{left=true})
+                tt = tooltip2(icon,name,{left=true})
             end
             return tt,self_extents
         end
-        displayInfo(icon,name,getTooltip)
         icon:buttons(util.table.join(
             button({ }, 1, function()
                 util.spawn(command)
@@ -92,18 +155,54 @@ local function create(screen, args)
                 lauchBar.visible = false
                 sensibleArea.visible = true
             end),
-            button({ }, 3, function()
+            button({ }, 3, function(geometry)
                 hide_tooltip()
-                lauchBar.visible = false
-                sensibleArea.visible = true
+                if menu == nil then
+                    menu = menu4({parent_geo=geometry})
+                    menu:add_item({text="Screen 1",button1=function() print("exec "..menu.current_item) end})
+                    menu:add_item({text="Screen 9",icon=awful.util.getdir("config").. "/theme/darkBlue/Icon/layouts/tileleft.png"})
+                    menu:add_item({text="Sub Menu",sub_menu = function() 
+                        local smenu = menu4({})
+                        smenu:add_item({text="item 1"})
+                        smenu:add_item({text="item 1"})
+                        smenu:add_item({text="item 1"})
+                        smenu:add_item({text="item 1"})
+                        return smenu
+                    end})
+                    menu:add_item({text="Screen 2"})
+                    menu:add_item({text="Screen 3"})
+                    menu:add_item({text="Sub Menu",sub_menu = function() 
+                        local smenu = menu4({})
+                        smenu:add_item({text="item 1",icon=awful.util.getdir("config").. "/theme/darkBlue/Icon/layouts/tileleft.png"})
+                        smenu:add_item({text="item 1",icon=awful.util.getdir("config").. "/theme/darkBlue/Icon/layouts/tileleft.png"})
+                        smenu:add_item({text="item 1",icon=awful.util.getdir("config").. "/theme/darkBlue/Icon/layouts/tileleft.png"})
+                        smenu:add_item({text="item 1",icon=awful.util.getdir("config").. "/theme/darkBlue/Icon/layouts/tileleft.png"})
+                        return smenu
+                    end})
+                    menu:connect_signal("visible::changed",function(_,visible)
+                        if not menu.visible then
+                            lauchBar.visible = false
+                            sensibleArea.visible = true
+                        end
+                    end)
+                end
+                menu.current_item = command
+                menu.parent_geometry = geometry
+                menu.visible = true
             end)
         ))
-        table.insert(widgets,icon)
+        local data = {icon_surface=nil,icon_surface_pattern,damage_w=nil,class=name:lower(),icon=icon,icon_path=icon_path}
+        tracker:connect_signal(name:lower().."::instances",function(instances)
+            draw_item(data,instances,width)
+        end)
+        draw_item(data,nil,width)
+        widgetsL:add(icon)
+        displayInfo(icon,name,getTooltip)
     end
 
     local function add_separator()
         vertical_extents = vertical_extents + 7
-        table.insert(widgets,separator)
+        widgetsL:add(separator)
     end
 
     local function add_items(items)
@@ -151,44 +250,41 @@ local function create(screen, args)
     if vertical_extents < lauchBar.height then
         height = vertical_extents
         lauchBar.height = height
-        lauchBar.y = (capi.screen[1].geometry.height - vertical_extents) / 2
+        lauchBar.y = (capi.screen[screen or 1].geometry.height - vertical_extents) / 2
     end
 
-
-    local img,img2 = capi.image.argb32(width, height, nil),capi.image.argb32(width, height, nil)
-    --Top corner (outer)
-    img:draw_rectangle(width-15 ,0, 15, 15   , true, "#ffffff")
-    img:draw_circle    (width-15, 15, 15, 15, true, "#000000")
-
-    --Bottom corner (outer)
-    img:draw_rectangle(width-15 ,height-15, 15, 15   , true, "#ffffff")
-    img:draw_circle    (width-15, height-15, 15, 15, true, "#000000")
-
-    --Top corner (border)
-    img2:draw_rectangle(width-16 ,0, 16, 16   , true, "#ffffff")
-    img2:draw_circle    (width-16, 16, 15, 15, true, "#000000")
-    img2:draw_rectangle(0 ,0, width, 1   , true, "#ffffff")
-
-    --Bottom corner (border)
-    img2:draw_rectangle (width-16 ,height-16, 16, 16   , true, "#ffffff")
-    img2:draw_circle    (width-16, height-16, 15, 15, true, "#000000")
-    img2:draw_rectangle (0 ,height-1, width, 1   , true, "#ffffff")
-    img2:draw_rectangle (width-1 ,5, 1, height   , true, "#ffffff")
+--     lauchBar.shape_clip      = mask(width-1,height-1,8,1)
+    lauchBar:set_bg(cairo.Pattern.create_for_surface(mask(width,height,8,1,0,color(beautiful.fg_normal),color(beautiful.bg_normal))))
+    lauchBar.shape_bounding  = mask(width,height,10,0,1,color("#00000000"),color("#FFFFFFFF"))._native
     lauchBar.width           = width
-    lauchBar.shape_clip      = img2
-    lauchBar.shape_bounding  = img
-    lauchBar.widgets         = widgets
-    lauchBar.widgets.layout  = widget2.layout.vertical.topbottom
+    lauchBar:set_widget(widgetsL)
 
-    lauchBar:add_signal("mouse::leave", function()lauchBar.visible = false;sensibleArea.visible = true; hide_tooltip() end)
+    lauchBar:connect_signal("mouse::leave", function()
+        hide_tooltip()
+        if (menu and menu.visible ~= true) or not menu then
+            lauchBar.visible = false
+            sensibleArea.visible = true
+        end
+    end)
     return lauchBar
 end
 
+--No, screen 1 is not always at x=0
+local function get_first_screen()
+    for i=1,capi.screen.count() do
+        if capi.screen[i].geometry.x == 0 then
+            return i
+        end
+    end
+end
+
 function new()
-  sensibleArea = wibox({ position = "free", screen = s, width = 1 })
+  local screen = get_first_screen() or 1
+  sensibleArea = wibox({ position = "free", screen = screen, width = 1 })
   sensibleArea.ontop = true
-  sensibleArea:geometry({ width = 1, height = capi.screen[1].geometry.height -100, x = 0, y = 50})
-  sensibleArea:add_signal("mouse::enter", function() local l = lauchBar or create();sensibleArea.visible = false;l.visible = true end)
+  sensibleArea:geometry({ width = 1, height = capi.screen[screen].geometry.height -100, x = 0, y = 50})
+  sensibleArea:connect_signal("mouse::enter", function() local l = lauchBar or create(screen);sensibleArea.visible = false;l.visible = true end)
+  sensibleArea.visible = true
 end
 
 setmetatable(_M, { __call = function(_, ...) return new(...) end })

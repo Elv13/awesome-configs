@@ -1,12 +1,11 @@
 local setmetatable = setmetatable
 local io = io
-local button = require("awful.button")
-local beautiful = require("beautiful")
-local util = require("awful.util")
-local config = require("config")
+local button    = require( "awful.button"    )
+local beautiful = require( "beautiful"       )
+local util      = require( "awful.util"      )
+local config    = require( "config"          )
 local tooltip   = require( "widgets.tooltip" )
-local capi = { image = image,
-               widget = widget }
+local wibox     = require( "wibox"           )
 
 module("widgets.keyboardSwitcher")
 
@@ -24,16 +23,16 @@ local function setupKb()
 end
 
 function new(screen, args) 
-  local keyboardSwitcher = capi.widget({ type = "imagebox"})
+  local keyboardSwitcher = wibox.widget.imagebox()
   local tt = tooltip("Change keyboard layout",{down=true})
-  
-  keyboardSwitcher:add_signal("mouse::enter", function() tt:showToolTip(true); keyboardSwitcher.bg = beautiful.bg_highlight end)
-  keyboardSwitcher:add_signal("mouse::leave", function() tt:showToolTip(false);keyboardSwitcher.bg = beautiful.bg_normal end)
+
+  keyboardSwitcher:connect_signal("mouse::enter", function() tt:showToolTip(true); keyboardSwitcher.bg = beautiful.bg_highlight end)
+  keyboardSwitcher:connect_signal("mouse::leave", function() tt:showToolTip(false);keyboardSwitcher.bg = beautiful.bg_normal end)
 
   if setupKb() ==  "us" then
-    keyboardSwitcher.image = capi.image(config.data().iconPath .. "us_flag.png")
+    keyboardSwitcher:set_image(config.data().iconPath .. "us_flag.png")
   else
-    keyboardSwitcher.image = capi.image(config.data().iconPath .. "canada_flag.png")
+    keyboardSwitcher:set_image(config.data().iconPath .. "canada_flag.png")
   end
 
   keyboardSwitcher:buttons( util.table.join(
@@ -43,15 +42,15 @@ function new(screen, args)
 	  local aFile = io.open('/tmp/kbMap',"w")
 	  aFile:write("ca")
 	  aFile:close() 
-	  util.spawn("setxkbmap ca") 
-	  keyboardSwitcher.image = capi.image(config.data().iconPath .. "canada_flag.png")
+	  util.spawn("setxkbmap ca")
+	  keyboardSwitcher:set_image(config.data().iconPath .. "canada_flag.png")
 	else
 	  keyboardSwitcher.text = "us"
 	  local aFile = io.open('/tmp/kbMap',"w")
 	  aFile:write("us")
-	  aFile:close() 
+	  aFile:close()
 	  util.spawn("setxkbmap us")
-	  keyboardSwitcher.image = capi.image(config.data().iconPath .. "us_flag.png")
+	  keyboardSwitcher:set_image(config.data().iconPath .. "us_flag.png")
 	end
     end)
   ))

@@ -131,7 +131,7 @@ function addWidget(wdg,args,reserved)
     local args = args or {}
     local wdgSet = {}
     local wb
-    if     type(wdg) == "wibox"  then
+    if     args.type == "wibox"  then
         wb = wdg
     elseif type(wdg) == "widget" then
         local aWb       = wibox({position="free"})

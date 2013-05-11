@@ -5,6 +5,7 @@ local table = table
 local assert = assert
 local ipairs = ipairs
 local pairs = pairs
+local print = print
 local type = type
 
 module("utils.profile")
@@ -154,6 +155,10 @@ function func2name(m, tbl, prefix)
                         -- already mapped
                 elseif type(func) == "function" then
                         -- remove the package.loaded. prefix from the loaded methods
+                        if type(name) == "function" then
+                            print("WARNING: prefix '"..prefix.."' seem to have invalid members")
+                            name = "ERROR"
+                        end
                         m[tostring(func)] = { name = (prefix..name):gsub("^package\.loaded\.", ""), id = method_id }
                         method_id = method_id + 1
                 elseif type(func) == "table" and type(name) == "string" then

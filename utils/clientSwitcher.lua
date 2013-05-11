@@ -124,8 +124,8 @@ function approxPos(t)
         end
     end
 end
-tag.attached_add_signal(1, "property::selected", approxPos)
-tag.attached_add_signal(1, "property::layout"  , approxPos)
+-- tag.attached_add_signal(1, "property::selected", approxPos)
+-- tag.attached_add_signal(1, "property::layout"  , approxPos)
 --TODO a client was added/deleted
 
 local function moveFocus()

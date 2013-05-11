@@ -6,13 +6,16 @@ local next         = next
 local type         = type
 local print        = print
 local string       = string
+local math         = math
 local button       = require( "awful.button"     )
 local beautiful    = require( "beautiful"        )
 local widget2      = require( "awful.widget"     )
 local config       = require( "config"           )
 local util         = require( "awful.util"       )
-local wibox        = require( "awful.wibox"      )
+local wibox        = require( "wibox"            )
 local checkbox     = require( "widgets.checkbox" )
+local color        = require( "gears.color"      )
+local cairo        = require( "lgi"              ).cairo
 
 local capi = { image      = image      ,
                widget     = widget     ,
@@ -43,19 +46,24 @@ end
 local function draw_border(menu,item,args)
     local args = args or {}
     local width,height=item.width,item.widget.height+10
-    local img = capi.image.argb32(width, height, nil)
-    img:draw_rectangle(0,0, width, height, true, "#000000")
+    local img = cairo.ImageSurface(cairo.Format.ARGB32, width, height)
+    local cr = cairo.Context(img)
+    cr:set_operator(cairo.Operator.SOURCE)
+    cr:set_source_rgba( 1, 1, 1, 1 )
+    cr:paint()
+    cr:set_source_rgba( 0, 0, 0, 0 )
     if menu.settings.has_decoration ~= false or menu.settings.has_side_deco == true then
-        img:draw_rectangle(0,0, 3, height, true, "#ffffff")
-        img:draw_rectangle(width-3,0, 3, height, true, "#ffffff")
+        cr:rectangle(0,0, 3, height)
+        cr:rectangle(width-3,0, 3, height)
     else
-        img:draw_rectangle(0,0, 1, height, true, "#ffffff")
-        img:draw_rectangle(width-1,0, 1, height, true, "#ffffff")
+        cr:rectangle(0,0, 1, height)
+        cr:rectangle(width-1,0, 1, height)
     end
-    if args.no_horizontal ~= true then
-        img:draw_rectangle(0,0, width, 1, true, "#ffffff")
+    if args.no_horizontal ~= true and not (menu.items[1] == item and menu.settings.has_decoration ~= false) then
+        cr:rectangle(0,0, width, 1)
     end
-    item.widget.shape_clip   = img
+    cr:fill()
+    item.widget.shape_clip   = img._native
     item.widget.border_color = menu.settings.border_color or beautiful.menu_border_color or beautiful.fg_normal
 end
 
@@ -84,11 +92,14 @@ local function getFilterWidget(aMenu)
     local menu = aMenu or currentMenu or nil
     if menu.settings.showfilter == true then
         if menu.filterWidget == nil then
-            local textbox       = capi.widget({type="textbox" })
-            textbox.text        = menu.settings.filterprefix
+            local textbox       = wibox.widget.textbox()
+            textbox:set_markup(menu.settings.filterprefix)
             local filterWibox   = wibox({ position = "free", visible = false, ontop = true, menu_border_width = beautiful.menu_border_width or 1, border_color = beautiful.border_normal })
-            filterWibox.bg = beautiful.bg_highlight
-            filterWibox.widgets = { textbox, layout = widget2.layout.horizontal.leftrightcached }
+            filterWibox:set_bg(beautiful.bg_highlight)
+            local l = wibox.layout.fixed.horizontal()
+            l:add(textbox)
+            filterWibox:set_widget(l)
+            filterWibox.visible = true
             menu.filterWidget   = {textbox = textbox, widget = filterWibox, hidden = false, width = menu.settings.itemWidth, height = menu.settings.itemHeight}
             filterWibox:buttons( util.table.join(button({},3,function() menu:toggle(false) end)))
             draw_border(menu,menu.filterWidget,{})
@@ -116,23 +127,31 @@ local function getScrollWdg_common(aMenu,widget,step)
     local menu = aMenu or currentMenu or nil
     if menu.settings.maxvisible ~= nil and #menu.items > menu.settings.maxvisible then
         if not menu[widget] then
-            local arrow = capi.widget({type="imagebox"})
-            arrow.image = capi.image(beautiful["menu_scrollmenu_".. (widget == "scrollUpWdg" and "up" or "down") .."_icon"])
+            local arrow = wibox.widget.imagebox()
+            arrow:set_image(beautiful["menu_scrollmenu_".. (widget == "scrollUpWdg" and "up" or "down") .."_icon"])
             local wb = getWibox()
-            wb.bg = beautiful.bg_highlight
+            wb.visible = true
+            wb:set_bg(beautiful.bg_highlight)
             wb:buttons( util.table.join(
                         button({ }, 1 , function() menu:scroll( step  ) end),
                         button({ }, 3 , function() menu:toggle( false ) end),
                         button({ }, 4 , function() menu:scroll(   1   ) end),
                         button({ }, 5 , function() menu:scroll(  -1   ) end)
                     ))
-            local test2 = capi.widget({type="textbox"})
-            test2.text = " "
-            wb.widgets = {test2,arrow,test2,layout = widget2.layout.horizontal.flexcached}
+            local test2 = wibox.widget.textbox()
+            test2:set_text(" ")
+--             wb.widgets = {test2,arrow,test2,layout = widget2.layout.horizontal.flexcached}
+            local l = wibox.layout.fixed.horizontal()
+            local m = wibox.layout.margin(arrow)
+            m:set_left(50)
+            m:set_right(50)
+            l:add(m)
+            l:fill_space(true)
+            wb:set_widget(l)
             menu[widget] = {widget = wb, hidden = false, width = menu.settings.itemWidth, height = menu.settings.itemHeight}
             draw_border(menu,menu[widget],{})
-            wb:add_signal("mouse::enter", function() wb.bg = beautiful.bg_alternate end)
-            wb:add_signal("mouse::leave", function() wb.bg = beautiful.bg_highlight end)
+            wb:connect_signal("mouse::enter", function() wb:set_bg(beautiful.bg_alternate )end)
+            wb:connect_signal("mouse::leave", function() wb:set_fg(beautiful.bg_highlight )end)
             table.insert(menu.otherwdg,menu[widget])
         end
         return menu[widget]
@@ -154,9 +173,35 @@ local function activateKeyboard(curMenu)
     if (not currentMenu.settings.nokeyboardnav) and currentMenu.settings.visible == true then
         grabKeyboard = true
         capi.keygrabber.run(function(mod, key, event)
+--         print(mod[1],"'"..key.."'",event) --DEBUG
             for k,v in pairs(currentMenu.filterHooks) do --TODO modkeys
+                if k.key == "Mod4" and (key == "End" or key == "Super_L") then
+                    local found = false
+                    for k3,v3 in ipairs(mod) do
+                        if v3 == "Mod4" and event == k.event then
+                            local retval = v(currentMenu,mod)
+                        end
+                    end
+                end
+--                 if #mod == #k.mod then
+--                     for k2,v2 in ipairs(k.mod) do
+--                         local found = false
+--                         for k3,v3 in ipairs(mod) do
+--                             if v3 == v2 then found = true end
+--                         end
+--                         if not found then
+--                             stopGrabber()
+--                             grabKeyboard = false
+--                             return false
+--                         end
+--                     end
+--                 else
+--                     stopGrabber()
+--                     grabKeyboard = false
+--                     return false
+--                 end
                 if k.key == key and k.event == event then
-                    local retval = v(currentMenu)
+                    local retval = v(currentMenu,mod)
                     if retval == false then
                         grabKeyboard = false
                     end
@@ -180,15 +225,15 @@ local function activateKeyboard(curMenu)
                 currentMenu.filterString = currentMenu.filterString:sub(1,-2)
                 currentMenu:filter(currentMenu.filterString:lower())
                 if getFilterWidget() ~= nil then
-                    getFilterWidget().textbox.text = getFilterWidget().textbox.text:sub(1,-2)
+                    getFilterWidget().textbox:set_markup(getFilterWidget().textbox._layout.text:sub(1,-2))
                 end
             elseif currentMenu.settings.filter == true and key:len() == 1 then
                 currentMenu.filterString = currentMenu.filterString .. key:lower()
-                if getFilterWidget() ~= nil then
-                    local fw = getFilterWidget()
-                    fw.textbox.text = fw.textbox.text .. key:lower()
-                    if currentMenu.settings.autoresize and fw.textbox:extents().width > currentMenu.settings.itemWidth then
-                        currentMenu.settings.itemWidth = fw.textbox:extents().width + 40
+                local fw = getFilterWidget()
+                if fw ~= nil then
+                    fw.textbox:set_markup(fw.textbox._layout.text .. key:lower())
+                    if currentMenu.settings.autoresize and fw.textbox._layout:get_pixel_extents().width > currentMenu.settings.itemWidth then
+                        currentMenu.settings.itemWidth = fw.textbox._layout:get_pixel_extents().width + 40
                         currentMenu.hasChanged = true
                         currentMenu:set_coords()
                     end
@@ -204,8 +249,8 @@ end
 
 -- Individual menu function
 function new(args)
-  local subArrow  = capi.widget({type="imagebox"             } )
-  subArrow.image  = capi.image ( beautiful.menu_submenu_icon   )
+  local subArrow  = wibox.widget.imagebox()
+  subArrow:set_image( beautiful.menu_submenu_icon   )
 
   local function createMenu(args)
     args          = args or {}
@@ -271,9 +316,10 @@ function new(args)
         self:toggle_sub_menu(nil,true,false)
         local w = getFilterWidget(self)
         if w and menu.filterString ~= "" then
-            w.textbox.text = menu.settings.filterprefix
+            w.textbox:set_markup(menu.settings.filterprefix)
             menu.filterString = ""
             menu:filter("",nil,true)
+--             w.wdg.visible = true
         end
       end
 
@@ -650,7 +696,7 @@ function new(args)
       function data:check(value)
           self.checked = (value == nil) and self.checked or ((value == false) and false or value)
           if self.checked == nil then return end
-          self.widgets.checkbox = self.widgets.checkbox or capi.widget({type="imagebox"})
+          self.widgets.checkbox = self.widgets.checkbox or wibox.widget.imagebox()
           self.widgets.checkbox.image = (self.checked == true) and checkbox.checked() or checkbox.unchecked() or nil
           self.widgets.checkbox.bg = beautiful.bg_focus
       end
@@ -658,7 +704,7 @@ function new(args)
       function data:hightlight(value)
           if not self.widget or value == nil then return end
 
-          self.widget.bg = ((value == true) and menu.settings.bg_focus or data.bg) or ""
+          self.widget:set_bg(((value == true) and menu.settings.bg_focus or data.bg) or "")
           if value == true then
               table.insert(menu.highlighted,self)
           end
@@ -698,15 +744,21 @@ function new(args)
       end
 
       local optionalWdgFeild = {"width","bg"}
-      local createWidget = function(field,type2)
-        local newWdg = (data[field] ~= nil) and capi.widget({type=type2 }) or nil
+      local function createWidget(field,type2)
+        local newWdg
+        if type2 == "imagebox" then
+          newWdg = wibox.widget.imagebox()
+        elseif type2 == "textbox" then
+             newWdg = wibox.widget.textbox()
+        end
+--         local newWdg = (data[field] ~= nil) and capi.widget({type=type2 }) or nil
         if newWdg ~= nil and type2 == "textbox" then
-            data[field] = string.gsub(data[field], "&", "and")
-            newWdg.text  = data[field]
+            data[field] = string.gsub(data[field] or "", "&", "and")
+            newWdg:set_markup(data[field] or "")
         elseif newWdg ~= nil and type2 == "imagebox" and type(data[field]) == "string" then
-            newWdg.image = capi.image(data[field])
+            newWdg:set_image(data[field])
         elseif newWdg ~= nil and type2 == "imagebox" then
-            newWdg.image = data[field]
+            newWdg:set_image(data[field])
         end
 
         for k,v in pairs(optionalWdgFeild) do
@@ -723,17 +775,47 @@ function new(args)
       data.widgets.suffix = createWidget("suffix", "textbox"  )
       data.widgets.wdg    = createWidget("text"  , "textbox"  )
       data.widgets.icon   = createWidget("icon"  , "imagebox" )
-      data.widgets.wdg:margin({ left = 7, right = 7 })
+      local m = wibox.layout.margin(data.widgets.wdg)
+      m:set_left(7)
+      m:set_right(7)
 
-      aWibox.bg = data.bg
-      data.widgets.wdg.text = "<span color=\"".. data.fg .."\" >"..(data.widgets.wdg.text or "").."</span>"
+      aWibox:set_bg(data.bg)
+      data.widgets.wdg:set_markup("<span color=\"".. data.fg .."\" >"..(data.widgets.wdg._layout.text or "").."</span>")
       data.widgets.wdg.align = data.align
+      local l = wibox.layout.align.horizontal()
+      l:set_middle(m)
+      local l_l = wibox.layout.fixed.horizontal()
+      local l_r = wibox.layout.fixed.horizontal()
+      l_l:add(data.widgets.prefix)
+      local m = wibox.layout.margin(data.widgets.icon)
+      m:set_margins(2)
+      l_l:add(m)
+      if data.addwidgets then
+        l_r:add(data.addwidgets)
+      end
+      l_r:add(data.widgets.suffix)
+      if data.widgets.checkbox then
+        l_r:add(data.widgets.checkbox)
+      end
+      if subArrow2 then
+        l_r:add(subArrow2)
+      end
+      l:set_right(l_r)
+      l:set_left(l_l)
+--       local bgb = wibox.widget.background()
+--       bgb:set_widget(l)
+--       data.widgets.bgwdg = bgb
+      aWibox:set_widget(l)
 
+      --Check width
       if menu.settings.autoresize then
         local twidth = 0
         for k,v in pairs(data.widgets) do
-            if v then
-                twidth = twidth + v:extents().width
+            if v and v._layout then
+                print("HAPPY",v._layout:get_pixel_extents().width,(v.get_width and v:get_width() or "no"),"<span color=\"".. data.fg .."\" >"..(data.widgets.wdg._layout.text or "").."</span>")
+                twidth = twidth + v._layout:get_pixel_extents().width
+            elseif v and v._image then
+                twidth = twidth + v._image:get_width()
             end
         end
         if twidth > self.settings.itemWidth then
@@ -743,12 +825,12 @@ function new(args)
       end
 
       --aWibox.widgets = {{data.widgets.prefix,data.widgets.icon, {subArrow2,data.widgets.checkbox,data.widgets.suffix, layout = widget2.layout.horizontal.rightleft},data.addwidgets, layout = widget2.layout.horizontal.leftright,{data.widgets.wdg, layout = widget2.layout.horizontal.flex}}, layout = widget2.layout.vertical.flex }
-      aWibox.widgets = {{data.widgets.prefix,data.widgets.icon,data.widgets.wdg, {subArrow2,data.widgets.checkbox,data.widgets.suffix, layout = widget2.layout.horizontal.rightleftcached},data.addwidgets, layout = widget2.layout.horizontal.leftrightcached}, layout = widget2.layout.vertical.flexcached }
+--       aWibox.widgets = {{data.widgets.prefix,data.widgets.icon,data.widgets.wdg, {subArrow2,data.widgets.checkbox,data.widgets.suffix, layout = widget2.layout.horizontal.rightleftcached},data.addwidgets, layout = widget2.layout.horizontal.leftrightcached}, layout = widget2.layout.vertical.flexcached }
 
       registerButton(aWibox, data)
 
-      aWibox:add_signal("mouse::enter", function() toggleItem(true) end)
-      aWibox:add_signal("mouse::leave", function() toggleItem(false) end)
+      aWibox:connect_signal("mouse::enter", function() toggleItem(true) end)
+      aWibox:connect_signal("mouse::leave", function() toggleItem(false) end)
       aWibox.visible = false
       draw_border(menu,data,{})
       if menu.settings.parent and menu.is_embeded_menu then
@@ -768,6 +850,7 @@ function new(args)
     end
 
     function menu:add_wibox(wibox,args)
+        local args = args or {}
         local data     = {
             widget     = wibox,
             hidden     = false,
@@ -783,7 +866,7 @@ function new(args)
         function data:hightlight(value) end
         draw_border(menu,data,{no_horizontal=false})
         registerButton(wibox,data)
-        wibox:add_signal("mouse::enter", function() currentMenu = self end)
+        wibox:connect_signal("mouse::enter", function() currentMenu = self end)
         table.insert(self.items, data)
         self.hasChanged = true
         if menu.settings.parent and menu.is_embeded_menu then
@@ -816,43 +899,63 @@ function gen_menu_decoration(width,args)
     w.visible,w2.visible = false,false
     w.border_color,w2.border_color = beautiful.menu_border_color or beautiful.fg_normal,beautiful.menu_border_color or beautiful.fg_normal
     local function do_gen_menu_top(width, radius,padding)
-        local img = capi.image.argb32(width, 23, nil)
+        local img = cairo.ImageSurface(cairo.Format.ARGB32, width,23)
+        local cr = cairo.Context(img)
+        cr:set_operator(cairo.Operator.SOURCE)
+--         cr:set_antialias(1)
+        cr:set_source_rgba( 1, 1, 1, 1 )
+        cr:paint()
+        cr:set_source_rgba( 0, 0, 0, 0 )
         if not args.down then
-            img:draw_rectangle((args.arrow_x or 20)+20+6, 0, width-(args.arrow_x or 20)+20, 13 + (padding or 0), true, "#ffffff")
-            img:draw_rectangle(padding or 0,0, (args.arrow_x or 20), 13 + (padding or 0), true, "#ffffff")
-            img:draw_rectangle((args.arrow_x or 20),0,3, 13+ (padding or 0), true, "#ffffff")
+            cr:rectangle((args.arrow_x or 20)+20+6, 0, width-(args.arrow_x or 20)+20, 13 + (padding or 0), true, "#ffffff")
+            cr:rectangle(padding or 0,0, (args.arrow_x or 20), 13 + (padding or 0), true, "#ffffff")
+            cr:rectangle((args.arrow_x or 20),0,3, 13+ (padding or 0), true, "#ffffff")
         else
-            img:draw_rectangle((args.arrow_x or 20)+20+6, 10-(padding or 0), width-(args.arrow_x or 20)+20, 13 - (padding or 0), true, "#ffffff")
-            img:draw_rectangle(padding or 0,10-(padding or 0), 20, 13 - (padding or 0), true, "#ffffff")
+            cr:rectangle((args.arrow_x or 20)+20+6, 10-(padding or 0), width-(args.arrow_x or 20)+20, 13 - (padding or 0), true, "#ffffff")
+            cr:rectangle(padding or 0,10-(padding or 0), 20, 13 - (padding or 0), true, "#ffffff")
         end
         for i=0,(13) do
             if not args.down then
-                img:draw_rectangle((args.arrow_x or 20)+i+3   , padding or 0         , 1, 13-i, true, "#ffffff")
-                img:draw_rectangle((args.arrow_x or 20)+20+6-i, padding or 0         , 1, 13-i, true, "#ffffff")
+                cr:rectangle((args.arrow_x or 20)+i+3   , padding or 0         , 1, 13-i, true, "#ffffff")
+                cr:rectangle((args.arrow_x or 20)+20+6-i, padding or 0         , 1, 13-i, true, "#ffffff")
             else
-                img:draw_rectangle((args.arrow_x or 20)+13+i  , 26-3-i-(padding or 0), 1, i   , true, "#ffffff")
-                img:draw_rectangle((args.arrow_x or 20)+13-i  , 26-3-i-(padding or 0), 1, i   , true, "#ffffff")
+                cr:rectangle((args.arrow_x or 20)+13+i  , 26-3-i-(padding or 0), 1, i   , true, "#ffffff")
+                cr:rectangle((args.arrow_x or 20)+13-i  , 26-3-i-(padding or 0), 1, i   , true, "#ffffff")
             end
         end
-        img:draw_rectangle (0 , (not args.down) and 13 or 0 , radius + (padding or 0), radius + (padding or 0), true, "#ffffff")
-        img:draw_circle    (10, (not args.down) and 23+1 or 0, radius - ((not args.down) and 0 or 1), radius  - ((not args.down) and 0 or 1), true, "#000000")
-        img:draw_rectangle (width-10 + (padding or 0), (not args.down) and 13 or 0 + (padding or 0) , radius, radius, true, "#ffffff")
-        img:draw_circle(width-10 + (padding or 0), ((not args.down) and (23+1) or 0) + (pdding or 0), radius- ((not args.down) and 0 or 1), radius- ((not args.down) and 0 or 1), true, "#000000")
+        cr:rectangle (0 , (not args.down) and 13 or 0 , radius + (padding or 0), radius + (padding or 0), true, "#ffffff")
+        cr:rectangle (width-10 + (padding or 0), (not args.down) and 13 or 0 + (padding or 0) , radius, radius, true, "#ffffff")
+        cr:fill()
+--         cr:draw_circle    (10, (not args.down) and 23+1 or 0, radius - ((not args.down) and 0 or 1), radius  - ((not args.down) and 0 or 1), true, "#000000")
+        cr:set_source_rgba( 1, 1, 1, 1 )
+        cr:arc(10,(not args.down) and 23 or 0,radius- ((not args.down) and 0 or 1),0,2*math.pi)
+--         cr:draw_circle(width-10 + (padding or 0), ((not args.down) and (23+1) or 0) + (pdding or 0), radius- ((not args.down) and 0 or 1), radius- ((not args.down) and 0 or 1), true, "#000000"
+        cr:arc(width-10 + (padding or 0), ((not args.down) and (23) or 0) + (pdding or 0),radius- ((not args.down) and 0 or 1),0,2*math.pi)
+        cr:fill()
         return img
     end
     local function do_gen_menu_bottom(width,radius,padding,down)
-        local img = capi.image.argb32(width, 10, nil)
-        img:draw_rectangle(0,not down and radius or 0, width, padding or 0, true, "#ffffff")
-        img:draw_rectangle(0,0, radius + (padding or 0), radius + (padding or 0), true, "#ffffff")
-        img:draw_circle(10, down and 10 or 0, radius-1, radius-1, true, "#000000")
-        img:draw_rectangle(width-10,0, radius + (padding or 0), radius + (padding or 0), true, "#ffffff")
-        img:draw_circle(width-10, down and 10 or 0, radius-1, radius-1, true, "#000000")
-        return img
+        local img5 = cairo.ImageSurface(cairo.Format.ARGB32, width,10)
+        local cr = cairo.Context(img5)
+        cr:set_operator(cairo.Operator.SOURCE)
+--         cr:set_antialias(1)
+        cr:set_source_rgba( 1, 1, 1, 1 )
+        cr:paint()
+        cr:set_source_rgba( 0, 0, 0, 0 )
+        cr:rectangle(0,not down and radius or 0, width, padding or 0)
+        cr:rectangle(0,0, radius + (padding or 0), radius + (padding or 0))
+        cr:rectangle(width-10,0, radius + (padding or 0), radius + (padding or 0))
+        cr:fill()
+        cr:set_source_rgba( 1, 1, 1, 1 )
+        cr:arc(10,down and 10 or 0,radius,0,2*math.pi)
+        cr:arc(width-10,down and 10 or 0,radius,0,2*math.pi)
+        cr:fill()
+        return img5
     end
-    w.shape_clip      = (not args.down and not args.noArrow) and do_gen_menu_top(width-(3),7,3)    or do_gen_menu_bottom(width,7,3,true)
-    w.shape_bounding  = (not args.down and not args.noArrow) and do_gen_menu_top(width,10,0)       or do_gen_menu_bottom(width,10,0,true)
-    w2.shape_clip     = (not args.down or   args.noArrow) and do_gen_menu_bottom(width,7,3,false)  or do_gen_menu_top(width-(3),7,3)
-    w2.shape_bounding = (not args.down or   args.noArrow) and do_gen_menu_bottom(width,10,0,false) or do_gen_menu_top(width,10,0)
+    w.shape_clip      = ((not args.down and not args.noArrow) and do_gen_menu_top(width-(3),7,3)    or do_gen_menu_bottom(width,7,3,true))._native
+    w.shape_bounding  = ((not args.down and not args.noArrow) and do_gen_menu_top(width,10,0)       or do_gen_menu_bottom(width,10,0,true))._native
+    w2.shape_clip     = ((not args.down or   args.noArrow) and do_gen_menu_bottom(width,7,3,false)  or do_gen_menu_top(width-(3),7,3))._native
+    w2.shape_bounding = ((not args.down or   args.noArrow) and do_gen_menu_bottom(width,10,0,false) or do_gen_menu_top(width,10,0))._native
     return w,w2
 end
 

@@ -1,16 +1,22 @@
 local setmetatable = setmetatable
 local string       = string
 local io           = io
+local print        = print
 local os           = os
 local table        = table
-local button       = require( "awful.button"             )
-local beautiful    = require( "beautiful"                )
-local util         = require( "awful.util"               )
-local menu         = require( "widgets.menu"             )
-local config       = require( "config"                   )
-local tooltip      = require( "widgets.tooltip"          )
-local fdutil       = require( "extern.freedesktop.utils" )
-local themeutils   = require( "utils.theme"              )
+local button       = require( "awful.button"               )
+local beautiful    = require( "beautiful"                  )
+local util         = require( "awful.util"                 )
+local menu         = require( "radical.context"            )
+local config       = require( "config"                     )
+local tooltip2     = require( "widgets.tooltip2"           )
+local fdutil       = require( "extern.freedesktop.utils"   )
+local themeutils   = require( "utils.theme"                )
+local wibox        = require( "wibox"                      )
+local style        = require( "radical.style.classic"      )
+local item_style   = require( "radical.item_style.classic" )
+local color        = require( "gears.color"                )
+local cairo        = require( "lgi"                        ).cairo
 local capi = { image  = image  ,
                screen = screen ,
                widget = widget ,
@@ -19,7 +25,9 @@ local capi = { image  = image  ,
 module("customMenu.places")
 
 local function read_kde_bookmark(offset)
-    local m = menu({filter = true, showfilter = true, y = capi.screen[1].geometry.height - 18, x = offset, autodiscard = true,has_decoration=false})
+    local m = menu({filter = true, showfilter = true, y = capi.screen[1].geometry.height - 18, x = offset, 
+    autodiscard = true,has_decoration=false,x=0,filtersubmenu=true,maxvisible=20,style=style,item_style=item_style,
+    show_filter=true})
     local f = io.open(os.getenv("HOME").. '/.kde/share/apps/kfileplaces/bookmarks.xml','r')
     local inBook=false
     local currentItem,toReturn = {},{}
@@ -49,40 +57,60 @@ end
 
 function new(offset, args)
     local data = nil
-    local tt = tooltip("Folder shortcut",{down=true})
 
-    local mylauncher2text = capi.widget({ type = "textbox" })
-    mylauncher2text:margin({ left = 30,right = 17})
-    mylauncher2text.text = "Places"
+    local mylauncher2text = wibox.widget.textbox()--capi.widget({ type = "textbox" })
+    tooltip2(mylauncher2text,"Folder shortcut",{down=true})
+--     mylauncher2text:margin({ left = 30,right = 17})
+    mylauncher2text:set_text("Places")
     mylauncher2text.bg_align = "left"
     mylauncher2text.bg_resize = true
 
-    local head_img      = capi.image(config.data().iconPath .. "tags/home2.png")
-    local extents       = mylauncher2text:extents()
-    extents.height      = 16
-    local normal_bg_img = themeutils.gen_button_bg(head_img,extents,false)
-    local focus_bg_img  --= themeutils.gen_button_bg(head_img,extents,true )
+    local head_img      = config.data().iconPath .. "tags/home2.png"
+--     local extents       = mylauncher2text:extents()
+--     extents.height      = 16
+--     local normal_bg_img = themeutils.gen_button_bg(head_img,extents,false) --TODO port
+--     local focus_bg_img  --= themeutils.gen_button_bg(head_img,extents,true )
+
+    local bgb = wibox.widget.background()
+    local l = wibox.layout.fixed.horizontal()
+    local m = wibox.layout.margin(mylauncher2text)
+    m:set_left(30)
+    m:set_right(10)
+    l:add(m)
+    l:fill_space(true)
+    bgb:set_widget(l)    
+    local wdg_width = mylauncher2text._layout:get_pixel_extents().width
+    local img2 = cairo.ImageSurface.create(cairo.Format.ARGB32, wdg_width+42, beautiful.default_height)
+    local arr = themeutils.get_end_arrow2({bg_color=beautiful.fg_normal})
+    themeutils.apply_pattern(img2,beautiful.taglist_bg_image_used)
+    img2 = themeutils.compose({img2,head_img,{layer = arr,y=0,x=wdg_width+41-beautiful.default_height/2}})
+    bgb:set_bgimage(img2)
 
     mylauncher2text.bg_image = normal_bg_img
 
-    mylauncher2text:add_signal("mouse::enter", function()
-        tt:showToolTip(true)
-        if not focus_bg_img then 
-            focus_bg_img  = themeutils.gen_button_bg(head_img,extents,true )
-        end
-        mylauncher2text.bg_image = focus_bg_img
-    end)
-    mylauncher2text:add_signal("mouse::leave", function() tt:showToolTip(false);mylauncher2text.bg_image = normal_bg_img  end)
+--     bgb:connect_signal("mouse::enter", function()
+--         tt:showToolTip(true)
+--         if not focus_bg_img then 
+--             focus_bg_img  = themeutils.gen_button_bg(head_img,extents,true )
+--         end
+--         mylauncher2text.bg_image = focus_bg_img
+--     end)
+--     bgb:connect_signal("mouse::leave", function() tt:showToolTip(false);mylauncher2text.bg_image = normal_bg_img  end)
 
-    mylauncher2text:buttons( util.table.join(
-        button({ }, 1, function()
-        tt:showToolTip(false)
+    bgb:buttons( util.table.join(
+        button({ }, 1, function(geometry)
+--         tt:showToolTip(false)
         data = data or read_kde_bookmark(offset)
-        data:toggle()
+--         data.settings.x = geometry.x
+--         data.settings.y = geometry.drawable.drawable.geometry(geometry.drawable.drawable).y
+--         data:set_coords(geometry.x,geometry.y)
+        data.parent_geometry = geometry
+        data.visible = not data.visible
+
     end)
     ))
 
-    return mylauncher2text
+    return bgb
 end
 
 

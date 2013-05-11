@@ -6,6 +6,7 @@ local tag          = require( "awful.tag"       )
 local util         = require( "awful.util"      )
 local tooltip      = require( "widgets.tooltip" )
 local config       = require( "config"          )
+local wibox        = require( "wibox"           )
 
 local capi = { image  = image  ,
                widget = widget }
@@ -13,12 +14,12 @@ local capi = { image  = image  ,
 module("customButton.showDesktop")
 
 function new(screen, args) 
-  local desktopPix       = capi.widget({ type = "imagebox", align = "left" })
+  local desktopPix       = wibox.widget.imagebox()
   local tt = tooltip("Show Desktop",{down = true})
-  desktopPix.image = capi.image(config.data().iconPath .. "tags/desk2.png")
+  desktopPix:set_image(config.data().iconPath .. "tags/desk2.png")
   desktopPix:buttons( util.table.join( button({ }, 1, function() tag.viewnone() end) ))
-  desktopPix:add_signal("mouse::enter", function() tt:showToolTip(true) ;desktopPix.bg = beautiful.bg_highlight end)
-  desktopPix:add_signal("mouse::leave", function() tt:showToolTip(false);desktopPix.bg = beautiful.bg_normal    end)
+  desktopPix:connect_signal("mouse::enter", function() tt:showToolTip(true) ;desktopPix.bg = beautiful.bg_highlight end)
+  desktopPix:connect_signal("mouse::leave", function() tt:showToolTip(false);desktopPix.bg = beautiful.bg_normal    end)
   return desktopPix
 end
 

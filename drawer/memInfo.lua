@@ -11,7 +11,7 @@ local table        = table
 local button       = require("awful.button")
 local beautiful    = require("beautiful")
 local widget2      = require("awful.widget")
-local wibox        = require("awful.wibox")
+local wibox        = require("wibox")
 local menu         = require("widgets.menu")
 local vicious      = require("extern.vicious")
 local config       = require("config")
@@ -30,29 +30,29 @@ local data = {}
 
 local memInfo = {}
 
-local infoHeader     = capi.widget({type = "textbox"})
-local totalRam       = capi.widget({type = "textbox"})
-local freeRam        = capi.widget({type = "textbox"})
-local usedRam        = capi.widget({type = "textbox"})
-local freeSwap       = capi.widget({type = "textbox"})
-local usedSwap       = capi.widget({type = "textbox"})
-local totalSwap      = capi.widget({type = "textbox"})
-local userHeader     = capi.widget({type = "textbox"})
-local stateHeader    = capi.widget({type = "textbox"})
-local processHeader  = capi.widget({type = "textbox"})
+local infoHeader     = wibox.widget.textbox()
+local totalRam       = wibox.widget.textbox()
+local freeRam        = wibox.widget.textbox()
+local usedRam        = wibox.widget.textbox()
+local freeSwap       = wibox.widget.textbox()
+local usedSwap       = wibox.widget.textbox()
+local totalSwap      = wibox.widget.textbox()
+local userHeader     = wibox.widget.textbox()
+local stateHeader    = wibox.widget.textbox()
+local processHeader  = wibox.widget.textbox()
 
-local totalRamLabel  = capi.widget({type = "textbox"})
-local freeRamLabel   = capi.widget({type = "textbox"})
-local usedRamLabel   = capi.widget({type = "textbox"})
-local totalSwapLabel = capi.widget({type = "textbox"})
-local freeSwapLabel  = capi.widget({type = "textbox"})
-local usedSwapLabel  = capi.widget({type = "textbox"})
+local totalRamLabel  = wibox.widget.textbox()
+local freeRamLabel   = wibox.widget.textbox()
+local usedRamLabel   = wibox.widget.textbox()
+local totalSwapLabel = wibox.widget.textbox()
+local freeSwapLabel  = wibox.widget.textbox()
+local usedSwapLabel  = wibox.widget.textbox()
 
-local ramLabel       = capi.widget({type = "textbox"})
-local swapLabel      = capi.widget({type = "textbox"})
-local totalLabel     = capi.widget({type = "textbox"})
-local usedLabel      = capi.widget({type = "textbox"})
-local freeLabel      = capi.widget({type = "textbox"})
+local ramLabel       = wibox.widget.textbox()
+local swapLabel      = wibox.widget.textbox()
+local totalLabel     = wibox.widget.textbox()
+local usedLabel      = wibox.widget.textbox()
+local freeLabel      = wibox.widget.textbox()
 
 local infoHeaderW    
 local ramW           
@@ -83,12 +83,12 @@ function refreshStat()
       statNotFound = "N/A"
     end
 
-    totalRam.text  = statNotFound or memStat["ram"]["total"]
-    freeRam.text   = statNotFound or memStat["ram"]["free"]
-    usedRam.text   = statNotFound or memStat["ram"]["used"]
-    totalSwap.text = statNotFound or memStat["swap"]["total"]
-    freeSwap.text  = statNotFound or memStat["swap"]["free"]
-    usedSwap.text  = statNotFound or memStat["swap"]["used"]
+    totalRam:set_text ( statNotFound or memStat["ram"]["total"]  )
+    freeRam:set_text  ( statNotFound or memStat["ram"]["free"]   )
+    usedRam:set_text  ( statNotFound or memStat["ram"]["used"]   )
+    totalSwap:set_text( statNotFound or memStat["swap"]["total"] )
+    freeSwap:set_text ( statNotFound or memStat["swap"]["free"]  )
+    usedSwap:set_text ( statNotFound or memStat["swap"]["used"]  )
 
     local f = io.open('/tmp/memStatistics.lua','r')
     if f ~= nil then
@@ -148,14 +148,18 @@ local function reload_user(usrMenu,data)
         local v,i= v2.value,v2.key
         local userW = wibox({ position = "free", screen = s,ontop = true, bg = beautiful.menu_bg})
         userW.visible = false
-        local anUser = capi.widget({type = "textbox"})
-        anUser.text = i
-        local anUserLabel = capi.widget({type = "textbox"})
-        anUserLabel:margin({ left = 7, right = 7 })
-        anUserLabel.text = v..":"
+        local anUser = wibox.widget.textbox()
+        anUser:set_text(i)
+        local anUserLabel = wibox.widget.textbox()
+--         anUserLabel:margin({ left = 7, right = 7 })
+        anUserLabel:set_text(v..":")
         anUserLabel.width = 70
         anUserLabel.bg = "#0F2051"
-        userW.widgets = {anUserLabel,anUser, layout = widget2.layout.horizontal.leftrightcached}
+--         userW.widgets = {anUserLabel,anUser, layout = widget2.layout.horizontal.leftrightcached}
+        local userWl    = wibox.layout.fixed.horizontal()
+        userWl:add(anUserLabel)
+        userWl:add(anUser)
+        userW:set_widget(userWl)
         totalUser = totalUser +1
         usrMenu:add_wibox(userW,{height = 20, width = 200})
     end
@@ -167,14 +171,18 @@ local function reload_state(typeMenu,data)
     for v, i in next, data.state or {} do
         local stateW = wibox({ position = "free", screen = s,ontop = true, bg = beautiful.menu_bg})
         stateW.visible = false
-        local anState = capi.widget({type = "textbox"})
-        anState.text = i
-        local anStateLabel = capi.widget({type = "textbox"})
-        anStateLabel:margin({ left = 7, right = 7 })
-        anStateLabel.text = v..":"
+        local anState = wibox.widget.textbox()
+        anState:set_text(i)
+        local anStateLabel = wibox.widget.textbox()
+--         anStateLabel:margin({ left = 7, right = 7 })
+        anStateLabel:set_text(v..":")
         anStateLabel.width = 70
         anStateLabel.bg = "#0F2051"
-        stateW.widgets = {anStateLabel,anState, layout = widget2.layout.horizontal.leftrightcached}
+--         stateW.widgets = {anStateLabel,anState, layout = widget2.layout.horizontal.leftrightcached}
+        local stateWl    = wibox.layout.fixed.horizontal()
+        stateWl:add( anStateLabel )
+        stateWl:add( anState      )
+        stateW:set_widget(stateWl)
         totalState = totalState +1
         typeMenu:add_wibox(stateW,{height = 20, width = 200})
     end
@@ -185,14 +193,14 @@ local function reload_top(topMenu,data)
         if data.process ~= nil and data.process[i]["name"] ~= nil then
             local processW = wibox({ position = "free", screen = s,ontop = true, bg = beautiful.menu_bg})
             processW.visible = false
-            local aProcess = capi.widget({type = "textbox"})
-            aProcess.text = " "..data.process[i]["name"] or "N/A"
+            local aProcess = wibox.widget.textbox()
+            aProcess:set_text(" "..data.process[i]["name"] or "N/A")
 
-            local aPid = capi.widget({type = "textbox"})
-            aPid.text = data.process[i]["pid"]
+            local aPid = wibox.widget.textbox()
+            aPid:set_text(data.process[i]["pid"])
 
-            local aMem = capi.widget({type = "textbox"})
-            aMem.text = data.process[i]["mem"]
+            local aMem = wibox.widget.textbox()
+            aMem:set_text(data.process[i]["mem"])
             aMem.width = 70
             aMem.bg = "#0F2051"
             aMem.border_width = 1
@@ -206,13 +214,20 @@ local function reload_top(topMenu,data)
                 end
             end
 
-            testImage2       = capi.widget({ type = "imagebox"})
-            testImage2.image = capi.image(config.data().iconPath .. "kill.png")
+            testImage2       = wibox.widget.imagebox()
+            testImage2:set_image(config.data().iconPath .. "kill.png")
 
-            processW.widgets = {aMem, {testImage2, layout = widget2.layout.horizontal.rightleftcached}, layout = widget2.layout.horizontal.leftrightcached,{
-                                aProcess , 
-                                layout = widget2.layout.horizontal.flexcached,
-                                }}
+--             processW.widgets = {aMem, {testImage2, layout = widget2.layout.horizontal.rightleftcached}, layout = widget2.layout.horizontal.leftrightcached,{
+--                                 aProcess , 
+--                                 layout = widget2.layout.horizontal.flexcached,
+--                                 }}
+            
+            local processWl = wibox.layout.align.horizontal()
+            processWl:set_left   ( aMem       )
+            processWl:set_middle ( aProcess   )
+            processWl:set_right  ( testImage2 )
+            processW:set_widget(processWl)
+            
             topMenu:add_wibox(processW,{height = 20, width = 200})
         end
     end
@@ -237,29 +252,25 @@ function repaint(margin)
         v.bg             = beautiful.fg_normal
         v.border_color   = beautiful.bg_normal
     end
-    ramLabel.text           = "<span color='".. beautiful.bg_normal .."'>Ram</span>"
-    swapLabel.text          = "<span color='".. beautiful.bg_normal .."'>Swap</span>"
-    totalLabel.text         = "<span color='".. beautiful.bg_normal .."'>Total</span>"
+    ramLabel:set_markup   ("<span color='".. beautiful.bg_normal .."'>Ram</span>"   )
+    swapLabel:set_markup  ("<span color='".. beautiful.bg_normal .."'>Swap</span>"  )
+    totalLabel:set_markup ("<span color='".. beautiful.bg_normal .."'>Total</span>" )
+    usedLabel:set_markup  ("<span color='".. beautiful.bg_normal .."'>Used</span>"  )
+    freeLabel:set_markup  ("<span color='".. beautiful.bg_normal .."'>Free</span>"  )
     totalLabel.align        = "center"
-    usedLabel.text          = "<span color='".. beautiful.bg_normal .."'>Used</span>"
     usedLabel.align         = "center"
-    freeLabel.text          = "<span color='".. beautiful.bg_normal .."'>Free</span>"
     freeLabel.align         = "center"
 
-    infoHeader.text      = " <span color='".. beautiful.bg_normal .."'><b><tt>USAGE</tt></b></span> "
-    infoHeader.bg        = beautiful.fg_normal
+    infoHeader:set_markup(" <span color='".. beautiful.bg_normal .."'><b><tt>USAGE</tt></b></span> ")
     infoHeader.width     = 212
 
-    userHeader.text      = " <span color='".. beautiful.bg_normal .."'><b><tt>USERS</tt></b></span> "
-    userHeader.bg        = beautiful.fg_normal
+    userHeader:set_markup(" <span color='".. beautiful.bg_normal .."'><b><tt>USERS</tt></b></span> ")
     userHeader.width     = 212
 
-    stateHeader.text     = " <span color='".. beautiful.bg_normal .."'><b><tt>STATE</tt></b></span> "
-    stateHeader.bg       = beautiful.fg_normal
+    stateHeader:set_markup(" <span color='".. beautiful.bg_normal .."'><b><tt>STATE</tt></b></span> ")
     stateHeader.width    = 212
 
-    processHeader.text   = " <span color='".. beautiful.bg_normal .."'><b><tt>PROCESS</tt></b></span> "
-    processHeader.bg     = beautiful.fg_normal
+    processHeader:set_markup(" <span color='".. beautiful.bg_normal .."'><b><tt>PROCESS</tt></b></span> ")
     processHeader.width  = 212
 
     for k,v in ipairs({totalRam , freeRam  , usedRam  , totalSwap, freeSwap , usedSwap }) do
@@ -268,17 +279,45 @@ function repaint(margin)
         v.border_width   = 1
     end
 
-    infoHeaderW.widgets = {infoHeader,layout = widget2.layout.horizontal.leftrightcached}
-    userHeaderW.widgets = {userHeader,layout = widget2.layout.horizontal.leftrightcached}
-    stateHeaderW.widgets   = {stateHeader,layout = widget2.layout.horizontal.leftrightcached}
-    processHeaderW.widgets = {processHeader,layout = widget2.layout.horizontal.leftrightcached}
+--     infoHeaderW.widgets = {infoHeader,layout = widget2.layout.horizontal.leftrightcached}
+--     userHeaderW.widgets = {userHeader,layout = widget2.layout.horizontal.leftrightcached}
+--     stateHeaderW.widgets   = {stateHeader,layout = widget2.layout.horizontal.leftrightcached}
+--     processHeaderW.widgets = {processHeader,layout = widget2.layout.horizontal.leftrightcached}
+    local infoHeaderWl    = wibox.layout.fixed.horizontal()
+    local userHeaderWl    = wibox.layout.fixed.horizontal()
+    local stateHeaderWl   = wibox.layout.fixed.horizontal()
+    local processHeaderWl = wibox.layout.fixed.horizontal()
+    infoHeaderWl:add   ( infoHeader    )
+    userHeaderWl:add   ( userHeader    )
+    stateHeaderWl:add  ( stateHeader   )
+    processHeaderWl:add( processHeader )
+    infoHeaderW:set_widget   ( infoHeaderWl    )
+    userHeaderW:set_widget   ( userHeaderWl    )
+    stateHeaderW:set_widget  ( stateHeaderWl   )
+    processHeaderW:set_widget( processHeaderWl )
+    infoHeaderW:set_bg    ( beautiful.fg_normal )
+    userHeaderW:set_bg    ( beautiful.fg_normal )
+    stateHeaderW:set_bg   ( beautiful.fg_normal )
+    processHeaderW:set_bg ( beautiful.fg_normal )
 
-    ramW.widgets = {
-                        {totalLabel,totalLabel,usedLabel,freeLabel, layout = widget2.layout.horizontal.leftrightcached},
-                        {ramLabel  ,totalRam  ,usedRam  ,freeRam  , layout = widget2.layout.horizontal.leftrightcached},
-                        {swapLabel ,totalSwap ,usedSwap ,freeSwap , layout = widget2.layout.horizontal.leftrightcached},
-                        layout = widget2.layout.vertical.flexcached
-                    }
+--     ramW.widgets = {
+--                         {totalLabel,totalLabel,usedLabel,freeLabel, layout = widget2.layout.horizontal.leftrightcached},
+--                         {ramLabel  ,totalRam  ,usedRam  ,freeRam  , layout = widget2.layout.horizontal.leftrightcached},
+--                         {swapLabel ,totalSwap ,usedSwap ,freeSwap , layout = widget2.layout.horizontal.leftrightcached},
+--                         layout = widget2.layout.vertical.flexcached
+--                     }
+    local ramWVl  = wibox.layout.fixed.vertical()
+    local ramWH1l = wibox.layout.fixed.horizontal()
+    local ramWH2l = wibox.layout.fixed.horizontal()
+    local ramWH3l = wibox.layout.fixed.horizontal()
+    ramWH1l:add( totalLabel ) ; ramWH1l:add( totalLabel) ; ramWH1l:add( usedLabel ) ; ramWH1l:add( freeLabel )
+    ramWH1l:add( ramLabel   ) ; ramWH1l:add( totalRam  ) ; ramWH1l:add( usedRam   ) ; ramWH1l:add( freeRam   )
+    ramWH3l:add( swapLabel  ) ; ramWH3l:add( totalSwap ) ; ramWH3l:add( usedSwap  ) ; ramWH3l:add( freeSwap  )
+    ramWVl:add(ramWH1l)
+    ramWVl:add(ramWH2l)
+    ramWVl:add(ramWH3l)
+    ramW:set_widget(ramWVl)
+
     mainMenu = menu({arrow_x=90,nokeyboardnav=true})
     mainMenu.settings.itemWidth = 198
     mainMenu:add_wibox(infoHeaderW,{height = 20 , width = 200})
@@ -318,9 +357,7 @@ end
 
 function new(margin, args)
 
-    local memwidget = capi.widget({
-        type  = 'textbox',
-    })
+    local memwidget = wibox.widget.textbox()
     memwidget:buttons( util.table.join(
         button({ }, 1, function()
             toggleSensorBar()
@@ -340,8 +377,8 @@ function new(margin, args)
 --     end)
 --     mytimer:start()
 
-    ramlogo       = capi.widget({ type = "imagebox", align = "right" })
-    ramlogo.image = capi.image(config.data().iconPath .. "cpu.png")
+    ramlogo       = wibox.widget.imagebox()
+    ramlogo:set_image(config.data().iconPath .. "cpu.png")
     ramlogo:buttons( util.table.join(
     button({ }, 1, function()
         toggleSensorBar()
@@ -351,7 +388,7 @@ function new(margin, args)
     local visible = false
     function toggle()
         if not data.menu then
-            data.menu = repaint(margin-memwidget:extents().width-20-10)
+            data.menu = repaint(margin-memwidget._layout:get_pixel_extents().width-20-10)
         end
         visible = not visible
         if visible then
@@ -387,15 +424,29 @@ function new(margin, args)
     membarwidget:set_background_color(beautiful.bg_alternate)
     membarwidget:set_border_color(beautiful.fg_normal)
     membarwidget:set_color(beautiful.fg_normal)
-    membarwidget:set_gradient_colors({
-        beautiful.fg_normal,
-        beautiful.fg_normal,
-        '#CC0000'
-    })
+
+    local marg = wibox.layout.margin(membarwidget)
+    marg:set_top(2)
+    marg:set_bottom(2)
+    marg:set_right(4)
+--     membarwidget:set_gradient_colors({
+--         beautiful.fg_normal,
+--         beautiful.fg_normal,
+--         '#CC0000'
+--     })
 
     vicious.register(membarwidget, vicious.widgets.mem, '$1', 1, 'mem')
+    
+    memwidget.fit = function(box, w, h)
+        local w, h = wibox.widget.textbox.fit(box, w, h);
+        return 22, h
+    end
 
-    return { logo = ramlogo, text = memwidget, bar = membarwidget.widget}
+    local l = wibox.layout.fixed.horizontal()
+    l:add(ramlogo)
+    l:add(memwidget)
+    l:add(marg)
+    return l--{ logo = ramlogo, text = memwidget, bar = membarwidget.widget}
 end
 
 

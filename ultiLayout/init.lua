@@ -1,7 +1,0 @@
-require("ultiLayout.object_model")
-require("ultiLayout.clientGroup")
-require("ultiLayout.edge")
-require("ultiLayout.decoration")
-require("ultiLayout.common")
-require("ultiLayout.layouts")
-require("ultiLayout.modules")

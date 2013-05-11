@@ -12,7 +12,7 @@ local config       = require( "config"         )
 local vicious      = require( "extern.vicious" )
 local menu         = require( "widgets.menu"   )
 local util         = require( "awful.util"     )
-local wibox        = require( "awful.wibox"    )
+local wibox        = require( "wibox"          )
 
 local data     = {}
 local procMenu = nil
@@ -27,8 +27,8 @@ local capi = { image  = image  ,
 module("drawer.cpuInfo")
 
 local function create_core_w(width,i,text,bg,fg)
-    local aCore        = capi.widget({type = "textbox"})
-    aCore.text         = text
+    local aCore        = wibox.widget.textbox()
+    aCore:set_text(text or "")
     aCore.bg           = bg or beautiful.bg_normal
     aCore.width        = width or 35
     aCore.border_width = 1
@@ -59,21 +59,28 @@ local function reload_top(procMenu,data)
             w.visible = false
 
             local wdg = {}
-            wdg.percent       = capi.widget({ type = "textbox"  })
+            wdg.percent       = wibox.widget.textbox()
             wdg.percent.width = 50
             wdg.percent.bg    = "#0F2051"
             wdg.percent.align = "right"
-            wdg.process       = capi.widget({ type = "textbox"  })
-            wdg.kill          = capi.widget({ type = "imagebox"})
-            wdg.kill.image    = capi.image(config.data().iconPath .. "kill.png")
+            wdg.process       = wibox.widget.textbox()
+            wdg.kill          = wibox.widget.imagebox()
+            wdg.kill:set_image(config.data().iconPath .. "kill.png")
 
-            w.widgets = { wdg.percent,
-                            { wdg.kill, layout = widget2.layout.horizontal.rightleftcached }
-                            , layout = widget2.layout.horizontal.leftrightcached,
-                            { wdg.process , layout = widget2.layout.horizontal.flexcached, }
-                        }
-            wdg.percent.text  = data.process[i].percent.."%"
-            wdg.process.text  = " "..data.process[i].name
+--             w.widgets = { wdg.percent,
+--                             { wdg.kill, layout = widget2.layout.horizontal.rightleftcached }
+--                             , layout = widget2.layout.horizontal.leftrightcached,
+--                             { wdg.process , layout = widget2.layout.horizontal.flexcached, }
+--                         }
+
+            local processWl = wibox.layout.align.horizontal()
+            processWl:set_left   ( wdg.percent       )
+            processWl:set_middle ( wdg.process   )
+            processWl:set_right  ( wdg.kill )
+            w:set_widget(processWl)
+
+            wdg.percent:set_text(data.process[i].percent.."%")
+            wdg.process:set_text(" "..data.process[i].name)
 
             if procIcon[data.process[i].name:lower()] then
                 wdg.percent.bg_image = procIcon[data.process[i].name:lower()].icon
@@ -95,8 +102,8 @@ end
 function new(margin, args)
     local coreWidgets       = {}
     local cpuInfo           = {}
-    local cpulogo           = capi.widget({ type = "imagebox" })
-    local cpuwidget         = capi.widget({ type = "textbox"  })
+    local cpulogo           = wibox.widget.imagebox()
+    local cpuwidget         = wibox.widget.textbox()
 
     local infoHeader
     local usageHeader
@@ -138,7 +145,7 @@ function new(margin, args)
 
         if cpuStat then
             data.cpuStat = cpuStat
-            cpuModel.text = cpuStat.model
+            cpuModel:set_text(cpuStat.model)
         end
 
         local process = {}
@@ -160,17 +167,17 @@ function new(margin, args)
     end
 
     local function createDrawer()
-        infoHeader        = capi.widget({ type = "textbox"  })
-        usageHeader       = capi.widget({ type = "textbox"  })
-        tempHeader        = capi.widget({ type = "textbox"  })
-        processHeader     = capi.widget({ type = "textbox"  })
-        cpuModel          = capi.widget({ type = "textbox"  })
-        iowaitHeader      = capi.widget({ type = "textbox"  })
-        usageHeader2      = capi.widget({ type = "textbox"  })
-        emptyCornerHeader = capi.widget({ type = "textbox"  })
-        clockHeader       = capi.widget({ type = "textbox"  })
-        idleHeader        = capi.widget({ type = "textbox"  })
-        spacer1           = capi.widget({ type = "textbox"  })
+        infoHeader        = wibox.widget.textbox()
+        usageHeader       = wibox.widget.textbox()
+        tempHeader        = wibox.widget.textbox()
+        processHeader     = wibox.widget.textbox()
+        cpuModel          = wibox.widget.textbox()
+        iowaitHeader      = wibox.widget.textbox()
+        usageHeader2      = wibox.widget.textbox()
+        emptyCornerHeader = wibox.widget.textbox()
+        clockHeader       = wibox.widget.textbox()
+        idleHeader        = wibox.widget.textbox()
+        spacer1           = wibox.widget.textbox()
         volUsage          = widget2.graph()
 
         topCpuW           = {}
@@ -187,20 +194,37 @@ function new(margin, args)
         modelW.visible         = false
         tableW.visible         = false
 
-        infoHeaderW.widgets     = {infoHeader    , layout = widget2.layout.horizontal.leftrightcached}
-        usageHeaderW.widgets    = {usageHeader2  , layout = widget2.layout.horizontal.leftrightcached}
-        processHeaderW.widgets  = {processHeader , layout = widget2.layout.horizontal.leftrightcached}
-        modelW.widgets          = {cpuModel      , layout = widget2.layout.horizontal.leftrightcached}
+--         infoHeaderW   .widgets  = {infoHeader    , layout = widget2.layout.horizontal.leftrightcached}
+--         usageHeaderW  .widgets  = {usageHeader2  , layout = widget2.layout.horizontal.leftrightcached}
+--         processHeaderW.widgets  = {processHeader , layout = widget2.layout.horizontal.leftrightcached}
+--         modelW        .widgets  = {cpuModel      , layout = widget2.layout.horizontal.leftrightcached}
+        local infoHeaderWl    = wibox.layout.fixed.horizontal()
+        local usageHeaderWl   = wibox.layout.fixed.horizontal()
+        local processHeaderWl = wibox.layout.fixed.horizontal()
+        local modelWl         = wibox.layout.fixed.horizontal()
+        infoHeaderWl:add    ( infoHeader    )
+        usageHeaderWl:add   ( usageHeader2  )
+        processHeaderWl:add ( processHeader )
+        modelWl:add         ( cpuModel      )
+        infoHeaderW:set_widget    ( infoHeaderWl    )
+        usageHeaderW:set_widget   ( usageHeaderWl   )
+        processHeaderW:set_widget ( processHeaderWl )
+        modelW:set_widget         ( modelWl         )
+        infoHeaderW:set_bg     ( beautiful.fg_normal )
+        usageHeaderW:set_bg   ( beautiful.fg_normal )
+        processHeaderW:set_bg ( beautiful.fg_normal )
+        modelW:set_bg         ( beautiful.fg_normal )
 
 
         loadData()
-        cpuWidgetArray     = {}
-        infoHeader.text    = " <span color='".. beautiful.bg_normal .."'><b><tt>INFO</tt></b></span> "
+--         cpuWidgetArray     = {}
+        local cpuWidgetArrayL = wibox.layout.fixed.vertical()
+        infoHeader:set_markup(" <span color='".. beautiful.bg_normal .."'><b><tt>INFO</tt></b></span> ")
         infoHeader.bg      = beautiful.fg_normal
         infoHeader.width   = 212
-        cpuModel.text      = data.cpuStat and data.cpuStat.model or "N/A"
+        cpuModel:set_text(data.cpuStat and data.cpuStat.model or "N/A")
         cpuModel.width     = 212
-        usageHeader2.text  = " <span color='".. beautiful.bg_normal .."'><b><tt>USAGE</tt></b></span> "
+        usageHeader2:set_markup(" <span color='".. beautiful.bg_normal .."'><b><tt>USAGE</tt></b></span> ")
         usageHeader2.bg    = beautiful.fg_normal
         usageHeader2.width = 212
 
@@ -210,40 +234,49 @@ function new(margin, args)
         volUsage:set_border_color ( beautiful.fg_normal                  )
         volUsage:set_color        ( beautiful.fg_normal                  )
         vicious.register          ( volUsage, vicious.widgets.cpu,'$1',1 )
-        table.insert              ( cpuWidgetArray, volUsage             )
+--         table.insert              ( cpuWidgetArray, volUsage             )
+        cpuWidgetArrayL:add(volUsage)
 
         --Table header
-        emptyCornerHeader.text         = " <span color='".. beautiful.bg_normal .."'>Core</span> "
+        emptyCornerHeader:set_markup(" <span color='".. beautiful.bg_normal .."'>Core</span> ")
         emptyCornerHeader.bg           = beautiful.fg_normal
         emptyCornerHeader.width        = 35
         emptyCornerHeader.border_width = 1
         emptyCornerHeader.border_color = beautiful.bg_normal
-        clockHeader.text               = " <span color='".. beautiful.bg_normal .."'>Ghz</span> "
+        clockHeader:set_markup(" <span color='".. beautiful.bg_normal .."'>Ghz</span> ")
         clockHeader.bg                 = beautiful.fg_normal
         clockHeader.width              = 30
         clockHeader.border_width       = 1
         clockHeader.border_color       = beautiful.bg_normal
-        tempHeader.text                = " <span color='".. beautiful.bg_normal .."'>Temp</span> "
+        tempHeader:set_markup(" <span color='".. beautiful.bg_normal .."'>Temp</span> ")
         tempHeader.bg                  = beautiful.fg_normal
         tempHeader.width               = 40
         tempHeader.border_width        = 1
         tempHeader.border_color        = beautiful.bg_normal
-        usageHeader.text               = " <span color='".. beautiful.bg_normal .."'>Used</span> "
+        usageHeader:set_markup(" <span color='".. beautiful.bg_normal .."'>Used</span> ")
         usageHeader.bg                 = beautiful.fg_normal
         usageHeader.width              = 37
         usageHeader.border_width       = 1
         usageHeader.border_color       = beautiful.bg_normal
-        iowaitHeader.text              = " <span color='".. beautiful.bg_normal .."'> I/O</span> "
+        iowaitHeader:set_markup(" <span color='".. beautiful.bg_normal .."'> I/O</span> ")
         iowaitHeader.bg                = beautiful.fg_normal
         iowaitHeader.width             = 35
         iowaitHeader.border_width      = 1
         iowaitHeader.border_color      = beautiful.bg_normal
-        idleHeader.text                = " <span color='".. beautiful.bg_normal .."'> Idle</span> "
+        idleHeader:set_markup(" <span color='".. beautiful.bg_normal .."'> Idle</span> ")
         idleHeader.bg                  = beautiful.fg_normal
         idleHeader.width               = 35
         idleHeader.border_width        = 1
         idleHeader.border_color        = beautiful.bg_normal
-        table.insert(cpuWidgetArray, {emptyCornerHeader,clockHeader,tempHeader,usageHeader,iowaitHeader,idleHeader, layout = widget2.layout.horizontal.leftrightcached})
+--         table.insert(cpuWidgetArray, {emptyCornerHeader,clockHeader,tempHeader,usageHeader,iowaitHeader,idleHeader, layout = widget2.layout.horizontal.leftrightcached})
+        local rowL = wibox.layout.fixed.horizontal()
+        rowL:add( emptyCornerHeader )
+        rowL:add( clockHeader       )
+        rowL:add( tempHeader        )
+        rowL:add( usageHeader       )
+        rowL:add( iowaitHeader      )
+        rowL:add( idleHeader        )
+        cpuWidgetArrayL:add( rowL )
 
 
         local f2 = io.popen("cat /proc/cpuinfo | grep processor | tail -n1 | grep -e'[0-9]*' -o")
@@ -261,16 +294,24 @@ function new(margin, args)
             coreWidgets[i]["clock"]  = create_core_w(30,i,nil,beautiful.bg_normal,beautiful.fg_normal)
             coreWidgets[i]["core"].border_width       = 1
             coreWidgets[i]["core"].border_color       = beautiful.bg_normal
-            table.insert(cpuWidgetArray, {coreWidgets[i]["core"],coreWidgets[i]["clock"],coreWidgets[i]["temp"],coreWidgets[i]["usage"],
-                coreWidgets[i]["wait"],coreWidgets[i]["idle"], layout = widget2.layout.horizontal.leftrightcached})
+--             table.insert(cpuWidgetArray, {coreWidgets[i]["core"],coreWidgets[i]["clock"],coreWidgets[i]["temp"],coreWidgets[i]["usage"],
+--                 coreWidgets[i]["wait"],coreWidgets[i]["idle"], layout = widget2.layout.horizontal.leftrightcached})
+            local rowDL = wibox.layout.fixed.horizontal()
+            rowDL:add( coreWidgets[i]["core" ] )
+            rowDL:add( coreWidgets[i]["clock"] )
+            rowDL:add( coreWidgets[i]["temp" ] )
+            rowDL:add( coreWidgets[i]["usage"] )
+            rowDL:add( coreWidgets[i]["wait" ] )
+            rowDL:add( coreWidgets[i]["idle" ] )
+            cpuWidgetArrayL:add( rowDL )
         end
-        cpuWidgetArray.layout = widget2.layout.vertical.flexcached
-        tableW.widgets = cpuWidgetArray
+--         cpuWidgetArray.layout = widget2.layout.vertical.flexcached
+        tableW:set_widget(cpuWidgetArrayL)
         
         --   spacer1.text = ""
         --   table.insert(cpuWidgetArray, spacer1)
         --   
-        processHeader.text = " <span color='".. beautiful.bg_normal .."'><b><tt>PROCESS</tt></b></span> "
+        processHeader:set_markup(" <span color='".. beautiful.bg_normal .."'><b><tt>PROCESS</tt></b></span> ")
         processHeader.bg = beautiful.fg_normal
         processHeader.width = 212
     end
@@ -279,12 +320,12 @@ function new(margin, args)
         if data.cpuStat ~= nil and data.cpuStat["core0"] ~= nil and coreWidgets ~= nil then  
             for i=0 , data.cpuStat["core"] do --TODO add some way to correct the number of core, it usually fail on load --Solved
                 if i <= (coreWidgets.count  or 1) and coreWidgets[i] then
-                    coreWidgets[i].core.text  = " <span color='".. beautiful.bg_normal .."'>".."C"..i.."</span> "
-                    coreWidgets[i].clock.text = tonumber(data.cpuStat["core"..i]["speed"]) /1024 .. "Ghz"
-                    coreWidgets[i].temp.text  = data.cpuStat["core"..i].temp
-                    coreWidgets[i].usage.text = data.cpuStat["core"..i].usage
-                    coreWidgets[i].wait.text  = data.cpuStat["core"..i].iowait
-                    coreWidgets[i].idle.text  = data.cpuStat["core"..i].idle
+                    coreWidgets[i].core:set_markup(" <span color='".. beautiful.bg_normal .."'>".."C"..i.."</span> ")
+                    coreWidgets[i].clock:set_text(tonumber(data.cpuStat["core"..i]["speed"]) /1024 .. "Ghz")
+                    coreWidgets[i].temp:set_text(data.cpuStat["core"..i].temp)
+                    coreWidgets[i].usage:set_text(data.cpuStat["core"..i].usage)
+                    coreWidgets[i].wait:set_text(data.cpuStat["core"..i].iowait)
+                    coreWidgets[i].idle:set_text(data.cpuStat["core"..i].idle)
                 end
             end
         end
@@ -322,7 +363,7 @@ function new(margin, args)
         data.menu:toggle(visible)
     end
 
-    cpulogo.image = capi.image(config.data().iconPath .. "brain.png")
+    cpulogo:set_image(config.data().iconPath .. "brain.png")
     cpulogo.bg = beautiful.bg_alternate
     cpuwidget.width = 27
     cpuwidget.bg = beautiful.bg_alternate
@@ -344,14 +385,27 @@ function new(margin, args)
   cpuBar:set_border_color(beautiful.fg_normal)
   cpuBar:set_color(beautiful.fg_normal)
 
+  local marg = wibox.layout.margin(cpuBar)
+  marg:set_top(2)
+  marg:set_bottom(2)
+  marg:set_right(4)
+
   if (widget2.graph.set_offset ~= nil) then
     cpuBar:set_offset(1)
   end
 
-  --vicious.register(cpuBar, vicious.widgets.cpu, '$1', 1, 'cpu')
   vicious.register(cpuBar, vicious.widgets.cpu,'$1',1)
+  
+  cpuwidget.fit = function(box, w, h)
+      local w, h = wibox.widget.textbox.fit(box, w, h)
+      return 27, h
+  end
 
-  return {logo = cpulogo, text = cpuwidget, graph = cpuBar.widget}
+  local l = wibox.layout.fixed.horizontal()
+  l:add(cpulogo)
+  l:add(cpuwidget)
+  l:add(marg)
+  return l--{logo = cpulogo, text = cpuwidget, graph = cpuBar.widget}
 end
 
 setmetatable(_M, { __call = function(_, ...) return new(...) end })
