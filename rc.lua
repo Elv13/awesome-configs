@@ -196,13 +196,9 @@ mytaglist.buttons = awful.util.table.join(
                     awful.button({ modkey }, 1, awful.client.movetotag),
                     awful.button({ }, 2, awful.tag.viewtoggle),
                     awful.button({ }, 3, function(q,w,e,r)
-                        print("WORK",q,w,e,r)
-                        local menu = menu4()
-                        menu:add_item({text="sdfsdfsd"})
-                        menu:add_item({text="sdfsdfsd"})
-                        menu:add_item({text="sdfsdfsd"})
-                        menu:add_item({text="sdfsdfsd"})
+                        local menu = customMenu.tagOption.getMenu()
                         menu.visible = true
+                        print("sdfsdfsd",menu.visible,menu.x,menu.y,menu.direction)
                     end),
                     awful.button({ modkey }, 3, awful.client.toggletag),
                     awful.button({ }, 4, function(t) awful.tag.viewnext(awful.tag.getscreen(t)) end),
@@ -226,13 +222,9 @@ mytasklist.buttons = awful.util.table.join(
                                                   c:raise()
                                               end
                                           end),
-                    awful.button({ }, 3, function(q,w,e,r)
-                        print("WORK",q,w,e,r)
-                        local menu = menu4()
-                        menu:add_item({text="sdfsdfsd"})
-                        menu:add_item({text="sdfsdfsd"})
-                        menu:add_item({text="sdfsdfsd"})
-                        menu:add_item({text="sdfsdfsd"})
+                    awful.button({ }, 3, function(c)
+                        customMenu.clientMenu.client = c
+                        local menu = customMenu.clientMenu.menu()
                         menu.visible = true
                     end),
                      awful.button({ }, 2, function ()

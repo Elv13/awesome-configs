@@ -7,7 +7,7 @@ local util         = require( "awful.util"   )
 -- local shifty       = require( "shifty"       )
 local beautiful    = require( "beautiful"    )
 local utils        = require( "utils.tools"  )
-local menu         = require( "widgets.menu" )
+local menu         = require( "radical.context" )
 local tooltip2   = require( "widgets.tooltip2" )
 local wibox = require("wibox")
 
@@ -38,12 +38,12 @@ local function btn3(id,addOrSub)
             screenMenu:add_item({text=i, onclick = function()
 --                 utils.tag_to_screen(data[screenMenu.id].selected, screen2)
                 tag.setscreen(data[screenMenu.id].selected,screen2)
-                screenMenu:toggle()
+                screenMenu.visible = not screenMenu.visible
             end})
         end
         end
         screenMenu.id = id
-        screenMenu:toggle()
+        screenMenu.visible = not screenMenu.visible
 end
 local function btn4(id,addOrSub)
     if data[id].selected ~= nil then

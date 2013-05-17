@@ -30,6 +30,7 @@ tyrannical.tags = {
         screen      = {config.data().scr.pri, config.data().scr.sec} ,
         layout      = awful.layout.suit.tile                         ,
         focus_new   = true                                           ,
+        selected    = true,
         class       = {
             "xterm" , "urxvt" , "aterm","URxvt","XTerm"
         },

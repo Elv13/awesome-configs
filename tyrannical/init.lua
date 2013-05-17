@@ -24,13 +24,13 @@ end
 
 -------------------------------DATA------------------------------
 
-local class_client,matches_client = {},{}
+local class_client,matches_client,tags_hash = {},{},{}
 
 --------------------------TYRANIC LOGIC--------------------------
 
 --Called when a tag is selected/unselected
 local function on_selected_change(tag,data)
-    if data.exec_once and tag.selected and not data._init_done then
+    if data and data.exec_once and tag.selected and not data._init_done then
         for k,v in ipairs(type(data.exec_once) == "string" and {data.exec_once} or data.exec_once) do
             awful.util.spawn(v, false)
         end
@@ -72,6 +72,7 @@ local function load_tags(tyrannical_tags)
         end
         fill_tyrannical(v.class,class_client,v)
         fill_tyrannical(v.match,matches_client,v)
+        tags_hash[v.name or "N/A"] = v
     end
 end
 
@@ -197,7 +198,8 @@ awful.tag.add,awful.tag._setscreen = function(tag,props)
         local t3 = awful.tag._add(tag,{screen = awful.tag.getproperty(t,"clone_on"), clone_of = t,icon=awful.tag.geticon(t)})
         --TODO prevent clients from being added to the clone
     end
-    t:connect_signal("property::selected", function(t) on_selected_change(t,props) end)
+    t.selected = props.selected or false
+    t:connect_signal("property::selected", function(t) on_selected_change(t,props or {}) end)
     return t
 end,awful.tag.setscreen
 
@@ -232,6 +234,8 @@ setmetatable(properties, {__newindex = function(table,k,v) load_property(k,v) en
 local function getter (table, key)
     if key == "properties" then
         return properties
+    elseif key == "tags_by_name" then
+        return tags_hash
     end
 end
 local function setter (table, key,value)

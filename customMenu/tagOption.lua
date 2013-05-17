@@ -7,7 +7,8 @@ local tag       = require( "awful.tag"     )
 local util      = require( "awful.util"    )
 -- local shifty    = require( "shifty"        )
 local config    = require( "config"        )
-local menu      = require( "widgets.menu"  )
+local menu      = require( "radical.context"  )
+local awful = require("awful")
 local capi = { image  = image  ,
                widget = widget ,
                mouse  = mouse  ,
@@ -39,23 +40,14 @@ end
 
 local aTag
 
-function new(screen, args) 
-  local function createMenu()
-    local menu = { data = menu() }
-    
-    function menu:toggle(aTag2)
-      aTag = aTag2
-      menu["data"]:toggle()
-    end
-    return menu
-  end
+function new(screen, args)
   
-  mainMenu = createMenu()
+  mainMenu = menu()
   
-  mainMenu["data"]:add_item({text = "Visible", checked = true,onclick = function() aTag.selected = not aTag.selected end})
-  mainMenu["data"]:add_item({text = "Rename", onclick = function() shifty.rename(aTag) end})
+  mainMenu:add_item({text = "Visible", checked = true,button1 = function() aTag.selected = not aTag.selected end})
+  mainMenu:add_item({text = "Rename", button1 = function() shifty.rename(aTag) end})
   
-  mainMenu["data"]:add_item({text = "Close applications and remove", onclick = function() 
+  mainMenu:add_item({text = "Close applications and remove", button1 = function() 
                                                                                     for i=1, #aTag:clients() do
                                                                                         aTag:clients()[i]:kill() 
                                                                                     end
@@ -63,34 +55,34 @@ function new(screen, args)
                                                                                 end})
   
   if capi.screen.count() > 1 then
-    local screenMenu = createMenu()
-    mainMenu["data"]:add_item({text = "Screen",subMenu = screenMenu["data"]})
+    local screenMenu = menu()
+    mainMenu:add_item({text = "Screen",sub_menu = screenMenu})
     
     for i=1,capi.screen.count() do
-      screenMenu["data"]:add_item({text = "Screen "..i, onclick = function() tag_to_screen(aTag,i) end})
+      screenMenu:add_item({text = "Screen "..i, button1 = function() tag_to_screen(aTag,i) end})
     end
   end
   
-  local screenMenuMerge = createMenu()
-  mainMenu["data"]:add_item({text = "Merge With", subMenu = screenMenuMerge["data"]})
+  local screenMenuMerge = menu()
+  mainMenu:add_item({text = "Merge With", sub_menu = screenMenuMerge})
 
   function createTagList(aScreen)
-    local tagList = createMenu()
+    local tagList = menu()
     local count = 0
-    for _, v in ipairs(capi.screen[aScreen]:tags()) do
-       tagList["data"]:add_item({text = v.name})
+    for _, v in ipairs(awful.tag.gettags(aScreen)) do
+       tagList:add_item({text = v.name})
        count = count + 1
     end
-    return tagList["data"]
+    return tagList
   end
   
   for i=1,capi.screen.count() do
-    screenMenuMerge["data"]:add_item({text = "Screen " .. i, subMenu = function() return createTagList(i) end})
+    screenMenuMerge:add_item({text = "Screen " .. i, sub_menu = function() return createTagList(i) end})
   end
   
-  mainMenu["data"]:add_item({text = "<b>Save settings</b>"})
+  mainMenu:add_item({text = "<b>Save settings</b>"})
   
-  local mainMenu2 = createMenu()
+  local mainMenu2 = menu()
   
   local f = io.popen('find '..config.data().iconPath .. "tags/ -maxdepth 1 -iname \"*.png\" -type f","r")
   local counter = 0
@@ -99,22 +91,22 @@ function new(screen, args)
     if (file == "END" or nil) or (counter > 30) then
       break
     end
-    mainMenu2["data"]:add_item({"Text", onclick = function() tag.seticon(file,aTag) end, icon = capi.image(file)})
+    mainMenu2:add_item({"Text", button1 = function() tag.seticon(file,aTag) end, icon = file})
     counter = counter +1
   end
   f:close()
-  mainMenu["data"]:add_item({text= "Set Icon", subMenu = mainMenu2["data"]})
+  mainMenu:add_item({text= "Set Icon", sub_menu = mainMenu2})
   
-  mainMenu["data"]:add_item({text= "Layout", subMenu = function()
-  
-  end})
-  
-  mainMenu["data"]:add_item({text= "Flags", subMenu = function()
+  mainMenu:add_item({text= "Layout", sub_menu = function()
   
   end})
   
+  mainMenu:add_item({text= "Flags", sub_menu = function()
   
-  --mainMenu["data"]:add_item("Advanced",nil,nil,mainMenu2["data"])
+  end})
+  
+  
+  --mainMenu:add_item("Advanced",nil,nil,mainMenu2)
   
   return mainMenu
 end

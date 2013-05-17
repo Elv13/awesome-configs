@@ -12,7 +12,7 @@ local util      = require( "awful.util"      )
 local tag       = require( "awful.tag"       )
 local mouse     = require( "awful.mouse"     )
 local config    = require( "config"          )
-local menu      = require( "widgets.menu"    )
+local menu      = require( "radical.context"    )
 local tooltip2  = require( "widgets.tooltip2" )
 local wibox = require("wibox")
 
