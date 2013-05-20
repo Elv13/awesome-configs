@@ -97,12 +97,18 @@ local function gen_tag_bg(wdg,t,m,objects,idx,image)
     local img2 = cairo.ImageSurface.create(cairo.Format.ARGB32, width+(19+2*theme.default_height)+(isClone and 20 or 0), theme.default_height)
     m:set_left(theme.default_height+theme.default_height+7)
     m:set_right(theme.default_height/2+(isClone and 20 or 0))
+    local cr = cairo.Context(img2)
     if isClone then
-        themeutils.apply_pattern(img2,theme.taglist_bg_image_remote_used)
+        local pat = cairo.Pattern.create_for_surface(cairo.ImageSurface.create_from_png(theme.taglist_bg_image_remote_used))
+        cairo.Pattern.set_extend(pat,cairo.Extend.REPEAT)
+        cr:set_source(pat)
+        cr:paint()
     elseif image then
-        themeutils.apply_pattern(img2,image)
+        local pat = cairo.Pattern.create_for_surface(cairo.ImageSurface.create_from_png(image))
+        cairo.Pattern.set_extend(pat,cairo.Extend.REPEAT)
+        cr:set_source(pat)
+        cr:paint()
     end
-    cr = cairo.Context(img2)
     cr:set_source(color(theme.fg_normal))
     cr:rectangle(0,0,theme.default_height+theme.default_height/2+5,theme.default_height)
     cr:fill()
@@ -138,8 +144,12 @@ local function gen_task_bg_real(wdg,width)
     local img2 = cairo.ImageSurface.create(cairo.Format.ARGB32, width, theme.default_height)
     cr = cairo.Context(img2)
     if image then
-        themeutils.apply_pattern(img2,image)
+        local pat = cairo.Pattern.create_for_surface(cairo.ImageSurface.create_from_png(image))
+        cairo.Pattern.set_extend(pat,cairo.Extend.REPEAT)
+        cr:set_source(pat)
+        cr:paint()
     end
+
     local composed,offset  = {img2,arr1},60
     if c.icon then
        -- Resize
@@ -153,16 +163,32 @@ local function gen_task_bg_real(wdg,width)
        -- Add to stack
        composed[#composed+1] = {layer = c.icon, matrix = matrix ,y=1,}
     end
+
+    local function gen_matrix(image,off)
+        local ic = cairo.ImageSurface.create_from_png(image)
+        local sw,sh = ic:get_width(),ic:get_height()
+        local ratio = sh/(theme.default_height)
+        local status_matrix = cairo.Matrix()
+        cairo.Matrix.init_scale(status_matrix,ratio,ratio)
+        offset = sw/ratio + 5/ratio
+        status_matrix:translate(-(width-(off or offset)),0)
+        return status_matrix
+    end
+
+    local tmp_offset = offset
     if client.floating.get(c) then
-        composed[#composed+1] = {layer=theme["tasklist_floating".. (image and "_focus" or "") .."_icon"],x=width-offset,y=0}
-        offset = offset + 60
+        local path  = theme["tasklist_floating".. (image and "_focus" or "") .."_icon"]
+        composed[#composed+1] = {layer=path,matrix=gen_matrix(path)}
+        tmp_offset = offset*2
     end
     if c.ontop == true then
-        composed[#composed+1] = {layer=theme["tasklist_ontop"   .. (image and "_focus" or "") .."_icon"],x=width-offset,y=0}
-        offset = offset + 60
+        local path  = theme["tasklist_ontop"   .. (image and "_focus" or "") .."_icon"]
+        composed[#composed+1] = {layer=path,matrix=gen_matrix(path,tmp_offset)}
+        tmp_offset = tmp_offset + offset
     end
     if c.sticky == true then
-        composed[#composed+1] = {layer=theme["tasklist_sticky"  .. (image and "_focus" or "") .."_icon"],x=width-offset,y=0}
+        local path  = theme["tasklist_sticky"  .. (image and "_focus" or "") .."_icon"]
+        composed[#composed+1] = {layer=path,matrix=gen_matrix(path,tmp_offset)}
     end
     composed[#composed+1] = {layer = arr,y=0,x=width-theme.default_height/2+1}
     img2 = themeutils.compose(composed)

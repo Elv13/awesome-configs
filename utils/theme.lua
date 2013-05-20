@@ -21,10 +21,10 @@ module("utils.theme")
 
 local cacheE,cacheB = {},{}
 
-local function move_and_apply(cr,pat,x,y)
-    cr:set_source_surface(surface.load(pat),x or 0,y or 0)
-    cr:paint()
-end
+-- local function move_and_apply(cr,pat,x,y)
+--     cr:set_source_surface(surface.load(pat),x or 0,y or 0)
+--     cr:paint()
+-- end
 
 local end_cache = {}
 function get_end_arrow2(args)--bg_color,fg_color,padding,direction
@@ -109,7 +109,7 @@ function compose(layer_array)
 
             if scale then
                 local sw,sh = s:get_width(),s:get_height()
-                local ratio = ((sw > sh) and sw or sh) / ((height or 16)-4)
+                local ratio = ((sw > sh) and sw or sh) / ((height or beautiful.default_height or 16)-4)
                 local matrix2 = cairo.Matrix()
                 cairo.Matrix.init_scale(matrix2,ratio,ratio)
                 matrix2:translate(-x,-y)
@@ -131,20 +131,20 @@ function compose(layer_array)
 end
 
 --Take a surface or string and apply it on the base
-function apply_pattern(base,pattern)
-    if not pattern then return end
-    local width,height = base:get_width(),base:get_height()
-    local cr = cairo.Context(base)
-    if type(pattern) == "string" then
-        pattern = cairo.ImageSurface.create_from_png(pattern)
-    end
-    cr:set_source_surface(pattern)
-    local pat_width = pattern:get_width()
-    if width/pat_width > 1 then
-        for i=0,math.ceil((width/pat_width)-1) do
-            move_and_apply(cr,pattern,i*pat_width,0)
-        end
-    else
-        move_and_apply(cr,pattern,0,0)
-    end
-end
+-- function apply_pattern(base,pattern)
+--     if not pattern then return end
+--     local width,height = base:get_width(),base:get_height()
+--     local cr = cairo.Context(base)
+--     if type(pattern) == "string" then
+--         pattern = cairo.ImageSurface.create_from_png(pattern)
+--     end
+--     cr:set_source_surface(pattern)
+--     local pat_width = pattern:get_width()
+--     if width/pat_width > 1 then
+--         for i=0,math.ceil((width/pat_width)-1) do
+--             move_and_apply(cr,pattern,i*pat_width,0)
+--         end
+--     else
+--         move_and_apply(cr,pattern,0,0)
+--     end
+-- end

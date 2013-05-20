@@ -24,7 +24,6 @@ module("widgets.dock")
 local lauchBar,visible_tt,sensibleArea = nil,nil,nil
 
 local function draw_item(data,instances,width)
-    print(data.class)
     local instances = instances or tracker:get_instances(data.class or "")
     if not data.icon_surface then
         data.icon_surface = cairo.ImageSurface.create_from_png(data.icon_path)
@@ -56,9 +55,6 @@ local function draw_item(data,instances,width)
     end
     if #instances > 0 then
         cr:set_source(color("#8A0B00"))
---         cr:set_line_width(0.5)
---         cr:rectangle(0, 6, 1, width -10)
---         cr:stroke()
         cr:arc(0,width/2,3,0,2*math.pi)
         cr:fill()
     end
@@ -250,10 +246,11 @@ local function create(screen, args)
     if vertical_extents < lauchBar.height then
         height = vertical_extents
         lauchBar.height = height
+        sensibleArea.height = height
         lauchBar.y = (capi.screen[screen or 1].geometry.height - vertical_extents) / 2
+        sensibleArea.y = (capi.screen[screen or 1].geometry.height - vertical_extents) / 2
     end
 
---     lauchBar.shape_clip      = mask(width-1,height-1,8,1)
     lauchBar:set_bg(cairo.Pattern.create_for_surface(mask(width,height,8,1,0,color(beautiful.fg_normal),color(beautiful.bg_normal))))
     lauchBar.shape_bounding  = mask(width,height,10,0,1,color("#00000000"),color("#FFFFFFFF"))._native
     lauchBar.width           = width
