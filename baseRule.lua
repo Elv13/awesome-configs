@@ -1,4 +1,5 @@
 local awful = require("awful")
+local tyrannical = require("tyrannical")
 
 
 -- }}}
@@ -303,7 +304,8 @@ tyrannical.tags = {
         layout      = awful.layout.suit.tile                         ,
         class       = {"mythfrontend"  , "xbmc"           ,}
     } ,
-    }
+}
+
 tyrannical.properties.intrusive = {
     "ksnapshot"     , "pinentry"       , "gtksu"     , "kcalc"        , "xcalc"           ,
     "feh"           , "Gradient editor", "About KDE" , "Paste Special", "Background color",

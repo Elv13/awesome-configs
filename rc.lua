@@ -19,7 +19,8 @@ local widgets = require("widgets")
 local utils = require("utils")
 local vicious = require("extern.vicious")
 local menu4 = require( "radical.context"          )
-tyrannical = require("tyrannical")
+local tyrannical = require("tyrannical")
+local indicator = require("customIndicator")
 -- utils.profile.start()
 -- debug.sethook(utils.profile.trace, "crl", 1)
 if awesome.startup_errors then
@@ -196,9 +197,11 @@ mytaglist.buttons = awful.util.table.join(
                     awful.button({ modkey }, 1, awful.client.movetotag),
                     awful.button({ }, 2, awful.tag.viewtoggle),
                     awful.button({ }, 3, function(q,w,e,r)
-                        local menu = customMenu.tagOption.getMenu()
+--                         local menu = customMenu.tagOption.getMenu()
+                        customMenu.taghover.tag = q
+                        local menu = customMenu.taghover.getMenu()
                         menu.visible = true
-                        print("sdfsdfsd",menu.visible,menu.x,menu.y,menu.direction)
+                        print("sdfsdfsd",menu.visible,menu.x,menu.y,menu.width,menu.height,menu.direction)
                     end),
                     awful.button({ modkey }, 3, awful.client.toggletag),
                     awful.button({ }, 4, function(t) awful.tag.viewnext(awful.tag.getscreen(t)) end),
@@ -367,8 +370,8 @@ root.buttons(awful.util.table.join(
 
 -- {{{ Key bindings
 globalkeys = awful.util.table.join(
-    awful.key({ modkey,           }, "Left",   awful.tag.viewprev       ),
-    awful.key({ modkey,           }, "Right",  awful.tag.viewnext       ),
+    awful.key({ modkey, "Shift"   }, "Left",   awful.tag.viewprev       ),
+    awful.key({ modkey, "Shift"   }, "Right",  awful.tag.viewnext       ),
 --     awful.key({ modkey,           }, "Escape", awful.tag.history.restore),
 
     awful.key({ modkey,           }, "j",
@@ -420,6 +423,22 @@ globalkeys = awful.util.table.join(
     awful.key({ modkey, "Shift"   }, "space", function () customMenu.layoutmenu.centered_menu(layouts,true) end),
 
     awful.key({ modkey, "Control" }, "n", awful.client.restore),
+    -- Move focus
+    awful.key({ modkey,           }, "#136",  function () indicator.focus.global_bydirection("left")  end),
+    awful.key({ modkey,           }, "#220",  function () indicator.focus.global_bydirection("down")  end),
+    awful.key({ modkey,           }, "#143",  function () indicator.focus.global_bydirection("right") end),
+    awful.key({ modkey,           }, "#209",  function () indicator.focus.global_bydirection("up")    end),
+    awful.key({ modkey,"Control"  }, "#136",  function () awful.client.swap.global_bydirection("left")  end),
+    awful.key({ modkey,"Control"  }, "#220",  function () awful.client.swap.global_bydirection("down")  end),
+    awful.key({ modkey,"Control"  }, "#143",  function () awful.client.swap.global_bydirection("right") end),
+    awful.key({ modkey,"Control"  }, "#209",  function () awful.client.swap.global_bydirection("up")    end),
+    awful.key({ modkey,           }, "Left",  function () indicator.focus.global_bydirection("left")  end),
+    awful.key({ modkey,           }, "Right", function () indicator.focus.global_bydirection("down")  end),
+    awful.key({ modkey,           }, "Up",    function () indicator.focus.global_bydirection("up")    end),
+    awful.key({ modkey,           }, "Down",  function () indicator.focus.global_bydirection("down")  end),
+    awful.key({ modkey, "Shift"   }, "#143",  awful.tag.viewnext),
+    awful.key({ modkey, "Shift"   }, "#136",  awful.tag.viewprev),
+    --220 143 209
 
     --Switch screen
     --              MODIFIERS         KEY                        ACTION                               
@@ -618,3 +637,4 @@ client.connect_signal("unfocus", function(c) c.border_color = beautiful.border_n
 -- debug.sethook()
 -- utils.profile.stop(_G)
 -- widgets.radialSelect.radial_client_select()
+print(client.focus)

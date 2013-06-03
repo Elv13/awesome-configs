@@ -23,7 +23,6 @@ for _,sig in ipairs(signals) do
 end
 
 -------------------------------DATA------------------------------
-
 local class_client,matches_client,tags_hash = {},{},{}
 
 --------------------------TYRANIC LOGIC--------------------------
@@ -44,7 +43,6 @@ local function fill_tyrannical(tab_in,tab_out,value)
         for i=1,#tab_in do
             local low = string.lower(tab_in[i])
             local tmp = tab_out[low] or {tags={},properties={}}
-            value.instances=  value.instances or {}
             tmp.tags[#tmp.tags+1] = value
             tab_out[low] = tmp
         end
@@ -55,17 +53,18 @@ end
 local function load_tags(tyrannical_tags)
     for k,v in ipairs(tyrannical_tags) do
         if v.init ~= false then
-            v.instances = {}
             local stype = type(v.screen)
             if stype == "table" then
-                for k2,v2 in pairs(v.screen) do
+                local screens = v.screen
+                for k2,v2 in pairs(screens) do
                     if v2 <= capi.screen.count() then
                         v.screen = v2
-                        v.instances[v2] = awful.tag.add(v.name,v)
+                        awful.tag.add(v.name,v)
                     end
                 end
+                v.screen = screens
             elseif (v.screen or 1) <= capi.screen.count() then
-                v.instances[v.screen or 1] = awful.tag.add(v.name,v)
+                awful.tag.add(v.name,v)
             end
         elseif v.volatile == nil then
             v.volatile = true
@@ -125,12 +124,13 @@ local function match_client(c, startup)
         local tags = {}
         for j=1,#(rules.tags or {}) do
             local tag_tmp = rules.tags[j]
+            tag_tmp.instances = tag_tmp.instances or {}
             if not tag_tmp.instances[c.screen or 1] then
                 local cache = tag_tmp.screen
                 tag_tmp.screen = tag_tmp.force_screen == true and tag_tmp.screen or c.screen
                 tag_tmp.screen = (tag_tmp.screen <= capi.screen.count()) and tag_tmp.screen or 1
                 c.screen = tag_tmp.screen
-                tag_tmp.instances[(c.screen <= capi.screen.count()) and tag_tmp.screen or 1] = awful.tag.add(tag_tmp.name,tag_tmp)
+                awful.tag.add(tag_tmp.name,tag_tmp)
                 tag_tmp.screen = cache
             end
             tags[#tags+1] = tag_tmp.instances[(c.screen <= capi.screen.count()) and c.screen or 1]
@@ -193,13 +193,16 @@ awful.tag.withcurrent,awful.tag._add  = function(c, startup)
 end,awful.tag.add
 
 awful.tag.add,awful.tag._setscreen = function(tag,props)
+    props.screen = props.screen or capi.mouse.screen
+    props.instances = props.instances or {}
     local t = awful.tag._add(tag,props)
     if awful.tag.getproperty(t,"clone_on") and awful.tag.getproperty(t,"clone_on") ~= t.screen then
         local t3 = awful.tag._add(tag,{screen = awful.tag.getproperty(t,"clone_on"), clone_of = t,icon=awful.tag.geticon(t)})
         --TODO prevent clients from being added to the clone
     end
-    t.selected = props.selected or false
     t:connect_signal("property::selected", function(t) on_selected_change(t,props or {}) end)
+    t.selected = props.selected or false
+    props.instances[props.screen] = t
     return t
 end,awful.tag.setscreen
 
@@ -228,22 +231,20 @@ awful.tag.swap = function(tag1,tag2)
 end
 
 --------------------------OBJECT GEARS---------------------------
-local properties = {}
-setmetatable(properties, {__newindex = function(table,k,v) load_property(k,v) end})
+local properties = setmetatable({}, {__newindex = function(table,k,v) load_property(k,v) end})
 
 local function getter (table, key)
     if key == "properties" then
         return properties
     elseif key == "tags_by_name" then
-        return tags_hash
+        return tags_hash --Getter only, use .tags for setter, see syntax
     end
 end
 local function setter (table, key,value)
-    if key == "tags" then
+    if key == "tags" then --Setter only, use "tags_by_name" to get
         load_tags(value)
     elseif key == "properties" then
         properties = value
-        setmetatable(properties, {__newindex = function(table,k,v) load_property(k,v) end})
         for k,v in pairs(tyrannical_properties) do
             load_property(k,v)
         end

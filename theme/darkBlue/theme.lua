@@ -6,7 +6,10 @@ local tag        = require( "awful.tag"      )
 local client     = require( "awful.client"   )
 local themeutils = require( "utils.theme"    )
 local wibox_w    = require( "wibox.widget"   )
+local radical    = require( "radical"        )
 local confdir    = awful.util.getdir("config")
+
+local capi =  {timer=timer}
 
 theme = {}
 
@@ -217,6 +220,36 @@ local function gen_task_bg(wdg,c,m,objects,image)
     m:set_margins(0)
     wdg.data = {image=image,c=c,m=m}
     wdg.draw = task_widget_draw
+
+    local time,geom,menu = nil,nil,nil
+    if not wdg.hover_ready then
+        wdg:connect_signal("mouse::enter", function(_,geo)
+            if not time then
+                time = capi.timer({})
+                time.timeout = 1
+                time:connect_signal("timeout",function()
+                    if not menu then
+                        menu = radical.context({layout=radical.layout.horizontal,item_width=140,item_height=140,icon_size=100,arrow_type=radical.base.arrow_type.CENTERED})
+                        menu:add_item({text = "<b>test</b>",icon=c.content})
+                    end
+                    menu.parent_geometry = geom
+                    menu.visible = true
+                    time:stop()
+                end)
+            end
+            geom = geo
+            time:start()
+        end)
+        wdg:connect_signal("mouse::leave", function()
+            if time and time.started then
+                time:stop()
+            end
+            if menu and menu.visible then
+                menu.visible = false
+            end
+        end)
+        wdg.hover_ready = true
+    end
     return nil
 end
 

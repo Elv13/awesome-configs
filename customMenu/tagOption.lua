@@ -18,25 +18,21 @@ module("customMenu.tagOption")
 
 local aTagMenu = nil
 
-local function hightlight(aWibox, value)
-  aWibox.bg = (value == true) and beautiful.bg_focus or beautiful.bg_normal
-end
-
 --By bios007
-local function tag_to_screen(t, scr)
-    local ts = t or tag.selected()
-    tag.history.restore(ts.screen,1)
-    shifty.set(ts, { screen = scr or
-                    awful.util.cycle(capi.screen.count(), ts.screen + 1)})
-    tag.viewonly(ts)
-    --capi.mouse.screen = ts.screen //Move the mouse the the screen
-
-    if #ts:clients() > 0 then
-        local c = ts:clients()[1]
-        capi.client.focus = c
-        c:raise()
-    end
-end
+-- local function tag_to_screen(t, scr)
+--     local ts = t or tag.selected()
+--     tag.history.restore(ts.screen,1)
+--     shifty.set(ts, { screen = scr or
+--                     awful.util.cycle(capi.screen.count(), ts.screen + 1)})
+--     tag.viewonly(ts)
+--     --capi.mouse.screen = ts.screen //Move the mouse the the screen
+-- 
+--     if #ts:clients() > 0 then
+--         local c = ts:clients()[1]
+--         capi.client.focus = c
+--         c:raise()
+--     end
+-- end
 
 local aTag
 

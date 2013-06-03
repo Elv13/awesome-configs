@@ -172,7 +172,7 @@ function layerMenu()
     return layer_m
 end
 
-function new(screen, args)
+local function new(screen, args)
   initConf()
   mainMenu = menu2()
   itemVisible    = mainMenu:add_item({text="Visible"     , checked= function() if module.client ~= nil then return not module.client.hidden else return false end end

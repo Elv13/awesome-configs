@@ -107,13 +107,12 @@ function new(screen, args)
     cairo.Pattern.set_extend(pat,cairo.Extend.REPEAT)
     cr:set_source(pat)
     cr:paint()
-    
+
     local ic = cairo.ImageSurface.create_from_png(beautiful.awesome_icon)
     local sh = ic:get_width(),ic:get_height()
     local ratio =  sh / (beautiful.default_height)
     local matrix = cairo.Matrix()
     cairo.Matrix.init_scale(matrix,ratio,ratio)
-    print("ratio",ratio,sw,sh)
 
     img2 = themeutils.compose({img2,{layer=ic,matrix=matrix},{layer=arr2,x=beautiful.default_height},{layer = arr,y=0,x=wdg_width+14+beautiful.default_height}})
     bgb:set_bgimage(img2)
