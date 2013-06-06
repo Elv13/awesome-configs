@@ -20,7 +20,7 @@ theme = {}
 ------------------------------------------------------------------------------------------------------
 
 theme.default_height = 16
-theme.font           = "snap 8"
+theme.font           = "snap"
 
 theme.bg_normal      = "#0A1535"
 theme.bg_focus       = "#003687"
@@ -212,8 +212,29 @@ local function task_widget_draw(self,w, cr, width, height)
     elseif self._valign == "bottom" then
         offset = height - logical.height
     end
-    cr:move_to(theme.default_height/2 + (self.data.c.icon and theme.default_height + 12 or 6), offset)
-    cr:show_layout(self._layout)
+
+    local extents = cr:text_extents(self.data.c.name)
+
+    local x_offset = theme.default_height/2 + (self.data.c.icon and theme.default_height + 12 or 6)
+
+    cr:set_source(color(theme.fg_normal))
+
+    cr:select_font_face(theme.font, cairo.FontSlant.NORMAL, cairo.FontWeight.NORMAL)
+    if width-x_offset-height/2 -4 < extents.width then
+        local rad = height/11
+        for i=0,2 do
+            cr:arc(width-height/2 -2 - i*3*rad,height/2 + rad/2,rad,0,2*math.pi)
+        end
+        cr:fill()
+        cr:rectangle(x_offset,0,width-x_offset-height/2 - 1 - 9*rad,height)
+        cr:clip()
+    end
+    cr:move_to(x_offset, extents.height)
+    cr:show_text(self.data.c.name or "N/A")
+
+    if width-x_offset-height/2 -4 < extents.width then
+        cr:reset_clip()
+    end
 end
 
 local function gen_task_bg(wdg,c,m,objects,image)
