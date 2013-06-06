@@ -136,6 +136,7 @@ end
 
 
 local task_cache = {}
+local icon_cache = setmetatable({}, { __mode = "kv" })
 local arr,arr1=themeutils.get_end_arrow2({bg_color=theme.bg_normal}),themeutils.get_end_arrow2({bg_color=theme.bg_normal,direction="left"})
 
 local function gen_task_bg_real(wdg,width)
@@ -154,17 +155,50 @@ local function gen_task_bg_real(wdg,width)
     end
 
     local composed,offset  = {img2,arr1},60
-    if c.icon then
-       -- Resize
+    if c.icon and not icon_cache[c.icon] then
+        -- Get size
         local ic = cairo.Surface(c.icon)
+        local icp = cairo.Pattern.create_for_surface(ic)
         local sw,sh = ic:get_width(),ic:get_height()
-        local ratio = ((sw > sh) and sw or sh) / (theme.default_height-4)
+
+        -- Create matrix
+        local ratio = (theme.default_height-2) / ((sw > sh) and sw or sh)
         local matrix = cairo.Matrix()
         cairo.Matrix.init_scale(matrix,ratio,ratio)
-        matrix:translate(-theme.default_height/2 - 6,-2)
+        matrix:translate(theme.default_height/2 - 6,-2)
 
-       -- Add to stack
-       composed[#composed+1] = {layer = c.icon, matrix = matrix ,y=1,}
+        --Copy to surface
+        local img5 = cairo.ImageSurface.create(cairo.Format.ARGB32, sw, sh)
+        local cr5 = cairo.Context(img5)
+        cr5:set_operator(cairo.Operator.CREAR)
+        cr5:paint()
+        cr5:set_operator(cairo.Operator.SOURCE)
+        cr5:set_matrix(matrix)
+        cr5:set_source(icp)
+        cr5:paint()
+
+        --Generate the mask
+        local img4 = cairo.ImageSurface.create(cairo.Format.A8, sw, sh)
+        local cr4 = cairo.Context(img4)
+--         cr4:set_matrix(matrix)
+        cr4:set_source(icp)
+        cr4:paint()
+
+        -- Apply desaturation
+        cr5:set_source_rgba(0,0,0,1)
+        cr5:set_operator(cairo.Operator.HSL_SATURATION)
+        cr5:mask(cairo.Pattern.create_for_surface(img4))
+        cr5:set_operator(cairo.Operator.HSL_COLOR)
+--         cr5:set_source_rgba(64/255,114/255,137/255,1)
+        cr5:set_source_rgba(21/255,119/255,211/255,1)
+        cr5:mask(cairo.Pattern.create_for_surface(img4))
+
+        --Cache
+        icon_cache[c.icon] = img5
+    end
+
+    if c.icon then
+       composed[#composed+1] = {layer = icon_cache[c.icon] ,y=2,x=theme.default_height/2 + 6}
     end
 
     local function gen_matrix(image,off)
@@ -251,7 +285,7 @@ local function gen_task_bg(wdg,c,m,objects,image)
                 time:connect_signal("timeout",function()
                     if not menu then
                         menu = radical.context({layout=radical.layout.horizontal,item_width=140,item_height=140,icon_size=100,arrow_type=radical.base.arrow_type.CENTERED})
-                        menu:add_item({text = "<b>test</b>",icon=c.content})
+                        menu:add_item({text = "<b>"..c.name.."</b>",icon=c.content})
                     end
                     menu.parent_geometry = geom
                     menu.visible = true
