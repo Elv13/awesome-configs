@@ -60,7 +60,7 @@ function new(screen, args)
     local args = args or {}
     local menuX = ((screen or capi.screen[capi.mouse.screen]).geometry.width)/4
     local menuY = ((screen or capi.screen[capi.mouse.screen]).geometry.height - (beautiful.menu_height*#capi.client.get(screen)))/2
-    local currentMenu = menu({x= menuX, y= menuY, filter = true, show_filter=true, autodiscard = true,noarrow=true,fkeys_prefix=true})
+    local currentMenu = menu({x= menuX, y= menuY, filter = true, show_filter=true, autodiscard = true,noarrow=true,fkeys_prefix=true,width=(((screen or capi.screen[capi.mouse.screen]).geometry.width)/2)})
     currentMenu.width = (((screen or capi.screen[capi.mouse.screen]).geometry.width)/2)
 
     currentMenu:add_key_hook({}, "Tab", "press", function(menu)
@@ -85,6 +85,8 @@ function new(screen, args)
         l:add( button_group({client = v, width=5, field = "sticky",    focus = false, checked = function() return v.sticky end   , onclick = function() v.sticky = not v.sticky end       })    )
         l:add( button_group({client = v, width=5, field = "floating",  focus = false, checked = function() return v.floating end , onclick = function() v.floating = not v.floating end   })  )
 
+        l.fit = function () return 80,30 end
+        print("pri")
         currentMenu:add_item({
             text    = v.name,
             button1 = function()
