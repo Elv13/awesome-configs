@@ -14,7 +14,7 @@ local capi = { image  = image  ,
                mouse  = mouse  ,
                screen = screen }
 
-module("customMenu.tagOption")
+local module = {}
 
 local aTagMenu = nil
 
@@ -114,4 +114,4 @@ function getMenu()
     return aTagMenu
 end
 
-setmetatable(_M, { __call = function(_, ...) return new(...) end })
+return setmetatable(module, { __call = function(_, ...) return new(...) end })

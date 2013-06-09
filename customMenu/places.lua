@@ -22,7 +22,7 @@ local capi = { image  = image  ,
                widget = widget ,
                mouse  = mouse  }
 
-module("customMenu.places")
+local module = {}
 
 local function read_kde_bookmark(offset)
     local m = menu({filter = true, showfilter = true, y = capi.screen[1].geometry.height - 18, x = offset, 
@@ -127,4 +127,4 @@ function new(offset, args)
 end
 
 
-setmetatable(_M, { __call = function(_, ...) return new(...) end })
+return setmetatable(module, { __call = function(_, ...) return new(...) end })

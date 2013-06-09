@@ -24,7 +24,7 @@ local capi = { image = image,
                mouse = mouse,
 	       tag = tag}
 
-module("customMenu.layoutmenu")
+local module = {}
 local menu = {}
 
 local function update(w, screen)
@@ -310,4 +310,4 @@ end
 
 
 
-setmetatable(_M, { __call = function(_, ...) return new(...) end })
+return setmetatable(module, { __call = function(_, ...) return new(...) end })

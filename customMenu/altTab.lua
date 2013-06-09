@@ -17,7 +17,7 @@ local capi = { image      = image,
                screen     = screen,
                keygrabber = keygrabber }
 
-module("customMenu.altTab")
+local module = {}
 
 local function button_group(args)
     local c          = args.client or nil--will explode
@@ -86,7 +86,6 @@ function new(screen, args)
         l:add( button_group({client = v, width=5, field = "floating",  focus = false, checked = function() return v.floating end , onclick = function() v.floating = not v.floating end   })  )
 
         l.fit = function () return 80,30 end
-        print("pri")
         currentMenu:add_item({
             text    = v.name,
             button1 = function()
@@ -105,4 +104,4 @@ function new(screen, args)
     return currentMenu
 end
 
-setmetatable(_M, { __call = function(_, ...) return new(...) end })
+return setmetatable({}, { __call = function(_, ...) return new(...) end })

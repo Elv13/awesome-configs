@@ -21,7 +21,7 @@ local capi = { image   = image  ,
                widget  = widget ,
                awesome = awesome}
 
-module("customMenu.application")
+local module = {}
 fdutils.icon_theme = 'oxygen'
 
 all_menu_dirs = { '/usr/share/applications/', '/usr/local/share/applications/',
@@ -142,4 +142,4 @@ function new(screen, args)
     return bgb
 end
 
-setmetatable(_M, { __call = function(_, ...) return new(...) end })
+return setmetatable(module, { __call = function(_, ...) return new(...) end })

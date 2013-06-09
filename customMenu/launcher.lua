@@ -25,7 +25,7 @@ local capi = { image  = image  ,
                mouse  = mouse  ,
                screen = screen }
 
-module("customMenu.launcher")
+local module = {}
 
 local currentMenu = nil
 local fkeymap = {}
@@ -192,4 +192,4 @@ function new(offset, args)
 end
 
 
-setmetatable(_M, { __call = function(_, ...) return new(...) end })
+return setmetatable(module, { __call = function(_, ...) return new(...) end })

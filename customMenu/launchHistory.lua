@@ -12,7 +12,7 @@ local util = require("awful.util")
 local prompt = require("awful.prompt")
 local layout = require("awful.widget.layout")
 
-module("awful.widget.prompt")
+local module = {}
 
 --- Run method for promptbox.
 -- @param promptbox The promptbox to run.
@@ -40,6 +40,6 @@ function new(args)
     return promptbox
 end
 
-setmetatable(_M, { __call = function (_, ...) return new(...) end })
+return setmetatable(module, { __call = function (_, ...) return new(...) end })
 
 -- vim: filetype=lua:expandtab:shiftwidth=4:tabstop=8:softtabstop=4:encoding=utf-8:textwidth=80

@@ -15,7 +15,7 @@ local capi = { image      = image      ,
                screen     = screen     ,
                keygrabber = keygrabber }
 
-module("customMenu.aeroTag")
+local module = {}
 
 local currentMenu  = {}
 local isVisible    = false
@@ -114,4 +114,4 @@ function new(screen, args)
     return currentMenu
 end
 
-setmetatable(_M, { __call = function(_, ...) return new(...) end })
+return setmetatable(module, { __call = function(_, ...) return new(...) end })
