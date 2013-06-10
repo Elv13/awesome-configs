@@ -14,7 +14,7 @@ local checkedI
 local notcheckedI
 local isinit      = false
 
-function new(screen, args) 
+local function new(screen, args) 
   local desktopPix       = capi.widget({ type = "imagebox", align = "left" })
   desktopPix.image = capi.image(config.data().iconPath .. "tags/desk2.png")
   desktopPix:buttons( util.table.join( button({ }, 1, function() tag.viewnone() end) ))

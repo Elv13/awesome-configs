@@ -10,7 +10,7 @@ function update()
 
 end
 
-function new(args)
+local function new(args)
   local spacer  = wibox.widget.textbox()
   spacer:set_text(args.text or "")
   spacer.width = args.width or 0

@@ -275,7 +275,7 @@ local function get_first_screen()
     end
 end
 
-function new()
+local function new()
   local screen = get_first_screen() or 1
   sensibleArea = wibox({ position = "free", screen = screen, width = 1 })
   sensibleArea.ontop = true

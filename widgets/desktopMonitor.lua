@@ -16,13 +16,7 @@ local widget = require("awful.widget")
 
 module("widgets.desktopMonitor")
 
-local data = {}
-
-function update()
-
-end
-
-function new(screen2, args) 
+local function new(screen2, args) 
   
   local xPos = 0
   for s = 1, screen2 or capi.screen.count() do

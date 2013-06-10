@@ -28,7 +28,7 @@ end
 -- @param args Standard widget table arguments, with prompt to change the
 -- default prompt.
 -- @return A launcher widget.
-function new(args)
+local function new(args)
     local args = args or {}
     local promptbox = {}
     args.type = "textbox"

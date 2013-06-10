@@ -248,7 +248,7 @@ local function activateKeyboard(curMenu)
 end
 
 -- Individual menu function
-function new(args)
+local function new(args)
   local subArrow  = wibox.widget.imagebox()
   subArrow:set_image( beautiful.menu_submenu_icon   )
 

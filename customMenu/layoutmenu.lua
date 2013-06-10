@@ -234,7 +234,7 @@ function centered_menu(layouts,backward)
     centered.visible = true
 end
 
-function new(screen, layouts)
+local function new(screen, layouts)
     local screen = screen or 1
     local w = wibox.widget.imagebox()
     local titleBarWidget = wibox.widget.textbox()

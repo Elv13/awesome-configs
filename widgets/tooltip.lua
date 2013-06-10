@@ -10,7 +10,7 @@ local capi = { screen = screen ,
                mouse  = mouse  }
 module("widgets.tooltip")
 
-function new(text, args)
+local function new(text, args)
   local args,data = args or  {},{}
   function data:showToolTip(show,args2)
      local args2 = args2 or {}

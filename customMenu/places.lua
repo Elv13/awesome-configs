@@ -55,7 +55,7 @@ local function read_kde_bookmark(offset)
     return m
 end
 
-function new(offset, args)
+local function new(offset, args)
     local data = nil
 
     local mylauncher2text = wibox.widget.textbox()--capi.widget({ type = "textbox" })

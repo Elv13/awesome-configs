@@ -22,7 +22,7 @@ local function setupKb()
   return "us"--text
 end
 
-function new(screen, args) 
+local function new(screen, args) 
   local keyboardSwitcher = wibox.widget.imagebox()
   local tt = tooltip("Change keyboard layout",{down=true})
 

@@ -84,7 +84,7 @@ end
 
 
 
-function new(screen, args)
+local function new(screen, args)
     local tt = tooltip("Classic application menu",{down=true})
 
 

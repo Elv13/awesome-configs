@@ -71,7 +71,7 @@ local function get_wibox()
     end
 end
 
-function new(screen, args)
+local function new(screen, args)
   --Nothing to do
 end
 

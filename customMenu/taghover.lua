@@ -19,6 +19,7 @@ local module = {}
 local aTagMenu = nil
 
 function new(screen, args)
+  print(debug.traceback())
   mainMenu = radical.context({layout=radical.layout.horizontal,item_width=140,item_height=140,icon_size=100})
   for k,v in ipairs(module.tag:clients()) do
       print("CONTENT",v.content,v.get_content)

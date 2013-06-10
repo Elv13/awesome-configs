@@ -126,7 +126,7 @@ function createMenu(offset)
     return mainMenu
 end
 
-function new(offset, args)
+local function new(offset, args)
     local launcherText = wibox.widget.textbox()
 --     launcherText:margin({ left = 30,right=17})
     launcherText:set_text("Launch")

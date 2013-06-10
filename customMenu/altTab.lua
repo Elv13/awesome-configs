@@ -56,10 +56,11 @@ local function button_group(args)
     return widget
 end
 
-function new(screen, args)
+local function new2(screen, args)
+    print(debug.traceback())
     local args = args or {}
-    local menuX = ((screen or capi.screen[capi.mouse.screen]).geometry.width)/4
-    local menuY = ((screen or capi.screen[capi.mouse.screen]).geometry.height - (beautiful.menu_height*#capi.client.get(screen)))/2
+    local menuX = (capi.screen[(screen or capi.mouse.screen)].geometry.width)/4
+    local menuY = (capi.screen[(screen or capi.mouse.screen)].geometry.height - (beautiful.menu_height*#capi.client.get(screen)))/2
     local currentMenu = menu({x= menuX, y= menuY, filter = true, show_filter=true, autodiscard = true,noarrow=true,fkeys_prefix=true,width=(((screen or capi.screen[capi.mouse.screen]).geometry.width)/2)})
     currentMenu.width = (((screen or capi.screen[capi.mouse.screen]).geometry.width)/2)
 
@@ -104,4 +105,4 @@ function new(screen, args)
     return currentMenu
 end
 
-return setmetatable({}, { __call = function(_, ...) return new(...) end })
+return setmetatable({}, { __call = function(_, ...) return new2(...) end })

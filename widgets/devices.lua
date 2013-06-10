@@ -23,11 +23,7 @@ local data = {}
 local devices = {}
 local ej,ejo,hddicn,hddnicn,homeicn
 
-function update()
-
-end
-
-function new(screen, args) 
+local function new(screen, args) 
   add_device("/dev/root,"..os.getenv("HOME"))
   local deviceList = io.popen("/bin/mount | grep -E \"/dev/(root|sd[a-z])\" | awk '{print $1\",\"$3}'")
   if deviceList then

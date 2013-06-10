@@ -36,7 +36,7 @@ local aTagMenu = nil
 
 local aTag
 
-function new(screen, args)
+local function new(screen, args)
   
   mainMenu = menu()
   

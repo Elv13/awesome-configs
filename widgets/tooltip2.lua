@@ -36,7 +36,7 @@ local function rel_parent(w,args2,args)
   return {}
 end
 
-function new(widget,text, args)
+local function new(widget,text, args)
   local args,data = args or  {},{}
 
   local function hide_tooltip()

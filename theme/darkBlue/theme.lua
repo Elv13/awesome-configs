@@ -295,8 +295,8 @@ local function gen_task_bg(wdg,c,m,objects,image)
                     if not menu then
                         menu = radical.context({layout=radical.layout.horizontal,item_width=140,item_height=140,icon_size=100,arrow_type=radical.base.arrow_type.CENTERED})
                         menu:add_item({text = "<b>"..c.name.."</b>",icon=c.content})
-                        menu.wibox.opacity=0.5
-                        c.opacity = 0.5
+                        menu.wibox.opacity=0.8
+--                         c.opacity = 0.5
                     end
                     menu.parent_geometry = geom
                     menu.visible = true

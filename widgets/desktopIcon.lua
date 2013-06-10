@@ -18,7 +18,7 @@ local capi = { image        = image       ,
 
 module("widgets.desktopIcon")
 
-function new(screen, args) 
+local function new(screen, args) 
   local aWibox = wibox({position="free"})
   aWibox:geometry({x=400,y=400,width = 230, height = 30})
   local textTest = capi.widget({type="textbox" })

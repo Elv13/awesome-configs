@@ -38,7 +38,7 @@ local function keyboardNavigation(leap)
     end
 end
 
-function new(screen, args) 
+local function new(screen, args) 
     local numberStyle = "<span size='large' bgcolor='".. beautiful.fg_normal .."'color='".. beautiful.bg_normal .."'><tt><b>"
     local numberStyleEnd = "</b></tt></span> "
 
