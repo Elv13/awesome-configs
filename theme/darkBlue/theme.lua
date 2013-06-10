@@ -9,7 +9,7 @@ local wibox_w    = require( "wibox.widget"   )
 local radical    = require( "radical"        )
 local confdir    = awful.util.getdir("config")
 
-local capi =  {timer=timer}
+local capi =  {timer=timer,client=client}
 
 theme = {}
 
@@ -247,13 +247,14 @@ local function task_widget_draw(self,w, cr, width, height)
         offset = height - logical.height
     end
 
+    cr:select_font_face(theme.font, cairo.FontSlant.NORMAL, cairo.FontWeight.NORMAL)
+
     local extents = cr:text_extents(self.data.c.name)
 
     local x_offset = theme.default_height/2 + (self.data.c.icon and theme.default_height + 12 or 6)
 
     cr:set_source(color(theme.fg_normal))
 
-    cr:select_font_face(theme.font, cairo.FontSlant.NORMAL, cairo.FontWeight.NORMAL)
     if width-x_offset-height/2 -4 < extents.width then
         local rad = height/11
         for i=0,2 do
@@ -263,8 +264,16 @@ local function task_widget_draw(self,w, cr, width, height)
         cr:rectangle(x_offset,0,width-x_offset-height/2 - 1 - 9*rad,height)
         cr:clip()
     end
-    cr:move_to(x_offset, extents.height)
-    cr:show_text(self.data.c.name or "N/A")
+    cr:move_to(x_offset, extents.height + (height - extents.height)/2 - 1)
+    local prefix = ""
+    if capi.client.focus == self.data.c then
+        cr:set_source(color(awful.util.color_strip_alpha(theme.fg_focus)))
+    elseif self.data.c.urgent then
+        cr:set_source(color(awful.util.color_strip_alpha(theme.fg_urgent)))
+    else
+        cr:set_source(color(awful.util.color_strip_alpha(theme.fg_normal)))
+    end
+    cr:show_text(prefix..(self.data.c.name or "N/A"))
 
     if width-x_offset-height/2 -4 < extents.width then
         cr:reset_clip()
@@ -286,6 +295,8 @@ local function gen_task_bg(wdg,c,m,objects,image)
                     if not menu then
                         menu = radical.context({layout=radical.layout.horizontal,item_width=140,item_height=140,icon_size=100,arrow_type=radical.base.arrow_type.CENTERED})
                         menu:add_item({text = "<b>"..c.name.."</b>",icon=c.content})
+                        menu.wibox.opacity=0.5
+                        c.opacity = 0.5
                     end
                     menu.parent_geometry = geom
                     menu.visible = true
