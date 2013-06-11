@@ -403,6 +403,9 @@ theme.titlebar_maximized_button_focus_inactive = confdir .. "/theme/darkBlue/Ico
 theme.titlebar_maximized_button_normal_active = confdir .. "/theme/darkBlue/Icon/titlebar/maximized_normal_active.png"
 theme.titlebar_maximized_button_focus_active = confdir .. "/theme/darkBlue/Icon/titlebar/maximized_focus_active.png"
 
+theme.titlebar_resize = confdir .. "/theme/darkBlue/Icon/titlebar/resize.png"
+theme.titlebar_tag    = confdir .. "/theme/darkBlue/Icon/titlebar/tag.png"
+
 theme.titlebar_title_align = "left"
 theme.titlebar_height = 16
 

@@ -165,6 +165,10 @@ local endArrow               = utils.theme.get_beg_arrow_wdg2()
 -- Create the laucher dock
 local endArrow_alt           = utils.theme.get_beg_arrow_wdg2({bg_color=beautiful.bg_alternate})
 
+-- End arrow
+local endArrowR = wibox.widget.imagebox()
+endArrowR:set_image(utils.theme.get_beg_arrow2({bg_color=beautiful.bg_alternate ,direction="left"}))
+
 -- Create the addTag icon (depend on shifty rule)
 local addTag                 = customButton.addTag                      ( nil )
 
@@ -290,9 +294,7 @@ for s = 1, screen.count() do
     -- Widgets that are aligned to the right
     local right_layout = wibox.layout.fixed.horizontal()
     local right_layout_meta = wibox.layout.fixed.horizontal()
-    local test = wibox.widget.imagebox()
-    test:set_image(utils.theme.get_beg_arrow2({bg_color=beautiful.bg_alternate ,direction="left"}))
-    right_layout_meta:add(test)
+    right_layout_meta:add(endArrowR)
     right_layout:add(spacer5)
     right_layout:add(cpuinfo)
     right_layout:add(spacer_img)
@@ -479,7 +481,7 @@ clientkeys = awful.util.table.join(
     awful.key({ modkey, "Control" }, "Return", function (c) c:swap(awful.client.getmaster()) end),
     awful.key({ modkey,           }, "o",      awful.client.movetoscreen                        ),
     awful.key({ modkey,           }, "t",      function (c) c.ontop = not c.ontop            end),
-    awful.key({ modkey,           }, "y",      function (c) indicator.resize.display(c)  end),
+    awful.key({ modkey,           }, "y",      function (c) indicator.resize.display(c,true) end),
     awful.key({ modkey,           }, "n",
         function (c)
             -- The client currently has the input focus, so it cannot be
@@ -586,7 +588,17 @@ client.connect_signal("manage", function (c, startup)
         -- Widgets that are aligned to the left
         local left_layout = wibox.layout.fixed.horizontal()
         local tt = {}
-        left_layout:add(awful.titlebar.widget.iconwidget(c))
+        local ib = wibox.widget.imagebox()
+        ib:set_image(beautiful.titlebar_resize)
+        ib:buttons( awful.util.table.join(
+        awful.button({ }, 1, function(geometry)
+            root.fake_input("button_release",1,0,0)
+            indicator.resize.display(c,true)
+        end)))
+        left_layout:add(ib)
+        local ib2 = wibox.widget.imagebox()
+        ib2:set_image(beautiful.titlebar_tag)
+        left_layout:add(ib2)
 
         local height = --[[awful.client.floating.get(c) and]] beautiful.titlebar_height or  beautiful.get_font_height() * 1.5 --[[or 5]]
         -- Widgets that are aligned to the right
@@ -620,10 +632,26 @@ client.connect_signal("manage", function (c, startup)
         end
 --         title:buttons(buttons)
 
+        local bgbr = wibox.widget.background()
+        bgbr:set_widget(right_layout)
+        bgbr:set_bg(beautiful.bg_alternate)
+        local right_layout2 = wibox.layout.fixed.horizontal()
+        right_layout2:add(endArrowR)
+        right_layout2:add(bgbr)
+        
+        local bgbl = wibox.widget.background()
+        bgbl:set_widget(left_layout)
+        bgbl:set_bg(beautiful.bg_alternate)
+        local left_layout2 = wibox.layout.fixed.horizontal()
+        left_layout2:add(bgbl)
+        left_layout2:add(endArrow_alt)
+        left_layout2:add(awful.titlebar.widget.iconwidget(c))
+        
         -- Now bring it all together
         local layout = wibox.layout.align.horizontal()
-        layout:set_left(left_layout)
-        layout:set_right(right_layout)
+        layout:set_left(left_layout2)
+        
+        layout:set_right(right_layout2)
         layout:set_middle(title)
 
         local tb = awful.titlebar(c,{size=height})
