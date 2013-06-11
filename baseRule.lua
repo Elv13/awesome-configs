@@ -322,6 +322,15 @@ tyrannical.properties.ontop = {
     "Xephyr"       , "ksnapshot"       , "kruler"
 }
 
+-- tyrannical.properties.border_width = {
+--     URxvt = 0
+-- }
+
+tyrannical.properties.border_color = {
+    URxvt = "#0A1535"
+}
+
+
 tyrannical.properties.centered = { "kcalc" }
 
 tyrannical.properties.size_hints_honor = { xterm = false, URxvt = false, aterm = false, sauer_client = false, mythfrontend  = false}

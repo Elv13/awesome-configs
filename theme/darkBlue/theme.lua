@@ -1,3 +1,4 @@
+local capi =  {timer=timer,client=client}
 local awful      = require( "awful"          )
 local color      = require( "gears.color"    )
 local surface    = require( "gears.surface"  )
@@ -9,7 +10,6 @@ local wibox_w    = require( "wibox.widget"   )
 local radical    = require( "radical"        )
 local confdir    = awful.util.getdir("config")
 
-local capi =  {timer=timer,client=client}
 
 theme = {}
 
@@ -139,7 +139,7 @@ local task_cache = {}
 local icon_cache = setmetatable({}, { __mode = "kv" })
 local arr,arr1=themeutils.get_end_arrow2({bg_color=theme.bg_normal}),themeutils.get_end_arrow2({bg_color=theme.bg_normal,direction="left"})
 
-local function gen_task_bg_real(wdg,width)
+local function gen_task_bg_real(wdg,width,args)
    local c,m,image = wdg.data.c,wdg.data.m,wdg.data.image
    local hash = width..(image or "nil")..(client.floating.get(c) and "c" or "")..(c.ontop == true and "o" or "")..(c.sticky == true and "s" or "")
     if task_cache[c] and task_cache[c][hash] then
@@ -212,20 +212,22 @@ local function gen_task_bg_real(wdg,width)
         return status_matrix
     end
 
-    local tmp_offset = offset
-    if client.floating.get(c) then
-        local path  = theme["tasklist_floating".. (image and "_focus" or "") .."_icon"]
-        composed[#composed+1] = {layer=path,matrix=gen_matrix(path)}
-        tmp_offset = offset*2
-    end
-    if c.ontop == true then
-        local path  = theme["tasklist_ontop"   .. (image and "_focus" or "") .."_icon"]
-        composed[#composed+1] = {layer=path,matrix=gen_matrix(path,tmp_offset)}
-        tmp_offset = tmp_offset + offset
-    end
-    if c.sticky == true then
-        local path  = theme["tasklist_sticky"  .. (image and "_focus" or "") .."_icon"]
-        composed[#composed+1] = {layer=path,matrix=gen_matrix(path,tmp_offset)}
+    if not args.no_marker then
+        local tmp_offset = offset
+        if client.floating.get(c) then
+            local path  = theme["tasklist_floating".. (image and "_focus" or "") .."_icon"]
+            composed[#composed+1] = {layer=path,matrix=gen_matrix(path)}
+            tmp_offset = offset*2
+        end
+        if c.ontop == true then
+            local path  = theme["tasklist_ontop"   .. (image and "_focus" or "") .."_icon"]
+            composed[#composed+1] = {layer=path,matrix=gen_matrix(path,tmp_offset)}
+            tmp_offset = tmp_offset + offset
+        end
+        if c.sticky == true then
+            local path  = theme["tasklist_sticky"  .. (image and "_focus" or "") .."_icon"]
+            composed[#composed+1] = {layer=path,matrix=gen_matrix(path,tmp_offset)}
+        end
     end
     composed[#composed+1] = {layer = arr,y=0,x=width-theme.default_height/2+1}
     img2 = themeutils.compose(composed)
@@ -234,8 +236,9 @@ local function gen_task_bg_real(wdg,width)
     return  cairo.Pattern.create_for_surface(img2)
 end
 
-local function task_widget_draw(self,w, cr, width, height)
-   local pattern =  gen_task_bg_real(self,width)
+local function task_widget_draw(self,w, cr, width, height,args)
+   args = args or {}
+   local pattern =  gen_task_bg_real(self,width,args)
    cr:set_source(pattern)
    cr:paint()
    cr:update_layout(self._layout)
@@ -279,6 +282,8 @@ local function task_widget_draw(self,w, cr, width, height)
         cr:reset_clip()
     end
 end
+
+theme.task_list_draw_func = task_widget_draw
 
 local function gen_task_bg(wdg,c,m,objects,image)
     m:set_margins(0)
@@ -405,6 +410,8 @@ theme.titlebar_maximized_button_focus_active = confdir .. "/theme/darkBlue/Icon/
 
 theme.titlebar_resize = confdir .. "/theme/darkBlue/Icon/titlebar/resize.png"
 theme.titlebar_tag    = confdir .. "/theme/darkBlue/Icon/titlebar/tag.png"
+
+theme.titlebar_bg_focus = theme.bg_normal
 
 theme.titlebar_title_align = "left"
 theme.titlebar_height = 16

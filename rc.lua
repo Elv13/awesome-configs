@@ -205,7 +205,6 @@ mytaglist.buttons = awful.util.table.join(
                         customMenu.taghover.tag = q
                         local menu = customMenu.taghover.getMenu()
                         menu.visible = true
-                        print("sdfsdfsd",menu.visible,menu.x,menu.y,menu.width,menu.height,menu.direction)
                     end),
                     awful.button({ modkey }, 3, awful.client.toggletag),
                     awful.button({ }, 4, function(t) awful.tag.viewnext(awful.tag.getscreen(t)) end),
@@ -630,10 +629,17 @@ client.connect_signal("manage", function (c, startup)
                 end)
                 )
         local title = awful.titlebar.widget.titlewidget(c)
+--         title.fit = function(box, w, h)
+--             local width, height = wibox.widget.textbox.fit(box, w, h);
+--             return w, beautiful.titlebar_height or height
+--         end
         title.fit = function(box, w, h)
             local width, height = wibox.widget.textbox.fit(box, w, h);
-            return w, beautiful.titlebar_height or height
+            return width+ 50, beautiful.titlebar_height or height
         end
+        print("I am here")
+        title.data = {c = c,image=beautiful.taglist_bg_image_used}
+        title.draw = function(self,w, cr, width, height) beautiful.task_list_draw_func(self,w, cr, width, height,{no_marker=true}) end
 --         title:buttons(buttons)
 
         local bgbr = wibox.widget.background()
@@ -649,7 +655,7 @@ client.connect_signal("manage", function (c, startup)
         local left_layout2 = wibox.layout.fixed.horizontal()
         left_layout2:add(bgbl)
         left_layout2:add(endArrow_alt)
-        left_layout2:add(awful.titlebar.widget.iconwidget(c))
+--         left_layout2:add(awful.titlebar.widget.iconwidget(c))
         
         -- Now bring it all together
         local layout = wibox.layout.align.horizontal()
@@ -660,14 +666,31 @@ client.connect_signal("manage", function (c, startup)
 
         local tb = awful.titlebar(c,{size=height})
         tb:set_widget(layout)
+        tb.title_wdg = title
         title:buttons(buttons)
     end
 end)
 
-client.connect_signal("focus", function(c) c.border_color = beautiful.border_focus end)
-client.connect_signal("unfocus", function(c) c.border_color = beautiful.border_normal end)
+
+client.connect_signal("focus", function(c) 
+    local tb = awful.titlebar(c)
+    if tb and tb.title_wdg then
+        tb.title_wdg.data.image = beautiful.taglist_bg_image_selected
+    end
+    if not c.class == "URxvt" then
+        c.border_color = beautiful.border_focus
+    end
+end)
+client.connect_signal("unfocus", function(c) 
+    local tb = awful.titlebar(c)
+    if tb and tb.title_wdg then
+        tb.title_wdg.data.image = beautiful.taglist_bg_image_used
+    end
+    if not c.class == "URxvt" then
+        c.border_color = beautiful.border_normal
+    end
+end)
 -- }}}
 -- debug.sethook()
 -- utils.profile.stop(_G)
 -- widgets.radialSelect.radial_client_select()
-print(client.focus)
