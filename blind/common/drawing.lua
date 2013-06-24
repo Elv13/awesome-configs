@@ -16,8 +16,7 @@ local cairo = require("lgi").cairo
 local capi = { image  = image  ,
                widget = widget,
                screen = screen}
-
-module("utils.theme")
+local module = {}
 
 local cacheE,cacheB = {},{}
 
@@ -27,7 +26,7 @@ local cacheE,cacheB = {},{}
 -- end
 
 local end_cache = {}
-function get_end_arrow2(args)--bg_color,fg_color,padding,direction
+module.get_end_arrow2 = function(args)--bg_color,fg_color,padding,direction
     local args = args or {}
     local default_height = beautiful.default_height or 16
     local hash = (args.width or default_height+1)..(args.padding or 0)..(args.height or default_height)..(args.bg_color or beautiful.fg_normal or "")..(args.direction or "")
@@ -48,14 +47,14 @@ function get_end_arrow2(args)--bg_color,fg_color,padding,direction
     return img
 end
 
-function get_end_arrow_wdg2(args)
+module.get_end_arrow_wdg2 = function(args)
     local ib = wibox.widget.imagebox()
     ib:set_image(get_end_arrow2(args))
     return ib
 end
 
 local beg_cache = {}
-function get_beg_arrow2(args)--bg_color,fg_color,padding,direction
+module.get_beg_arrow2 = function(args)--bg_color,fg_color,padding,direction
     local args = args or {}
     local default_height = beautiful.default_height or 16
     local hash = (args.width or default_height/2 + 1)..(args.padding or 0)..(args.height or default_height)..(args.bg_color or beautiful.fg_normal or "")..(args.direction or "")
@@ -76,14 +75,14 @@ function get_beg_arrow2(args)--bg_color,fg_color,padding,direction
     return img
 end
 
-function get_beg_arrow_wdg2(args)
+module.get_beg_arrow_wdg2 = function(args)
     local ib = wibox.widget.imagebox()
-    ib:set_image(get_beg_arrow2(args))
+    ib:set_image(module.get_beg_arrow2(args))
     return ib
 end
 
 --Take multiple layers or path_to_png and add them on top of each other
-function compose(layer_array)
+module.compose = function(layer_array)
     local base,cr = nil,nil
     for k=1,#layer_array do --Do NOT use ipairs here as the array have some nils
         local v = layer_array[k]
@@ -130,21 +129,4 @@ function compose(layer_array)
     return base
 end
 
---Take a surface or string and apply it on the base
--- function apply_pattern(base,pattern)
---     if not pattern then return end
---     local width,height = base:get_width(),base:get_height()
---     local cr = cairo.Context(base)
---     if type(pattern) == "string" then
---         pattern = cairo.ImageSurface.create_from_png(pattern)
---     end
---     cr:set_source_surface(pattern)
---     local pat_width = pattern:get_width()
---     if width/pat_width > 1 then
---         for i=0,math.ceil((width/pat_width)-1) do
---             move_and_apply(cr,pattern,i*pat_width,0)
---         end
---     else
---         move_and_apply(cr,pattern,0,0)
---     end
--- end
+return setmetatable(module, { })

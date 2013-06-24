@@ -5,11 +5,12 @@ local surface    = require( "gears.surface"  )
 local cairo      = require( "lgi"            ).cairo
 local tag        = require( "awful.tag"      )
 local client     = require( "awful.client"   )
-local themeutils = require( "utils.theme"    )
+local themeutils = require( "blind.common.drawing"    )
 local wibox_w    = require( "wibox.widget"   )
 local radical    = require( "radical"        )
-local confdir    = awful.util.getdir("config")
+local debug      = debug
 
+local path = debug.getinfo(1,"S").source:gsub("theme.lua",""):gsub("@","")
 
 theme = {}
 
@@ -21,6 +22,7 @@ theme = {}
 
 theme.default_height = 16
 theme.font           = "snap"
+theme.path           = path
 
 theme.bg_normal      = "#0A1535"
 theme.bg_focus       = "#003687"
@@ -45,12 +47,12 @@ theme.border_normal  = "#555555"
 theme.border_focus   = "#535d6c"
 theme.border_marked  = "#91231c"
 
-theme.tasklist_floating_icon       = confdir .. "/theme/darkBlue/Icon/titlebar/floating.png"
-theme.tasklist_ontop_icon          = confdir .. "/theme/darkBlue/Icon/titlebar/ontop.png"
-theme.tasklist_sticky_icon         = confdir .. "/theme/darkBlue/Icon/titlebar/sticky.png"
-theme.tasklist_floating_focus_icon = confdir .. "/theme/darkBlue/Icon/titlebar/floating_focus.png"
-theme.tasklist_ontop_focus_icon    = confdir .. "/theme/darkBlue/Icon/titlebar/ontop_focus.png"
-theme.tasklist_sticky_focus_icon   = confdir .. "/theme/darkBlue/Icon/titlebar/sticky_focus.png"
+theme.tasklist_floating_icon       = path .."Icon/titlebar/floating.png"
+theme.tasklist_ontop_icon          = path .."Icon/titlebar/ontop.png"
+theme.tasklist_sticky_icon         = path .."Icon/titlebar/sticky.png"
+theme.tasklist_floating_focus_icon = path .."Icon/titlebar/floating_focus.png"
+theme.tasklist_ontop_focus_icon    = path .."Icon/titlebar/ontop_focus.png"
+theme.tasklist_sticky_focus_icon   = path .."Icon/titlebar/sticky_focus.png"
 theme.tasklist_plain_task_name     = true
 
 
@@ -115,13 +117,13 @@ local function gen_tag_bg(wdg,t,m,objects,idx,image)
     cr:set_source(color(theme.fg_normal))
     cr:rectangle(0,0,theme.default_height+theme.default_height/2+5,theme.default_height)
     cr:fill()
-    local icon = tag.geticon(t) or confdir .. "/theme/darkBlue/Icon/tags_invert/other.png"
+    local icon = tag.geticon(t) or path .."Icon/tags_invert/other.png"
     img2 = themeutils.compose({
         img2,
         {layer=icon,x=2,y=0,scale=true,height=theme.default_height+2},
         {layer=arr1_tag,x=theme.default_height+theme.default_height/2+5,y=0},
         {layer = objects[#objects] ~= t and arr_tag or arr_last_tag,y=0,x=width+ (theme.default_height+3*(theme.default_height/2)+11) - theme.default_height/2 + 5 -9+(isClone and 20 or 0)},
-        isClone and {layer=confdir .. "/theme/darkBlue/Icon/clone2.png",x=width+42} or nil,
+        isClone and {layer=path .."Icon/clone2.png",x=width+42} or nil,
         isClone and {layer = gen_screen_nb(tag.getscreen(isClone)),x=width+42} or nil
     })
     cr:move_to(theme.default_height+2,theme.default_height-6)
@@ -337,11 +339,11 @@ end
 
 -- Display the taglist squares
 theme.taglist_bg_image_empty           = nil
-theme.taglist_bg_image_selected        = confdir .. "/theme/darkBlue/Icon/bg/selected_bg.png"
-theme.taglist_bg_image_used            = confdir .. "/theme/darkBlue/Icon/bg/used_bg.png"
-theme.taglist_bg_image_urgent          = confdir .. "/theme/darkBlue/Icon/bg/urgent_bg.png"
-theme.taglist_bg_image_remote_selected = confdir .. "/theme/darkBlue/Icon/bg/selected_bg_green.png"
-theme.taglist_bg_image_remote_used     = confdir .. "/theme/darkBlue/Icon/bg/used_bg_green.png"
+theme.taglist_bg_image_selected        = path .."Icon/bg/selected_bg.png"
+theme.taglist_bg_image_used            = path .."Icon/bg/used_bg.png"
+theme.taglist_bg_image_urgent          = path .."Icon/bg/urgent_bg.png"
+theme.taglist_bg_image_remote_selected = path .."Icon/bg/selected_bg_green.png"
+theme.taglist_bg_image_remote_used     = path .."Icon/bg/used_bg_green.png"
 theme.taglist_squares_unsel            = function(wdg,m,t,objects,idx) return gen_tag_bg(wdg,m,t,objects,idx,theme.taglist_bg_image_used)     end
 theme.taglist_squares_sel              = function(wdg,m,t,objects,idx) return gen_tag_bg(wdg,m,t,objects,idx,theme.taglist_bg_image_selected) end
 theme.taglist_squares_sel_empty        = function(wdg,m,t,objects,idx) return gen_tag_bg(wdg,m,t,objects,idx,theme.taglist_bg_image_selected) end
@@ -365,10 +367,10 @@ theme.tasklist_disable_icon            = true
 -- Variables set for theming menu
 -- menu_[bg|fg]_[normal|focus]
 -- menu_[border_color|border_width]
-theme.menu_submenu_icon         = confdir .. "/theme/darkBlue/Icon/tags/arrow.png"
-theme.menu_scrollmenu_down_icon = confdir .. "/theme/darkBlue/Icon/tags/arrow_down.png"
-theme.menu_scrollmenu_up_icon   = confdir .. "/theme/darkBlue/Icon/tags/arrow_up.png"
-theme.awesome_icon              = confdir .. "/theme/darkBlue/Icon/awesome2.png"
+theme.menu_submenu_icon         = path .."Icon/tags/arrow.png"
+theme.menu_scrollmenu_down_icon = path .."Icon/tags/arrow_down.png"
+theme.menu_scrollmenu_up_icon   = path .."Icon/tags/arrow_up.png"
+theme.awesome_icon              = path .."Icon/awesome2.png"
 theme.menu_height               = 20
 theme.menu_width                = 130
 theme.menu_border_width         = 2
@@ -389,31 +391,31 @@ theme.wallpaper = "/home/lepagee/bg/final/bin_ascii_ds.png"
 --bg_widget    = #cc0000
 
 -- Define the image to load
-theme.titlebar_close_button_normal = confdir .. "/theme/darkBlue/Icon/titlebar/close_normal_inactive.png"
-theme.titlebar_close_button_focus = confdir .. "/theme/darkBlue/Icon/titlebar/close_focus_inactive.png"
+theme.titlebar_close_button_normal = path .."Icon/titlebar/close_normal_inactive.png"
+theme.titlebar_close_button_focus = path .."Icon/titlebar/close_focus_inactive.png"
 
-theme.titlebar_ontop_button_normal_inactive = confdir .. "/theme/darkBlue/Icon/titlebar/ontop_normal_inactive.png"
-theme.titlebar_ontop_button_focus_inactive = confdir .. "/theme/darkBlue/Icon/titlebar/ontop_focus_inactive.png"
-theme.titlebar_ontop_button_normal_active = confdir .. "/theme/darkBlue/Icon/titlebar/ontop_normal_active.png"
-theme.titlebar_ontop_button_focus_active = confdir .. "/theme/darkBlue/Icon/titlebar/ontop_focus_active.png"
+theme.titlebar_ontop_button_normal_inactive = path .."Icon/titlebar/ontop_normal_inactive.png"
+theme.titlebar_ontop_button_focus_inactive = path .."Icon/titlebar/ontop_focus_inactive.png"
+theme.titlebar_ontop_button_normal_active = path .."Icon/titlebar/ontop_normal_active.png"
+theme.titlebar_ontop_button_focus_active = path .."Icon/titlebar/ontop_focus_active.png"
 
-theme.titlebar_sticky_button_normal_inactive = confdir .. "/theme/darkBlue/Icon/titlebar/sticky_normal_inactive.png"
-theme.titlebar_sticky_button_focus_inactive = confdir .. "/theme/darkBlue/Icon/titlebar/sticky_focus_inactive.png"
-theme.titlebar_sticky_button_normal_active = confdir .. "/theme/darkBlue/Icon/titlebar/sticky_normal_active.png"
-theme.titlebar_sticky_button_focus_active = confdir .. "/theme/darkBlue/Icon/titlebar/sticky_focus_active.png"
+theme.titlebar_sticky_button_normal_inactive = path .."Icon/titlebar/sticky_normal_inactive.png"
+theme.titlebar_sticky_button_focus_inactive = path .."Icon/titlebar/sticky_focus_inactive.png"
+theme.titlebar_sticky_button_normal_active = path .."Icon/titlebar/sticky_normal_active.png"
+theme.titlebar_sticky_button_focus_active = path .."Icon/titlebar/sticky_focus_active.png"
 
-theme.titlebar_floating_button_normal_inactive = confdir .. "/theme/darkBlue/Icon/titlebar/floating_normal_inactive.png"
-theme.titlebar_floating_button_focus_inactive = confdir .. "/theme/darkBlue/Icon/titlebar/floating_focus_inactive.png"
-theme.titlebar_floating_button_normal_active = confdir .. "/theme/darkBlue/Icon/titlebar/floating_normal_active.png"
-theme.titlebar_floating_button_focus_active = confdir .. "/theme/darkBlue/Icon/titlebar/floating_focus_active.png"
+theme.titlebar_floating_button_normal_inactive = path .."Icon/titlebar/floating_normal_inactive.png"
+theme.titlebar_floating_button_focus_inactive = path .."Icon/titlebar/floating_focus_inactive.png"
+theme.titlebar_floating_button_normal_active = path .."Icon/titlebar/floating_normal_active.png"
+theme.titlebar_floating_button_focus_active = path .."Icon/titlebar/floating_focus_active.png"
 
-theme.titlebar_maximized_button_normal_inactive = confdir .. "/theme/darkBlue/Icon/titlebar/maximized_normal_inactive.png"
-theme.titlebar_maximized_button_focus_inactive = confdir .. "/theme/darkBlue/Icon/titlebar/maximized_focus_inactive.png"
-theme.titlebar_maximized_button_normal_active = confdir .. "/theme/darkBlue/Icon/titlebar/maximized_normal_active.png"
-theme.titlebar_maximized_button_focus_active = confdir .. "/theme/darkBlue/Icon/titlebar/maximized_focus_active.png"
+theme.titlebar_maximized_button_normal_inactive = path .."Icon/titlebar/maximized_normal_inactive.png"
+theme.titlebar_maximized_button_focus_inactive = path .."Icon/titlebar/maximized_focus_inactive.png"
+theme.titlebar_maximized_button_normal_active = path .."Icon/titlebar/maximized_normal_active.png"
+theme.titlebar_maximized_button_focus_active = path .."Icon/titlebar/maximized_focus_active.png"
 
-theme.titlebar_resize = confdir .. "/theme/darkBlue/Icon/titlebar/resize.png"
-theme.titlebar_tag    = confdir .. "/theme/darkBlue/Icon/titlebar/tag.png"
+theme.titlebar_resize = path .."Icon/titlebar/resize.png"
+theme.titlebar_tag    = path .."Icon/titlebar/tag.png"
 
 theme.titlebar_bg_focus = theme.bg_normal
 
@@ -428,31 +430,31 @@ theme.titlebar_height = 16
 ------------------------------------------------------------------------------------------------------
 
 -- You can use your own layout icons like this:
-theme.layout_fairh           = confdir .. "/theme/darkBlue/Icon/layouts/fairh.png"
-theme.layout_fairv           = confdir .. "/theme/darkBlue/Icon/layouts/fairv.png"
-theme.layout_floating        = confdir .. "/theme/darkBlue/Icon/layouts/floating.png"
-theme.layout_magnifier       = confdir .. "/theme/darkBlue/Icon/layouts/magnifier.png"
-theme.layout_max             = confdir .. "/theme/darkBlue/Icon/layouts/max.png"
-theme.layout_fullscreen      = confdir .. "/theme/darkBlue/Icon/layouts/fullscreen.png"
-theme.layout_tilebottom      = confdir .. "/theme/darkBlue/Icon/layouts/tilebottom.png"
-theme.layout_tileleft        = confdir .. "/theme/darkBlue/Icon/layouts/tileleft.png"
-theme.layout_tile            = confdir .. "/theme/darkBlue/Icon/layouts/tile.png"
-theme.layout_tiletop         = confdir .. "/theme/darkBlue/Icon/layouts/tiletop.png"
-theme.layout_spiral          = confdir .. "/theme/darkBlue/Icon/layouts/spiral.png"
-theme.layout_spiraldwindle   = confdir .. "/theme/darkBlue/Icon/layouts/spiral_d.png"
+theme.layout_fairh           = path .."Icon/layouts/fairh.png"
+theme.layout_fairv           = path .."Icon/layouts/fairv.png"
+theme.layout_floating        = path .."Icon/layouts/floating.png"
+theme.layout_magnifier       = path .."Icon/layouts/magnifier.png"
+theme.layout_max             = path .."Icon/layouts/max.png"
+theme.layout_fullscreen      = path .."Icon/layouts/fullscreen.png"
+theme.layout_tilebottom      = path .."Icon/layouts/tilebottom.png"
+theme.layout_tileleft        = path .."Icon/layouts/tileleft.png"
+theme.layout_tile            = path .."Icon/layouts/tile.png"
+theme.layout_tiletop         = path .."Icon/layouts/tiletop.png"
+theme.layout_spiral          = path .."Icon/layouts/spiral.png"
+theme.layout_spiraldwindle   = path .."Icon/layouts/spiral_d.png"
 
-theme.layout_fairh_s         = confdir .. "/theme/darkBlue/Icon/layouts_small/fairh.png"
-theme.layout_fairv_s         = confdir .. "/theme/darkBlue/Icon/layouts_small/fairv.png"
-theme.layout_floating_s      = confdir .. "/theme/darkBlue/Icon/layouts_small/floating.png"
-theme.layout_magnifier_s     = confdir .. "/theme/darkBlue/Icon/layouts_small/magnifier.png"
-theme.layout_max_s           = confdir .. "/theme/darkBlue/Icon/layouts_small/max.png"
-theme.layout_fullscreen_s    = confdir .. "/theme/darkBlue/Icon/layouts_small/fullscreen.png"
-theme.layout_tilebottom_s    = confdir .. "/theme/darkBlue/Icon/layouts_small/tilebottom.png"
-theme.layout_tileleft_s      = confdir .. "/theme/darkBlue/Icon/layouts_small/tileleft.png"
-theme.layout_tile_s          = confdir .. "/theme/darkBlue/Icon/layouts_small/tile.png"
-theme.layout_tiletop_s       = confdir .. "/theme/darkBlue/Icon/layouts_small/tiletop.png"
-theme.layout_spiral_s        = confdir .. "/theme/darkBlue/Icon/layouts_small/spiral.png"
-theme.layout_spiraldwindle_s = confdir .. "/theme/darkBlue/Icon/layouts_small/spiral_d.png"
+theme.layout_fairh_s         = path .."Icon/layouts_small/fairh.png"
+theme.layout_fairv_s         = path .."Icon/layouts_small/fairv.png"
+theme.layout_floating_s      = path .."Icon/layouts_small/floating.png"
+theme.layout_magnifier_s     = path .."Icon/layouts_small/magnifier.png"
+theme.layout_max_s           = path .."Icon/layouts_small/max.png"
+theme.layout_fullscreen_s    = path .."Icon/layouts_small/fullscreen.png"
+theme.layout_tilebottom_s    = path .."Icon/layouts_small/tilebottom.png"
+theme.layout_tileleft_s      = path .."Icon/layouts_small/tileleft.png"
+theme.layout_tile_s          = path .."Icon/layouts_small/tile.png"
+theme.layout_tiletop_s       = path .."Icon/layouts_small/tiletop.png"
+theme.layout_spiral_s        = path .."Icon/layouts_small/spiral.png"
+theme.layout_spiraldwindle_s = path .."Icon/layouts_small/spiral_d.png"
 
 
 return theme

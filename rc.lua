@@ -22,6 +22,7 @@ local menu4 = require( "radical.context"          )
 local tyrannical = require("tyrannical")
 local tyr_launcher = require("tyrannical.extra.launcher")
 local indicator = require("customIndicator")
+local blind = require("blind")
 -- utils.profile.start()
 -- debug.sethook(utils.profile.trace, "crl", 1)
 if awesome.startup_errors then
@@ -78,7 +79,6 @@ beautiful.init(config.data().themePath                .. "/theme.lua")
 
 -- {{{ Variable definitions
 -- Themes define colours, icons, and wallpapers
---beautiful.init("/home/awesome35/.config/awesome/theme/darkBlue/theme.lua")
 beautiful.init(awful.util.getdir("config").."/theme/darkBlue/theme.lua")
 
 -- This is used later as the default terminal and editor to run.
@@ -162,13 +162,13 @@ local cpuinfo                = drawer.cpuInfo           ( 300                   
 local lauchDock              = widgets.dock             ( nil                                )
 
 -- Create the laucher dock
-local endArrow               = utils.theme.get_beg_arrow_wdg2()
+local endArrow               = blind.common.drawing.get_beg_arrow_wdg2()
 -- Create the laucher dock
-local endArrow_alt           = utils.theme.get_beg_arrow_wdg2({bg_color=beautiful.bg_alternate})
+local endArrow_alt           = blind.common.drawing.get_beg_arrow_wdg2({bg_color=beautiful.bg_alternate})
 
 -- End arrow
 local endArrowR = wibox.widget.imagebox()
-endArrowR:set_image(utils.theme.get_beg_arrow2({bg_color=beautiful.bg_alternate ,direction="left"}))
+endArrowR:set_image(blind.common.drawing.get_beg_arrow2({bg_color=beautiful.bg_alternate ,direction="left"}))
 
 -- Create the addTag icon (depend on shifty rule)
 local addTag                 = customButton.addTag                      ( nil )
@@ -335,7 +335,7 @@ for s = 1, screen.count() do
     wibox_bot[s]:set_widget(layout_bot)
 
     local endArrow2 = wibox.widget.imagebox()
-    endArrow2:set_image(utils.theme.get_beg_arrow2({direction="left"}))
+    endArrow2:set_image(blind.common.drawing.get_beg_arrow2({direction="left"}))
 
     local left_layout_right_bot = wibox.layout.fixed.horizontal()
     if s == 1 then

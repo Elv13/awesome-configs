@@ -18,7 +18,7 @@ end
 
 function new(screen, args) 
   local desktopPix       = capi.widget({ type = "imagebox", align = "left" })
-  desktopPix.image = capi.image(util.getdir("config") .. "/theme/darkBlue/Icon/tags/desk2.png")
+  desktopPix.image = capi.image(beautiful.path.."Icon/tags/desk2.png")
   
   desktopPix:buttons( util.table.join(
     button({ }, 1, function()
