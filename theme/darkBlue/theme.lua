@@ -290,7 +290,7 @@ local function gen_task_bg(wdg,c,m,objects,image)
     wdg.data = {image=image,c=c,m=m}
     wdg.draw = task_widget_draw
 
-    local time,geom,menu = nil,nil,nil
+    local time,geom,menu,item = nil,nil,nil,nil
     if not wdg.hover_ready then
         wdg:connect_signal("mouse::enter", function(_,geo)
             if not time then
@@ -299,10 +299,14 @@ local function gen_task_bg(wdg,c,m,objects,image)
                 time:connect_signal("timeout",function()
                     if not menu then
                         menu = radical.context({layout=radical.layout.horizontal,item_width=140,item_height=140,icon_size=100,arrow_type=radical.base.arrow_type.CENTERED})
-                        menu:add_item({text = "<b>"..c.name.."</b>",icon=c.content})
+                        item = menu:add_item({text = "<b>"..c.name.."</b>",icon=c.content})
                         menu.wibox.opacity=0.8
 --                         c.opacity = 0.5
                     end
+                    print("\n\n\n",item._internal.set_map.text,rawget(item,"text"))
+                    item.icon = c.content
+--                     item.text = nil
+                    item.text  = "<b>"..c.name.."</b>"
                     menu.parent_geometry = geom
                     menu.visible = true
                     time:stop()

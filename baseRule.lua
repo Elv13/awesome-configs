@@ -32,6 +32,8 @@ tyrannical.tags = {
         layout      = awful.layout.suit.tile                         ,
         focus_new   = true                                           ,
         selected    = true,
+        nmaster     = 2,
+        mwfact      = 0.6,
         class       = {
             "xterm" , "urxvt" , "aterm","URxvt","XTerm"
         },
@@ -61,6 +63,7 @@ tyrannical.tags = {
         screen      = config.data().scr.pri                          ,
         layout      = awful.layout.suit.tile                         ,
         exec_once   = {"dolphin"},
+        no_focus_stealing = true,
         class  = { 
             "Thunar"        , "Konqueror"      , "Dolphin"   , "ark"          , "Nautilus",         }
     } ,
@@ -330,6 +333,11 @@ tyrannical.properties.border_color = {
     URxvt = "#0A1535"
 }
 
+
+tyrannical.settings.block_transient_for_focus_stealing = true
+tyrannical.settings.group_children = true
+tyrannical.settings.default_layout =  awful.layout.suit.tile.left
+tyrannical.settings.mwfact = 0.2
 
 tyrannical.properties.centered = { "kcalc" }
 

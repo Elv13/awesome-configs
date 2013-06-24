@@ -20,6 +20,7 @@ local utils = require("utils")
 local vicious = require("extern.vicious")
 local menu4 = require( "radical.context"          )
 local tyrannical = require("tyrannical")
+local tyr_launcher = require("tyrannical.extra.launcher")
 local indicator = require("customIndicator")
 -- utils.profile.start()
 -- debug.sethook(utils.profile.trace, "crl", 1)
@@ -410,7 +411,7 @@ globalkeys = awful.util.table.join(
 
     -- Standard program
     awful.key({         "Control" }, "Escape", function () awful.util.spawn("xkill")    end ),
-    awful.key({ modkey,           }, "Return", function () awful.util.spawn(terminal)   end ),
+    awful.key({ modkey,           }, "Return", function () tyr_launcher.spawn({command=terminal})   end ),
     awful.key({ modkey, "Control" }, "r", awesome.restart),
     awful.key({ modkey, "Shift"   }, "q", awesome.quit),
 
@@ -450,7 +451,20 @@ globalkeys = awful.util.table.join(
     awful.key({                   }, "#129"  , function () utils.mouseManager.switchTo(2)       end ),
 
     -- Prompt
-    awful.key({ modkey },            "r",     function () mypromptbox[mouse.screen]:run() end),
+    awful.key({ modkey },            "r",     
+              function ()
+                  mypromptbox[mouse.screen]:run()
+                  awful.prompt.run({ prompt = mypromptbox[mouse.screen].prompt },
+                      mypromptbox[mouse.screen].widget,
+                      function (com)
+                          local result = tyr_launcher.spawn({command=com})
+                          if type(result) == "string" then
+                              promptbox.widget:set_text(result)
+                          end
+                      end,
+                      awful.completion.shell,
+                      awful.util.getdir("cache") .. "/history")
+              end),
 
     awful.key({ modkey }, "x",
               function ()
@@ -568,7 +582,7 @@ client.connect_signal("manage", function (c, startup)
             client.focus = c
         end
     end)
-    client.focus = c
+--     client.focus = c
     --Fix some wierd reload bugs
     if c.size_hints.user_size and startup then
         c:geometry({width = c.size_hints.user_size.width,height = c.size_hints.user_size.height, x = c:geometry().x})
@@ -637,7 +651,6 @@ client.connect_signal("manage", function (c, startup)
             local width, height = wibox.widget.textbox.fit(box, w, h);
             return width+ 50, beautiful.titlebar_height or height
         end
-        print("I am here")
         title.data = {c = c,image=beautiful.taglist_bg_image_used}
         title.draw = function(self,w, cr, width, height) beautiful.task_list_draw_func(self,w, cr, width, height,{no_marker=true}) end
 --         title:buttons(buttons)
@@ -694,3 +707,9 @@ end)
 -- debug.sethook()
 -- utils.profile.stop(_G)
 -- widgets.radialSelect.radial_client_select()
+
+-- awesome.connect_signal("spawn::initiated", function(id,id2) print("\n\ninitiated",id,id2,"") ;for k,v in pairs(id) do print (k,v) end ;print("end\n\n") end)
+-- awesome.connect_signal("spawn::canceled", function(id) print("\n\ncanceled",id) ;for k,v in pairs(id) do print (k,v) end  ;print("end\n\n") end)
+-- awesome.connect_signal("spawn::completed", function(id,id2) print("\n\ncompleted",id);for k,v in pairs(id) do print (k,v) end  ;print("end\n\n")  end)
+-- awesome.connect_signal("spawn::timeout", function(id) print("\n\ntimeout",id);for k,v in pairs(id) do print (k,v) end ;print("end\n\n")  end)
+-- awesome.connect_signal("spawn::change", function(id) print("\n\nchange",id);for k,v in pairs(id) do print (k,v) end ;print("end\n\n")  end)

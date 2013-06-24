@@ -261,7 +261,6 @@ function toggle(c)
     mainMenu2:add_existing_item( itemSendSignal )
     mainMenu2:add_existing_item( itemRenice     )
     mainMenu2:add_existing_item( itemNewTag     )
-    print("I am here")
     if mainMenu then
         function classMenu(c)
             local classM = menu2()

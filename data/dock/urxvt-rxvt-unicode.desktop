@@ -2,7 +2,7 @@
 Name=rxvt-unicode
 Type=Application
 Comment=rxvt clone with xft and unicode support
-Exec=urxvt
+Exec=urxvtc
 TryExec=urxvt
 Icon=AWECFG/term.png
 Categories=Tools

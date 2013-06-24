@@ -182,7 +182,7 @@ end
 
 local centered = nil
 
-function centered_menu(layouts,backward)
+module.centered_menu = function(layouts,backward)
 --     local geom = capi.screen[capi.mouse.screen].geometry
 --     if not centered then
 --         centered = create(1,layouts,{x =geom.x+geom.width/2-150 , y = geom.y+geom.height/2,width=300,height = 150},6,true,7) 

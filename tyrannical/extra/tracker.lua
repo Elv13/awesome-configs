@@ -19,6 +19,7 @@ local function emit_signal(name,...)
 end
 
 function module:connect_signal(name,func)
+    local name = string.lower(name or "")
     signals[name] = signals[name] or {}
     signals[name][#signals[name]+1] = func
 end
@@ -29,14 +30,14 @@ function module:get_instances(class)
 end
 
 capi.client.connect_signal("manage", function (c, startup)
-    local class = string.lower(c.class)
+    local class = string.lower(c.class or "N/A")
     classes[class] = classes[class] or setmetatable({}, { __mode = "kv" })
     local tmp = classes[class]
     tmp[#tmp+1] = c
     emit_signal(class.."::created",c,tmp)
     emit_signal(class.."::instances",tmp)
-    emit_signal(c.class.."::created",c,tmp)
-    emit_signal(c.class.."::instances",tmp)
+--     emit_signal(c.class.."::created",c,tmp)
+--     emit_signal(c.class.."::instances",tmp)
 end)
 
 capi.client.connect_signal("unmanage", function (c)
@@ -49,8 +50,8 @@ capi.client.connect_signal("unmanage", function (c)
             end
         end
     end
-    emit_signal(c.class.."::destroyed",c,tmp)
-    emit_signal(c.class.."::instances",tmp)
+--     emit_signal(c.class.."::destroyed",c,tmp)
+--     emit_signal(c.class.."::instances",tmp)
     emit_signal(class.."::destroyed",c,tmp)
     emit_signal(class.."::instances",tmp)
 end)

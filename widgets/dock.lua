@@ -16,6 +16,7 @@ local tooltip2     = require( "widgets.tooltip2"         )
 local fdutils      = require( "extern.freedesktop.utils" )
 local color        = require( "gears.color"              )
 local cairo        = require( "lgi"                      ).cairo
+local tyr_launcher = require("tyrannical.extra.launcher")
 local capi = { image  = image  ,
                screen = screen ,
                widget = widget }
@@ -146,7 +147,7 @@ local function create(screen, args)
         end
         icon:buttons(util.table.join(
             button({ }, 1, function()
-                util.spawn(command)
+                tyr_launcher.spawn({command=command})
                 hide_tooltip()
                 lauchBar.visible = false
                 sensibleArea.visible = true
