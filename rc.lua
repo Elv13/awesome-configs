@@ -55,7 +55,7 @@ vicious.cache( vicious.widgets.dio )
 -- Various configuration options
 config.disableAutoSave()
 config.data().showTitleBar  = false
-config.data().themeName     = "darkBlue"
+config.data().themeName     = "arrow"
 config.data().noNotifyPopup = true
 config.data().useListPrefix = true
 config.data().deviceOnDesk  = true
@@ -73,13 +73,13 @@ config.data().scr           = {
 
 -- Load the theme
 config.load()
-config.data().themePath = awful.util.getdir("config") .. "/theme/" .. config.data().themeName .. "/"
+config.data().themePath = awful.util.getdir("config") .. "/blind/" .. config.data().themeName .. "/"
 config.data().iconPath  = config.data().themePath       .. "Icon/"
 beautiful.init(config.data().themePath                .. "/theme.lua")
 
 -- {{{ Variable definitions
 -- Themes define colours, icons, and wallpapers
-beautiful.init(awful.util.getdir("config").."/theme/darkBlue/theme.lua")
+beautiful.init(awful.util.getdir("config").."/blind/arrow/theme.lua")
 
 -- This is used later as the default terminal and editor to run.
 terminal = "urxvtc"
