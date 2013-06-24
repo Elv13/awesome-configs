@@ -141,7 +141,7 @@ local arr,arr1=themeutils.get_end_arrow2({bg_color=theme.bg_normal}),themeutils.
 
 local function gen_task_bg_real(wdg,width,args)
    local c,m,image = wdg.data.c,wdg.data.m,wdg.data.image
-   local hash = width..(image or "nil")..(client.floating.get(c) and "c" or "")..(c.ontop == true and "o" or "")..(c.sticky == true and "s" or "")
+   local hash = width..(image or "nil")..(client.floating.get(c) and "c" or "")..(c.ontop == true and "o" or "")..(c.sticky == true and "s" or "")..(c.urgent and "u" or "")
     if task_cache[c] and task_cache[c][hash] then
         return task_cache[c][hash]
     end
@@ -189,8 +189,13 @@ local function gen_task_bg_real(wdg,width,args)
         cr5:set_operator(cairo.Operator.HSL_SATURATION)
         cr5:mask(cairo.Pattern.create_for_surface(img4))
         cr5:set_operator(cairo.Operator.HSL_COLOR)
---         cr5:set_source_rgba(64/255,114/255,137/255,1)
-        cr5:set_source_rgba(21/255,119/255,211/255,1)
+        if capi.client.focus == c then
+            cr5:set_source(color(theme.fg_focus))
+        elseif c.urgent then
+            cr5:set_source(color(theme.bg_urgent))
+        else
+            cr5:set_source(color(theme.fg_normal))
+        end
         cr5:mask(cairo.Pattern.create_for_surface(img4))
 
         --Cache
@@ -251,12 +256,17 @@ local function task_widget_draw(self,w, cr, width, height,args)
     end
 
     cr:select_font_face(theme.font, cairo.FontSlant.NORMAL, cairo.FontWeight.NORMAL)
+    if capi.client.focus == self.data.c then
+        cr:set_source(color(awful.util.color_strip_alpha(theme.fg_focus)))
+    elseif self.data.c.urgent then
+        cr:set_source(color(awful.util.color_strip_alpha(theme.fg_urgent)))
+    else
+        cr:set_source(color(awful.util.color_strip_alpha(theme.fg_normal)))
+    end
 
     local extents = cr:text_extents(self.data.c.name)
 
     local x_offset = theme.default_height/2 + (self.data.c.icon and theme.default_height + 12 or 6)
-
-    cr:set_source(color(theme.fg_normal))
 
     if width-x_offset-height/2 -4 < extents.width then
         local rad = height/11
@@ -269,13 +279,6 @@ local function task_widget_draw(self,w, cr, width, height,args)
     end
     cr:move_to(x_offset, extents.height + (height - extents.height)/2 - 1)
     local prefix = ""
-    if capi.client.focus == self.data.c then
-        cr:set_source(color(awful.util.color_strip_alpha(theme.fg_focus)))
-    elseif self.data.c.urgent then
-        cr:set_source(color(awful.util.color_strip_alpha(theme.fg_urgent)))
-    else
-        cr:set_source(color(awful.util.color_strip_alpha(theme.fg_normal)))
-    end
     cr:show_text(prefix..(self.data.c.name or "N/A"))
 
     if width-x_offset-height/2 -4 < extents.width then
@@ -301,11 +304,8 @@ local function gen_task_bg(wdg,c,m,objects,image)
                         menu = radical.context({layout=radical.layout.horizontal,item_width=140,item_height=140,icon_size=100,arrow_type=radical.base.arrow_type.CENTERED})
                         item = menu:add_item({text = "<b>"..c.name.."</b>",icon=c.content})
                         menu.wibox.opacity=0.8
---                         c.opacity = 0.5
                     end
-                    print("\n\n\n",item._internal.set_map.text,rawget(item,"text"))
                     item.icon = c.content
---                     item.text = nil
                     item.text  = "<b>"..c.name.."</b>"
                     menu.parent_geometry = geom
                     menu.visible = true
