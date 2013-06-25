@@ -652,7 +652,7 @@ client.connect_signal("manage", function (c, startup)
             return width+ 50, beautiful.titlebar_height or height
         end
         title.data = {c = c,image=beautiful.taglist_bg_image_used}
-        title.draw = function(self,w, cr, width, height) beautiful.task_list_draw_func(self,w, cr, width, height,{no_marker=true}) end
+        title.draw = function(self,w, cr, width, height) blind.arrow.task.task_widget_draw(self,w, cr, width, height,{no_marker=true}) end
 --         title:buttons(buttons)
 
         local bgbr = wibox.widget.background()
