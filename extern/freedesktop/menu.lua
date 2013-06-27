@@ -20,7 +20,7 @@ show_generic_name = false
 --- Create menus for applications
 -- @param menu_dirs A list of application directories (optional).
 -- @return A prepared menu w/ categories
-function new(arg)
+local function new(arg)
     -- the categories and their synonyms where shamelessly copied from lxpanel
     -- source code.
     local programs = {}

@@ -19,7 +19,7 @@ local capi         = { image  = image  ,
                        widget = widget ,
                        timer  = timer  }
 
-module("config")
+local module = {}
 
 local data2 = nil
 local autoSave = true
@@ -40,7 +40,7 @@ local function startTimer()
         if mytimer.started == true then
             mytimer:stop()
             print("Serializing data")
-            save()
+            module.save()
         end
     end)
     mytimer:start()
@@ -87,7 +87,7 @@ end
 
 setmetatable(data3, { __index = settable_eventR, __newindex = settable_eventW, __len = settable_eventLen })
 
-function get_real(t)
+function module.get_real(t)
     if t["__real_table"] ~= nil then
         return t["__real_table"]
     else
@@ -96,14 +96,14 @@ function get_real(t)
     end
 end
 
-function set(args) 
+local function set(args)
     data2 = args
     rawset(data3,"__real_table",data2)
 end
 
 set({})
 
-function data()
+function module.data()
     return data3
 end
 
@@ -165,7 +165,7 @@ local function unserialise(newData2,currentData2)
     end
 end
 
-function save()
+function module.save()
      local f = io.open(util.getdir("config") .. "/serialized.lua",'w')
      if f then
         f:write("return " .. serialise(data2).." \n")
@@ -173,7 +173,7 @@ function save()
      end
 end
 
-function load()
+function module.load()
     local f = io.open(util.getdir("config") .. "/serialized.lua",'r')
     if f then
         local text    = f:read("*all")
@@ -187,12 +187,12 @@ function load()
     end
 end
 
-function disableAutoSave()
+function module.disableAutoSave()
     autoSave = false
 end
 
-function enableAutoSave()
+function module.enableAutoSave()
     autoSave = true
 end
 
-setmetatable(_M, { __call = function(_, ...) return data end })
+return setmetatable(module, { __call = function(_, ...) return data end })

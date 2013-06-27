@@ -27,7 +27,7 @@ local padding      = {}
 local reservedItem = {}
 local autoItems    = {}
 
-module("widgets.layout.desktopLayout")
+local module = {}
 
 local function usableSpace(s)
     local h = capi.screen[(#capi.screen >= s) and s or 1].geometry.height - (padding.top or 0)-(padding.bottom or 0)
@@ -35,7 +35,7 @@ local function usableSpace(s)
     return {width = w, height = h}
 end
 
-function new(args)
+local function new(args)
     padding.top    = args.padTop     or args.padDef or 0
     padding.bottom = args.padBottom  or args.padDef or 0
     padding.left   = args.padLeft    or args.padDef or 0
@@ -127,7 +127,7 @@ function addCornerWidget(wdg,screen,corner,args)
     wdgSet.y     = 30--usableSpace(screen).height - wdgSet.height
 end
 
-function addWidget(wdg,args,reserved)
+function module.addWidget(wdg,args,reserved)
     local args = args or {}
     local wdgSet = {}
     local wb
@@ -214,7 +214,7 @@ function addWidget(wdg,args,reserved)
     return wdgSet
 end
 
-function draw()
+function module.draw()
     registerSpace_real()
     for k,v in ipairs(reservedItem) do
         v.wibox.x = v.x
@@ -230,4 +230,4 @@ function draw()
     end
 end
 
-setmetatable(_M, { __call = function(_, ...) return new(...) end })
+return setmetatable(module, { __call = function(_, ...) return new(...) end })

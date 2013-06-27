@@ -23,7 +23,7 @@ local module = {}
 
 local data = {client = {}, index = {}, wibox = {}, fav = {}, layout = {}}
 
-function new(screen, args) 
+local function new(screen, args) 
   return --Nothing to do
 end
 

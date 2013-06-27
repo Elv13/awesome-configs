@@ -68,7 +68,7 @@ end
 --- Create a new tasklist widget.
 -- @param label Label function to use.
 -- @param buttons A table with buttons binding to set.
-function new(label, buttons)
+local function new(label, buttons)
     local tabs = {}
     local w = {
         layout = layout.horizontal.flex

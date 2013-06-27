@@ -24,7 +24,7 @@ local capi = { image  = image  ,
                mouse  = mouse  ,
                timer  = timer  }
 
-module("drawer.cpuInfo")
+local module = {}
 
 local function create_core_w(width,i,text,bg,fg)
     local aCore        = wibox.widget.textbox()
@@ -95,11 +95,11 @@ local function reload_top(procMenu,data)
 end
 
 
-function update()
+local function update()
 
 end
 
-function new(margin, args)
+local function new(margin, args)
     local coreWidgets       = {}
     local cpuInfo           = {}
     local cpulogo           = wibox.widget.imagebox()
@@ -408,4 +408,4 @@ function new(margin, args)
   return l--{logo = cpulogo, text = cpuwidget, graph = cpuBar.widget}
 end
 
-setmetatable(_M, { __call = function(_, ...) return new(...) end })
+return setmetatable(module, { __call = function(_, ...) return new(...) end })

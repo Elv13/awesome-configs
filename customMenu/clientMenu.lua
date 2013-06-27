@@ -244,7 +244,7 @@ module.menu = function()
     return mainMenu or new()
 end
 
-function toggle(c)
+function module.toggle(c)
     module.client = c
     if not itemVisible then
         new()

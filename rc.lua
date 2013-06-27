@@ -143,7 +143,7 @@ local launcher               = customMenu.launcher      ( 200                   
 local desktopPix             = customButton.showDesktop ( nil                                )
 
 -- Create the clock
-local clock                  = drawer.dateinfo          ( nil                                )
+local clock                  = drawer.dateInfo          ( nil                                )
 clock.bg                     = beautiful.bg_alternate
 
 -- Create the volume box

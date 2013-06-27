@@ -78,7 +78,7 @@ function  module.register(widget, pid, type, intervale) --TYPE=cpup or memp
   mytimer:start()
 end
 
-function new(screen, args) 
+local function new(screen, args) 
   local script = io.open(util.getdir("config") .."/Scripts/urxvtStat.sh",'r')
   local toExec = script:read("*all")
   local mytimer = capi.timer({ timeout = 3 })

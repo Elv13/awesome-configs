@@ -11,9 +11,10 @@ local wibox        = require( "wibox"           )
 local capi = { image  = image  ,
                widget = widget }
 
-module("customButton.showDesktop")
+local module = {}
 
-function new(screen, args) 
+
+local function new(screen, args) 
   local desktopPix       = wibox.widget.imagebox()
   local tt = tooltip("Show Desktop",{down = true})
   desktopPix:set_image(config.data().iconPath .. "tags/desk2.png")
@@ -23,4 +24,4 @@ function new(screen, args)
   return desktopPix
 end
 
-setmetatable(_M, { __call = function(_, ...) return new(...) end })
+return setmetatable(module, { __call = function(_, ...) return new(...) end })

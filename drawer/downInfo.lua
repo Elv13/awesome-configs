@@ -17,13 +17,13 @@ local capi = { image  = image ,
                mouse  = mouse ,
                tag    = tag   }
 
-module("drawer.downInfo")
+local module = {}
 
-function update()
+local function update()
 
 end
 
-function new(screen, args)
+local function new(screen, args)
   kgetpixmap       = widget({ type = "imagebox", align = "right" })
   kgetpixmap.image = image(config.data().iconPath .. "tags/download.png")
 
@@ -196,4 +196,4 @@ function new(screen, args)
 end
 
 
-setmetatable(_M, { __call = function(_, ...) return new(...) end })
+return setmetatable(module, { __call = function(_, ...) return new(...) end })

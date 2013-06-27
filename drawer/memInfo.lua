@@ -24,7 +24,7 @@ local capi = { image  = image  ,
                mouse  = mouse  ,
                timer  = timer  }
 
-module("drawer.memInfo")
+local module = {}
 
 local data = {}
 
@@ -235,7 +235,7 @@ end
 
 local usrMenu,typeMenu,topMenu
 
-function repaint(margin)
+local function repaint(margin)
     infoHeaderW    = wibox({ position = "free", screen = s,ontop = true,height = 20, bg = beautiful.menu_bg})
     ramW           = wibox({ position = "free", screen = s,ontop = true,height = 72, bg = beautiful.menu_bg})
     userHeaderW    = wibox({ position = "free", screen = s,ontop = true,height = 20, bg = beautiful.menu_bg})
@@ -346,7 +346,7 @@ function repaint(margin)
     return mainMenu
 end
 
-function update()
+local function update()
     usrMenu:clear()
     typeMenu:clear()
     topMenu:clear()
@@ -355,7 +355,7 @@ function update()
     reload_top(topMenu,data)
 end
 
-function new(margin, args)
+local function new(margin, args)
 
     local memwidget = wibox.widget.textbox()
     memwidget:buttons( util.table.join(
@@ -450,4 +450,4 @@ function new(margin, args)
 end
 
 
-setmetatable(_M, { __call = function(_, ...) return new(...) end })
+return setmetatable(module, { __call = function(_, ...) return new(...) end })

@@ -19,7 +19,7 @@ Licensed under the same license as Lua 5.1
 $ lua lua-callgrind.lua <lua-script> [outputfile]
 
 --]]
-function start()
+function module.start()
     callstack = { }
     instr_count = 0
     last_line_instr_count = 0
@@ -39,7 +39,7 @@ function start()
     call_indent = 0
 end
 
-function trace(class)
+function module.trace(class)
     -- print("calling tracer: "..class)
     if class == "count" then
             instr_count = instr_count + 1
@@ -173,7 +173,7 @@ function func2name(m, tbl, prefix)
         end
 end
 
-function stop(glob)
+function module.stop(glob)
     -- resolve the function pointers
     func2name(methods, glob)
 

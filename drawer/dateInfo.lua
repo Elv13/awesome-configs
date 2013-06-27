@@ -20,12 +20,12 @@ local capi = { image  = image  ,
                mouse  = mouse  ,
                timer  = timer  }
 
-module("drawer.dateinfo")
+local module = {}
 
 local data = {}
 local calPopup
 
-function update()
+local function update()
 
 end
 
@@ -228,7 +228,7 @@ local function createDrawer()
   data.wibox:set_widget(l)
 end
 
-function new(screen, args)
+local function new(screen, args)
   local mytextclock = widget.textclock()
   local top,bottom
   mytextclock:buttons (util.table.join(button({ }, 1, function ()
@@ -266,4 +266,4 @@ function new(screen, args)
 end
 
 
-setmetatable(_M, { __call = function(_, ...) return new(...) end })
+return setmetatable(module, { __call = function(_, ...) return new(...) end })

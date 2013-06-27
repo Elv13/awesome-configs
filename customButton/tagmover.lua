@@ -15,7 +15,8 @@ local capi = { image  = image  ,
                screen = screen ,
                widget = widget }
 
-module("customButton.tagmover")
+local module = {}
+
 
 local data = {}
 local screenMenu = nil               --
@@ -70,7 +71,7 @@ end
 --args:
 --     -direction (left or right) [REUQIRED]
 --     -icon an icon [optional]
-function new(screen, args)
+local function new(screen, args)
     local screen     = screen            or 1
     local direction  = args.direction    or "left"
     local icon       = args.icon         or nil
@@ -136,4 +137,4 @@ function new(screen, args)
     return data[id].widget
 end
 
-setmetatable(_M, { __call = function(_, ...) return new(...) end })
+return setmetatable(module, { __call = function(_, ...) return new(...) end })

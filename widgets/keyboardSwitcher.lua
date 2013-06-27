@@ -11,7 +11,7 @@ local module={}
 
 local data = {}
 
-function update()
+local function update()
 
 end
 

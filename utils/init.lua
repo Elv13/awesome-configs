@@ -5,5 +5,5 @@ mouseManager = require("utils.mouseManager"),
 persistent = require("utils.persistent"),
 macro = require("utils.macro"),
 profile = require("utils.profile"),
-urxvtIntegration = require("utils.urxvtIntegration")
+-- urxvtIntegration = require("utils.urxvtIntegration")
 }

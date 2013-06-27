@@ -12,11 +12,11 @@ local module={}
 
 local data = {}
 
-function update()
+local function update()
 
 end
 
-function new(screen, args) 
+local function new(screen, args) 
   local desktopPix       = capi.widget({ type = "imagebox", align = "left" })
   desktopPix.image = capi.image(beautiful.path.."Icon/tags/desk2.png")
   

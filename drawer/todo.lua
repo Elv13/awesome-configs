@@ -26,11 +26,11 @@ local data = {}
 local alsaInfo = {}
 local widgetTable = {}
 
-function update()
+local function update()
 
 end
 
-function new()
+local function new()
   data.todo = {}
   data.wibox = wibox({ position = "left", screen = s})
   data.wibox.ontop = true

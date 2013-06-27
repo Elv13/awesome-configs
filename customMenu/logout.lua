@@ -18,7 +18,7 @@ local function create_menu()
     return m
 end
 
-function new(screen, args) 
+local function new(screen, args) 
   local desktopPix       = capi.widget({ type = "imagebox", align = "left" })
   local tt,m = tooltip("Logout",{down = false}),nil
   desktopPix.image = capi.image(util.getdir("config") .. "/theme/darkBlue/Icon/logout.png")

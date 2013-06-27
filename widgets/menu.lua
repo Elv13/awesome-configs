@@ -112,7 +112,7 @@ end
 
 local function getArrowItem(menu,mode)
     if not menu.topArrow then
-        local topA,bottomA = gen_menu_decoration(menu.settings.itemWidth+2,{arrow_x = menu.settings.arrow_x, down = mode == 2, noArrow = mode == 3})
+        local topA,bottomA = module.gen_menu_decoration(menu.settings.itemWidth+2,{arrow_x = menu.settings.arrow_x, down = mode == 2, noArrow = mode == 3})
         topA.visible,bottomA.visible = true, true
         menu.topArrow = {widget = topA, hidden = false, width = menu.settings.itemWidth+2, height = topA.height}
         table.insert(menu.otherwdg,menu.topArrow)
@@ -890,7 +890,7 @@ local function new(args)
   return createMenu(args)
 end
 
-function gen_menu_decoration(width,args)
+function module.gen_menu_decoration(width,args)
     local args = args or {}
     local w,w2 = wibox({position="free",visible=false,bg=beautiful.menu_bg}), wibox({position="free",viaible=false,bg=beautiful.menu_bg})
     w.width,w2.width=width,width

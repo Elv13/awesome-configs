@@ -17,14 +17,14 @@ local capi = { image = image,
                widget = widget,
                mouse = mouse}
 
-module("drawer.soundInfo")
+local module = {}
 
 local data = {}
 local alsaInfo = {}
 --local mywibox3 = nil
 local widgetTable = {}
 
-function update()
+local function update()
 
 end
 
@@ -144,7 +144,7 @@ function soundInfo()
   data.wibox:geometry({height = counter*19 + 19})
 end
   
-function new(mywibox3,left_margin)
+local function new(mywibox3,left_margin)
   local volumewidget = wibox.widget.textbox()
   local volumepixmap =  wibox.widget.imagebox()
   volumepixmap:set_image(config.data().iconPath .. "vol.png")
@@ -207,4 +207,4 @@ function new(mywibox3,left_margin)
 end
 
 
-setmetatable(_M, { __call = function(_, ...) return new(...) end })
+return setmetatable(module, { __call = function(_, ...) return new(...) end })

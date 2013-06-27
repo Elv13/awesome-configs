@@ -11,7 +11,7 @@ local capi = { image = image,
 local data = {}
 local module = {}
 
-function update()
+local function update()
 
 end
 
@@ -36,7 +36,7 @@ function module.helper()
     end
 end
 
-function new(screen, args) 
+local function new(screen, args) 
   local desktopPix       = capi.widget({ type = "imagebox", align = "left" })
   desktopPix.image = capi.image(util.getdir("config") .. "/theme/darkBlue/Icon/tags/desk2.png")
   

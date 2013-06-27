@@ -16,15 +16,16 @@ local menu      = require( "radical.context"    )
 local tooltip2  = require( "widgets.tooltip2" )
 local wibox = require("wibox")
 
-module("customButton.addTag")
+local module = {}
+
 
 local data = {}
 
-function update()
+local function update()
 
 end
 
-function new(screen, args)
+local function new(screen, args)
   local addTag  = wibox.widget.imagebox()
   addTag:set_image(config.data().iconPath .. "tags/cross2.png")
   addTag.bg     = beautiful.bg_alternate
@@ -76,5 +77,5 @@ function new(screen, args)
 end
 
 
-setmetatable(_M, { __call = function(_, ...) return new(...) end })
+return setmetatable(module, { __call = function(_, ...) return new(...) end })
 -- kate: space-indent on; indent-width 2; replace-tabs on;

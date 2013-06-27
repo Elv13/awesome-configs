@@ -13,11 +13,11 @@ local capi = { image = image,
                mouse = mouse,
 	       tag = tag}
 
-module("customButton.delTag")
+local module = {}
 
 local data = {}
 
-function update()
+local function update()
 
 end
 
@@ -29,7 +29,7 @@ local function toggleVisibility(aTag)
 --     end
 end
 
-function new(screen, args) 
+local function new(screen, args) 
   data[screen]         = wibox.widget.imagebox()
   data[screen]:set_image(config.data().iconPath .. "tags/minus2.png")
   data[screen].visible = false
@@ -52,4 +52,4 @@ function new(screen, args)
 end
 
 
-setmetatable(_M, { __call = function(_, ...) return new(...) end })
+return setmetatable(module, { __call = function(_, ...) return new(...) end })

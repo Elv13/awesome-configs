@@ -12,7 +12,7 @@ local capi = { screen = screen,
 local module = {}
 
 local data = {screen = {}}
-function new(screen, args) 
+local function new(screen, args) 
   return --Nothing to do
 end
 

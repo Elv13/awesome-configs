@@ -21,7 +21,7 @@ local capi = { image  = image  ,
                mouse  = mouse  ,
                timer  = timer  }
 
-module("drawer.netInfo")
+local module = {}
 
 --DATA
 local data             = {}
@@ -62,7 +62,7 @@ local netDownGraph     = widget2.graph(                  )
 
 --VARIABLES
 
-function update()
+local function update()
     local connectionInfo
     local f = io.open('/tmp/connectedHost.lua','r')
     if f ~= nil then
@@ -380,7 +380,7 @@ local function repaint(margin)
     return mainMenu
 end
 
-function new(margin, args)
+local function new(margin, args)
     graphHeaderW = nil
     ipHeaderW = nil
 --     localHeaderW      
@@ -440,4 +440,4 @@ function new(margin, args)
             up_text   = netUpWidget   }]]
 end
 
-setmetatable(_M, { __call = function(_, ...) return new(...) end })
+return setmetatable(module, { __call = function(_, ...) return new(...) end })

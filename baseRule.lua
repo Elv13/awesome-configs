@@ -1,6 +1,7 @@
 local awful = require("awful")
 local utils = require("utils")
 local tyrannical = require("tyrannical")
+local config = require("config")
 
 
 -- }}}
