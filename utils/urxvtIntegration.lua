@@ -41,7 +41,7 @@ end
 --         end)
 --       end
 
-local function module.cumulMem(pid)
+local function cumulMem(pid)
   local result = 0
   if data["pid_"..pid] ~= nil then
     for i, v in next, data["pid_"..pid] do

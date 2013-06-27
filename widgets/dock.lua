@@ -21,7 +21,7 @@ local capi = { image  = image  ,
                screen = screen ,
                widget = widget }
 
-module("widgets.dock")
+local module={}
 local lauchBar,visible_tt,sensibleArea = nil,nil,nil
 
 local function draw_item(data,instances,width)
@@ -285,4 +285,4 @@ local function new()
   sensibleArea.visible = true
 end
 
-setmetatable(_M, { __call = function(_, ...) return new(...) end })
+return setmetatable(module, { __call = function(_, ...) return new(...) end })

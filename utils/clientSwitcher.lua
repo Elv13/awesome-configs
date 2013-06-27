@@ -128,7 +128,7 @@ end
 -- tag.attached_add_signal(1, "property::layout"  , approxPos)
 --TODO a client was added/deleted
 
-local function  module.moveFocus()
+local function  moveFocus()
     return {
         xr = math.floor(((capi.client.focus:geometry().x + capi.client.focus:geometry().width)  / (capi.screen[capi.client.focus.screen].geometry.width /res))+1),
         xl = math.floor(((capi.client.focus:geometry().x) / (capi.screen[capi.client.focus.screen].geometry.width /res))+1),

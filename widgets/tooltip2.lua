@@ -4,7 +4,7 @@ local wibox     = require( "wibox"        )
 local cairo     = require( "lgi"          ).cairo
 local capi = { screen = screen ,
                mouse  = mouse  }
-module("widgets.tooltip2")
+local module={}
 
 local function get_direction(args)
   if not args.parent or not args.parent.drawable then return "bottom" end
@@ -135,5 +135,5 @@ local function new(widget,text, args)
   return data
 end
 
-setmetatable(_M, { __call = function(_, ...) return new(...) end })
+return setmetatable(module, { __call = function(_, ...) return new(...) end })
 -- kate: space-indent on; indent-width 2; replace-tabs on;

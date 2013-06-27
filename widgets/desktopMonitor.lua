@@ -14,7 +14,7 @@ local capi = { image = image,
                screen = screen}
 local widget = require("awful.widget")
 
-module("widgets.desktopMonitor")
+local module={}
 
 local function new(screen2, args) 
   
@@ -270,4 +270,4 @@ local function new(screen2, args)
 end
 
 
-setmetatable(_M, { __call = function(_, ...) return new(...) end })
+return setmetatable(module, { __call = function(_, ...) return new(...) end })

@@ -8,7 +8,7 @@ local config       = require( "config"       )
 local capi = { image  = image  ,
                widget = widget }
 
-module("widgets.checkbox")
+local module={}
 
 local checkedI
 local notcheckedI
@@ -46,18 +46,18 @@ local function init()
     isinit = true
 end
 
-function checked()
+function module.checked()
     if not isinit then
         init()
     end
     return checkedI
 end
 
-function unchecked()
+function module.unchecked()
     if not isinit then
         init()
     end
     return notcheckedI
 end
 
-setmetatable(_M, { __call = function(_, ...) return new(...) end })
+return setmetatable(module, { __call = function(_, ...) return new(...) end })

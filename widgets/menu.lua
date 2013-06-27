@@ -23,7 +23,7 @@ local capi = { image      = image      ,
                screen     = screen     ,
                keygrabber = keygrabber }
 
-module("widgets.menu")
+local module={}
 
 -- Common function
 local grabKeyboard = false
@@ -959,4 +959,4 @@ function gen_menu_decoration(width,args)
     return w,w2
 end
 
-setmetatable(_M, { __call = function(_, ...) return new(...) end })
+return setmetatable(module, { __call = function(_, ...) return new(...) end })

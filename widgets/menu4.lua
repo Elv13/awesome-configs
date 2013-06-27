@@ -21,7 +21,7 @@ local capi = { image      = image      ,
                screen     = screen     ,
                keygrabber = keygrabber }
 
-module("widgets.menu4")
+local module={}
 
 ------------------------------------KEYBOARD HANDLING-----------------------------------
 local function activateKeyboard(curMenu)

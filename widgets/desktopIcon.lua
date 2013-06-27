@@ -16,7 +16,7 @@ local capi = { image        = image       ,
                widget       = widget      ,
                mousegrabber = mousegrabber}
 
-module("widgets.desktopIcon")
+local module={}
 
 local function new(screen, args) 
   local aWibox = wibox({position="free"})
@@ -34,4 +34,4 @@ local function new(screen, args)
   return aWibox
 end
 
-setmetatable(_M, { __call = function(_, ...) return new(...) end })
+return setmetatable(module, { __call = function(_, ...) return new(...) end })

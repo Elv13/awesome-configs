@@ -8,7 +8,7 @@ local pairs = pairs
 local print = print
 local type = type
 
-module("utils.profile")
+local module = {}
 
 --[[
 
@@ -159,7 +159,7 @@ function func2name(m, tbl, prefix)
                             print("WARNING: prefix '"..prefix.."' seem to have invalid members")
                             name = "ERROR"
                         end
-                        m[tostring(func)] = { name = (prefix..name):gsub("^package\.loaded\.", ""), id = method_id }
+                        m[tostring(func)] = { name = (prefix..name):gsub("^package\\.loaded\\.", ""), id = method_id }
                         method_id = method_id + 1
                 elseif type(func) == "table" and type(name) == "string" then
                         -- a package, class, ...

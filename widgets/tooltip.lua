@@ -8,7 +8,7 @@ local color     = require( "gears.color"  )
 local cairo     = require( "lgi"          ).cairo
 local capi = { screen = screen ,
                mouse  = mouse  }
-module("widgets.tooltip")
+local module={}
 
 local function new(text, args)
   local args,data = args or  {},{}
@@ -78,4 +78,4 @@ local function new(text, args)
   return data
 end
 
-setmetatable(_M, { __call = function(_, ...) return new(...) end })
+return setmetatable(module, { __call = function(_, ...) return new(...) end })

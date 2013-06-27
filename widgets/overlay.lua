@@ -11,7 +11,7 @@ local clientGroup  = require( "ultiLayout.clientGroup" )
 local beautiful    = require( "beautiful" )
 local widget2 = require("awful.widget")
 
-module("widgets.overlay")
+local module={}
 
 local function gen_top(width, height)
     local aWb = wibox({position="free"})
@@ -56,4 +56,4 @@ local function create_splitter(cg,args)
     return data
 end
 
-setmetatable(_M, { __call = function(_, ...) return create_splitter(...) end })
+return setmetatable(module, { __call = function(_, ...) return create_splitter(...) end })

@@ -27,7 +27,7 @@ local capi = { image        = image        ,
                mouse        = mouse        ,
                mousegrabber = mousegrabber }
 
-module("widgets.radialSelect")
+local module={}
 
 local margin  = nil
 local to_hide = {}
@@ -397,4 +397,4 @@ function radial_client_select(args)
     return data
 end
 
-setmetatable(_M, { __call = function(_, ...) return new(...) end })
+return setmetatable(module, { __call = function(_, ...) return new(...) end })

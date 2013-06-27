@@ -2,7 +2,7 @@ local setmetatable = setmetatable
 local wibox = require("wibox")
 local capi = { widget = widget }
 
-module("widgets.spacer")
+local module={}
 
 local data = {}
 
@@ -18,4 +18,4 @@ local function new(args)
 end
 
 
-setmetatable(_M, { __call = function(_, ...) return new(...) end })
+return setmetatable(module, { __call = function(_, ...) return new(...) end })

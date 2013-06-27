@@ -7,7 +7,7 @@ local config    = require( "config"          )
 local tooltip   = require( "widgets.tooltip" )
 local wibox     = require( "wibox"           )
 
-module("widgets.keyboardSwitcher")
+local module={}
 
 local data = {}
 
@@ -58,4 +58,4 @@ local function new(screen, args)
 end
 
 
-setmetatable(_M, { __call = function(_, ...) return new(...) end })
+return setmetatable(module, { __call = function(_, ...) return new(...) end })

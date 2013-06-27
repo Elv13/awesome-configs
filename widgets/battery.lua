@@ -8,7 +8,7 @@ local util = require("awful.util")
 local capi = { image = image,
                widget = widget}
 
-module("widgets.battery")
+local module={}
 
 local data = {}
 
@@ -33,4 +33,4 @@ function new(screen, args)
 end
 
 
-setmetatable(_M, { __call = function(_, ...) return new(...) end })
+return setmetatable(module, { __call = function(_, ...) return new(...) end })

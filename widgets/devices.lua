@@ -17,7 +17,7 @@ local capi = { image = image,
                widget = widget}
 local widget = require("awful.widget")
 
-module("widgets.devices")
+local module={}
 
 local data = {}
 local devices = {}
@@ -185,4 +185,4 @@ function add_device(args)
 end
 
 
-setmetatable(_M, { __call = function(_, ...) return new(...) end })
+return setmetatable(module, { __call = function(_, ...) return new(...) end })
