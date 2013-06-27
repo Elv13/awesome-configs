@@ -250,7 +250,7 @@ function parse_desktop_file(arg)
     -- Split categories into a table.
     if program.Categories then
         program.categories = {}
-        for category in program.Categories:gfind('[^;]+') do
+        for category in program.Categories:gmatch('[^;]+') do
             table.insert(program.categories, category)
         end
     end

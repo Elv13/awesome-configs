@@ -266,7 +266,7 @@ end
 
 
 ---------------------------------ITEM HANDLING----------------------------------
-function add_item(data,args)
+local function add_item(data,args)
   local args = args or {}
   local item,set_map,get_map,private_data = object({
     private_data = {
