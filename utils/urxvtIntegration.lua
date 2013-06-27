@@ -14,7 +14,7 @@ local capi = { screen = screen,
                mouse = mouse,
                timer = timer}
 
-module("utils.urxvtIntegration")
+local module = {}
 
 local data = {}
 
@@ -41,7 +41,7 @@ end
 --         end)
 --       end
 
-local function cumulMem(pid)
+local function module.cumulMem(pid)
   local result = 0
   if data["pid_"..pid] ~= nil then
     for i, v in next, data["pid_"..pid] do
@@ -53,7 +53,7 @@ local function cumulMem(pid)
   end
 end
 
-function getTabTitle(pid,id) 
+function  module.getTabTitle(pid,id) 
   local f = io.popen('dbus-send --session --print-reply --dest=org.schmorp.urxvt --type="method_call" /pid/12/1 org.schmorp.urxvt.getTitle | tail -n1 | grep -E "[a-zA-Z0-9 ]*" -o | tail -n1')
   local title = f:read("*all")
   f:close()
@@ -66,7 +66,7 @@ function addTab(pid)
   --io.popen('dbus-send --type=method_call --dest=org.schmorp.urxvt /pid/12/control org.schmorp.urxvt.addTab')
 end
 
-function register(widget, pid, type, intervale) --TYPE=cpup or memp
+function  module.register(widget, pid, type, intervale) --TYPE=cpup or memp
   local mytimer = capi.timer({ timeout = intervale })
   mytimer:add_signal("timeout", function ()
     if type == "pcpu" then
@@ -105,4 +105,4 @@ function new(screen, args)
 end
 
 
-setmetatable(_M, { __call = function(_, ...) return new(...) end })
+return setmetatable(module, { __call = function(_, ...) return new(...) end })

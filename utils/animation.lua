@@ -8,15 +8,14 @@ local util = require("awful.util")
 local capi = { image = image,
                widget = widget}
 
-module("utils.animation")
-
 local data = {}
+local module = {}
 
 function update()
 
 end
 
-function helper() 
+function module.helper() 
     if #widgets > 0 then
         local timer_fade = capi.timer { timeout = 0.0333 } --30fps
         timer_fade:add_signal("timeout", function () 
@@ -54,4 +53,4 @@ function new(screen, args)
 end
 
 
-setmetatable(_M, { __call = function(_, ...) return new(...) end })
+return setmetatable(module, { __call = function(_, ...) return new(...) end })

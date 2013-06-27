@@ -10,7 +10,7 @@ local capi = {
     mouse = mouse,
 }
 
-module("utils.macro")
+local module = {}
 
 local buttons = {}
 local x = capi.mouse.coords().x
@@ -30,7 +30,7 @@ local function execMouseEv(ev)
     end
 end
 
-function record(callBackFunc)
+function  module.record(callBackFunc)
     print("Start recording")
    local timer_fade = capi.timer { timeout = 0.01 } --30fps
    timer_fade:add_signal("timeout", function () 
@@ -55,7 +55,7 @@ function record(callBackFunc)
    return m
 end
 
-function play(m)
+function  module.play(m)
     print("Playing macro")
     local timer = capi.timer({ timeout = 0.1 })
     local index = 1
@@ -83,3 +83,5 @@ function play(m)
     end)
     timer:start()
 end
+
+return setmetatable(module, { __call = function(_, ...) return new(...) end })

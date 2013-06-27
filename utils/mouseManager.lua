@@ -9,14 +9,14 @@ local print = print
 local capi = { screen = screen,
                mouse = mouse}
 
-module("utils.mouseManager")
+local module = {}
 
 local data = {screen = {}}
 function new(screen, args) 
   return --Nothing to do
 end
 
-function switchTo(s)
+function  module.switchTo(s)
   data.screen[capi.mouse.screen] = capi.mouse.coords()
   if (data.screen[s] ~= nil) then
     capi.mouse.coords(data.screen[s])
@@ -26,8 +26,8 @@ function switchTo(s)
   end
 end
 
-function reset()
+function  module.reset()
   data.screen = nil
 end
 
-setmetatable(_M, { __call = function(_, ...) return new(...) end })
+return setmetatable(module, { __call = function(_, ...) return new(...) end })

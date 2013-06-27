@@ -20,11 +20,11 @@ local capi = { image = image,
                client = client,
                widget = widget}
 
-module("utils.tools")
+local module = {}
 
 local data = {}
 
-function run_or_raise(cmd, properties)
+function  module.run_or_raise(cmd, properties)
     if not capi.client.get then
         return
     end
@@ -69,7 +69,7 @@ function tag_to_screen(t, scr)
     end
 end
 
-function match (table1, table2)
+function  module.match (table1, table2)
    for k, v in pairs(table1) do
       if table2[k] ~= v then
          return false
@@ -78,7 +78,7 @@ function match (table1, table2)
    return true
 end
 
-function explode(d,p)
+function  module.explode(d,p)
   local t, ll
   t={}
   ll=0
@@ -103,27 +103,8 @@ function string:split(sep)
         return fields
 end
 
-function addTitleBar(screen)
-  local add_title = config.data().showTitleBar or false
-  if layout.get(screen) == layout.suit.floating then
-    add_title = true 
-  end
-  if tag.selected() ~= nil then
-    for i, client2 in ipairs(tag.selected():clients()) do
-      if client2 == nil or client2.class ~= "" or client2.floating ~= nil then
-        if (client2.class == "urxvt" or client2.class == "URxvt") and config.data().advTermTB == true then
-          tabbar.add(client2)
-        elseif add_title == true or client.floating.get(client2) == true or layoutmenu.showTitle(tag.selected()) == true then
-          titlebar.add(client2, { modkey = modkey })
-        else
-          titlebar.remove(client2)
-        end
-      end
-    end
-  end
-end
 
-function invertedIconPath(tagName)
+function  module.invertedIconPath(tagName)
     return config.data().iconPath .. (config.data().useListPrefix == true and "tags_invert/" or "tags/") .. tagName
 end
 
@@ -147,20 +128,4 @@ function stripHtml(str)
     return safeStr
 end
 
-function scale_image(path,final_width,final_height,padding,bg_color)
-    --Final image
-    local final = capi.image.argb32(final_width, final_height, nil)
-    final:draw_rectangle(0 ,0, final_width, final_height, true, bg_color or beautiful.bg_normal)
-    local source = capi.image(path)
-    local ratio = 1--source.width/source.height
-    
-    --Scaling with alpha is not very nice, get rid of it
-    local temp = capi.image.argb32(source.width, source.height, nil)
-    temp:draw_rectangle(0 ,0, source.width, source.height, true, bg_color or beautiful.bg_normal)
-    temp:insert(source,0,0)
-    
-    --Scale source into final image
-    final:insert(temp:crop_and_scale(0,0,source.width,source.height,(final_width-padding*2)*ratio,(final_height-padding*2)*ratio),padding,padding)
-    
-    return final
-end
+return setmetatable(module, { __call = function(_, ...) return new(...) end })

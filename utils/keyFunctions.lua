@@ -17,9 +17,9 @@ local capi = { image  = image,
                mouse  = mouse,
                root   = root}
 
-module("utils.keyFunctions")
+local module = {}
 
-function moveTagToScreen() 
+function  module.moveTagToScreen() 
     if capi.mouse.screen == 1 then
         tools.tag_to_screen(tag.selected(capi.mouse.screen), 2) 
     else
@@ -27,7 +27,7 @@ function moveTagToScreen()
     end
 end
 
-function altTab(args)
+function  module.altTab(args)
     local args = args or {}
     customMenu(nil,{leap = 1,auto_release = args.auto_release})
     
@@ -39,7 +39,7 @@ function altTab(args)
     --if capi.client.focus then capi.client.focus:raise() end --TODO
 end
 
-function altTabBack(args)
+function  module.altTabBack(args)
     local args = args or {}
     customMenu(nil,{leap = -1,auto_release = args.auto_release})
     --if not capi.client.focus then
@@ -53,7 +53,7 @@ function altTabBack(args)
     --end
 end
 
-function focusHistory()
+function  module.focusHistory()
     client.focus.history.previous()
     
     if capi.client.focus then
@@ -61,16 +61,16 @@ function focusHistory()
     end
 end
 
-function maxClient(c)
+function  module.maxClient(c)
     c.maximized_horizontal = not c.maximized_horizontal
     c.maximized_vertical   = not c.maximized_vertical
 end
 
-function toggleHWPan() 
+function  module.toggleHWPan() 
     hardwarePanel.visible  = not hardwarePanel.visible 
 end
 
-function printTextBuffer() 
+function  module.printTextBuffer() 
     local f = io.popen('xsel')
     local text = f:read("*all")
     f:close()
@@ -79,28 +79,28 @@ function printTextBuffer()
     --capi.root.fake_input('key_release',38)
 end
 
-function printClipboard() 
+function  module.printClipboard() 
     local f = io.popen('xsel -b')
     local text = f:read("*all")
     f:close()
     naughty.notify({text = '<u><b>Clipboard content:</b></u>\n'..text})
 end
 
-function pasteTextBuffer() 
+function  module.pasteTextBuffer() 
     local f = io.popen('xsel')
     local text = f:read("*all")
     f:close()
     util.spawn("xvkbd -text '".. text:gsub("'", "\\'" ) .."'")
 end
 
-function pasteClipboard() 
+function  module.pasteClipboard() 
     local f = io.popen('xsel -b')
     local text = f:read("*all")
     f:close()
     util.spawn("xvkbd -text '".. text:gsub("'", "\\'" ) .."'")
 end
 
-function printHexTextBuffer() 
+function  module.printHexTextBuffer() 
     local header = "<tt><span color='".. beautiful.bg_normal .."' bgcolor='".. beautiful.fg_normal .."'>  LINE  |                        CONTENT                          |     ASCII      |</span>\n"
     local f = io.popen('xsel | /usr/bin/hexdump -f '..util.getdir("config")..'/Scripts/hexDumpSyntax')
     local text = ""
@@ -126,3 +126,5 @@ function printHexTextBuffer()
     f:close()
     naughty.notify({text = '<u><b>Hexdecimal content:</b></u>\n\n'..header..text..'</tt>', timeout = 999, noslider = true})
 end
+
+return setmetatable(module, { __call = function(_, ...) return new(...) end })

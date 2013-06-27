@@ -1,18 +1,45 @@
-local capi =  {timer=timer,client=client}
+local capi =  {timer=timer,client=client,tag=tag}
 local awful      = require( "awful"          )
 local color      = require( "gears.color"    )
-local surface    = require( "gears.surface"  )
 local cairo      = require( "lgi"            ).cairo
 local tag        = require( "awful.tag"      )
-local client     = require( "awful.client"   )
 local themeutils = require( "blind.common.drawing"    )
-local wibox_w    = require( "wibox.widget"   )
-local radical    = require( "radical"        )
-local debug      = debug
 local print = print
 
 local module = {}
 
+----------------------------------------------------------------
+-- Watch urgent clients and set the tag to urgent accordingly --
+----------------------------------------------------------------
+capi.tag.add_signal("property::urgent")
+local function watch_urgent(c)
+    local modif = c.urgent == true and 1 or -1
+    for k,t in ipairs(c:tags()) do
+        local current = (awful.tag.getproperty(t,"urgent") or 0)
+        if current + modif < 0 then
+            awful.tag.setproperty(t,"urgent",0)
+        else
+            awful.tag.setproperty(t,"urgent",(awful.tag.getproperty(t,"urgent") or 0) + modif)
+        end
+    end
+end
+capi.client.connect_signal("manage", function(c)
+    c:connect_signal("property::urgent",watch_urgent)
+    if c.urgent then
+        watch_urgent(c)
+    end
+end)
+capi.client.connect_signal("unmanage", function(c)
+    c:disconnect_signal("property::urgent",watch_urgent)
+end)
+
+
+
+
+
+-------------------------------------------------------
+-- Get or draw the pixmap for the absolute tag index --
+-------------------------------------------------------
 local screen_nb_cache = {}
 local function gen_screen_nb(nb)
     if screen_nb_cache[nb] then return screen_nb_cache[nb] end
@@ -27,12 +54,15 @@ local function gen_screen_nb(nb)
     return img
 end
 
+
+
+----------------
+-- Render tag --
+----------------
 local taglist_cache = {}
-
-local arr_tag      = nil--themeutils.get_end_arrow2({ bg_color=module.theme.fg_normal    })
-local arr_last_tag = nil--themeutils.get_end_arrow2({ bg_color=module.theme.bg_alternate })
-local arr1_tag     = nil--themeutils.get_beg_arrow2({ fg_color=module.theme.bg_normal    })
-
+local arr_tag      = nil
+local arr_last_tag = nil
+local arr1_tag     = nil
 function module.gen_tag_bg(wdg,t,m,objects,idx,image)
     if not arr_tag then
         arr_tag      = themeutils.get_end_arrow2({ bg_color=module.theme.fg_normal    })
@@ -40,6 +70,9 @@ function module.gen_tag_bg(wdg,t,m,objects,idx,image)
         arr1_tag     = themeutils.get_beg_arrow2({ fg_color=module.theme.bg_normal    })
     end
     local width = wdg:fit(-1, -1)
+    if (awful.tag.getproperty(t,"urgent") or 0) > 0 and not t.selected then
+        image = module.theme.taglist_bg_image_urgent
+    end
     local hash = width..(image or "nil")..(objects[#objects] == t and ";" or "")..idx..(tag.getproperty(t,"clone_of") and "c" or "")
     if taglist_cache[t] and taglist_cache[t][hash] then
         if tag.getproperty(t,"clone_of") then
@@ -66,13 +99,13 @@ function module.gen_tag_bg(wdg,t,m,objects,idx,image)
     cr:set_source(color(module.theme.fg_normal))
     cr:rectangle(0,0,module.theme.default_height+module.theme.default_height/2+5,module.theme.default_height)
     cr:fill()
-    local icon = tag.geticon(t) or path .."Icon/tags_invert/other.png"
+    local icon = tag.geticon(t) or module.theme.path .."Icon/tags_invert/other.png"
     img2 = themeutils.compose({
         img2,
         {layer=icon,x=2,y=0,scale=true,height=module.theme.default_height+2},
         {layer=arr1_tag,x=module.theme.default_height+module.theme.default_height/2+5,y=0},
         {layer = objects[#objects] ~= t and arr_tag or arr_last_tag,y=0,x=width+ (module.theme.default_height+3*(module.theme.default_height/2)+11) - module.theme.default_height/2 + 5 -9+(isClone and 20 or 0)},
-        isClone and {layer=path .."Icon/clone2.png",x=width+42} or nil,
+        isClone and {layer=module.theme.path .."Icon/clone2.png",x=width+42} or nil,
         isClone and {layer = gen_screen_nb(tag.getscreen(isClone)),x=width+42} or nil
     })
     cr:move_to(module.theme.default_height+2,module.theme.default_height-6)

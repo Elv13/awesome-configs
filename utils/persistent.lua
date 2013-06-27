@@ -12,9 +12,9 @@ local util         = require( "awful.util"   )
 local capi = { image  = image  ,
                widget = widget }
 
-module("utils.persistent")
+local module = {}
 
-function loadClassesRules(t)
+function  module.loadClassesRules(t)
 --     startup
 --     geometry
 --     float
@@ -69,4 +69,4 @@ function loadClassesRules(t)
     end
 end
 
-setmetatable(_M, { __call = function(_, ...) return new(...) end })
+return setmetatable(module, { __call = function(_, ...) return new(...) end })
