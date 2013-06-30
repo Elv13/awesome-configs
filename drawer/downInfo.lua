@@ -6,7 +6,7 @@ local button    = require( "awful.button"   )
 local beautiful = require( "beautiful"      )
 local widget2   = require( "awful.widget"   )
 local naughty   = require( "naughty"        )
-local config    = require( "config"         )
+local config    = require( "forgotten"         )
 local vicious   = require( "extern.vicious" )
 local tag       = require( "awful.tag"      )
 local util      = require( "awful.util"     )
@@ -25,7 +25,7 @@ end
 
 local function new(screen, args)
   kgetpixmap       = widget({ type = "imagebox", align = "right" })
-  kgetpixmap.image = image(config.data().iconPath .. "tags/download.png")
+  kgetpixmap.image = image(config.iconPath .. "tags/download.png")
 
   kgetwidget = widget({
       type = 'textbox',

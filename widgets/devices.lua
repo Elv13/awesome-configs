@@ -9,7 +9,7 @@ local button = require("awful.button")
 local wibox = require("wibox")
 local beautiful = require("beautiful")
 local util = require("awful.util")
-local config = require("config")
+local config = require("forgotten")
 local vicious = require("extern.vicious")
 local surface = require("gears.surface")
 local desktopGrid = require("widgets.layout.desktopLayout")
@@ -69,17 +69,17 @@ function add_device(args)
 
   if devType == "hdd" then
     if not hddnicn then
-        hddicn = surface.load(config.data().iconPath .. "hdd.png")
+        hddicn = surface.load(config.iconPath .. "hdd.png")
     end
     iconTest:set_image(hddicn)
   elseif devType == "net" then
     if not hddnicn then
-        hddnicn = surface.load(config.data().iconPath .. "hddn.png")
+        hddnicn = surface.load(config.iconPath .. "hddn.png")
     end
     iconTest.image = hddnicn
   elseif devType == "home" then
     if not homeicn then
-        homeicn = surface.load(config.data().iconPath .. "home.png")
+        homeicn = surface.load(config.iconPath .. "home.png")
     end
     iconTest.image = homeicn
   end
@@ -87,14 +87,14 @@ function add_device(args)
 
   local iconTest1 = wibox.widget.imagebox()
   if not ej then
-      ej = surface.load(config.data().iconPath .. "tags/eject.png")
+      ej = surface.load(config.iconPath .. "tags/eject.png")
   end
 
   iconTest1.image = ej
 
   iconTest1:add_signal("mouse::enter", function ()
     if not ejo then
-        ejo = surface.load(config.data().iconPath .. "tags/eject_over.png")
+        ejo = surface.load(config.iconPath .. "tags/eject_over.png")
     end
     iconTest1.image = ejo
   end)
@@ -138,7 +138,7 @@ function add_device(args)
   volfill:set_vertical(true)
   volfill:set_width(10)
   volfill:set_height(50)
---   volfill:set_bg_image(surface.load(config.data().iconPath .. "bg/progressbar.png"))
+--   volfill:set_bg_image(surface.load(config.iconPath .. "bg/progressbar.png"))
   if (widget.progressbar.set_offset ~= nil) then
     volfill:set_offset(1)
   end

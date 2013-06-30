@@ -155,7 +155,7 @@
 --         end
 --     end
 --     if not tag.getproperty(t, "icon_only") then
---         if config.data().useListPrefix == true then
+--         if config.useListPrefix == true then
 --           if fg_color then
 --             text = text .. "<span color='"..util.color_strip_alpha(fg_color).."'>"
 --             text = text .. "" .. (util.escape(t.name) or "") .."</span>"
@@ -178,7 +178,7 @@
 --         icon = capi.image(tag.geticon(t))
 --     end
 -- 
---     return text, bg_color, bg_image, icon, (config.data().useListPrefix == true and beautiful.fg_normal or bg_color),nil,numberStyle..config.data().listPrefix[tag.getidx(t)]..numberStyleEnd
+--     return text, bg_color, bg_image, icon, (config.useListPrefix == true and beautiful.fg_normal or bg_color),nil,numberStyle..config.listPrefix[tag.getidx(t)]..numberStyleEnd
 -- end
 -- 
 -- --- Return labels for a taglist widget with all *non empty* tags from screen.

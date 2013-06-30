@@ -6,7 +6,7 @@ local button    = require( "awful.button"    )
 local beautiful = require( "beautiful"       )
 local tag       = require( "awful.tag"       )
 local util      = require( "awful.util"      )
-local config    = require( "config"          )
+local config    = require( "forgotten"          )
 local radical   = require( "radical" )
 local awful = require("awful")
 local capi = { image  = image  ,

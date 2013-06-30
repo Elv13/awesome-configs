@@ -6,7 +6,7 @@ local beautiful    = require( "beautiful"                    )
 local naughty      = require( "naughty"                      )
 local tag          = require( "awful.tag"                    )
 local util         = require( "awful.util"                   )
-local config       = require( "config"                       )
+local config       = require( "forgotten"                       )
 local widget2      = require( "awful.widget"                 )
 local wibox        = require( "awful.wibox"                  )
 local button       = require( "awful.button"                 )
@@ -23,7 +23,7 @@ local function new(screen, args)
   aWibox:geometry({x=400,y=400,width = 230, height = 30})
   local textTest = capi.widget({type="textbox" })
   local icon     = capi.widget({type="imagebox"})
-  icon.image     = capi.image(config.data().iconPath .. "home.png")
+  icon.image     = capi.image(config.iconPath .. "home.png")
   textTest.text  = "   text"
   aWibox.widgets = {icon,textTest, layout = widget2.layout.horizontal.leftrightcached }
   aWibox.bg      = "#ff000000"

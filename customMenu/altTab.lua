@@ -8,7 +8,7 @@ local beautiful    = require( "beautiful"        )
 local tag          = require( "awful.tag"        )
 local menu         = require( "radical.box"      )
 local util         = require( "awful.util"       )
-local config       = require( "config"           )
+local config       = require( "forgotten"           )
 local wibox        = require( "wibox"            )
 local capi = { image      = image,
                widget     = widget,
@@ -38,7 +38,7 @@ local function button_group(args)
     local function setImage(hover)
         local curfocus  = (hover == true) and "hover" or ((((type(focus) == "function") and focus() or focus) == true) and "focus" or "normal")
         local curactive = ((((type(checked) == "function") and checked() or checked) == true) and "active" or "inactive")
-        widget:set_image( config.data().themePath.. "Icon/titlebar/" .. field .."_"..curfocus .."_"..curactive..".png"  )
+        widget:set_image( config.themePath.. "Icon/titlebar/" .. field .."_"..curfocus .."_"..curactive..".png"  )
     end
 
     local function createWidget()

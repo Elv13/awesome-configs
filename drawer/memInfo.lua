@@ -14,7 +14,7 @@ local widget2      = require("awful.widget")
 local wibox        = require("wibox")
 local menu         = require("widgets.menu")
 local vicious      = require("extern.vicious")
-local config       = require("config")
+local config       = require("forgotten")
 local util         = require("awful.util")
 
 local capi = { image  = image  ,
@@ -215,7 +215,7 @@ local function reload_top(topMenu,data)
             end
 
             testImage2       = wibox.widget.imagebox()
-            testImage2:set_image(config.data().iconPath .. "kill.png")
+            testImage2:set_image(config.iconPath .. "kill.png")
 
 --             processW.widgets = {aMem, {testImage2, layout = widget2.layout.horizontal.rightleftcached}, layout = widget2.layout.horizontal.leftrightcached,{
 --                                 aProcess , 
@@ -378,7 +378,7 @@ local function new(margin, args)
 --     mytimer:start()
 
     ramlogo       = wibox.widget.imagebox()
-    ramlogo:set_image(config.data().iconPath .. "cpu.png")
+    ramlogo:set_image(config.iconPath .. "cpu.png")
     ramlogo:buttons( util.table.join(
     button({ }, 1, function()
         toggleSensorBar()

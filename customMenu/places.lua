@@ -8,7 +8,7 @@ local button       = require( "awful.button"               )
 local beautiful    = require( "beautiful"                  )
 local util         = require( "awful.util"                 )
 local menu         = require( "radical.context"            )
-local config       = require( "config"                     )
+local config       = require( "forgotten"                     )
 local tooltip2     = require( "widgets.tooltip2"           )
 local fdutil       = require( "extern.freedesktop.utils"   )
 local themeutils   = require( "blind.common.drawing"                )
@@ -65,7 +65,7 @@ local function new(offset, args)
     mylauncher2text.bg_align = "left"
     mylauncher2text.bg_resize = true
 
-    local head_img      = config.data().iconPath .. "tags/home2.png"
+    local head_img      = config.iconPath .. "tags/home2.png"
 --     local extents       = mylauncher2text:extents()
 --     extents.height      = 16
 --     local normal_bg_img = themeutils.gen_button_bg(head_img,extents,false) --TODO port

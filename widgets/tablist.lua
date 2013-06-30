@@ -121,8 +121,8 @@
 --                                                   local obj = capi.mouse.object_under_pointer()
 --                                                   if type(obj) == "wibox" then
 --                                                       if obj.position ~= nil then
---                                                         if config.data().titlebars[obj] ~= nil then
---                                                            config.data().titlebars[obj]:add_tab(tab.client)
+--                                                         if config.titlebars[obj] ~= nil then
+--                                                            config.titlebars[obj]:add_tab(tab.client)
 --                                                         end
 --                                                       end
 --                                                   end

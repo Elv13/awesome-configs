@@ -3,7 +3,7 @@ local button       = require( "awful.button" )
 local beautiful    = require( "beautiful"    )
 local tag          = require( "awful.tag"    )
 local util         = require( "awful.util"   )
-local config       = require( "config"       )
+local config       = require( "forgotten"       )
 
 local capi = { image  = image  ,
                widget = widget }
@@ -16,7 +16,7 @@ local isinit      = false
 
 local function new(screen, args) 
   local desktopPix       = capi.widget({ type = "imagebox", align = "left" })
-  desktopPix.image = capi.image(config.data().iconPath .. "tags/desk2.png")
+  desktopPix.image = capi.image(config.iconPath .. "tags/desk2.png")
   desktopPix:buttons( util.table.join( button({ }, 1, function() tag.viewnone() end) ))
   desktopPix:add_signal("mouse::enter", function() desktopPix.bg = beautiful.bg_highlight end)
   desktopPix:add_signal("mouse::leave", function() desktopPix.bg = beautiful.bg_normal    end)

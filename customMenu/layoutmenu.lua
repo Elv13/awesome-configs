@@ -10,7 +10,7 @@ local client2 = require("awful.client")
 local tag = require("awful.tag")
 -- local titlebar = require("widgets.titlebar")
 local util = require("awful.util")
-local config = require("config")
+local config = require("forgotten")
 local beautiful = require("beautiful")
 local wibox = require("wibox")
 local tooltip2   = require( "widgets.tooltip2" )
@@ -40,7 +40,7 @@ local showTitleBar = {}
 local bg_img = {}
 
 local function enableTitleBar(value)
-  if tag.selected() ~= nil and config.data().advTermTB == true then
+  if tag.selected() ~= nil and config.advTermTB == true then
     for i, client in ipairs(tag.selected():clients()) do
       if value == true or client2.floating.get(client) == true then
 	titlebar.add(client)

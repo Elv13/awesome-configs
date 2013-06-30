@@ -11,7 +11,7 @@ local naughty      = require( "naughty"         )
 local tag          = require( "awful.tag"       )
 local menu         = require( "radical.context"            )
 local util         = require( "awful.util"      )
-local config       = require( "config"          )
+local config       = require( "forgotten"          )
 local themeutils   = require( "blind.common.drawing"     )
 local wibox        = require( "wibox"           )
 local style        = require( "radical.style.classic"      )
@@ -132,7 +132,7 @@ local function new(offset, args)
     launcherText:set_text("Launch")
     launcherText.bg_resize = true
     
-    local head_img      = config.data().iconPath .. "gearA2.png"
+    local head_img      = config.iconPath .. "gearA2.png"
 --     local extents       = launcherText:extents()
 --     extents.height      = 16
 --     local normal_bg_img = themeutils.gen_button_bg(head_img,extents,false)

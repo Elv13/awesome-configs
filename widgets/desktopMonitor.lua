@@ -6,7 +6,7 @@ local naughty = require("naughty")
 local wibox = require("wibox")
 local tag = require("awful.tag")
 local util = require("awful.util")
-local config = require("config")
+local config = require("forgotten")
 local vicious = require("extern.vicious")
 local desktopGrid = require("widgets.layout.desktopLayout")
 local capi = { image = image,
@@ -29,7 +29,7 @@ local function new(screen2, args)
   local aWibox = wibox({ position = "free", screen = s, bg = beautiful.menu_bg or beautiful.bg_normal.."AA"})
   aWibox.visible = true
   aWibox:geometry({ width = 400, height = 200, x = xPos, y = 40})
-  desktopGrid.addCornerWidget(aWibox,config.data().scr.sec or config.data().scr.pri,nil,{type = "wibox"})
+  desktopGrid.addCornerWidget(aWibox,config.scr.sec or config.scr.pri,nil,{type = "wibox"})
   --aWibox:rounded_corners(10)
 --   wibox.rounded_corners(aWibox,10)
   
@@ -76,10 +76,10 @@ local function new(screen2, args)
   netWdg:set_markup("  <b><u>Networking:</u></b>")
   
   local uploadImg = wibox.widget.imagebox()
-  uploadImg:set_image(config.data().iconPath .. "arrowUp.png")
+  uploadImg:set_image(config.iconPath .. "arrowUp.png")
   
   local downloadImg = wibox.widget.imagebox()
-  downloadImg:set_image(config.data().iconPath .. "arrowDown.png")
+  downloadImg:set_image(config.iconPath .. "arrowDown.png")
   
   local netUsageUp = wibox.widget.textbox()
   netUsageUp.text = "Upload: 10kbs"

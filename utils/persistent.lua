@@ -5,7 +5,7 @@ local print        = print
 local table        = table
 local button       = require( "awful.button" )
 local beautiful    = require( "beautiful"    )
-local config       = require( "config"       )
+local config       = require( "forgotten"       )
 local tag          = require( "awful.tag"    )
 local util         = require( "awful.util"   )
 
@@ -57,9 +57,9 @@ function  module.loadClassesRules(t)
 --                    dockable      , urgent        , opacity         , titlebar , run            , sticky          ,
 --                    wfact         , struts        , skip_taskbar    , props                                       }
     print("Loading persistent rules",#prop)
-    if config.data().persistent then
+    if config.persistent then
         for k,v in pairs(prop) do
-            local realT = config.get_real(config.data().persistent.flags[v])
+            local realT = config.get_real(config.persistent.flags[v])
             print("Table "..v,realT)
             for k2,v2 in pairs(realT) do
                 print("In table: "..v)

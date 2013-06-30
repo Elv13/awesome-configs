@@ -8,7 +8,7 @@ local button = require("awful.button")
 local vicious = require("extern.vicious")
 local wibox = require("wibox")
 local widget2 = require("awful.widget")
-local config = require("config")
+local config = require("forgotten")
 local beautiful = require("beautiful")
 local menu = require( "widgets.menu"                 )
 local util = require("awful.util")
@@ -34,31 +34,31 @@ local function amixer_volume(format)
    f:close()
    if l+0 == 0 then
     if volumepixmap then
-      volumepixmap.image = capi.image(config.data().iconPath .. "volm.png")
+      volumepixmap.image = capi.image(config.iconPath .. "volm.png")
     end
     if volumepixmap2 then
-      volumepixmap2.image = capi.image(config.data().iconPath .. "volm.png")
+      volumepixmap2.image = capi.image(config.iconPath .. "volm.png")
     end
    elseif l+0 < 15 then
    if volumepixmap then
-      volumepixmap.image = capi.image(config.data().iconPath .. "vol1.png")
+      volumepixmap.image = capi.image(config.iconPath .. "vol1.png")
     end
     if volumepixmap2 then
-      volumepixmap2.image = capi.image(config.data().iconPath .. "vol1.png")
+      volumepixmap2.image = capi.image(config.iconPath .. "vol1.png")
     end
    elseif l+0 < 35 then
    if volumepixmap then
-      volumepixmap.image = capi.image(config.data().iconPath .. "vol2.png")
+      volumepixmap.image = capi.image(config.iconPath .. "vol2.png")
     end
     if volumepixmap2 then
-      volumepixmap2.image = capi.image(config.data().iconPath .. "vol2.png")
+      volumepixmap2.image = capi.image(config.iconPath .. "vol2.png")
     end
    else
     if volumepixmap then
-      volumepixmap.image = capi.image(config.data().iconPath .. "vol3.png")
+      volumepixmap.image = capi.image(config.iconPath .. "vol3.png")
     end
     if volumepixmap2 then
-      volumepixmap2.image = capi.image(config.data().iconPath .. "vol3.png")
+      volumepixmap2.image = capi.image(config.iconPath .. "vol3.png")
     end
    end
    return {l}
@@ -103,14 +103,14 @@ function soundInfo()
     channal.width = 107
         
     mute = wibox.widget.imagebox()
-    mute.image = capi.image(config.data().iconPath .. "volm.png")
+    mute.image = capi.image(config.iconPath .. "volm.png")
     mute.width = 25
     mute.bg = "#0F2051"
     mute.border_width = 1
     mute.border_color = beautiful.bg_normal
     
     plus = wibox.widget.imagebox()
-    plus.image = capi.image(config.data().iconPath .. "tags/cross2.png")
+    plus.image = capi.image(config.iconPath .. "tags/cross2.png")
 
     volume = widget2.progressbar()
     volume:set_width(40)
@@ -125,7 +125,7 @@ function soundInfo()
     --volume:set_margin({top=6,bottom=6})
     
     minus = wibox.widget.imagebox()
-    minus.image = capi.image(config.data().iconPath .. "tags/minus2.png")
+    minus.image = capi.image(config.iconPath .. "tags/minus2.png")
     counter = counter +1
 --     table.insert(widgetTable, {mute, channal, plus, volume, minus, layout = widget2.layout.horizontal.leftrightcached})
     local l2 = wibox.layout.fixed.horizontal()
@@ -147,7 +147,7 @@ end
 local function new(mywibox3,left_margin)
   local volumewidget = wibox.widget.textbox()
   local volumepixmap =  wibox.widget.imagebox()
-  volumepixmap:set_image(config.data().iconPath .. "vol.png")
+  volumepixmap:set_image(config.iconPath .. "vol.png")
 
 
   local top,bottom

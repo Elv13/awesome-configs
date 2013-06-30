@@ -7,7 +7,7 @@ local button       = require( "awful.button" )
 local beautiful    = require( "beautiful"    )
 local naughty      = require( "naughty"      )
 local tag          = require( "awful.tag"    )
-local config       = require( "config"       )
+local config       = require( "forgotten"       )
 local util         = require( "awful.util"   )
 local wibox        = require( "awful.wibox"  )
 local widget       = require( "awful.widget" )
@@ -142,17 +142,17 @@ function module.addWidget(wdg,args,reserved)
     end
     local saved = {}
     
-    if args.id and config.data().desktop.position[args.id] then
-        saved.height    = config.data().desktop.position[args.id].height or nil
-        saved.width     = config.data().desktop.position[args.id].width  or nil
-        saved.x         = config.data().desktop.position[args.id].x      or nil
-        saved.y         = config.data().desktop.position[args.id].y      or nil
+    if args.id and config.desktop.position[args.id] then
+        saved.height    = config.desktop.position[args.id].height or nil
+        saved.width     = config.desktop.position[args.id].width  or nil
+        saved.x         = config.desktop.position[args.id].x      or nil
+        saved.y         = config.desktop.position[args.id].y      or nil
     end
     
     wdgSet.id           = args.id           or genId()
     wdgSet.height       = saved.height      or args.height           or wdgSet.height or wb:geometry().height
     wdgSet.width        = saved.width       or args.width            or wdgSet.width  or wb:geometry().width
-    wdgSet.allowDrag    = args.allowDrag    or config.data().allowDrag or true
+    wdgSet.allowDrag    = args.allowDrag    or config.allowDrag or true
     wdgSet.opacity      = args.opacity      or wb.opacity
     wdgSet.transparency = args.transparency or wb.transparency
     wdgSet.bg           = args.bg           or wb.bg

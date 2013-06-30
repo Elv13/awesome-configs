@@ -2,7 +2,7 @@ local setmetatable = setmetatable
 local button = require("awful.button")
 local beautiful = require("beautiful")
 local tag = require("awful.tag")
-local config = require("config")
+local config = require("forgotten")
 local util = require("awful.util")
 local wibox = require("wibox")
 -- local shifty = require("shifty")
@@ -31,7 +31,7 @@ end
 
 local function new(screen, args) 
   data[screen]         = wibox.widget.imagebox()
-  data[screen]:set_image(config.data().iconPath .. "tags/minus2.png")
+  data[screen]:set_image(config.iconPath .. "tags/minus2.png")
   data[screen].visible = false
   data[screen].bg      = beautiful.bg_alternate
   tooltip2(data[screen],"Remove Tag",{})

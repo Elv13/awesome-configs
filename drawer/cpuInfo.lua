@@ -8,7 +8,7 @@ local tonumber     = tonumber
 local beautiful    = require( "beautiful"      )
 local button       = require( "awful.button"   )
 local widget2      = require( "awful.widget"   )
-local config       = require( "config"         )
+local config       = require( "forgotten"         )
 local vicious      = require( "extern.vicious" )
 local menu         = require( "widgets.menu"   )
 local util         = require( "awful.util"     )
@@ -65,7 +65,7 @@ local function reload_top(procMenu,data)
             wdg.percent.align = "right"
             wdg.process       = wibox.widget.textbox()
             wdg.kill          = wibox.widget.imagebox()
-            wdg.kill:set_image(config.data().iconPath .. "kill.png")
+            wdg.kill:set_image(config.iconPath .. "kill.png")
 
 --             w.widgets = { wdg.percent,
 --                             { wdg.kill, layout = widget2.layout.horizontal.rightleftcached }
@@ -363,7 +363,7 @@ local function new(margin, args)
         data.menu:toggle(visible)
     end
 
-    cpulogo:set_image(config.data().iconPath .. "brain.png")
+    cpulogo:set_image(config.iconPath .. "brain.png")
     cpulogo.bg = beautiful.bg_alternate
     cpuwidget.width = 27
     cpuwidget.bg = beautiful.bg_alternate

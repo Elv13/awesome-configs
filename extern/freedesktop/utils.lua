@@ -7,7 +7,7 @@ local type = type
 local ipairs = ipairs
 local pairs = pairs
 local print = print
-local config = require("config")
+local config = require("forgotten")
 
 module("extern.freedesktop.utils")
 
@@ -143,7 +143,7 @@ function lookup_icon(arg)
         -- icons with absolute path and supported (AFAICT) formats
         return arg.icon
     elseif arg.icon:sub(1, 6) == "AWECFG" then
-        return arg.icon:gsub("AWECFG", config.data().iconPath)
+        return arg.icon:gsub("AWECFG", config.iconPath)
     else
         cache_paths = cache_paths or gen_paths()
         local paths = nil

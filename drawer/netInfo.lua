@@ -11,7 +11,7 @@ local wibox        = require( "wibox"          )
 local button       = require( "awful.button"   )
 local vicious      = require( "extern.vicious" )
 local util         = require( "awful.util"     )
-local config       = require( "config"         )
+local config       = require( "forgotten"         )
 local menu         = require( "widgets.menu"   )
 
 local capi = { image  = image  ,
@@ -193,7 +193,7 @@ local function reload_appstat(appMenu,data)
         appIcon.border_width   = 1
         local app2             = wibox.widget.textbox()
         testImage2             = wibox.widget.imagebox()
-        testImage2:set_image(config.data().iconPath .. "kill.png"       )
+        testImage2:set_image(config.iconPath .. "kill.png"       )
         local w                = wibox({ position = "free" , screen = s , ontop = true , bg = beautiful.menu_bg})
         w.visible              = false
 --         w.widgets              = {
@@ -294,9 +294,9 @@ local function repaint(margin)
     setup_graph(netDownGraph)
     vicious.register                 (netDownGraph, vicious.widgets.net, '${eth0 down_kb}',1)
 
-    uploadImg:set_image(config.data().iconPath .. "arrowUp.png"  )
+    uploadImg:set_image(config.iconPath .. "arrowUp.png"  )
     uploadImg.resize   = false
-    downloadImg:set_image(config.data().iconPath .. "arrowDown.png")
+    downloadImg:set_image(config.iconPath .. "arrowDown.png")
     downloadImg.resize = false
     netUsageUp:set_markup("<b>Up: </b>")
     netUsageDown:set_markup("<b>Down: </b>")
@@ -408,8 +408,8 @@ local function new(margin, args)
     local netUpWidget      = wibox.widget.textbox()
     netDownWidget.width = 55
     netUpWidget.width   = 55
-    uplogo:set_image(config.data().iconPath .. "arrowUp.png"         )
-    downlogo:set_image(config.data().iconPath .. "arrowDown.png"       )
+    uplogo:set_image(config.iconPath .. "arrowUp.png"         )
+    downlogo:set_image(config.iconPath .. "arrowDown.png"       )
     vicious.register(netUpWidget  , vicious.widgets.net   ,  '${eth0 up_kb}KBs'   ,3 )
     vicious.register(netDownWidget, vicious.widgets.net   ,  '${eth0 down_kb}KBs' ,3 )
     local btn = util.table.join(button({ }, 1, function () show() end))

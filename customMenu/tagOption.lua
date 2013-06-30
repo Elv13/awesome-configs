@@ -6,7 +6,7 @@ local beautiful = require( "beautiful"     )
 local tag       = require( "awful.tag"     )
 local util      = require( "awful.util"    )
 -- local shifty    = require( "shifty"        )
-local config    = require( "config"        )
+local config    = require( "forgotten"        )
 local menu      = require( "radical.context"  )
 local awful = require("awful")
 local capi = { image  = image  ,
@@ -80,7 +80,7 @@ local function new(screen, args)
   
   local mainMenu2 = menu()
   
-  local f = io.popen('find '..config.data().iconPath .. "tags/ -maxdepth 1 -iname \"*.png\" -type f","r")
+  local f = io.popen('find '..config.iconPath .. "tags/ -maxdepth 1 -iname \"*.png\" -type f","r")
   local counter = 0
   while true do
     local file = f:read("*line")

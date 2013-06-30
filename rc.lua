@@ -12,7 +12,7 @@ local naughty = require("naughty")
 local menubar = require("menubar")
 local customButton = require("customButton")
 local customMenu = require("customMenu")
-local config = require("config")
+local config = require("forgotten")
 local drawer = require("drawer")
 local widgets = require("widgets")
 -- local shifty = require("shifty")
@@ -53,17 +53,16 @@ vicious.cache( vicious.widgets.mem )
 vicious.cache( vicious.widgets.dio )
 
 -- Various configuration options
-config.disableAutoSave()
-config.data().showTitleBar  = false
-config.data().themeName     = "arrow"
-config.data().noNotifyPopup = true
-config.data().useListPrefix = true
-config.data().deviceOnDesk  = true
-config.data().desktopIcon   = true
-config.data().advTermTB     = true
-config.data().scriptPath    = awful.util.getdir("config") .. "/Scripts/"
-config.data().listPrefix    = {'①','②','③','④','⑤','⑥','⑦','⑧','⑨','⑩','⑪','⑫','⑬','⑭','⑮','⑯','⑰','⑱','⑲','⑳'}
-config.data().scr           = {
+config.showTitleBar  = false
+config.themeName     = "arrow"
+config.noNotifyPopup = true
+config.useListPrefix = true
+config.deviceOnDesk  = true
+config.desktopIcon   = true
+config.advTermTB     = true
+config.scriptPath    = awful.util.getdir("config") .. "/Scripts/"
+config.listPrefix    = {'①','②','③','④','⑤','⑥','⑦','⑧','⑨','⑩','⑪','⑫','⑬','⑭','⑮','⑯','⑰','⑱','⑲','⑳'}
+config.scr           = {
     pri         = 1,
     sec         = 2,
     music       = 3,
@@ -73,9 +72,9 @@ config.data().scr           = {
 
 -- Load the theme
 config.load()
-config.data().themePath = awful.util.getdir("config") .. "/blind/" .. config.data().themeName .. "/"
-config.data().iconPath  = config.data().themePath       .. "Icon/"
-beautiful.init(config.data().themePath                .. "/theme.lua")
+config.themePath = awful.util.getdir("config") .. "/blind/" .. config.themeName .. "/"
+config.iconPath  = config.themePath       .. "Icon/"
+beautiful.init(config.themePath                .. "/theme.lua")
 
 -- {{{ Variable definitions
 -- Themes define colours, icons, and wallpapers
@@ -183,7 +182,7 @@ local keyboardSwitcherWidget = widgets.keyboardSwitcher ( nil                   
 spacer3 = widgets.spacer({text = "| "}); spacer2 = widgets.spacer({text = "  |"}); spacer4 = widgets.spacer({text = "|"})
 spacer5 = widgets.spacer({text = " ",width=5})
 local spacer_img = wibox.widget.imagebox()
-spacer_img:set_image(config.data().iconPath.."bg_arrow.png")
+spacer_img:set_image(config.iconPath.."bg_arrow.png")
 
 -- Menubar configuration
 menubar.utils.terminal = terminal -- Set the terminal for applications that require it
@@ -264,8 +263,8 @@ for s = 1, screen.count() do
     delTag[s]     = customButton.delTag   ( s                                               )
 
     -- Create the button to move a tag the next screen
-    movetagL[s]   = customButton.tagmover(s,{ direction = "left",  icon = config.data().iconPath .. "tags/screen_left.png"  })
-    movetagR[s]   = customButton.tagmover(s,{ direction = "right", icon = config.data().iconPath .. "tags/screen_right.png" })
+    movetagL[s]   = customButton.tagmover(s,{ direction = "left",  icon = config.iconPath .. "tags/screen_left.png"  })
+    movetagR[s]   = customButton.tagmover(s,{ direction = "right", icon = config.iconPath .. "tags/screen_right.png" })
 
     -- Create the layout menu for this screen
     layoutmenu[s] = customMenu.layoutmenu ( s,layouts_all                                   )
@@ -353,10 +352,10 @@ end
 -- }}}
 
 -- Add the drives list on the desktop
-if config.data().deviceOnDesk == true then
+if config.deviceOnDesk == true then
 --   widgets.devices()
 end
-if config.data().desktopIcon == true then
+if config.desktopIcon == true then
 --     for i=1,20 do
 --         widgets.desktopIcon()
 --     end
@@ -707,9 +706,3 @@ end)
 -- debug.sethook()
 -- utils.profile.stop(_G)
 -- widgets.radialSelect.radial_client_select()
-
--- awesome.connect_signal("spawn::initiated", function(id,id2) print("\n\ninitiated",id,id2,"") ;for k,v in pairs(id) do print (k,v) end ;print("end\n\n") end)
--- awesome.connect_signal("spawn::canceled", function(id) print("\n\ncanceled",id) ;for k,v in pairs(id) do print (k,v) end  ;print("end\n\n") end)
--- awesome.connect_signal("spawn::completed", function(id,id2) print("\n\ncompleted",id);for k,v in pairs(id) do print (k,v) end  ;print("end\n\n")  end)
--- awesome.connect_signal("spawn::timeout", function(id) print("\n\ntimeout",id);for k,v in pairs(id) do print (k,v) end ;print("end\n\n")  end)
--- awesome.connect_signal("spawn::change", function(id) print("\n\nchange",id);for k,v in pairs(id) do print (k,v) end ;print("end\n\n")  end)

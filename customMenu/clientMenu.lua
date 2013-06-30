@@ -5,7 +5,7 @@ local awful = require("awful")
 -- local shifty    = require( "shifty"       )
 local util    = require( "awful.util"                    )
 local type = type
-local config = require("config")
+local config = require("forgotten")
 local print = print
 local ipairs = ipairs
 local pairs = pairs
@@ -65,38 +65,38 @@ local function createNewTag()
 end
 
 local function initConf()
-    if not config.data().persistent then config.data().persistent = {} end
-    if not config.data().persistent.flags then config.data().persistent.flags = {} end
+    if not config.persistent then config.persistent = {} end
+    if not config.persistent.flags then config.persistent.flags = {} end
     
-    if not config.data().persistent.flags.startup         then config.data().persistent.flags.startup        = {} end
-    if not config.data().persistent.flags.geometry        then config.data().persistent.flags.geometry       = {} end
-    if not config.data().persistent.flags.float           then config.data().persistent.flags.float          = {} end
-    if not config.data().persistent.flags.slave           then config.data().persistent.flags.slave          = {} end
-    if not config.data().persistent.flags.border_width    then config.data().persistent.flags.border_width   = {} end
-    if not config.data().persistent.flags.nopopup         then config.data().persistent.flags.nopopup        = {} end
-    if not config.data().persistent.flags.intrusive       then config.data().persistent.flags.intrusive      = {} end
-    if not config.data().persistent.flags.fullscreen      then config.data().persistent.flags.fullscreen     = {} end
-    if not config.data().persistent.flags.honorsizehints  then config.data().persistent.flags.honorsizehints = {} end
-    if not config.data().persistent.flags.kill            then config.data().persistent.flags.kill           = {} end
-    if not config.data().persistent.flags.ontop           then config.data().persistent.flags.ontop          = {} end
-    if not config.data().persistent.flags.above           then config.data().persistent.flags.above          = {} end
-    if not config.data().persistent.flags.below           then config.data().persistent.flags.below          = {} end
-    if not config.data().persistent.flags.buttons         then config.data().persistent.flags.buttons        = {} end
-    if not config.data().persistent.flags.nofocus         then config.data().persistent.flags.nofocus        = {} end
-    if not config.data().persistent.flags.keys            then config.data().persistent.flags.keys           = {} end
-    if not config.data().persistent.flags.hidden          then config.data().persistent.flags.hidden         = {} end
-    if not config.data().persistent.flags.minimized       then config.data().persistent.flags.minimized      = {} end
-    if not config.data().persistent.flags.dockable        then config.data().persistent.flags.dockable       = {} end
-    if not config.data().persistent.flags.urgent          then config.data().persistent.flags.urgent         = {} end
-    if not config.data().persistent.flags.opacity         then config.data().persistent.flags.opacity        = {} end
-    if not config.data().persistent.flags.titlebar        then config.data().persistent.flags.titlebar       = {} end
-    if not config.data().persistent.flags.run             then config.data().persistent.flags.run            = {} end
-    if not config.data().persistent.flags.sticky          then config.data().persistent.flags.sticky         = {} end
-    if not config.data().persistent.flags.wfact           then config.data().persistent.flags.wfact          = {} end
-    if not config.data().persistent.flags.struts          then config.data().persistent.flags.struts         = {} end
-    if not config.data().persistent.flags.skip_taskbar    then config.data().persistent.flags.skip_taskbar   = {} end
-    if not config.data().persistent.flags.props           then config.data().persistent.flags.props          = {} end
-    if not config.data().persistent.flags.maximized       then config.data().persistent.flags.maximized      = {} end
+    if not config.persistent.flags.startup         then config.persistent.flags.startup        = {} end
+    if not config.persistent.flags.geometry        then config.persistent.flags.geometry       = {} end
+    if not config.persistent.flags.float           then config.persistent.flags.float          = {} end
+    if not config.persistent.flags.slave           then config.persistent.flags.slave          = {} end
+    if not config.persistent.flags.border_width    then config.persistent.flags.border_width   = {} end
+    if not config.persistent.flags.nopopup         then config.persistent.flags.nopopup        = {} end
+    if not config.persistent.flags.intrusive       then config.persistent.flags.intrusive      = {} end
+    if not config.persistent.flags.fullscreen      then config.persistent.flags.fullscreen     = {} end
+    if not config.persistent.flags.honorsizehints  then config.persistent.flags.honorsizehints = {} end
+    if not config.persistent.flags.kill            then config.persistent.flags.kill           = {} end
+    if not config.persistent.flags.ontop           then config.persistent.flags.ontop          = {} end
+    if not config.persistent.flags.above           then config.persistent.flags.above          = {} end
+    if not config.persistent.flags.below           then config.persistent.flags.below          = {} end
+    if not config.persistent.flags.buttons         then config.persistent.flags.buttons        = {} end
+    if not config.persistent.flags.nofocus         then config.persistent.flags.nofocus        = {} end
+    if not config.persistent.flags.keys            then config.persistent.flags.keys           = {} end
+    if not config.persistent.flags.hidden          then config.persistent.flags.hidden         = {} end
+    if not config.persistent.flags.minimized       then config.persistent.flags.minimized      = {} end
+    if not config.persistent.flags.dockable        then config.persistent.flags.dockable       = {} end
+    if not config.persistent.flags.urgent          then config.persistent.flags.urgent         = {} end
+    if not config.persistent.flags.opacity         then config.persistent.flags.opacity        = {} end
+    if not config.persistent.flags.titlebar        then config.persistent.flags.titlebar       = {} end
+    if not config.persistent.flags.run             then config.persistent.flags.run            = {} end
+    if not config.persistent.flags.sticky          then config.persistent.flags.sticky         = {} end
+    if not config.persistent.flags.wfact           then config.persistent.flags.wfact          = {} end
+    if not config.persistent.flags.struts          then config.persistent.flags.struts         = {} end
+    if not config.persistent.flags.skip_taskbar    then config.persistent.flags.skip_taskbar   = {} end
+    if not config.persistent.flags.props           then config.persistent.flags.props          = {} end
+    if not config.persistent.flags.maximized       then config.persistent.flags.maximized      = {} end
 end
 
 
@@ -207,35 +207,35 @@ local function new(screen, args)
   itemClose      = mainMenu:add_item({text="Close"       , button1 = function() if module.client ~= nil then  module.client:kill();mainMenu.visible=false end end})
   
   mainMenu_per = menu2()
-  itemMaximized_per       = mainMenu_per:add_item({text="Maximized"      , checked= true , button1 = function() config.data().persistent.flags.maximized[module.client.class]      = not (config.data().persistent.flags.maximized[module.client.class] or false) end})
-  itemStartup_per         = mainMenu_per:add_item({text="Startup"        , checked= true , button1 = function() config.data().persistent.flags.startup[module.client.class]        = not (config.data().persistent.flags.startup[module.client.class]        or false) end})
-  itemGeometry_per        = mainMenu_per:add_item({text="Geometry"       , checked= true , button1 = function() config.data().persistent.flags.geometry[module.client.class]       = not (config.data().persistent.flags.geometry[module.client.class]       or false) end})
-  itemFloat_per           = mainMenu_per:add_item({text="Float"          , checked= true , button1 = function() config.data().persistent.flags.float[module.client.class]          = not (config.data().persistent.flags.float[module.client.class]          or false) end})
-  itemSlave_per           = mainMenu_per:add_item({text="Slave"          , checked= true , button1 = function() config.data().persistent.flags.slave[module.client.class]          = not (config.data().persistent.flags.slave[module.client.class]          or false) end})
-  itemBorder_width_per    = mainMenu_per:add_item({text="Border_width"   , checked= true , button1 = function() config.data().persistent.flags.border_width[module.client.class]   = not (config.data().persistent.flags.border_width[module.client.class]   or false) end})
-  itemNopopup_per         = mainMenu_per:add_item({text="Nopopup"        , checked= true , button1 = function() config.data().persistent.flags.nopopup[module.client.class]        = not (config.data().persistent.flags.nopopup[module.client.class]        or false) end})
-  itemIntrusive_per       = mainMenu_per:add_item({text="Intrusive"      , checked= true , button1 = function() config.data().persistent.flags.intrusive[module.client.class]      = not (config.data().persistent.flags.intrusive[module.client.class]      or false) end})
-  itemFullscreen_per      = mainMenu_per:add_item({text="Fullscreen"     , checked= true , button1 = function() config.data().persistent.flags.fullscreen[module.client.class]     = not (config.data().persistent.flags.fullscreen[module.client.class]     or false) end})
-  itemHonorsizehints_per  = mainMenu_per:add_item({text="Honorsizehints" , checked= true , button1 = function() config.data().persistent.flags.honorsizehints[module.client.class] = not (config.data().persistent.flags.honorsizehints[module.client.class] or false) end})
-  itemKill_per            = mainMenu_per:add_item({text="Kill"           , checked= true , button1 = function() config.data().persistent.flags.kill[module.client.class]           = not (config.data().persistent.flags.kill[module.client.class]           or false) end})
-  itemOntop_per           = mainMenu_per:add_item({text="Ontop"          , checked= true , button1 = function() config.data().persistent.flags.ontop[module.client.class]          = not (config.data().persistent.flags.ontop[module.client.class]          or false) end})
-  itemAbove_per           = mainMenu_per:add_item({text="Above"          , checked= true , button1 = function() config.data().persistent.flags.above[module.client.class]          = not (config.data().persistent.flags.above[module.client.class]          or false) end})
-  itemBelow_per           = mainMenu_per:add_item({text="Below"          , checked= true , button1 = function() config.data().persistent.flags.below[module.client.class]          = not (config.data().persistent.flags.below[module.client.class]          or false) end})
-  itemButtons_per         = mainMenu_per:add_item({text="Buttons"        , checked= true , button1 = function() config.data().persistent.flags.buttons[module.client.class]        = not (config.data().persistent.flags.buttons[module.client.class]        or false) end})
-  itemNofocus_per         = mainMenu_per:add_item({text="Nofocus"        , checked= true , button1 = function() config.data().persistent.flags.nofocus[module.client.class]        = not (config.data().persistent.flags.nofocus[module.client.class]        or false) end})
-  itemKeys_per            = mainMenu_per:add_item({text="Keys"           , checked= true , button1 = function() config.data().persistent.flags.keys[module.client.class]           = not (config.data().persistent.flags.keys[module.client.class]           or false) end})
-  itemHidden_per          = mainMenu_per:add_item({text="Hidden"         , checked= true , button1 = function() config.data().persistent.flags.hidden[module.client.class]         = not (config.data().persistent.flags.hidden[module.client.class]         or false) end})
-  itemMinimized_per       = mainMenu_per:add_item({text="Minimized"      , checked= true , button1 = function() config.data().persistent.flags.minimized[module.client.class]      = not (config.data().persistent.flags.minimized[module.client.class]      or false) end})
-  itemDockable_per        = mainMenu_per:add_item({text="Dockable"       , checked= true , button1 = function() config.data().persistent.flags.dockable[module.client.class]       = not (config.data().persistent.flags.dockable[module.client.class]       or false) end})
-  itemUrgent_per          = mainMenu_per:add_item({text="Urgent"         , checked= true , button1 = function() config.data().persistent.flags.urgent[module.client.class]         = not (config.data().persistent.flags.urgent[module.client.class]         or false) end})
-  itemOpacity_per         = mainMenu_per:add_item({text="Opacity"        , checked= true , button1 = function() config.data().persistent.flags.opacity[module.client.class]        = not (config.data().persistent.flags.opacity[module.client.class]        or false) end})
-  itemTitlebar_per        = mainMenu_per:add_item({text="Titlebar"       , checked= true , button1 = function() config.data().persistent.flags.titlebar[module.client.class]       = not (config.data().persistent.flags.titlebar[module.client.class]       or false) end})
-  itemRun_per             = mainMenu_per:add_item({text="Run"            , checked= true , button1 = function() config.data().persistent.flags.run[module.client.class]            = not (config.data().persistent.flags.run[module.client.class]            or false) end})
-  itemSticky_per          = mainMenu_per:add_item({text="Sticky"         , checked= true , button1 = function() config.data().persistent.flags.sticky[module.client.class]         = not (config.data().persistent.flags.sticky[module.client.class]         or false) end})
-  itemWfact_per           = mainMenu_per:add_item({text="Wfact"          , checked= true , button1 = function() config.data().persistent.flags.wfact[module.client.class]          = not (config.data().persistent.flags.wfact[module.client.class]          or false) end})
-  itemStruts_per          = mainMenu_per:add_item({text="Struts"         , checked= true , button1 = function() config.data().persistent.flags.struts[module.client.class]         = not (config.data().persistent.flags.struts[module.client.class]         or false) end})
-  itemSkip_taskbar_per    = mainMenu_per:add_item({text="Skip_taskbar"   , checked= true , button1 = function() config.data().persistent.flags.skip_taskbar[module.client.class]   = not (config.data().persistent.flags.skip_taskbar[module.client.class]   or false) end})
-  itemProps_per           = mainMenu_per:add_item({text="Props"          , checked= true , button1 = function() config.data().persistent.flags.props[module.client.class]          = not (config.data().persistent.flags.props[module.client.class]          or false) end})
+  itemMaximized_per       = mainMenu_per:add_item({text="Maximized"      , checked= true , button1 = function() config.persistent.flags.maximized[module.client.class]      = not (config.persistent.flags.maximized[module.client.class] or false) end})
+  itemStartup_per         = mainMenu_per:add_item({text="Startup"        , checked= true , button1 = function() config.persistent.flags.startup[module.client.class]        = not (config.persistent.flags.startup[module.client.class]        or false) end})
+  itemGeometry_per        = mainMenu_per:add_item({text="Geometry"       , checked= true , button1 = function() config.persistent.flags.geometry[module.client.class]       = not (config.persistent.flags.geometry[module.client.class]       or false) end})
+  itemFloat_per           = mainMenu_per:add_item({text="Float"          , checked= true , button1 = function() config.persistent.flags.float[module.client.class]          = not (config.persistent.flags.float[module.client.class]          or false) end})
+  itemSlave_per           = mainMenu_per:add_item({text="Slave"          , checked= true , button1 = function() config.persistent.flags.slave[module.client.class]          = not (config.persistent.flags.slave[module.client.class]          or false) end})
+  itemBorder_width_per    = mainMenu_per:add_item({text="Border_width"   , checked= true , button1 = function() config.persistent.flags.border_width[module.client.class]   = not (config.persistent.flags.border_width[module.client.class]   or false) end})
+  itemNopopup_per         = mainMenu_per:add_item({text="Nopopup"        , checked= true , button1 = function() config.persistent.flags.nopopup[module.client.class]        = not (config.persistent.flags.nopopup[module.client.class]        or false) end})
+  itemIntrusive_per       = mainMenu_per:add_item({text="Intrusive"      , checked= true , button1 = function() config.persistent.flags.intrusive[module.client.class]      = not (config.persistent.flags.intrusive[module.client.class]      or false) end})
+  itemFullscreen_per      = mainMenu_per:add_item({text="Fullscreen"     , checked= true , button1 = function() config.persistent.flags.fullscreen[module.client.class]     = not (config.persistent.flags.fullscreen[module.client.class]     or false) end})
+  itemHonorsizehints_per  = mainMenu_per:add_item({text="Honorsizehints" , checked= true , button1 = function() config.persistent.flags.honorsizehints[module.client.class] = not (config.persistent.flags.honorsizehints[module.client.class] or false) end})
+  itemKill_per            = mainMenu_per:add_item({text="Kill"           , checked= true , button1 = function() config.persistent.flags.kill[module.client.class]           = not (config.persistent.flags.kill[module.client.class]           or false) end})
+  itemOntop_per           = mainMenu_per:add_item({text="Ontop"          , checked= true , button1 = function() config.persistent.flags.ontop[module.client.class]          = not (config.persistent.flags.ontop[module.client.class]          or false) end})
+  itemAbove_per           = mainMenu_per:add_item({text="Above"          , checked= true , button1 = function() config.persistent.flags.above[module.client.class]          = not (config.persistent.flags.above[module.client.class]          or false) end})
+  itemBelow_per           = mainMenu_per:add_item({text="Below"          , checked= true , button1 = function() config.persistent.flags.below[module.client.class]          = not (config.persistent.flags.below[module.client.class]          or false) end})
+  itemButtons_per         = mainMenu_per:add_item({text="Buttons"        , checked= true , button1 = function() config.persistent.flags.buttons[module.client.class]        = not (config.persistent.flags.buttons[module.client.class]        or false) end})
+  itemNofocus_per         = mainMenu_per:add_item({text="Nofocus"        , checked= true , button1 = function() config.persistent.flags.nofocus[module.client.class]        = not (config.persistent.flags.nofocus[module.client.class]        or false) end})
+  itemKeys_per            = mainMenu_per:add_item({text="Keys"           , checked= true , button1 = function() config.persistent.flags.keys[module.client.class]           = not (config.persistent.flags.keys[module.client.class]           or false) end})
+  itemHidden_per          = mainMenu_per:add_item({text="Hidden"         , checked= true , button1 = function() config.persistent.flags.hidden[module.client.class]         = not (config.persistent.flags.hidden[module.client.class]         or false) end})
+  itemMinimized_per       = mainMenu_per:add_item({text="Minimized"      , checked= true , button1 = function() config.persistent.flags.minimized[module.client.class]      = not (config.persistent.flags.minimized[module.client.class]      or false) end})
+  itemDockable_per        = mainMenu_per:add_item({text="Dockable"       , checked= true , button1 = function() config.persistent.flags.dockable[module.client.class]       = not (config.persistent.flags.dockable[module.client.class]       or false) end})
+  itemUrgent_per          = mainMenu_per:add_item({text="Urgent"         , checked= true , button1 = function() config.persistent.flags.urgent[module.client.class]         = not (config.persistent.flags.urgent[module.client.class]         or false) end})
+  itemOpacity_per         = mainMenu_per:add_item({text="Opacity"        , checked= true , button1 = function() config.persistent.flags.opacity[module.client.class]        = not (config.persistent.flags.opacity[module.client.class]        or false) end})
+  itemTitlebar_per        = mainMenu_per:add_item({text="Titlebar"       , checked= true , button1 = function() config.persistent.flags.titlebar[module.client.class]       = not (config.persistent.flags.titlebar[module.client.class]       or false) end})
+  itemRun_per             = mainMenu_per:add_item({text="Run"            , checked= true , button1 = function() config.persistent.flags.run[module.client.class]            = not (config.persistent.flags.run[module.client.class]            or false) end})
+  itemSticky_per          = mainMenu_per:add_item({text="Sticky"         , checked= true , button1 = function() config.persistent.flags.sticky[module.client.class]         = not (config.persistent.flags.sticky[module.client.class]         or false) end})
+  itemWfact_per           = mainMenu_per:add_item({text="Wfact"          , checked= true , button1 = function() config.persistent.flags.wfact[module.client.class]          = not (config.persistent.flags.wfact[module.client.class]          or false) end})
+  itemStruts_per          = mainMenu_per:add_item({text="Struts"         , checked= true , button1 = function() config.persistent.flags.struts[module.client.class]         = not (config.persistent.flags.struts[module.client.class]         or false) end})
+  itemSkip_taskbar_per    = mainMenu_per:add_item({text="Skip_taskbar"   , checked= true , button1 = function() config.persistent.flags.skip_taskbar[module.client.class]   = not (config.persistent.flags.skip_taskbar[module.client.class]   or false) end})
+  itemProps_per           = mainMenu_per:add_item({text="Props"          , checked= true , button1 = function() config.persistent.flags.props[module.client.class]          = not (config.persistent.flags.props[module.client.class]          or false) end})
 
   return mainMenu
 end
@@ -270,35 +270,35 @@ function module.toggle(c)
             classM:add_item({text = "Match to Tags" })
             classM:add_item({text = "Flags", sub_menu = function()
 --                 local flagMenu = menu2()
---                 itemMaximized_per     :check( config.data().persistent.flags.maximized[module.client.class]      or false)
---                 itemStartup_per       :check( config.data().persistent.flags.startup[module.client.class]        or false)
---                 itemGeometry_per      :check( config.data().persistent.flags.geometry[module.client.class]       or false)
---                 itemFloat_per         :check( config.data().persistent.flags.float[module.client.class]          or false)
---                 itemSlave_per         :check( config.data().persistent.flags.slave[module.client.class]          or false)
---                 itemBorder_width_per  :check( config.data().persistent.flags.border_width[module.client.class]   or false)
---                 itemNopopup_per       :check( config.data().persistent.flags.nopopup[module.client.class]        or false)
---                 itemIntrusive_per     :check( config.data().persistent.flags.intrusive[module.client.class]      or false)
---                 itemFullscreen_per    :check( config.data().persistent.flags.fullscreen[module.client.class]     or false)
---                 itemHonorsizehints_per:check( config.data().persistent.flags.honorsizehints[module.client.class] or false)
---                 itemKill_per          :check( config.data().persistent.flags.kill[module.client.class]           or false)
---                 itemOntop_per         :check( config.data().persistent.flags.ontop[module.client.class]          or false)
---                 itemAbove_per         :check( config.data().persistent.flags.above[module.client.class]          or false)
---                 itemBelow_per         :check( config.data().persistent.flags.below[module.client.class]          or false)
---                 itemButtons_per       :check( config.data().persistent.flags.buttons[module.client.class]        or false)
---                 itemNofocus_per       :check( config.data().persistent.flags.nofocus[module.client.class]        or false)
---                 itemKeys_per          :check( config.data().persistent.flags.keys[module.client.class]           or false)
---                 itemHidden_per        :check( config.data().persistent.flags.hidden[module.client.class]         or false)
---                 itemMinimized_per     :check( config.data().persistent.flags.minimized[module.client.class]      or false)
---                 itemDockable_per      :check( config.data().persistent.flags.dockable[module.client.class]       or false)
---                 itemUrgent_per        :check( config.data().persistent.flags.urgent[module.client.class]         or false)
---                 itemOpacity_per       :check( config.data().persistent.flags.opacity[module.client.class]        or false)
---                 itemTitlebar_per      :check( config.data().persistent.flags.titlebar[module.client.class]       or false)
---                 itemRun_per           :check( config.data().persistent.flags.run[module.client.class]            or false)
---                 itemSticky_per        :check( config.data().persistent.flags.sticky[module.client.class]         or false)
---                 itemWfact_per         :check( config.data().persistent.flags.wfact[module.client.class]          or false)
---                 itemStruts_per        :check( config.data().persistent.flags.struts[module.client.class]         or false)
---                 itemSkip_taskbar_per  :check( config.data().persistent.flags.skip_taskbar[module.client.class]   or false)
---                 itemProps_per         :check( config.data().persistent.flags.props[module.client.class]          or false)
+--                 itemMaximized_per     :check( config.persistent.flags.maximized[module.client.class]      or false)
+--                 itemStartup_per       :check( config.persistent.flags.startup[module.client.class]        or false)
+--                 itemGeometry_per      :check( config.persistent.flags.geometry[module.client.class]       or false)
+--                 itemFloat_per         :check( config.persistent.flags.float[module.client.class]          or false)
+--                 itemSlave_per         :check( config.persistent.flags.slave[module.client.class]          or false)
+--                 itemBorder_width_per  :check( config.persistent.flags.border_width[module.client.class]   or false)
+--                 itemNopopup_per       :check( config.persistent.flags.nopopup[module.client.class]        or false)
+--                 itemIntrusive_per     :check( config.persistent.flags.intrusive[module.client.class]      or false)
+--                 itemFullscreen_per    :check( config.persistent.flags.fullscreen[module.client.class]     or false)
+--                 itemHonorsizehints_per:check( config.persistent.flags.honorsizehints[module.client.class] or false)
+--                 itemKill_per          :check( config.persistent.flags.kill[module.client.class]           or false)
+--                 itemOntop_per         :check( config.persistent.flags.ontop[module.client.class]          or false)
+--                 itemAbove_per         :check( config.persistent.flags.above[module.client.class]          or false)
+--                 itemBelow_per         :check( config.persistent.flags.below[module.client.class]          or false)
+--                 itemButtons_per       :check( config.persistent.flags.buttons[module.client.class]        or false)
+--                 itemNofocus_per       :check( config.persistent.flags.nofocus[module.client.class]        or false)
+--                 itemKeys_per          :check( config.persistent.flags.keys[module.client.class]           or false)
+--                 itemHidden_per        :check( config.persistent.flags.hidden[module.client.class]         or false)
+--                 itemMinimized_per     :check( config.persistent.flags.minimized[module.client.class]      or false)
+--                 itemDockable_per      :check( config.persistent.flags.dockable[module.client.class]       or false)
+--                 itemUrgent_per        :check( config.persistent.flags.urgent[module.client.class]         or false)
+--                 itemOpacity_per       :check( config.persistent.flags.opacity[module.client.class]        or false)
+--                 itemTitlebar_per      :check( config.persistent.flags.titlebar[module.client.class]       or false)
+--                 itemRun_per           :check( config.persistent.flags.run[module.client.class]            or false)
+--                 itemSticky_per        :check( config.persistent.flags.sticky[module.client.class]         or false)
+--                 itemWfact_per         :check( config.persistent.flags.wfact[module.client.class]          or false)
+--                 itemStruts_per        :check( config.persistent.flags.struts[module.client.class]         or false)
+--                 itemSkip_taskbar_per  :check( config.persistent.flags.skip_taskbar[module.client.class]   or false)
+--                 itemProps_per         :check( config.persistent.flags.props[module.client.class]          or false)
 --                 flagMenu:add_existing_item( itemMaximized_per      )
 --                 flagMenu:add_existing_item( itemStartup_per        )
 --                 flagMenu:add_existing_item( itemGeometry_per       )
@@ -335,14 +335,14 @@ function module.toggle(c)
                 for k,v in pairs(shifty.config.tags) do
                     if type(k) == "string" then
                         local check = false
-                        if config.data().persistent.tag and config.data().persistent.tag[k] and config.data().persistent.tag[k].class and config.data().persistent.tag[k].class[module.client.class] == true then
+                        if config.persistent.tag and config.persistent.tag[k] and config.persistent.tag[k].class and config.persistent.tag[k].class[module.client.class] == true then
                             check = true
                         end
                         tagMenu:add_item({text=k      , checked=check , button1 = function() 
-                            if not config.data().persistent.tag then config.data().persistent.tag = {} end
-                            if not config.data().persistent.tag[k] then config.data().persistent.tag[k] = {} end
-                            if not config.data().persistent.tag[k].class then config.data().persistent.tag[k].class = {} end
-                            config.data().persistent.tag[k].class[module.client.class] = not config.data().persistent.tag[k].class[module.client.class] or false
+                            if not config.persistent.tag then config.persistent.tag = {} end
+                            if not config.persistent.tag[k] then config.persistent.tag[k] = {} end
+                            if not config.persistent.tag[k].class then config.persistent.tag[k].class = {} end
+                            config.persistent.tag[k].class[module.client.class] = not config.persistent.tag[k].class[module.client.class] or false
                         end})
                     end
                 end
