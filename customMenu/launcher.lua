@@ -155,7 +155,7 @@ local function new(offset, args)
     cr:set_source(pat)
     cr:paint()
 
-    local ic = cairo.ImageSurface.create_from_png(head_img)
+    local ic = themeutils.apply_color_mask(head_img)
     local sw,sh = ic:get_width(),ic:get_height()
     local ratio = ((sw > sh) and sw or sh) / (beautiful.default_height)
     local matrix = cairo.Matrix()

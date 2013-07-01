@@ -11,6 +11,7 @@ local vicious   = require( "extern.vicious" )
 local tag       = require( "awful.tag"      )
 local util      = require( "awful.util"     )
 local shifty    = require( "shifty"         )
+local themeutils = require( "blind.common.drawing"    )
 local capi = { image  = image ,
                screen = screen,
                widget = widget,

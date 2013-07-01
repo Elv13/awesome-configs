@@ -83,7 +83,7 @@ end
 
 --Take multiple layers or path_to_png and add them on top of each other
 module.compose = function(layer_array)
-    local base,cr = nil,nil
+    local base,cr,base_w,base_h = nil,nil
     for k=1,#layer_array do --Do NOT use ipairs here as the array have some nils
         local v = layer_array[k]
         if not base then
@@ -92,6 +92,7 @@ module.compose = function(layer_array)
                 base = cairo.ImageSurface.create_from_png(base)
             end
             cr = cairo.Context(base)
+            base_w,base_h = base:get_width(),base:get_height()
         elseif v then
             local s,x,y,matrix,scale,height = v,0,0,nil,false,nil
             local layer_type=type(s)
@@ -111,6 +112,14 @@ module.compose = function(layer_array)
                 local ratio = ((sw > sh) and sw or sh) / ((height or beautiful.default_height or 16)-4)
                 local matrix2 = cairo.Matrix()
                 cairo.Matrix.init_scale(matrix2,ratio,ratio)
+                if y == "align" then
+                    if base_h > sh then
+                        y = (base_h -sh)/2
+                    else
+                        y = (sh - base_h)/2
+                    end
+                    print(y,base_h,sh)
+                end
                 matrix2:translate(-x,-y)
                 local pattern = cairo.Pattern.create_for_surface(s)
                 pattern:set_matrix(matrix2)
@@ -127,6 +136,15 @@ module.compose = function(layer_array)
         end
     end
     return base
+end
+
+function module.apply_color_mask(img,mask)
+    img = surface(img)
+    local cr = cairo.Context(img)
+    cr:set_source(color(mask or beautiful.icon_grad or beautiful.fg_normal))
+    cr:set_operator(cairo.Operator.IN)
+    cr:paint()
+    return img
 end
 
 return setmetatable(module, { })

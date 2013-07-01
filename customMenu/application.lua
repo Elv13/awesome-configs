@@ -108,7 +108,7 @@ local function new(screen, args)
     cr:set_source(pat)
     cr:paint()
 
-    local ic = cairo.ImageSurface.create_from_png(beautiful.awesome_icon)
+    local ic = themeutils.apply_color_mask(beautiful.awesome_icon)
     local sh = ic:get_width(),ic:get_height()
     local ratio =  sh / (beautiful.default_height)
     local matrix = cairo.Matrix()

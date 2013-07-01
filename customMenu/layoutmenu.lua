@@ -14,6 +14,7 @@ local config = require("forgotten")
 local beautiful = require("beautiful")
 local wibox = require("wibox")
 local tooltip2   = require( "widgets.tooltip2" )
+local themeutils = require( "blind.common.drawing"    )
 local menu2 = require("widgets.menu")
 local color = require("gears.color")
 local cairo = require("lgi").cairo
@@ -30,7 +31,7 @@ local menu = {}
 local function update(w, screen)
     local layout = layout.getname(layout.get(screen))
     if layout and beautiful["layout_" ..layout.."_s"] then
-        w:set_image(beautiful["layout_" ..layout.."_s"])
+        w:set_image(themeutils.apply_color_mask(beautiful["layout_" ..layout.."_s"]))
     else
         w:set_image()
     end

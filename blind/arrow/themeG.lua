@@ -11,7 +11,7 @@ local radical    = require( "radical"        )
 local arrow = require("blind.arrow")
 local debug      = debug
 
-local path = debug.getinfo(1,"S").source:gsub("theme.lua",""):gsub("@","")
+local path = debug.getinfo(1,"S").source:gsub("theme.*",""):gsub("@","")
 
 local theme = {}
 arrow.task.theme,arrow.tag.theme = theme,theme
@@ -26,15 +26,15 @@ theme.default_height = 16
 theme.font           = "snap"
 theme.path           = path
 
-theme.bg_normal      = "#0A1535"
-theme.bg_focus       = "#003687"
+theme.bg_normal      = "#071504"
+theme.bg_focus       = "#00B400"
 theme.bg_urgent      = "#5B0000"
 theme.bg_minimize    = "#040A1A"
 theme.bg_highlight   = "#0E2051"
-theme.bg_alternate   = "#0F2766"
+theme.bg_alternate   = "#062709"
 
-theme.fg_normal      = "#1577D3"
-theme.fg_focus       = "#00BBD7"
+theme.fg_normal      = "#00FF00"
+theme.fg_focus       = "#7ACE75"
 theme.fg_urgent      = "#FF7777"
 theme.fg_minimize    = "#1577D3"
 
@@ -81,8 +81,8 @@ theme.tasklist_plain_task_name     = true
 
 -- Display the taglist squares
 theme.taglist_bg_image_empty           = nil
-theme.taglist_bg_image_selected        = path .."Icon/bg/selected_bg.png"
-theme.taglist_bg_image_used            = path .."Icon/bg/used_bg.png"
+theme.taglist_bg_image_selected        = path .."Icon/bg/used_bg_green2.png"
+theme.taglist_bg_image_used            = path .."Icon/bg/used_bg_green.png"
 theme.taglist_bg_image_urgent          = path .."Icon/bg/urgent_bg.png"
 theme.taglist_bg_image_remote_selected = path .."Icon/bg/selected_bg_green.png"
 theme.taglist_bg_image_remote_used     = path .."Icon/bg/used_bg_green.png"
@@ -119,8 +119,6 @@ theme.menu_border_width         = 2
 theme.border_width              = 1
 theme.border_color              = theme.fg_normal
 theme.wallpaper = "/home/lepagee/bg/final/bin_ascii_ds.png"
-
-theme.dock_icon_color = { type = "linear", from = { 0, 0 }, to = { 0, 55 }, stops = { { 0, "#1889F2" }, { 1, "#083158" }}}
 
 
 ------------------------------------------------------------------------------------------------------

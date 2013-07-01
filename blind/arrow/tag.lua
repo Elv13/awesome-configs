@@ -2,6 +2,7 @@ local capi =  {timer=timer,client=client,tag=tag}
 local awful      = require( "awful"          )
 local color      = require( "gears.color"    )
 local cairo      = require( "lgi"            ).cairo
+local surface    = require( "gears.surface")
 local tag        = require( "awful.tag"      )
 local themeutils = require( "blind.common.drawing"    )
 local print = print
@@ -99,17 +100,24 @@ function module.gen_tag_bg(wdg,t,m,objects,idx,image)
     cr:set_source(color(module.theme.fg_normal))
     cr:rectangle(0,0,module.theme.default_height+module.theme.default_height/2+5,module.theme.default_height)
     cr:fill()
+    local col = color(module.theme.bg_normal)
+    cr:set_source(col)
+
+    -- Apply a color/gradient on top of the icon
     local icon = tag.geticon(t) or module.theme.path .."Icon/tags_invert/other.png"
+    if icon and module.theme.monochrome_icons then
+        themeutils.apply_color_mask(icon,col)
+    end
+
     img2 = themeutils.compose({
         img2,
-        {layer=icon,x=2,y=0,scale=true,height=module.theme.default_height+2},
+        {layer=icon,x=2,y=1--[["align"]],scale=true,height=module.theme.default_height+2},
         {layer=arr1_tag,x=module.theme.default_height+module.theme.default_height/2+5,y=0},
         {layer = objects[#objects] ~= t and arr_tag or arr_last_tag,y=0,x=width+ (module.theme.default_height+3*(module.theme.default_height/2)+11) - module.theme.default_height/2 + 5 -9+(isClone and 20 or 0)},
         isClone and {layer=module.theme.path .."Icon/clone2.png",x=width+42} or nil,
         isClone and {layer = gen_screen_nb(tag.getscreen(isClone)),x=width+42} or nil
     })
-    cr:move_to(module.theme.default_height+2,module.theme.default_height-6)
-    cr:set_source(color(module.theme.bg_normal))
+    cr:move_to(module.theme.default_height+2,module.theme.default_height-5)
     cr:select_font_face("Verdana", cairo.FontSlant.NORMAL, cairo.FontWeight.BOLD)
     cr:set_font_size(module.theme.default_height-6)
     cr:show_text(idx)

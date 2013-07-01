@@ -16,6 +16,7 @@ local menu         = require("widgets.menu")
 local vicious      = require("extern.vicious")
 local config       = require("forgotten")
 local util         = require("awful.util")
+local themeutils = require( "blind.common.drawing"    )
 
 local capi = { image  = image  ,
                screen = screen ,
@@ -378,7 +379,7 @@ local function new(margin, args)
 --     mytimer:start()
 
     ramlogo       = wibox.widget.imagebox()
-    ramlogo:set_image(config.iconPath .. "cpu.png")
+    ramlogo:set_image(themeutils.apply_color_mask(config.iconPath .. "cpu.png"))
     ramlogo:buttons( util.table.join(
     button({ }, 1, function()
         toggleSensorBar()

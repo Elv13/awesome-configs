@@ -65,7 +65,7 @@ local function new(offset, args)
     mylauncher2text.bg_align = "left"
     mylauncher2text.bg_resize = true
 
-    local head_img      = config.iconPath .. "tags/home2.png"
+    local head_img      = themeutils.apply_color_mask(config.iconPath .. "tags/home2.png")
 --     local extents       = mylauncher2text:extents()
 --     extents.height      = 16
 --     local normal_bg_img = themeutils.gen_button_bg(head_img,extents,false) --TODO port
@@ -88,7 +88,7 @@ local function new(offset, args)
     cr:set_source(pat)
     cr:paint()
 
-    local ic = cairo.ImageSurface.create_from_png(head_img)
+    local ic = head_img
     local sw,sh = ic:get_width(),ic:get_height()
     local ratio = ((sw > sh) and sw or sh) / (beautiful.default_height)
     local matrix = cairo.Matrix()

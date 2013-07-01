@@ -13,6 +13,7 @@ local vicious      = require( "extern.vicious" )
 local util         = require( "awful.util"     )
 local config       = require( "forgotten"         )
 local menu         = require( "widgets.menu"   )
+local themeutils = require( "blind.common.drawing"    )
 
 local capi = { image  = image  ,
                screen = screen ,
@@ -408,8 +409,8 @@ local function new(margin, args)
     local netUpWidget      = wibox.widget.textbox()
     netDownWidget.width = 55
     netUpWidget.width   = 55
-    uplogo:set_image(config.iconPath .. "arrowUp.png"         )
-    downlogo:set_image(config.iconPath .. "arrowDown.png"       )
+    uplogo:set_image(themeutils.apply_color_mask(config.iconPath .. "arrowUp.png"         ))
+    downlogo:set_image(themeutils.apply_color_mask(config.iconPath .. "arrowDown.png"       ))
     vicious.register(netUpWidget  , vicious.widgets.net   ,  '${eth0 up_kb}KBs'   ,3 )
     vicious.register(netDownWidget, vicious.widgets.net   ,  '${eth0 down_kb}KBs' ,3 )
     local btn = util.table.join(button({ }, 1, function () show() end))

@@ -11,6 +11,7 @@ local button       = require( "awful.button"                 )
 local vicious      = require( "extern.vicious"               )
 local menu         = require( "widgets.menu"                 )
 local widget       = require( "awful.widget"                 )
+local themeutils = require( "blind.common.drawing"    )
 local color        = require( "gears.color"              )
 local cairo        = require( "lgi"                      ).cairo
 

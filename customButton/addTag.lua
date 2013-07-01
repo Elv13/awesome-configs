@@ -13,6 +13,7 @@ local tag       = require( "awful.tag"       )
 local mouse     = require( "awful.mouse"     )
 local config    = require( "forgotten"          )
 local menu      = require( "radical.context"    )
+local themeutils = require( "blind.common.drawing"    )
 local tooltip2  = require( "widgets.tooltip2" )
 local wibox = require("wibox")
 
@@ -27,7 +28,7 @@ end
 
 local function new(screen, args)
   local addTag  = wibox.widget.imagebox()
-  addTag:set_image(config.iconPath .. "tags/cross2.png")
+  addTag:set_image(themeutils.apply_color_mask(config.iconPath .. "tags/cross2.png"))
   addTag.bg     = beautiful.bg_alternate
   local tagMenu = nil
   local init = false

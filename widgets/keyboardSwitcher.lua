@@ -6,6 +6,7 @@ local util      = require( "awful.util"      )
 local config    = require( "forgotten"          )
 local tooltip   = require( "widgets.tooltip" )
 local wibox     = require( "wibox"           )
+local themeutils = require( "blind.common.drawing"    )
 
 local module={}
 
@@ -30,9 +31,9 @@ local function new(screen, args)
   keyboardSwitcher:connect_signal("mouse::leave", function() tt:showToolTip(false);keyboardSwitcher.bg = beautiful.bg_normal end)
 
   if setupKb() ==  "us" then
-    keyboardSwitcher:set_image(config.iconPath .. "us_flag.png")
+    keyboardSwitcher:set_image(themeutils.apply_color_mask(config.iconPath .. "us_flag.png"))
   else
-    keyboardSwitcher:set_image(config.iconPath .. "canada_flag.png")
+    keyboardSwitcher:set_image(themeutils.apply_color_mask(config.iconPath .. "canada_flag.png"))
   end
 
   keyboardSwitcher:buttons( util.table.join(

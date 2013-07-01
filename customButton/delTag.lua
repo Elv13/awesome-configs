@@ -7,6 +7,7 @@ local util = require("awful.util")
 local wibox = require("wibox")
 -- local shifty = require("shifty")
 local tooltip2   = require( "widgets.tooltip2" )
+local themeutils = require( "blind.common.drawing"    )
 local capi = { image = image,
                screen = screen,
                widget = widget,
@@ -31,7 +32,7 @@ end
 
 local function new(screen, args) 
   data[screen]         = wibox.widget.imagebox()
-  data[screen]:set_image(config.iconPath .. "tags/minus2.png")
+  data[screen]:set_image(themeutils.apply_color_mask(config.iconPath .. "tags/minus2.png"))
   data[screen].visible = false
   data[screen].bg      = beautiful.bg_alternate
   tooltip2(data[screen],"Remove Tag",{})

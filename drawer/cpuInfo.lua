@@ -13,6 +13,7 @@ local vicious      = require( "extern.vicious" )
 local menu         = require( "widgets.menu"   )
 local util         = require( "awful.util"     )
 local wibox        = require( "wibox"          )
+local themeutils = require( "blind.common.drawing"    )
 
 local data     = {}
 local procMenu = nil
@@ -363,7 +364,7 @@ local function new(margin, args)
         data.menu:toggle(visible)
     end
 
-    cpulogo:set_image(config.iconPath .. "brain.png")
+    cpulogo:set_image(themeutils.apply_color_mask(config.iconPath .. "brain.png"))
     cpulogo.bg = beautiful.bg_alternate
     cpuwidget.width = 27
     cpuwidget.bg = beautiful.bg_alternate

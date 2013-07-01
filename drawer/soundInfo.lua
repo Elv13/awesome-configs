@@ -12,6 +12,7 @@ local config = require("forgotten")
 local beautiful = require("beautiful")
 local menu = require( "widgets.menu"                 )
 local util = require("awful.util")
+local themeutils = require( "blind.common.drawing"    )
 local capi = { image = image,
                screen = screen,
                widget = widget,
@@ -34,31 +35,31 @@ local function amixer_volume(format)
    f:close()
    if l+0 == 0 then
     if volumepixmap then
-      volumepixmap.image = capi.image(config.iconPath .. "volm.png")
+      volumepixmap.image = capi.image(themeutils.apply_color_mask(config.iconPath .. "volm.png"))
     end
     if volumepixmap2 then
-      volumepixmap2.image = capi.image(config.iconPath .. "volm.png")
+      volumepixmap2.image = capi.image(themeutils.apply_color_mask(config.iconPath .. "volm.png"))
     end
    elseif l+0 < 15 then
    if volumepixmap then
-      volumepixmap.image = capi.image(config.iconPath .. "vol1.png")
+      volumepixmap.image = capi.image(themeutils.apply_color_mask(config.iconPath .. "vol1.png"))
     end
     if volumepixmap2 then
-      volumepixmap2.image = capi.image(config.iconPath .. "vol1.png")
+      volumepixmap2.image = capi.image(themeutils.apply_color_mask(config.iconPath .. "vol1.png"))
     end
    elseif l+0 < 35 then
    if volumepixmap then
-      volumepixmap.image = capi.image(config.iconPath .. "vol2.png")
+      volumepixmap.image = capi.image(themeutils.apply_color_mask(config.iconPath .. "vol2.png"))
     end
     if volumepixmap2 then
-      volumepixmap2.image = capi.image(config.iconPath .. "vol2.png")
+      volumepixmap2.image = capi.image(themeutils.apply_color_mask(config.iconPath .. "vol2.png"))
     end
    else
     if volumepixmap then
-      volumepixmap.image = capi.image(config.iconPath .. "vol3.png")
+      volumepixmap.image = capi.image(themeutils.apply_color_mask(config.iconPath .. "vol3.png"))
     end
     if volumepixmap2 then
-      volumepixmap2.image = capi.image(config.iconPath .. "vol3.png")
+      volumepixmap2.image = capi.image(themeutils.apply_color_mask(config.iconPath .. "vol3.png"))
     end
    end
    return {l}
@@ -147,7 +148,7 @@ end
 local function new(mywibox3,left_margin)
   local volumewidget = wibox.widget.textbox()
   local volumepixmap =  wibox.widget.imagebox()
-  volumepixmap:set_image(config.iconPath .. "vol.png")
+  volumepixmap:set_image(themeutils.apply_color_mask(config.iconPath .. "vol.png"))
 
 
   local top,bottom

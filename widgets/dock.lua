@@ -17,6 +17,7 @@ local fdutils      = require( "extern.freedesktop.utils" )
 local color        = require( "gears.color"              )
 local cairo        = require( "lgi"                      ).cairo
 local tyr_launcher = require("tyrannical.extra.launcher")
+local themeutils = require( "blind.common.drawing"    )
 local capi = { image  = image  ,
                screen = screen ,
                widget = widget }
@@ -32,7 +33,8 @@ local function draw_item(data,instances,width)
     if data.damage_w ~= width then
         local sw,sh = data.icon_surface:get_width(),data.icon_surface:get_height()
         local ratio = ((sw > sh) and sw or sh) / (width-6)
-        data.icon_surface_pattern = cairo.Pattern.create_for_surface(data.icon_surface)
+        local color = { type = "linear", from = { 0, 0 }, to = { 0, sh }, stops = { { 0, "#1889F2" }, { 1, "#0A3E6E" }}}
+        data.icon_surface_pattern = cairo.Pattern.create_for_surface(themeutils.apply_color_mask(data.icon_surface,color))
         local matrix = cairo.Matrix()
         cairo.Matrix.init_scale(matrix,ratio,ratio)
         matrix:translate(-3,-3)
