@@ -119,12 +119,13 @@ local function gen_task_bg_real(wdg,width,args)
     else
         image = wdg.data.image
     end
-
-    local hash = width..(image or "nil")..(client.floating.get(c) and "c" or "")..(c.ontop == true and "o" or "")..(c.sticky == true and "s" or "")..(c.urgent and "u" or "")
+    local height = args.height or module.theme.default_height
+    local hash = width..(image or "nil")..(client.floating.get(c) and "c" or "")..(c.ontop == true and "o" or "")..
+        (c.sticky == true and "s" or "")..(c.urgent and "u" or "")..(height)
     if task_cache[c] and task_cache[c][hash] then
         return task_cache[c][hash]
     end
-    local img2 = cairo.ImageSurface.create(cairo.Format.ARGB32, width, module.theme.default_height)
+    local img2 = cairo.ImageSurface.create(cairo.Format.ARGB32, width, height)
     cr = cairo.Context(img2)
     if image then
         local pat = cairo.Pattern.create_for_surface(cairo.ImageSurface.create_from_png(image))
@@ -134,22 +135,24 @@ local function gen_task_bg_real(wdg,width,args)
     end
 
     local composed,offset  = {img2,arr1},60
-    if not icon_cache[c.icon] then
-        icon_cache[c.icon] = {}
-    end
-    if c.icon and not icon_cache[c.icon][(c.urgent and "u" or "") .. ((capi.client.focus == c) and "f" or "")] then
-        --Cache
-        icon_cache[c.icon][(c.urgent and "u" or "") .. ((capi.client.focus == c) and "f" or "")] = apply_icon_transformations(c)
-    end
-
     if c.icon then
-       composed[#composed+1] = {layer = icon_cache[c.icon][(c.urgent and "u" or "") .. ((capi.client.focus == c) and "f" or "")] ,y=2,x=module.theme.default_height/2 + 6}
+        if not icon_cache[c.icon] then
+            icon_cache[c.icon] = {}
+        end
+        if c.icon and not icon_cache[c.icon][(c.urgent and "u" or "") .. ((capi.client.focus == c) and "f" or "")] then
+            --Cache
+            icon_cache[c.icon][(c.urgent and "u" or "") .. ((capi.client.focus == c) and "f" or "")] = apply_icon_transformations(c)
+        end
+
+        if c.icon then
+            composed[#composed+1] = {layer = icon_cache[c.icon][(c.urgent and "u" or "") .. ((capi.client.focus == c) and "f" or "")] ,y=2,x=height/2 + 6}
+        end
     end
 
     if not args.no_marker then
         add_status_indicator(composed,c,image,width,offset)
     end
-    composed[#composed+1] = {layer = arr,y=0,x=width-module.theme.default_height/2+1}
+    composed[#composed+1] = {layer = arr,y=0,x=width-height/2+1}
     img2 = themeutils.compose(composed)
     task_cache[c] = task_cache[c] or {}
     task_cache[c][hash] = cairo.Pattern.create_for_surface(img2)
@@ -165,6 +168,7 @@ end
 -----------------------------------------------------------------------------------------
 function module.task_widget_draw(self,w, cr, width, height,args)
    args = args or {}
+   args.height = height
    local pattern =  gen_task_bg_real(self,width,args)
    cr:set_source(pattern)
    cr:paint()
@@ -198,9 +202,10 @@ function module.task_widget_draw(self,w, cr, width, height,args)
         cr:rectangle(x_offset,0,width-x_offset-height/2 - 1 - 9*rad,height)
         cr:clip()
     end
-    cr:move_to(x_offset, height - (height-ex.height)/2 -1)
-    local prefix = ""
-    cr:show_text(prefix..(self.data.c.name or "N/A"))
+    cr:move_to(x_offset, (height-ex.height)/2 -2)
+--     local prefix = ""
+    cr:show_layout(self._layout)
+--     cr:show_text(prefix..(self.data.c.name or "N/A"))
 
     if width-x_offset-height/2 -4 < ex.width then
         cr:reset_clip()
