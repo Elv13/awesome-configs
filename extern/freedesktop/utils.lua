@@ -9,11 +9,11 @@ local pairs = pairs
 local print = print
 local config = require("forgotten")
 
-module("extern.freedesktop.utils")
+local module = {}
 
 terminal = 'xterm'
 
-icon_theme = nil
+module.icon_theme = nil
 
 all_icon_sizes = {
     '128x128',
@@ -42,16 +42,16 @@ icon_sizes = {}
 
 local mime_types = {}
 
-function add_base_path(p)
+function module.add_base_path(p)
     all_icon_paths[#all_icon_paths+1] = p
 end
 
 local icon_theme_paths = {}
-function add_theme_path(p)
+function module.add_theme_path(p)
     icon_theme_paths[#icon_theme_paths+1] = p
 end
 
-function get_lines(...)
+function module.get_lines(...)
     local f = io.popen(...)
     return function () -- iterator
         local data = f:read()
@@ -60,12 +60,13 @@ function get_lines(...)
     end
 end
 
-function file_exists(filename)
+function module.file_exists(filename)
     local file = io.open(filename, 'r')
     local result = (file ~= nil)
     if result then
         file:close()
     end
+--     print (filename)
     return result
 end
 
@@ -89,16 +90,18 @@ local function gen_paths()
     cache_paths = {}
     local icon_path = {}
         local icon_themes = {}
-        if icon_theme and type(icon_theme) == 'table' then
-            icon_themes = icon_theme
-        elseif icon_theme then
-            icon_themes = { icon_theme }
+        if module.icon_theme and type(module.icon_theme ) == 'table' then
+            icon_themes = module.icon_theme 
+        elseif module.icon_theme then
+            icon_themes = { module.icon_theme }
         end
         for i=1,#icon_themes do
             for j=1,#all_icon_paths do
                 local path = all_icon_paths[j] .. icon_themes[i] .. '/'
                 --Do not all wrong path, it will cause expodential file lookup later
-                if os.execute("ls "..path.."> /dev/null 2> /dev/null") == 0 then
+                local exec_r = os.execute("ls "..path.."> /dev/null 2> /dev/null")
+                if exec_r == 0 or exec_r == true then
+                    print("adding")
                     icon_theme_paths[#icon_theme_paths+1] = path
                 end
             end
@@ -116,7 +119,8 @@ local function gen_paths()
                 cached_bysize[s] = cached_bysize[s] or {}
                 cached_bysize_bycat[s] = cached_bysize_bycat[s] or {}
                 local t = cached_bysize[s]
-                if os.execute("ls "..path.."> /dev/null 2> /dev/null") == 0 then
+                local exec_r = os.execute("ls "..path.."> /dev/null 2> /dev/null")
+                if exec_r == 0 or exec_r == true then --Lua 5.1 and 5.2 have different return types
                     for k=1,#all_icon_types do
                         local type2 = all_icon_types[k]
                         local cp = path .. '/' .. type2 .. '/'
@@ -137,7 +141,7 @@ end
 
 countt =1
 local cache = {}
-function lookup_icon(arg)
+function module.lookup_icon(arg)
     local cached_find = (arg.icon:find('.+%.png') or arg.icon:find('.+%.xpm'))
     if arg.icon:sub(1, 1) == '/' and cached_find then
         -- icons with absolute path and supported (AFAICT) formats
@@ -154,26 +158,26 @@ function lookup_icon(arg)
         end
         for i=1,#paths do
             local directory = paths[i]
-            if cached_find and file_exists(directory .. arg.icon) then
+            if cached_find and module.file_exists(directory .. arg.icon) then
                 return directory .. arg.icon
-            elseif not cached_find and file_exists(directory .. arg.icon .. '.png') then
+            elseif not cached_find and module.file_exists(directory .. arg.icon .. '.png') then
                 return directory .. arg.icon .. '.png'
             end
         end
         for i=1,#other_path do --Separated to prevent the cost of adding these to all prefiltered paths
             local directory = other_path[i]
-            if cached_find and file_exists(directory .. arg.icon) then
+            if cached_find and module.file_exists(directory .. arg.icon) then
                 return directory .. arg.icon
-            elseif not cached_find and file_exists(directory .. arg.icon .. '.png') then
+            elseif not cached_find and module.file_exists(directory .. arg.icon .. '.png') then
                 return directory .. arg.icon .. '.png'
-            elseif not cached_find and file_exists(directory .. arg.icon .. '.xpm') then
+            elseif not cached_find and module.file_exists(directory .. arg.icon .. '.xpm') then
                 return directory .. arg.icon .. '.xpm'
             end
         end
     end
 end
 
-function lookup_file_icon(arg)
+function module.lookup_file_icon(arg)
     load_mime_types()
 
     local extension = arg.filename:match('%a+$')
@@ -190,19 +194,19 @@ function lookup_file_icon(arg)
     }
 
     for i, filename in ipairs(possible_filenames) do
-        local icon = lookup_icon({icon = filename, icon_sizes = (arg.icon_sizes or all_icon_sizes)})
+        local icon = module.lookup_icon({icon = filename, icon_sizes = (arg.icon_sizes or all_icon_sizes)})
         if icon then
             return icon
         end
     end
 
     -- If we don't find ad icon, then pretend is a plain text file
-    return lookup_icon({ icon = 'txt', icon_sizes = arg.icon_sizes or all_icon_sizes })
+    return module.lookup_icon({ icon = 'txt', icon_sizes = arg.icon_sizes or all_icon_sizes })
 end
 
 --- Load system MIME types
 -- @return A table with file extension <--> MIME type mapping
-function load_mime_types()
+function module.load_mime_types()
     if #mime_types == 0 then
         for line in io.lines('/etc/mime.types') do
             if not line:find('^#') then
@@ -224,7 +228,7 @@ end
 -- @param file The .desktop file
 -- @param requested_icon_sizes A list of icon sizes (optional). If this list is given, it will be used as a priority list for icon sizes when looking up for icons. If you want large icons, for example, you can put '128x128' as the first item in the list.
 -- @return A table with file entries.
-function parse_desktop_file(arg)
+function module.parse_desktop_file(arg)
     local program = { show = true, file = arg.file }
     for line in io.lines(arg.file) do
         for key, value in line:gmatch("(%w+)=(.+)") do
@@ -241,8 +245,8 @@ function parse_desktop_file(arg)
 
     -- Look up for a icon.
     if program.Icon then
-        program.icon_path = lookup_icon({ icon = program.Icon, icon_sizes = (arg.icon_sizes or all_icon_sizes),icon_size=arg.size,category=arg.category})
-        if program.icon_path ~= nil and not file_exists(program.icon_path) then
+        program.icon_path = module.lookup_icon({ icon = program.Icon, icon_sizes = (arg.icon_sizes or all_icon_sizes),icon_size=arg.size,category=arg.category})
+        if program.icon_path ~= nil and not module.file_exists(program.icon_path) then
            program.icon_path = nil
         end
     end
@@ -277,12 +281,12 @@ end
 -- @param dir The directory.
 -- @param icons_size, The icons sizes, optional.
 -- @return A table with all .desktop entries.
-function parse_desktop_files(arg)
+function module.parse_desktop_files(arg)
     local programs = {}
-    local files = get_lines('find '.. arg.dir ..' -name "*.desktop" 2>/dev/null')
+    local files = module.get_lines('find '.. arg.dir ..' -name "*.desktop" 2>/dev/null')
     for file in files do
         arg.file = file
-        table.insert(programs, parse_desktop_file(arg))
+        table.insert(programs, module.parse_desktop_file(arg))
     end
     return programs
 end
@@ -291,30 +295,31 @@ end
 -- @param dir The directory.
 -- @param icons_size, The icons sizes, optional.
 -- @return A table with all .desktop entries.
-function parse_dirs_and_files(arg)
+function module.parse_dirs_and_files(arg)
     local files = {}
-    local paths = get_lines('find '..arg.dir..' -maxdepth 1 -type d')
+    local paths = module.get_lines('find '..arg.dir..' -maxdepth 1 -type d')
     for path in paths do
         if path:match("[^/]+$") then
             local file = {}
             file.filename = path:match("[^/]+$")
             file.path = path
             file.show = true
-            file.icon = lookup_icon({ icon = "folder", icon_sizes = (arg.icon_sizes or all_icon_sizes) })
+            file.icon = module.lookup_icon({ icon = "folder", icon_sizes = (arg.icon_sizes or all_icon_sizes) })
             table.insert(files, file)
         end
     end
-    local paths = get_lines('find '..arg.dir..' -maxdepth 1 -type f')
+    local paths = module.get_lines('find '..arg.dir..' -maxdepth 1 -type f')
     for path in paths do
         if not path:find("%.desktop$") then
             local file = {}
             file.filename = path:match("[^/]+$")
             file.path = path
             file.show = true
-            file.icon = lookup_file_icon({ filename = file.filename, icon_sizes = (arg.icon_sizes or all_icon_sizes) })
+            file.icon = module.lookup_file_icon({ filename = file.filename, icon_sizes = (arg.icon_sizes or all_icon_sizes) })
             table.insert(files, file)
         end
     end
     return files
 end
 
+return module
