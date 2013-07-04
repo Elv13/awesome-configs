@@ -353,7 +353,7 @@ end
 
 -- Add the drives list on the desktop
 if config.deviceOnDesk == true then
---   widgets.devices()
+  widgets.devices()
 end
 if config.desktopIcon == true then
 --     for i=1,20 do

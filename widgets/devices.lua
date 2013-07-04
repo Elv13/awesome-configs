@@ -52,6 +52,7 @@ function add_device(args)
 
 
   local mywibox19 = wibox({ position = "free", screen = s})
+  mywibox19:set_bg("#00000000")
   mywibox19.visible = true
 
 --   wibox.rounded_corners(mywibox19,1)

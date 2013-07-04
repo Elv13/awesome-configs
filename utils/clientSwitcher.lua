@@ -11,7 +11,7 @@ local print  = print
 local util   = require( "awful.util"   )
 local button = require( "awful.button" )
 local tag    = require("awful.tag")
-local wibox  = require("awful.wibox")
+local wibox  = require("wibox")
 local macro  = require("utils.macro")
 local capi   = { screen = screen,
                 mouse  = mouse,
@@ -92,7 +92,7 @@ function  module.selectFavMacro(idx)
 end
 
 function  module.addCornerWibox(c,i)
-  data.wibox[i] = wibox({ position = "free", screen = capi.screen.count() })
+  data.wibox[i] = wibox({})
   data.wibox.ontop = true
   data.wibox.visible = false
   createDrawer() 

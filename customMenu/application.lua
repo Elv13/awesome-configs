@@ -31,29 +31,14 @@ show_generic_name = false
 
 fdutils.add_base_path ( "/home/kde-devel/kde/share/icons/"         )
 fdutils.add_theme_path( "/home/kde-devel/kde/share/icons/hicolor/" )
-local function gen_menu(parent)
-    local programs,config = {},arg or {}
 
-    local categories = {'AudioVideo','Development','Education','Game','Graphics','Network','Office','Settings','System','Utility','Other'}
-    for i=1,#categories do
-        programs[categories[i]] = menu({has_decoration=false,style=style,item_style=item_style})
-    end
-    local m = menu({filter = true, showfilter = true, y = capi.screen[1].geometry.height - 18, x = offset, 
-    autodiscard = true,has_decoration=false,x=0,filtersubmenu=true,maxvisible=20,style=style,item_style=item_style,
-    show_filter=true})
-    local item = m:add_item({text = "System Tools", icon = fdutils.lookup_icon({ icon = 'applications-system.png'     , icon_size='22x22' }), sub_menu = programs[ 'System'      ] })
-    local item = m:add_item({text = "Settings"    , icon = fdutils.lookup_icon({ icon = 'preferences-desktop.png'     , icon_size='22x22' }), sub_menu = programs[ 'Settings'    ] })
-    local item = m:add_item({text = "Other"       , icon = fdutils.lookup_icon({ icon = 'applications-other.png'      , icon_size='22x22' }), sub_menu = programs[ 'Other'       ] })
-    local item = m:add_item({text = "Office"      , icon = fdutils.lookup_icon({ icon = 'applications-office.png'     , icon_size='22x22' }), sub_menu = programs[ 'Office'      ] })
-    local item = m:add_item({text = "Multimedia"  , icon = fdutils.lookup_icon({ icon = 'applications-multimedia.png' , icon_size='22x22' }), sub_menu = programs[ 'AudioVideo'  ] })
-    local item = m:add_item({text = "Internet"    , icon = fdutils.lookup_icon({ icon = 'applications-internet.png'   , icon_size='22x22' }), sub_menu = programs[ 'Network'     ] })
-    local item = m:add_item({text = "Graphics"    , icon = fdutils.lookup_icon({ icon = 'applications-graphics.png'   , icon_size='22x22' }), sub_menu = programs[ 'Graphics'    ] })
-    local item = m:add_item({text = "Games"       , icon = fdutils.lookup_icon({ icon = 'applications-games.png'      , icon_size='22x22' }), sub_menu = programs[ 'Game'        ] })
-    local item = m:add_item({text = "Education"   , icon = fdutils.lookup_icon({ icon = 'applications-science.png'    , icon_size='22x22' }), sub_menu = programs[ 'Education'   ] })
-    local item = m:add_item({text = "Development" , icon = fdutils.lookup_icon({ icon = 'applications-development.png', icon_size='22x22' }), sub_menu = programs[ 'Development' ] })
-    local item = m:add_item({text = "Accessories" , icon = fdutils.lookup_icon({ icon = 'applications-accessories.png', icon_size='22x22' }), sub_menu = programs[ 'Utility'     ] })
 
-    local dirs = config.menu_dirs or all_menu_dirs
+local categories = {AudioVideo=true,Development=true,Education=true,Game=true,Graphics=true,Network=true,Office=true,Settings=true,System=true,Utility=true,Other}
+
+local programs = {}
+local parse_init,cats = false,{}
+local function parse_files()
+    local dirs = all_menu_dirs
     for i=1,#dirs do
         local entries = fdutils.parse_desktop_files({dir = dirs[i],size='22x22',category='apps'})
         for j=1, #entries do
@@ -67,7 +52,7 @@ local function gen_menu(parent)
                 if program.categories then
                     for k=1, #program.categories do
                         local category = program.categories[k]
-                        if programs[category] then
+                        if categories[category] then
                             target_category = category
                             break
                         end
@@ -75,10 +60,48 @@ local function gen_menu(parent)
                 end
                 target_category = target_category or 'Other'
                 program.Name = program.Name:gsub('&',"&amp;")
-                programs[target_category]:add_item({text = program.Name, icon = program.icon_path,onclick = function() util.spawn(program.cmdline,true) end})
+                local arr = cats[target_category]
+                if not arr then
+                    cats[target_category] = {}
+                    arr = cats[target_category]
+                end
+                arr[#arr+1] = {text = program.Name, icon = program.icon_path,onclick = function() util.spawn(program.cmdline,true) end}
             end
         end
     end
+    parse_init = true
+end
+
+local program2 = {}
+local function gen_category_menu(cat)
+    if program2[cat] then return program2[cat] end
+    if not parse_init then parse_files() end
+    local m = menu({has_decoration=false,style=style,item_style=item_style})
+    for k,v in ipairs(cats[cat]) do
+        m:add_item(v)
+    end
+    program2[cat] = m
+    return m
+end
+
+local function gen_menu(parent)
+    local config = arg or {}
+
+    local m = menu({filter = true, showfilter = true, y = capi.screen[1].geometry.height - 18, x = offset, 
+    autodiscard = true,has_decoration=false,x=0,filtersubmenu=true,maxvisible=20,style=style,item_style=item_style,
+    show_filter=true})
+    local item = m:add_item({text = "System Tools", icon = fdutils.lookup_icon({ icon = 'applications-system.png'     , icon_size='22x22' }), sub_menu = function() return gen_category_menu('System'      ) end })
+    local item = m:add_item({text = "Settings"    , icon = fdutils.lookup_icon({ icon = 'preferences-desktop.png'     , icon_size='22x22' }), sub_menu = function() return gen_category_menu('Settings'    ) end })
+    local item = m:add_item({text = "Other"       , icon = fdutils.lookup_icon({ icon = 'applications-other.png'      , icon_size='22x22' }), sub_menu = function() return gen_category_menu('Other'       ) end })
+    local item = m:add_item({text = "Office"      , icon = fdutils.lookup_icon({ icon = 'applications-office.png'     , icon_size='22x22' }), sub_menu = function() return gen_category_menu('Office'      ) end })
+    local item = m:add_item({text = "Multimedia"  , icon = fdutils.lookup_icon({ icon = 'applications-multimedia.png' , icon_size='22x22' }), sub_menu = function() return gen_category_menu('AudioVideo'  ) end })
+    local item = m:add_item({text = "Internet"    , icon = fdutils.lookup_icon({ icon = 'applications-internet.png'   , icon_size='22x22' }), sub_menu = function() return gen_category_menu('Network'     ) end })
+    local item = m:add_item({text = "Graphics"    , icon = fdutils.lookup_icon({ icon = 'applications-graphics.png'   , icon_size='22x22' }), sub_menu = function() return gen_category_menu('Graphics'    ) end })
+    local item = m:add_item({text = "Games"       , icon = fdutils.lookup_icon({ icon = 'applications-games.png'      , icon_size='22x22' }), sub_menu = function() return gen_category_menu('Game'        ) end })
+    local item = m:add_item({text = "Education"   , icon = fdutils.lookup_icon({ icon = 'applications-science.png'    , icon_size='22x22' }), sub_menu = function() return gen_category_menu('Education'   ) end })
+    local item = m:add_item({text = "Development" , icon = fdutils.lookup_icon({ icon = 'applications-development.png', icon_size='22x22' }), sub_menu = function() return gen_category_menu('Development' ) end })
+    local item = m:add_item({text = "Accessories" , icon = fdutils.lookup_icon({ icon = 'applications-accessories.png', icon_size='22x22' }), sub_menu = function() return gen_category_menu('Utility'     ) end })
+
     return m
 end
 
@@ -120,10 +143,6 @@ local function new(screen, args)
 
     bgb:connect_signal("mouse::enter", function()
         tt:showToolTip(true)
---         print("TEST",mouse.wibox_under_pointer(),"end")
---         for k,v in ipairs(mouse.wibox_under_pointer() or {}) do
---             print(k,v)
---         end
         if not focus_bg_img then
 --             focus_bg_img  = themeutils.gen_button_bg(head_img,extents,true )
         end
