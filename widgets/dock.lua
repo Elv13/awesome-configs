@@ -178,6 +178,9 @@ local function create(screen, args)
                         smenu:add_item({text="item 1",icon=beautiful.path.."Icon/layouts/tileleft.png"})
                         return smenu
                     end})
+                    local imb = wibox.widget.imagebox()
+--                     imb:set_image("/home/lepagee/_67296177_67296103.jpg")
+--                     menu:add_widget(imb,{height=75})
                     menu:connect_signal("visible::changed",function(_,visible)
                         if not menu.visible then
                             lauchBar.visible = false

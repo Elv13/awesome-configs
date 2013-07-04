@@ -69,9 +69,9 @@ function createMenu(offset)
 
     table.sort(commandArray2, compare)
   
-    mainMenu = menu({filter = true, showfilter = true, y = capi.screen[1].geometry.height - 18, x = offset, 
+    mainMenu = menu({filter = true, show_filter = true, y = capi.screen[1].geometry.height - 18, x = offset, 
     autodiscard = true,has_decoration=false,x=0,filtersubmenu=true,maxvisible=20,style=style,item_style=item_style,
-    show_filter=true})
+    show_filter=true,auto_resize=true})
     
     mainMenu:add_key_hook({}, "Return", "press", function(menu)
         util.spawn(menu.filterString)

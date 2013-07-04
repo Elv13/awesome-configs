@@ -12,7 +12,7 @@ local button       = require("awful.button")
 local beautiful    = require("beautiful")
 local widget2      = require("awful.widget")
 local wibox        = require("wibox")
-local menu         = require("widgets.menu")
+local menu         = require("radical.context")
 local vicious      = require("extern.vicious")
 local config       = require("forgotten")
 local util         = require("awful.util")
@@ -162,7 +162,7 @@ local function reload_user(usrMenu,data)
         userWl:add(anUser)
         userW:set_widget(userWl)
         totalUser = totalUser +1
-        usrMenu:add_wibox(userW,{height = 20, width = 200})
+        usrMenu:add_widget(userWl,{height = 20, width = 200})
     end
     return totalUser
 end
@@ -185,7 +185,7 @@ local function reload_state(typeMenu,data)
         stateWl:add( anState      )
         stateW:set_widget(stateWl)
         totalState = totalState +1
-        typeMenu:add_wibox(stateW,{height = 20, width = 200})
+        typeMenu:add_widget(stateWl,{height = 20, width = 200})
     end
 end
 
@@ -229,7 +229,7 @@ local function reload_top(topMenu,data)
             processWl:set_right  ( testImage2 )
             processW:set_widget(processWl)
             
-            topMenu:add_wibox(processW,{height = 20, width = 200})
+            topMenu:add_widget(processWl,{height = 20, width = 200})
         end
     end
 end
@@ -292,10 +292,10 @@ local function repaint(margin)
     userHeaderWl:add   ( userHeader    )
     stateHeaderWl:add  ( stateHeader   )
     processHeaderWl:add( processHeader )
-    infoHeaderW:set_widget   ( infoHeaderWl    )
-    userHeaderW:set_widget   ( userHeaderWl    )
-    stateHeaderW:set_widget  ( stateHeaderWl   )
-    processHeaderW:set_widget( processHeaderWl )
+--     infoHeaderW:set_widget   (     )
+--     userHeaderW:set_widget   (     )
+--     stateHeaderW:set_widget  (    )
+--     processHeaderW:set_widget(  )
     infoHeaderW:set_bg    ( beautiful.fg_normal )
     userHeaderW:set_bg    ( beautiful.fg_normal )
     stateHeaderW:set_bg   ( beautiful.fg_normal )
@@ -317,33 +317,32 @@ local function repaint(margin)
     ramWVl:add(ramWH1l)
     ramWVl:add(ramWH2l)
     ramWVl:add(ramWH3l)
-    ramW:set_widget(ramWVl)
+    ramW:set_widget()
 
-    mainMenu = menu({arrow_x=90,nokeyboardnav=true})
-    mainMenu.settings.itemWidth = 198
-    mainMenu:add_wibox(infoHeaderW,{height = 20 , width = 200})
-    mainMenu:add_wibox(ramW       ,{height = 72, width = 200})
-    mainMenu:add_wibox(userHeaderW,{height = 20, width = 200})
+    mainMenu = menu({arrow_x=90,nokeyboardnav=true,item_width=198})
+    mainMenu:add_widget(infoHeaderWl,{height = 20 , width = 200})
+    mainMenu:add_widget(ramWVl       ,{height = 72, width = 200})
+    mainMenu:add_widget(userHeaderWl,{height = 20, width = 200})
     local memStat
 
     usrMenu = menu({width=198,maxvisible=10,has_decoration=false,has_side_deco=true,nokeyboardnav=true})
     reload_user(usrMenu,data)
     mainMenu:add_embeded_menu(usrMenu)
 
-    mainMenu:add_wibox(stateHeaderW,{height = 20 , width = 200})
+    mainMenu:add_widget(stateHeaderWl,{height = 20 , width = 200})
 
     typeMenu = menu({width=198,maxvisible=5,has_decoration=false,has_side_deco=true,nokeyboardnav=true})
     reload_state(typeMenu,data)
     mainMenu:add_embeded_menu(typeMenu)
 
-    mainMenu:add_wibox(processHeaderW,{height = 20 , width = 200})
+    mainMenu:add_widget(processHeaderWl,{height = 20 , width = 200})
 
     topMenu = menu({width=198,maxvisible=3,has_decoration=false,has_side_deco=true,nokeyboardnav=true})
     reload_top(topMenu,data)
     mainMenu:add_embeded_menu(topMenu)
 
-    mainMenu.settings.x = capi.screen[capi.mouse.screen].geometry.width - 200 + capi.screen[capi.mouse.screen].geometry.x - margin
-    mainMenu.settings.y = 16
+    mainMenu.x = capi.screen[capi.mouse.screen].geometry.width - 200 + capi.screen[capi.mouse.screen].geometry.x - margin
+    mainMenu.y = 16
     return mainMenu
 end
 
@@ -396,7 +395,10 @@ local function new(margin, args)
             refreshStat()
             update()
         end
-        data.menu:toggle(visible)
+        print("Make visible")
+        data.menu.visible = false
+        print("here",data.menu._internal.layout:fit())
+        data.menu.visible = visible
     end
 
 
