@@ -12,6 +12,8 @@ local tag          = require( "awful.tag"    )
 local wibox        = require( "wibox"  )
 local color = require("gears.color")
 local cairo = require("lgi").cairo
+local pango = require("lgi").Pango
+local pangocairo = require("lgi").PangoCairo
 
 local capi = { image  = image  ,
                widget = widget,
@@ -144,6 +146,35 @@ function module.apply_color_mask(img,mask)
     cr:set_source(color(mask or beautiful.icon_grad or beautiful.fg_normal))
     cr:set_operator(cairo.Operator.IN)
     cr:paint()
+    return img
+end
+
+-- Draw information buble intended for menus background
+local pango_l,pango_crx = nil,nil
+function module.draw_underlay(text)
+    local height = beautiful.menu_height-4
+    if not pango_l then
+        pango_crx = pangocairo.font_map_get_default():create_context()
+        pango_l = pango.Layout.new(pango_crx)
+        local desc = pango.FontDescription()
+        desc:set_family("Verdana")
+        desc:set_weight(pango.Weight.BOLD)
+        desc:set_size((height-8) * pango.SCALE)
+        pango_l:set_font_description(desc)
+    end
+    pango_l.text = text
+    local width = pango_l:get_pixel_extents().width + height + 4
+    local img = cairo.ImageSurface.create(cairo.Format.ARGB32, width, height+4)
+    cr = cairo.Context(img)
+    cr:set_source(color(beautiful.bg_alternate))
+    cr:arc((height-4)/2 + 2, (height-4)/2 + 2, (height-4)/2,0,2*math.pi)
+    cr:fill()
+    cr:arc(width - (height-4)/2 - 2, (height-4)/2 + 2, (height-4)/2,0,2*math.pi)
+    cr:rectangle((height-4)/2+2,2,width - (height),(height-4))
+    cr:fill()
+    cr:set_source(color(beautiful.bg_normal))
+    cr:move_to(height/2 + 2,1)
+    cr:show_layout(pango_l)
     return img
 end
 

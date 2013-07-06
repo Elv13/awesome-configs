@@ -51,6 +51,7 @@ local function gen_screen_nb(nb)
     cr:select_font_face("Verdana", cairo.FontSlant.NORMAL, cairo.FontWeight.BOLD)
     cr:set_font_size(10)
     cr:show_text(nb)
+    if not nb then return nil end
     screen_nb_cache[nb] = img
     return img
 end

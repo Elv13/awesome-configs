@@ -18,6 +18,7 @@ local module = {
 
 local function filter(data)
   local fs,visible_counter = data.filter_string:lower(),0
+  data._internal.visible_item_count = 0
   for k,v in pairs(data.items) do
     local tmp = v[1]._filter_out
     v[1]._filter_out = (v[1].text:lower():find(fs) == nil)-- or (fs ~= "")
@@ -26,6 +27,8 @@ local function filter(data)
     end
     if not v[1]._filter_out then
       visible_counter = visible_counter + v[1].height
+      data._internal.visible_item_count = data._internal.visible_item_count +1
+      v[1].f_key = data._internal.visible_item_count
     end
   end
   data._total_item_height = visible_counter
@@ -117,6 +120,7 @@ local function add_item(data,args)
       selected   = false,
       checkable  = args.checkable or (args.checked ~= nil) or false,
       checked    = args.checked or false,
+      underlay   = args.underlay or nil,
     },
     force_private = {
       visible = true,
@@ -171,6 +175,8 @@ local function add_item(data,args)
   if args.selected == true then
     item.selected = true
   end
+  data._internal.visible_item_count = (data._internal.visible_item_count or 0) + 1
+  item.f_key = data._internal.visible_item_count
   return item
 end
 
@@ -257,6 +263,7 @@ local function new(args)
       suffix_widget   = args.suffix_widget or nil,
       prefix_widget   = args.prefix_widget or nil,
       fkeys_prefix    = args.fkeys_prefix or false,
+      underlay_alpha  = args.underlay_alpha or 0.7,
     },
     get_map = {
       is_menu       = function() return true end,
@@ -360,6 +367,15 @@ local function new(args)
         internal.filter_hooks = internal.filter_hooks or {}
         internal.filter_hooks[{key = key, event = event, mod = mod}] = func
     end
+  end
+
+  function data:remove_key_hook(key)
+      for k,v in pairs(internal.filter_hooks) do
+          if k.key == key then
+              internal.filter_hooks[k] = nil
+              break
+          end
+      end
   end
 
   function data:clear()

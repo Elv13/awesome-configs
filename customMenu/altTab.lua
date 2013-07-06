@@ -10,6 +10,8 @@ local menu         = require( "radical.box"      )
 local util         = require( "awful.util"       )
 local config       = require( "forgotten"           )
 local wibox        = require( "wibox"            )
+local color      = require( "gears.color"    )
+local cairo      = require( "lgi"            ).cairo
 local capi = { image      = image,
                widget     = widget,
                client     = client,
@@ -18,6 +20,10 @@ local capi = { image      = image,
                keygrabber = keygrabber }
 
 local module = {}
+
+local function draw_underlay(text)
+    return beautiful.draw_underlay and beautiful.draw_underlay(text) or nil
+end
 
 local function button_group(args)
     local c          = args.client or nil--will explode
@@ -57,7 +63,6 @@ local function button_group(args)
 end
 
 local function new2(screen, args)
-    print(debug.traceback())
     local args = args or {}
     local menuX = (capi.screen[(screen or capi.mouse.screen)].geometry.width)/4
     local menuY = (capi.screen[(screen or capi.mouse.screen)].geometry.height - (beautiful.menu_height*#capi.client.get(screen)))/2
@@ -97,7 +102,8 @@ local function new2(screen, args)
             end, 
             icon    = v.icon,
             suffix_widget = l,
-            selected = capi.client.focus == v
+            selected = capi.client.focus == v,
+            underlay = draw_underlay(v:tags()[1].name)
         })
     end
 

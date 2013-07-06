@@ -1,6 +1,7 @@
 local setmetatable = setmetatable
 local print,pairs = print,pairs
 local unpack=unpack
+local math = math
 local util      = require( "awful.util"       )
 local button    = require( "awful.button"     )
 local checkbox  = require( "radical.widgets.checkbox" )
@@ -60,6 +61,14 @@ local function item_fit(data,item,...)
     item._internal.pix_cache = {} --Clear the pimap cache
   end
   return w, item._private_data.height or h
+end
+
+-- Like an overlay, but under
+local function paint_underlay(data,item,cr,width,height)
+  cr:save()
+  cr:set_source_surface(item.underlay,width-item.underlay:get_width()-3)
+  cr:paint_with_alpha(data.underlay_alpha)
+  cr:restore()
 end
 
 -- As of July 2013, LGI is too slow to redraw big menus at ok speed
@@ -135,6 +144,15 @@ function module:setup_item(data,item,args)
   m:set_top   ( data.item_style.margins.TOP    )
   m:set_bottom( data.item_style.margins.BOTTOM )
   local text_w = wibox.widget.textbox()
+
+  text_w.draw = function(self,w, cr, width, height)
+    if item.underlay then
+      paint_underlay(data,item,cr,width,height)
+    end
+    wibox.widget.textbox.draw(self,w, cr, width, height)
+  end
+  text_w.fit = function(self,width,height) return width,height end
+
   item._private_data._fit = wibox.widget.background.fit
   m.fit = function(...)
     if not data.visible or (item.visible == false or item._filter_out == true) then
@@ -143,12 +161,24 @@ function module:setup_item(data,item,args)
     return data._internal.layout.item_fit(data,item,...)
   end
 
+  local pref
   if data.fkeys_prefix == true then
-    local pref = wibox.widget.textbox()
+    pref = wibox.widget.textbox()
     pref.draw = function(self,w, cr, width, height)
       cr:set_source(color(beautiful.fg_normal))
-      cr:paint()
-      wibox.widget.textbox.draw(self,w, cr, width, height)
+      cr:arc((height-4)/2 + 2, (height-4)/2 + 2, (height-4)/2,0,2*math.pi)
+      cr:arc(width - (height-4)/2 - 2, (height-4)/2 + 2, (height-4)/2,0,2*math.pi)
+      cr:rectangle((height-4)/2+2,2,width - (height),(height-4))
+      cr:fill()
+      cr:select_font_face("Verdana", cairo.FontSlant.NORMAL, cairo.FontWeight.BOLD)
+      cr:set_font_size(height-6)
+      cr:move_to(height/2,height-4)
+      cr:set_source(color(beautiful.bg_normal))
+      local text = (item._internal.f_key and item._internal.f_key <= 12) and ("F"..(item._internal.f_key)) or "---"
+      cr:show_text(text)
+    end
+    pref.fit = function(...)
+      return 35,data.item_height
     end
     pref:set_markup("<span fgcolor='".. beautiful.bg_normal .."'><tt><b>F11</b></tt></span>")
     l:add(pref)
@@ -168,7 +198,6 @@ function module:setup_item(data,item,args)
     icon:set_image(args.icon)
   end
   l:add(icon)
-  l:add(text_w)
   if item._private_data.sub_menu_f or item._private_data.sub_menu_m then
     local subArrow  = wibox.widget.imagebox() --TODO, make global
     subArrow.fit = function(box, w, h) return subArrow._image:get_width(),item.height end
@@ -200,6 +229,7 @@ function module:setup_item(data,item,args)
     lr:add(args.suffix_widget)
   end
   la:set_left(l)
+  la:set_middle(text_w)
   la:set_right(lr)
   item.widget:set_widget(m)
   local fit_w,fit_h = data._internal.layout:fit()
@@ -209,7 +239,7 @@ function module:setup_item(data,item,args)
   item._internal.set_map.text = function (value)
     text_w:set_markup(value)
     if data.auto_resize then
-      local fit_w,fit_h = text_w:fit(999,9999)
+      local fit_w,fit_h = wibox.widget.textbox.fit(text_w,9999,9999)
       local is_largest = item == data._internal.largest_item_w
       item._internal.has_changed = true
       if not data._internal.largest_item_w_v or data._internal.largest_item_w_v < fit_w then
@@ -223,6 +253,18 @@ function module:setup_item(data,item,args)
   --     end
     end
   end
+  
+  item._internal.set_map.f_key = function(value)
+    item._internal.has_changed = true
+    item._internal.f_key = value
+    data:remove_key_hook("F"..value)
+    data:add_key_hook({}, "F"..value      , "press", function()
+      item.button1()
+      data.visible = false
+    end)
+  end
+  item._internal.get_map.f_key = function() return item._internal.f_key end
+  
   item._internal.set_map.icon = function (value)
     icon:set_image(value)
   end

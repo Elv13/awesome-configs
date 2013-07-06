@@ -77,7 +77,7 @@ local function gen_category_menu(cat)
     if program2[cat] then return program2[cat] end
     if not parse_init then parse_files() end
     local m = menu({has_decoration=false,style=style,item_style=item_style})
-    for k,v in ipairs(cats[cat]) do
+    for k,v in ipairs(cats[cat] or {}) do
         m:add_item(v)
     end
     program2[cat] = m

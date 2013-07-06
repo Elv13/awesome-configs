@@ -122,6 +122,8 @@ theme.wallpaper = "/home/lepagee/bg/final/bin_ascii_ds.png"
 
 theme.dock_icon_color = { type = "linear", from = { 0, 0 }, to = { 0, 55 }, stops = { { 0, "#1889F2" }, { 1, "#083158" }}}
 
+theme.draw_underlay = themeutils.draw_underlay
+
 
 ------------------------------------------------------------------------------------------------------
 --                                                                                                  --
