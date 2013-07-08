@@ -4,7 +4,7 @@ local print        = print
 local ipairs       = ipairs
 local pairs        = pairs
 local io           = io
-local tooltip      = require( "widgets.tooltip" )
+local tooltip2      = require( "widgets.tooltip2" )
 local button       = require( "awful.button"    )
 local beautiful    = require( "beautiful"       )
 local naughty      = require( "naughty"         )
@@ -28,7 +28,6 @@ local capi = { image  = image  ,
 local module = {}
 
 local currentMenu = nil
-local fkeymap = {}
 
 local function save(command)
     local file = io.open(util.getdir("cache") .. "/history", "a")
@@ -37,10 +36,9 @@ local function save(command)
 end
 
 function createMenu(offset)
-    
     local numberStyle = "<span size='large' color='".. beautiful.bg_normal .."'><tt><b>"
     local numberStyleEnd = "</b></tt></span> "
-    
+
      -- Read the history and sort them by use (most used first)
     local aFile = io.open(util.getdir("cache") .. "/history")
     local commandArray = {}
@@ -56,43 +54,30 @@ function createMenu(offset)
         end
         aFile:close()
     end
-    
+
     local commandArray2 = {}
-    
+
     for k,v in pairs(commandArray) do
         table.insert(commandArray2,{v,k})
     end
-    
+
     function compare(a,b)
         return a[1] > b[1]
     end
 
     table.sort(commandArray2, compare)
-  
+
     mainMenu = menu({filter = true, show_filter = true, y = capi.screen[1].geometry.height - 18, x = offset, 
     autodiscard = true,has_decoration=false,x=0,filtersubmenu=true,maxvisible=20,style=style,item_style=item_style,
-    show_filter=true,auto_resize=true,fkeys_prefix=true})
-    
+    show_filter=true,auto_resize=true,fkeys_prefix=true,filter_prefix="Run:",max_items=20})
+
     mainMenu:add_key_hook({}, "Return", "press", function(menu)
         util.spawn(menu.filterString)
         save(menu.filterString)
         menu:toggle(false)
         return false
     end)
-    
-    for i=1,15 do
-        mainMenu:add_key_hook({}, "F"..i, "press", function(menu)
-            if fkeymap[i] ~= nil then
-                util.spawn(fkeymap[i].text)
-                save(fkeymap[i].text)
-            end
-            menu:toggle(false)
-            return false
-        end)
-    end
-    
-   
-    
+
     -- Fill the menu
     local counter = 1
     for k,v in pairs(commandArray2) do
@@ -100,43 +85,21 @@ function createMenu(offset)
             util.spawn(v[2])
             save(v[2])
         end
-       local item = mainMenu:add_item({prefix = numberStyle.."[F".. counter .."]"..numberStyleEnd, prefixbg = beautiful.fg_normal,prefixwidth = 45, text =  v[2], onclick = onclick})
-       item.fkey = "F"..counter
-       fkeymap[counter] = item
+       local item = mainMenu:add_item({prefixbg = beautiful.fg_normal, text =  v[2], button1 = onclick,underlay=beautiful.draw_underlay(v[1].."x")})
        counter = counter + 1
     end
-    
-    mainMenu:connect_signal("visible::changed", function() currentMenu = nil end)
-    
-    mainMenu:connect_signal("menu::changed",  function(menu) 
-        local counter = 1
-        fkeymap = {}
-        for k, v in pairs(menu.items) do
-            if v.hidden ~= true then
-                v.widgets.prefix.text = numberStyle.."[F".. counter .."]"..numberStyleEnd
-                fkeymap[counter] = v
-                counter = counter + 1
-            end
-        end
-    end)
-    
---     mainMenu.visible = true
---     mainMenu:set_coords(offset or 0,capi.screen[capi.mouse.screen].geometry.height-16)
+
+mainMenu:connect_signal("visible::changed", function() currentMenu = nil end)
     
     return mainMenu
 end
 
 local function new(offset, args)
     local launcherText = wibox.widget.textbox()
---     launcherText:margin({ left = 30,right=17})
     launcherText:set_text("Launch")
     launcherText.bg_resize = true
     
     local head_img      = config.iconPath .. "gearA2.png"
---     local extents       = launcherText:extents()
---     extents.height      = 16
---     local normal_bg_img = themeutils.gen_button_bg(head_img,extents,false)
-    local focus_bg_img  --= themeutils.gen_button_bg(head_img,extents,true )
     
     local bgb = wibox.widget.background()
     local l = wibox.layout.fixed.horizontal()
@@ -163,22 +126,9 @@ local function new(offset, args)
     img2 = themeutils.compose({img2,{layer=ic,matrix=matrix},{layer=arr2,x=beautiful.default_height},{layer = arr,y=0,x=wdg_width+14+beautiful.default_height}})
     m:set_left(beautiful.default_height*1.5+3)
     bgb:set_bgimage(img2)
-    
-    launcherText.bg_image = normal_bg_img
-    local tt = tooltip("Execute a command",{down=true})
-    
-    bgb:connect_signal("mouse::enter", function()
-        tt:showToolTip(true)
-        if not focus_bg_img then
---             focus_bg_img  = themeutils.gen_button_bg(head_img,extents,true )
-        end
-        launcherText.bg_image = focus_bg_img
-    end)
-    bgb:connect_signal("mouse::leave", function()
-        tt:showToolTip(false)
---         launcherText.bg_image = normal_bg_img
-    end)
-    
+
+    local tt = tooltip2(bgb,"Execute a command",{down=true})
+
     bgb:buttons( util.table.join(
     button({ }, 1, function(geo)
         if not currentMenu then

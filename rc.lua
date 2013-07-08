@@ -337,15 +337,12 @@ for s = 1, screen.count() do
     endArrow2:set_image(blind.common.drawing.get_beg_arrow2({direction="left"}))
 
     local left_layout_right_bot = wibox.layout.fixed.horizontal()
-    if s == 1 then
-        local sysbg = wibox.widget.background()
-        sysbg:set_bg(beautiful.fg_normal)
-        sysbg:set_widget(wibox.widget.systray())
-        left_layout_right_bot:add(sysbg) 
-    end
     left_layout_right_bot:add(endArrow2)
 
     left_layout_right_bot:add(keyboardSwitcherWidget)
+    if s == 1 then
+        left_layout_right_bot:add(wibox.widget.systray())
+    end
     layout_bot:set_right(left_layout_right_bot)
 
 end

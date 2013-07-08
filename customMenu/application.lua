@@ -6,7 +6,7 @@ local button       = require( "awful.button"             )
 local beautiful    = require( "beautiful"                )
 local util         = require( "awful.util"               )
 local menu         = require( "radical.context"          )
-local tooltip      = require( "widgets.tooltip"          )
+local tooltip2      = require( "widgets.tooltip2"          )
 local mouse        = require( "awful.mouse"              )
 local fdutils      = require( "extern.freedesktop.utils" )
 local themeutils   = require( "blind.common.drawing"              )
@@ -108,10 +108,8 @@ end
 
 
 local function new(screen, args)
-    local tt = tooltip("Classic application menu",{down=true})
-
-
     local bgb = wibox.widget.background()
+    local tt = tooltip2(bgb,"Classic application menu",{down=true})
     local mylaunchertext     = wibox.widget.textbox()
     mylaunchertext:set_text("Apps")
     mylaunchertext.bg_resize = false
@@ -142,17 +140,15 @@ local function new(screen, args)
     m:set_left(beautiful.default_height*1.5+3)
 
     bgb:connect_signal("mouse::enter", function()
-        tt:showToolTip(true)
         if not focus_bg_img then
 --             focus_bg_img  = themeutils.gen_button_bg(head_img,extents,true )
         end
         mylaunchertext.bg_image = focus_bg_img
     end)
-    bgb:connect_signal("mouse::leave", function() tt:showToolTip(false);mylaunchertext.bg_image = normal_bg_img  end)
+    bgb:connect_signal("mouse::leave", function()mylaunchertext.bg_image = normal_bg_img  end)
 
     bgb:buttons( util.table.join(
         button({ }, 1, function(geometry)
-            tt:showToolTip(false)
             mymainmenu = mymainmenu or gen_menu(bgb)
             mymainmenu.parent_geometry = geometry
             mymainmenu.visible = not mymainmenu.visible

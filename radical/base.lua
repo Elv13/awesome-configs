@@ -139,6 +139,10 @@ local function add_item(data,args)
   for i=1,10 do
     item["button"..i] = args["button"..i]
   end
+  
+  if data.max_items ~= nil and data.rowcount >= data.max_items then-- and (data._start_at or 0)
+    item._hidden = true
+  end
 
   set_map.selected = function(value)
     private_data.selected = value
@@ -264,6 +268,8 @@ local function new(args)
       prefix_widget   = args.prefix_widget or nil,
       fkeys_prefix    = args.fkeys_prefix or false,
       underlay_alpha  = args.underlay_alpha or 0.7,
+      filter_prefix   = args.filter_prefix or "Filter:",
+      max_items       = args.max_items or nil,
     },
     get_map = {
       is_menu       = function() return true end,
@@ -381,6 +387,26 @@ local function new(args)
   function data:clear()
     internal.items = {}
     data:emit_signal("clear::menu")
+  end
+
+  function data:scroll_up()
+    if data.max_items ~= nil and data.rowcount >= data.max_items and (data._start_at or 1) > 1 then
+      data._start_at  = (data._start_at or 1) - 1
+      internal.items[data._start_at][1]._hidden = false
+      data:emit_signal("_hidden::changed",internal.items[data._start_at][1])
+      internal.items[data._start_at+data.max_items][1]._hidden = true
+      data:emit_signal("_hidden::changed",internal.items[data._start_at+data.max_items][1])
+    end
+  end
+  
+  function data:scroll_down()
+    if data.max_items ~= nil and data.rowcount >= data.max_items and (data._start_at or 1)+data.max_items <= data.rowcount then
+      data._start_at  = (data._start_at or 1) + 1
+      internal.items[data._start_at-1][1]._hidden = true
+      data:emit_signal("_hidden::changed",internal.items[data._start_at-1][1])
+      internal.items[data._start_at-1+data.max_items][1]._hidden = false
+      data:emit_signal("_hidden::changed",internal.items[data._start_at-1+data.max_items][1])
+    end
   end
 
   if private_data.layout then

@@ -117,12 +117,10 @@ local function new(screen, args)
     data[id].direction = direction
     
     data[id].widget:connect_signal("mouse::enter", function ()
---                                                   tt:showToolTip(true)
                                                   data[id].selected = tag.selected()
                                                   data[id].widget.bg = beautiful.bg_normal
                                                 end)
     data[id].widget:connect_signal("mouse::leave", function ()
---                                                   tt:showToolTip(false)
                                                   data[id].selected = nil
                                                   data[id].widget.bg = beautiful.bg_alternate
                                                 end)

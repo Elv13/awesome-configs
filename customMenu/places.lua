@@ -101,22 +101,9 @@ local function new(offset, args)
 
     mylauncher2text.bg_image = normal_bg_img
 
---     bgb:connect_signal("mouse::enter", function()
---         tt:showToolTip(true)
---         if not focus_bg_img then 
---             focus_bg_img  = themeutils.gen_button_bg(head_img,extents,true )
---         end
---         mylauncher2text.bg_image = focus_bg_img
---     end)
---     bgb:connect_signal("mouse::leave", function() tt:showToolTip(false);mylauncher2text.bg_image = normal_bg_img  end)
-
     bgb:buttons( util.table.join(
         button({ }, 1, function(geometry)
---         tt:showToolTip(false)
         data = data or read_kde_bookmark(offset)
---         data.settings.x = geometry.x
---         data.settings.y = geometry.drawable.drawable.geometry(geometry.drawable.drawable).y
---         data:set_coords(geometry.x,geometry.y)
         data.parent_geometry = geometry
         data.visible = not data.visible
 

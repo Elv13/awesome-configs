@@ -62,16 +62,6 @@ local function new(screen, args)
     end)
   ))
   
---   addTag:connect_signal("mouse::enter", function(self,geometry)
---     (tt or showToolTip()):showToolTip(true);
---     print("HER@@@",geometry.x,geometry.y,geometry.width,geometry.height)
--- --     print("WIBOX",mouse.wibox_under_pointer(),capi.mouse.screen,capi.mouse.coords().x)
--- --     mouse.wibox_under_pointer()._drawable:find_widgets(unpack(capi.mouse.coords()))
--- --     addTag.bg = beautiful.bg_normal
---   end)
-
---   addTag:connect_signal("mouse::leave", function() (tt or showToolTip()):showToolTip(false);addTag.bg = beautiful.bg_alternate end)
-  
   tooltip2(addTag,"Add Tag")
   
   return addTag

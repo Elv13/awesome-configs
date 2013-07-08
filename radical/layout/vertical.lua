@@ -1,14 +1,16 @@
 local setmetatable = setmetatable
-local print,pairs = print,pairs
-local unpack=unpack
-local math = math
-local util      = require( "awful.util"       )
-local button    = require( "awful.button"     )
+local print,pairs  = print,pairs
+local unpack       = unpack
+local util      = require( "awful.util"               )
+local button    = require( "awful.button"             )
 local checkbox  = require( "radical.widgets.checkbox" )
-local beautiful = require("beautiful")
-local wibox     = require( "wibox" )
-local color     = require( "gears.color"      )
-local cairo      = require( "lgi"            ).cairo
+local scroll    = require( "radical.widgets.scroll"   )
+local filter    = require( "radical.widgets.filter"   )
+local fkey      = require( "radical.widgets.fkey"     )
+local beautiful = require("beautiful"                 )
+local wibox     = require( "wibox"                    )
+local color     = require( "gears.color"              )
+local cairo      = require( "lgi"                     ).cairo
 
 local module = {}
 
@@ -77,7 +79,7 @@ local function cache_pixmap(item)
   item._internal.pix_cache = {}
   item.widget._draw = item.widget.draw
   item.widget.draw = function(self,wibox, cr, width, height)
-    if not wibox.visible then return end
+    if not wibox.visible or item._hidden then return end
     if item._internal.pix_cache[10*width+7*height+(item.selected and 8888 or 999)] then
       cr:set_source_surface(item._internal.pix_cache[10*width+7*height+(item.selected and 8888 or 999)])
       cr:paint()
@@ -107,20 +109,6 @@ function module:setup_item(data,item,args)
   item.widget:connect_signal("mouse::enter", function() item.selected = true end)
   item.widget:connect_signal("mouse::leave", function() item.selected = false end)
   data._internal.layout:add(item)
-  local buttons = {}
-  for i=1,10 do
-    if args["button"..i] then
-      buttons[#buttons+1] = button({},i,args["button"..i])
-    end
-  end
-  if not buttons[3] then --Hide on right click
-    buttons[#buttons+1] = button({},3,function()
-      data.visible = false
-      if data.parent_geometry and data.parent_geometry.is_menu then
-        data.parent_geometry.visible = false
-      end
-    end)
-  end
 
   --Be sure to always hide sub menus, even when data.visible is set manually
   data:connect_signal("visible::changed",function(_,vis)
@@ -133,7 +121,6 @@ function module:setup_item(data,item,args)
     data.height = fit_h
     data.style(data)
   end)
-  item.widget:buttons( util.table.join(unpack(buttons)))
 
   --Create the main item layout
   local l,la,lr = wibox.layout.fixed.horizontal(),wibox.layout.align.horizontal(),wibox.layout.fixed.horizontal()
@@ -155,33 +142,14 @@ function module:setup_item(data,item,args)
 
   item._private_data._fit = wibox.widget.background.fit
   m.fit = function(...)
-    if not data.visible or (item.visible == false or item._filter_out == true) then
-      return 1,1
+    if not data.visible or (item.visible == false or item._filter_out == true or item._hidden == true) then
+      return 0,0
     end
     return data._internal.layout.item_fit(data,item,...)
   end
 
-  local pref
   if data.fkeys_prefix == true then
-    pref = wibox.widget.textbox()
-    pref.draw = function(self,w, cr, width, height)
-      cr:set_source(color(beautiful.fg_normal))
-      cr:arc((height-4)/2 + 2, (height-4)/2 + 2, (height-4)/2,0,2*math.pi)
-      cr:arc(width - (height-4)/2 - 2, (height-4)/2 + 2, (height-4)/2,0,2*math.pi)
-      cr:rectangle((height-4)/2+2,2,width - (height),(height-4))
-      cr:fill()
-      cr:select_font_face("Verdana", cairo.FontSlant.NORMAL, cairo.FontWeight.BOLD)
-      cr:set_font_size(height-6)
-      cr:move_to(height/2,height-4)
-      cr:set_source(color(beautiful.bg_normal))
-      local text = (item._internal.f_key and item._internal.f_key <= 12) and ("F"..(item._internal.f_key)) or "---"
-      cr:show_text(text)
-    end
-    pref.fit = function(...)
-      return 35,data.item_height
-    end
-    pref:set_markup("<span fgcolor='".. beautiful.bg_normal .."'><tt><b>F11</b></tt></span>")
-    l:add(pref)
+    l:add(fkey(data,item))
     m:set_left  ( 0 )
   end
 
@@ -276,10 +244,22 @@ local function compute_geo(data)
   if data.auto_resize and data._internal.largest_item_w then
     w = data._internal.largest_item_w_v+100 > data.default_width and data._internal.largest_item_w_v+100 or data.default_width
   end
+  local visblerow = data.filter_string == "" and data.rowcount or data._internal.visible_item_count
+  if data.max_items and data.max_items < data.rowcount then
+    visblerow = data.max_items
+    if data.filter_string ~= "" then
+      local cur,vis = (data._start_at or 1),0
+      while (data._internal.items[cur] and data._internal.items[cur][1]) and cur < data.max_items + (data._start_at or 1) do
+        vis = vis + (data._internal.items[cur][1]._filter_out and 0 or 1)
+        cur = cur +1
+      end
+      visblerow = vis
+    end
+  end
   if not data._internal.has_widget then
-    return w,(total and total > 0 and total or data.rowcount*data.item_height) + (data._internal.filter_tb and data.item_height or 0)
+    return w,(total and total > 0 and total or visblerow*data.item_height) + (data._internal.filter_tb and data.item_height or 0) + (data.max_items and data._internal.scroll_w["up"].visible and (2*data.item_height) or 0)
   else
-    local h = (data.rowcount-#data._internal.widgets)*data.item_height
+    local h = (visblerow-#data._internal.widgets)*data.item_height
     for k,v in ipairs(data._internal.widgets) do
       local fw,fh = v.widget:fit(9999,9999)
       h = h + fh
@@ -290,25 +270,23 @@ end
 
 local function new(data)
   local l,real_l = wibox.layout.fixed.vertical(),nil
-  local filter_tb = nil
+  real_l = wibox.layout.fixed.vertical()
+  if data.max_items then
+    data._internal.scroll_w = scroll(data)
+    real_l:add(data._internal.scroll_w["up"])
+  end
+  real_l:add(l)
   if data.show_filter then
-    real_l = wibox.layout.fixed.vertical()
-    real_l:add(l)
-    filter_tb = wibox.widget.textbox()
-    local bg = wibox.widget.background()
-    bg:set_bg(beautiful.bg_highlight)
-    bg:set_widget(filter_tb)
-    filter_tb:set_markup("<b>Filter:</b>")
-    filter_tb.fit = function(tb,width,height)
-      return width,data.item_height
+    if data.max_items then
+      real_l:add(data._internal.scroll_w["down"])
     end
-    data:connect_signal("filter_string::changed",function()
-      filter_tb:set_markup("<b>Filter:</b> "..data.filter_string)
-    end)
-    real_l:add(bg)
-    data._internal.filter_tb = filter_tb
+    local filter_tb = filter(data)
+    real_l:add(filter_tb)
+    data._internal.filter_tb = filter_tb.widget
   else
-    real_l = l
+    if data.max_items then
+      real_l:add(data._internal.scroll_w["down"])
+    end
   end
   real_l.fit = function(a1,a2,a3)
     if not data.visible then return 1,1 end

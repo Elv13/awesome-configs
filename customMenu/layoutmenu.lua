@@ -56,14 +56,6 @@ local function showTitle(aTag)
   return showTitleBar[aTag] or false
 end
 
-function select_next()
-    
-end
-
-function select_previous()
-    
-end
-
 local function gen_bg(width,corner_radius)
     if bg_img[width] then return bg_img[width] end
     local img5 = cairo.ImageSurface(cairo.Format.ARGB32, width,width)
@@ -130,32 +122,6 @@ local function create(s,layouts,rect,colcount,noarrow,corner_radius)
     end
   end
   layoutArray:add(currentRow)
-
---   titleBarWidget.text = "Titlebar"
---   titleBarWidget.height = 10
---   titleBarWidget.align = "center"
-
---   menuWibox:geometry(rect)
-
-  --Add border on both side
---   local img = cairo.ImageSurface(cairo.Format.ARGB32, 90, (30*4) or 10)
---   local cr = cairo.Context(img)
---   cr:rectangle(0,0, 3, (30*4), true, "#ffffff")
---   cr:rectangle(87,0, 3, (30*4), true, "#ffffff")
--- 
---     local img = cairo.ImageSurface(cairo.Format.ARGB32, rect.width, rect.height)
---     local cr = cairo.Context(img)
---     cr:set_operator(cairo.Operator.SOURCE)
---     cr:set_source_rgba( 1, 1, 1, 1 )
---     cr:paint()
---     cr:set_source_rgba( 0, 0, 0, 0 )
---     cr:rectangle(0,0, 3, rect.height)
---     cr:rectangle(rect.width-3,0, 3, rect.height)
---     cr:fill()
-  
---   menuWibox.shape_clip     = img._native
---   menuWibox.border_color = beautiful.fg_normal
--- --     --w2.shape_bounding = do_gen_menu_bottom(width,10,0)
   menuWibox:set_widget(layoutArray)
   rect.height = (nrow+1)*rect.width/colcount
   menu3.settings.nrow = nrow
@@ -184,33 +150,6 @@ end
 local centered = nil
 
 module.centered_menu = function(layouts,backward)
---     local geom = capi.screen[capi.mouse.screen].geometry
---     if not centered then
---         centered = create(1,layouts,{x =geom.x+geom.width/2-150 , y = geom.y+geom.height/2,width=300,height = 150},6,true,7) 
---         centered.settings.y = geom.y+geom.height/2 - centered.settings.nrow*(50)
--- 
---         centered:add_key_hook({}, " ", "press", nextL)
---         centered:add_key_hook({"Mod4"}, "Shift_L", "press",   function(menu) end)
---         centered:add_key_hook({"Mod4"}, "Shift_R", "press",   function(menu) end)
---         centered:add_key_hook({"Mod4"}, "Shift_L", "release", function(menu) end)
---         centered:add_key_hook({"Mod4"}, "Shift_R", "release", function(menu) end)
---         centered:add_key_hook({}, "Mod4", "release", function(menu) centered:toggle(false) end)
---     end
---     local cur = layout.get(tag.getscreen(tag.selected()))
---     for k,v in ipairs(centered.settings.btns) do
---         if v.l_real == cur then
---             centered.settings.btns_cur = v
---             if centered.settings.btns_cur then
---                 centered.settings.btns_cur:set_bgimage()
---             end
---             centered.settings.btns_cur:set_bgimage(gen_bg(50,7))
---             centered.settings.btns_idx = k
---         end
---     end
---     centered:toggle(true)
---     centered:toggle(false)
---     centered:toggle(true)
---     nextL(centered,backward and {"Shift"} or {})
     
     local cur = layout.get(tag.getscreen(tag.selected()))
 
@@ -244,10 +183,6 @@ local function new(screen, layouts)
     update(w, screen)
     
     local function btn(geo)
---         if not menu[screen] then menu[screen] = create(screen,layouts,{x=capi.mouse.coords().x,y=16,width=90,height=120},3,false,3) end
---         menu[screen]:geometry({x = 300, y = 16 or capi.mouse.coords().y})
---         tt:showToolTip(false);
---         menu[screen]:toggle()
         local menu = radical.context({item_style=radical.item_style.rounded,item_height=30,column=3,layout=radical.layout.grid,arrow_type=radical.base.arrow_type.CENTERED})
         for i, layout_real in ipairs(layouts) do
             local layout2 = layout.getname(layout_real)
@@ -269,9 +204,6 @@ local function new(screen, layouts)
 	  layout.inc(layouts, -1)
       end)
     ))
-
---     w:connect_signal("mouse::enter", function() tt:showToolTip(true) ;w.bg = beautiful.bg_normal   end)
---     w:connect_signal("mouse::leave", function() tt:showToolTip(false);w.bg = beautiful.bg_alternate end)
 
     titleBarWidget:buttons( util.table.join(
       button({ }, 1, function()

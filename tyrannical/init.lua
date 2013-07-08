@@ -209,6 +209,7 @@ awful.tag.add,awful.tag._setscreen = function(tag,props)
 end,awful.tag.setscreen
 
 awful.tag.setscreen,awful.tag._viewonly = function(tag,screen) --Why this isn't by default...
+    if not tag or type(tag) ~= tag then return end
     awful.tag.history.restore(tag.screen,1)
     awful.tag._setscreen(tag,screen)
     for k,c in ipairs(tag:clients()) do

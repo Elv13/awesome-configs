@@ -38,6 +38,8 @@ theme.fg_focus       = "#00BBD7"
 theme.fg_urgent      = "#FF7777"
 theme.fg_minimize    = "#1577D3"
 
+theme.bg_systray     = theme.fg_normal
+
 --theme.border_width  = "1"
 --theme.border_normal = "#555555"
 --theme.border_focus  = "#535d6c"

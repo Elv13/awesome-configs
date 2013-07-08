@@ -4,7 +4,7 @@ local button    = require( "awful.button"    )
 local beautiful = require( "beautiful"       )
 local util      = require( "awful.util"      )
 local config    = require( "forgotten"          )
-local tooltip   = require( "widgets.tooltip" )
+local tooltip2   = require( "widgets.tooltip2" )
 local wibox     = require( "wibox"           )
 local themeutils = require( "blind.common.drawing"    )
 
@@ -25,10 +25,10 @@ end
 
 local function new(screen, args) 
   local keyboardSwitcher = wibox.widget.imagebox()
-  local tt = tooltip("Change keyboard layout",{down=true})
+  local tt = tooltip2(keyboardSwitcher,"Change keyboard layout",{down=true})
 
-  keyboardSwitcher:connect_signal("mouse::enter", function() tt:showToolTip(true); keyboardSwitcher.bg = beautiful.bg_highlight end)
-  keyboardSwitcher:connect_signal("mouse::leave", function() tt:showToolTip(false);keyboardSwitcher.bg = beautiful.bg_normal end)
+  keyboardSwitcher:connect_signal("mouse::enter", function()keyboardSwitcher.bg = beautiful.bg_highlight end)
+  keyboardSwitcher:connect_signal("mouse::leave", function()keyboardSwitcher.bg = beautiful.bg_normal end)
 
   if setupKb() ==  "us" then
     keyboardSwitcher:set_image(themeutils.apply_color_mask(config.iconPath .. "us_flag.png"))

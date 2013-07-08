@@ -10,7 +10,6 @@ checkbox=            require( "widgets.checkbox"             ),
 -- desktopLayout=require( "widgets.layout.desktopLayout" ),
 radialSelect=        require( "widgets.radialSelect"         ),
 menuDeco=            require( "widgets.menuDeco"             ),
-tooltip=             require( "widgets.tooltip"              ),
 tooltip2=            require( "widgets.tooltip2"             ),
 }
 -- require( "widgets.overlay"              )

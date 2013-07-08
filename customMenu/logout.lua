@@ -4,7 +4,7 @@ local beautiful    = require( "beautiful"       )
 local naughty      = require( "naughty"         )
 local tag          = require( "awful.tag"       )
 local util         = require( "awful.util"      )
-local tooltip      = require( "widgets.tooltip" )
+local tooltip2      = require( "widgets.tooltip2" )
 local menu         = require( "widgets.menu"    )
 
 local capi = { image  = image  ,
@@ -20,7 +20,7 @@ end
 
 local function new(screen, args) 
   local desktopPix       = capi.widget({ type = "imagebox", align = "left" })
-  local tt,m = tooltip("Logout",{down = false}),nil
+  local tt,m = tooltip(desktopPix,"Logout",{down = false}),nil
   desktopPix.image = capi.image(util.getdir("config") .. "/theme/darkBlue/Icon/logout.png")
   desktopPix:buttons( util.table.join( button({ }, 1, function() tag.viewnone() end) ))
   desktopPix:add_signal("mouse::enter", function() tt:showToolTip(true) ;desktopPix.bg = beautiful.bg_highlight end)

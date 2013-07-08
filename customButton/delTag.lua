@@ -45,9 +45,6 @@ local function new(screen, args)
   
   tag.attached_connect_signal(screen, "property::selected", toggleVisibility)
   tag.attached_connect_signal(screen, "property::layout", toggleVisibility)
-  
---   data[screen]:connect_signal("mouse::enter", function() tt:showToolTip(true) ;data[screen].bg = beautiful.bg_normal    end)
---   data[screen]:connect_signal("mouse::leave", function() tt:showToolTip(false);data[screen].bg = beautiful.bg_alternate end)
 
   return data[screen]
 end
