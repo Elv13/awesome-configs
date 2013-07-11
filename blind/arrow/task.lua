@@ -27,7 +27,7 @@ local function apply_icon_transformations(c)
     matrix:translate(module.theme.default_height/2 - 6,-2)
 
     --Copy to surface
-    local img5 = cairo.ImageSurface.create(cairo.Format.ARGB32, sw, sh)
+    local img5 = cairo.ImageSurface.create(cairo.Format.ARGB32, sh, sh)
     local cr5 = cairo.Context(img5)
     cr5:set_operator(cairo.Operator.CREAR)
     cr5:paint()
@@ -37,7 +37,7 @@ local function apply_icon_transformations(c)
     cr5:paint()
 
     --Generate the mask
-    local img4 = cairo.ImageSurface.create(cairo.Format.A8, sw, sh)
+    local img4 = cairo.ImageSurface.create(cairo.Format.A8, sh, sh)
     local cr4 = cairo.Context(img4)
     --cr4:set_matrix(matrix)
     cr4:set_source(icp)

@@ -28,12 +28,12 @@ local function on_callback(c,startup)
     local pid_data,sn_data = by_pid[c.pid],by_ns[c.startup_id]
     if not pid_data and not sn_data then return false end
     if sn_data then
-        print("IT WORK!!!")
-        c.ontop = true
+--         c.ontop = true
         awful.client.floating.set(c,false)
     elseif pid_data then
         
     end
+    return true
 end
 
 module.spawn = function(args)
@@ -47,11 +47,15 @@ module.spawn = function(args)
         screen      = args.screen     ,
     }
     local pid,aaa = awful.util.spawn(param.command,true)
-    param.pid = pid
-    param.startup_id = aaa
-    by_pid[pid] = param
-    by_ns[aaa] = param
-    tyrannical.sn_callback[aaa] = on_callback
+    if pid then
+        param.pid = pid
+        by_pid[pid] = param
+    end
+    if aaa then
+        param.startup_id = aaa
+        by_ns[aaa] = param
+        tyrannical.sn_callback[aaa] = on_callback
+    end
 end
 
 --------SN Callbacks------

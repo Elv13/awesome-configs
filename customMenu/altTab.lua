@@ -91,7 +91,7 @@ local function new2(screen, args)
         l:add( button_group({client = v, width=5, field = "sticky",    focus = false, checked = function() return v.sticky end   , onclick = function() v.sticky = not v.sticky end       })    )
         l:add( button_group({client = v, width=5, field = "floating",  focus = false, checked = function() return v.floating end , onclick = function() v.floating = not v.floating end   })  )
 
-        l.fit = function () return 80,30 end
+        l.fit = function (s,w,h) return 5*h,h end
         currentMenu:add_item({
             text    = v.name,
             button1 = function()
