@@ -201,10 +201,7 @@ function module.task_widget_draw(self,w, cr, width, height,args)
         cr:rectangle(x_offset,0,width-x_offset-height/2 - 1 - 9*rad,height)
         cr:clip()
     end
-    cr:move_to(x_offset, (height-logical.height)/2 - ink.y/4)
---     local prefix = ""
-    cr:show_layout(self._layout)
---     cr:show_text(prefix..(self.data.c.name or "N/A"))
+    themeutils.draw_text(cr,self._layout,x_offset,(height-logical.height)/2 - ink.y/4,module.theme.enable_glow or false,module.theme.glow_color)
 
     if width-x_offset-height/2 -4 < logical.width then
         cr:reset_clip()
