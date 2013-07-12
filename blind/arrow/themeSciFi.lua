@@ -31,9 +31,9 @@ theme.bg_focus       = "#496477"
 theme.bg_urgent      = "#5B0000"
 theme.bg_minimize    = "#040A1A"
 theme.bg_highlight   = "#0E2051"
-theme.bg_alternate   = "#12232B"
+theme.bg_alternate   = "#081B37"
 
-theme.fg_normal      = "#51769C"
+theme.fg_normal      = "#6DA1D4"
 theme.fg_focus       = "#D6E3F3"
 theme.fg_urgent      = "#FF7777"
 theme.fg_minimize    = "#1577D3"
@@ -48,6 +48,8 @@ theme.border_width2  = "2"
 theme.border_normal  = "#555555"
 theme.border_focus   = "#535d6c"
 theme.border_marked  = "#91231c"
+theme.enable_glow    = true
+theme.glow_color     = "#105A8B"
 
 theme.tasklist_floating_icon       = path .."Icon/titlebar/floating.png"
 theme.tasklist_ontop_icon          = path .."Icon/titlebar/ontop.png"
@@ -57,7 +59,7 @@ theme.tasklist_ontop_focus_icon    = path .."Icon/titlebar/ontop_focus.png"
 theme.tasklist_sticky_focus_icon   = path .."Icon/titlebar/sticky_focus.png"
 theme.tasklist_plain_task_name     = true
 
-theme.icon_grad = { type = "linear", from = { 0, 0 }, to = { 0, 20 }, stops = { { 0, "#991219" }, { 1, "#0E3599" }}}
+theme.icon_grad = { type = "linear", from = { 0, 0 }, to = { 0, 20 }, stops = { { 0, "#7FD0EF" }, { 1, "#4273EF" }}}
 
 
 ------------------------------------------------------------------------------------------------------
@@ -83,18 +85,18 @@ theme.icon_grad = { type = "linear", from = { 0, 0 }, to = { 0, 20 }, stops = { 
 
 -- Display the taglist squares
 theme.taglist_bg_image_empty           = nil
-theme.taglist_bg_image_selected        = path .."Icon/bg/used_bg_green2.png"
-theme.taglist_bg_image_used            = path .."Icon/bg/used_bg_green.png"
+theme.taglist_bg_image_selected        = path .."Icon/bg/selected_bg_scifi.png"
+theme.taglist_bg_image_used            = path .."Icon/bg/selected_bg_scifi.png"
 theme.taglist_bg_image_urgent          = path .."Icon/bg/urgent_bg.png"
 theme.taglist_bg_image_remote_selected = path .."Icon/bg/selected_bg_green.png"
 theme.taglist_bg_image_remote_used     = path .."Icon/bg/used_bg_green.png"
-theme.taglist_squares_unsel            = function(wdg,m,t,objects,idx) return arrow.tag.gen_tag_bg(wdg,m,t,objects,idx,theme.taglist_bg_image_used)     end
+theme.taglist_squares_unsel            = function(wdg,m,t,objects,idx) return arrow.tag.gen_tag_bg(wdg,m,t,objects,idx,themeutils.status_ellipse) end
 theme.taglist_squares_sel              = function(wdg,m,t,objects,idx) return arrow.tag.gen_tag_bg(wdg,m,t,objects,idx,theme.taglist_bg_image_selected) end
 theme.taglist_squares_sel_empty        = function(wdg,m,t,objects,idx) return arrow.tag.gen_tag_bg(wdg,m,t,objects,idx,theme.taglist_bg_image_selected) end
 theme.taglist_squares_unsel_empty      = function(wdg,m,t,objects,idx) return arrow.tag.gen_tag_bg(wdg,m,t,objects,idx,nil)     end
 theme.taglist_disable_icon             = true
 theme.bg_image_normal                  = function(wdg,m,t,objects) return arrow.task.gen_task_bg(wdg,m,t,objects,nil)     end
-theme.bg_image_focus                   = function(wdg,m,t,objects) return arrow.task.gen_task_bg(wdg,m,t,objects,theme.taglist_bg_image_used)     end
+theme.bg_image_focus                   = function(wdg,m,t,objects) return arrow.task.gen_task_bg(wdg,m,t,objects,theme.taglist_bg_image_selected)     end
 theme.bg_image_urgent                  = function(wdg,m,t,objects) return arrow.task.gen_task_bg(wdg,m,t,objects,theme.taglist_bg_image_urgent)     end
 theme.bg_image_minimize                = function(wdg,m,t,objects) return arrow.task.gen_task_bg(wdg,m,t,objects,nil)     end
 theme.tasklist_disable_icon            = true

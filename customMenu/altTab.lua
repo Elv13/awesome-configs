@@ -98,12 +98,12 @@ local function new2(screen, args)
                 if v:tags()[1] and v:tags()[1].selected == false then
                     tag.viewonly(v:tags()[1])
                 end
-                capi.client.focus = v 
-            end, 
+                capi.client.focus = v
+            end,
             icon    = v.icon,
             suffix_widget = l,
             selected = capi.client.focus == v,
-            underlay = draw_underlay(v:tags()[1].name)
+            underlay = v:tags()[1] and draw_underlay(v:tags()[1].name)
         })
     end
 

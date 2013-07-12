@@ -41,7 +41,7 @@ capi.client.connect_signal("manage", function (c, startup)
 end)
 
 capi.client.connect_signal("unmanage", function (c)
-    local class = string.lower(c.class)
+    local class = string.lower(c.class) or ""
     local tmp = classes[class]
     if tmp then
         for k,v in ipairs(tmp) do

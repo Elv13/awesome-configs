@@ -162,7 +162,7 @@ local function reload_user(usrMenu,data)
         userWl:add(anUser)
         userW:set_widget(userWl)
         totalUser = totalUser +1
-        usrMenu:add_widget(userWl,{height = 20, width = 200})
+--         usrMenu:add_widget(userWl,{height = 20, width = 200})
     end
     return totalUser
 end
@@ -185,7 +185,7 @@ local function reload_state(typeMenu,data)
         stateWl:add( anState      )
         stateW:set_widget(stateWl)
         totalState = totalState +1
-        typeMenu:add_widget(stateWl,{height = 20, width = 200})
+--         typeMenu:add_widget(stateWl,{height = 20, width = 200})
     end
 end
 
@@ -229,7 +229,7 @@ local function reload_top(topMenu,data)
             processWl:set_right  ( testImage2 )
             processW:set_widget(processWl)
             
-            topMenu:add_widget(processWl,{height = 20, width = 200})
+--             topMenu:add_widget(processWl,{height = 20, width = 200})
         end
     end
 end
@@ -284,22 +284,22 @@ local function repaint(margin)
 --     userHeaderW.widgets = {userHeader,layout = widget2.layout.horizontal.leftrightcached}
 --     stateHeaderW.widgets   = {stateHeader,layout = widget2.layout.horizontal.leftrightcached}
 --     processHeaderW.widgets = {processHeader,layout = widget2.layout.horizontal.leftrightcached}
-    local infoHeaderWl    = wibox.layout.fixed.horizontal()
-    local userHeaderWl    = wibox.layout.fixed.horizontal()
-    local stateHeaderWl   = wibox.layout.fixed.horizontal()
-    local processHeaderWl = wibox.layout.fixed.horizontal()
-    infoHeaderWl:add   ( infoHeader    )
-    userHeaderWl:add   ( userHeader    )
-    stateHeaderWl:add  ( stateHeader   )
-    processHeaderWl:add( processHeader )
+    local infoHeaderWl    = wibox.widget.background()
+    local userHeaderWl    = wibox.widget.background()
+    local stateHeaderWl   = wibox.widget.background()
+    local processHeaderWl = wibox.widget.background()
+    infoHeaderWl:set_widget   ( infoHeader    )
+    userHeaderWl:set_widget   ( userHeader    )
+    stateHeaderWl:set_widget  ( stateHeader   )
+    processHeaderWl:set_widget( processHeader )
 --     infoHeaderW:set_widget   (     )
 --     userHeaderW:set_widget   (     )
 --     stateHeaderW:set_widget  (    )
 --     processHeaderW:set_widget(  )
-    infoHeaderW:set_bg    ( beautiful.fg_normal )
-    userHeaderW:set_bg    ( beautiful.fg_normal )
-    stateHeaderW:set_bg   ( beautiful.fg_normal )
-    processHeaderW:set_bg ( beautiful.fg_normal )
+    infoHeaderWl:set_bg    ( beautiful.fg_normal )
+    userHeaderWl:set_bg    ( beautiful.fg_normal )
+    stateHeaderWl:set_bg   ( beautiful.fg_normal )
+    processHeaderWl:set_bg ( beautiful.fg_normal )
 
 --     ramW.widgets = {
 --                         {totalLabel,totalLabel,usedLabel,freeLabel, layout = widget2.layout.horizontal.leftrightcached},
@@ -319,7 +319,7 @@ local function repaint(margin)
     ramWVl:add(ramWH3l)
     ramW:set_widget()
 
-    mainMenu = menu({arrow_x=90,nokeyboardnav=true,item_width=198})
+    mainMenu = menu({arrow_x=90,nokeyboardnav=true,item_width=198,width=200})
     mainMenu:add_widget(infoHeaderWl,{height = 20 , width = 200})
     mainMenu:add_widget(ramWVl       ,{height = 72, width = 200})
     mainMenu:add_widget(userHeaderWl,{height = 20, width = 200})
@@ -397,8 +397,8 @@ local function new(margin, args)
         end
         print("Make visible")
         data.menu.visible = false
-        print("here",data.menu._internal.layout:fit())
         data.menu.visible = visible
+        print("here",data.menu._internal.layout:fit())
     end
 
 

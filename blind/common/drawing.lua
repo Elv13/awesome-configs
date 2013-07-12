@@ -195,4 +195,12 @@ function module.draw_text(cr,layout,x,y,enable_shadow,shadow_color)
     cr:show_layout(layout)
 end
 
+function module.status_ellipse(cr,width,height)
+    cr:save()
+    cr:set_source(color({ type = "radial", from = { width/2,0, 0 }, to = { width/2, -10, width/5 }, stops = { { 0, "#1960EF" }, { 1, "#00000000" }}}))
+    cr:rectangle(0,0,width,height)
+    cr:fill()
+    cr:restore()
+end
+
 return setmetatable(module, { })

@@ -33,7 +33,7 @@ local function on_callback(c,startup)
     elseif pid_data then
         
     end
-    return true
+    return false
 end
 
 module.spawn = function(args)
