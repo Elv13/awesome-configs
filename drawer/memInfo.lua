@@ -13,6 +13,7 @@ local beautiful    = require("beautiful")
 local widget2      = require("awful.widget")
 local wibox        = require("wibox")
 local menu         = require("radical.context")
+local radtab       = require("radical.widgets.table")
 local vicious      = require("extern.vicious")
 local config       = require("forgotten")
 local util         = require("awful.util")
@@ -322,6 +323,19 @@ local function repaint(margin)
     mainMenu = menu({arrow_x=90,nokeyboardnav=true,item_width=198,width=200})
     mainMenu:add_widget(infoHeaderWl,{height = 20 , width = 200})
     mainMenu:add_widget(ramWVl       ,{height = 72, width = 200})
+    
+    local m3 = wibox.layout.margin()
+    m3:set_margins(3)
+    m3:set_bottom(10)
+    m3:set_widget(radtab({
+        {"sdfsdf","345345","cbcvbcv"},
+        {"sdfsdf","345345","cbcvbcv"},
+        {"sdfsdf","345345","cbcvbcv"},
+        {"sdfsdf","345345","cbcvbcv"}},
+        {row_height=20,v_header = {"Core1","Core2","Core3"},
+        h_header = {"IO","Wait","Usage"}
+    }))
+    mainMenu:add_widget(m3,{width = 200})
     mainMenu:add_widget(userHeaderWl,{height = 20, width = 200})
     local memStat
 

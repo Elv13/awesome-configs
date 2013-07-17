@@ -257,7 +257,7 @@ local function create(screen, args)
         sensibleArea.y = (capi.screen[screen or 1].geometry.height - vertical_extents) / 2
     end
 
-    lauchBar:set_bg(cairo.Pattern.create_for_surface(mask(width,height,8,1,0,color(beautiful.fg_normal),color(beautiful.bg_normal))))
+    lauchBar:set_bg(cairo.Pattern.create_for_surface(mask(width,height,8,1,0,color(beautiful.fg_normal),color(beautiful.bg_dock or beautiful.bg_normal))))
     lauchBar.shape_bounding  = mask(width,height,10,0,1,color("#00000000"),color("#FFFFFFFF"))._native
     lauchBar.width           = width
     lauchBar:set_widget(widgetsL)

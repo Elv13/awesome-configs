@@ -3,6 +3,7 @@ local awful      = require( "awful"          )
 local color      = require( "gears.color"    )
 local surface    = require( "gears.surface"  )
 local cairo      = require( "lgi"            ).cairo
+local pango      = require( "lgi"            ).Pango
 local tag        = require( "awful.tag"      )
 local client     = require( "awful.client"   )
 local themeutils = require( "blind.common.drawing"    )
@@ -37,6 +38,8 @@ theme.fg_normal      = "#6DA1D4"
 theme.fg_focus       = "#D6E3F3"
 theme.fg_urgent      = "#FF7777"
 theme.fg_minimize    = "#1577D3"
+
+theme.bg_systray     = theme.fg_normal
 
 --theme.border_width  = "1"
 --theme.border_normal = "#555555"
@@ -122,7 +125,14 @@ theme.menu_width                = 130
 theme.menu_border_width         = 2
 theme.border_width              = 1
 theme.border_color              = theme.fg_normal
+theme.menu_fg_normal            = "#ffffff"
+theme.menu_bg_focus             = themeutils.pattern(path .."Icon/bg/menu_bg_focus_scifi.png")
+theme.menu_bg_normal            = themeutils.pattern(path .."Icon/bg/menu_bg_scifi.png"      )
+theme.menu_bg_highlight         = themeutils.pattern(path .."Icon/bg/menu_bg_highlight.png"  )
+theme.bg_dock                   = themeutils.pattern(path .."Icon/bg/bg_dock.png"            )
+
 theme.wallpaper = "/home/lepagee/bg/final/bin_ascii_ds.png"
+theme.draw_underlay = themeutils.draw_underlay
 
 
 ------------------------------------------------------------------------------------------------------
@@ -202,6 +212,13 @@ theme.layout_tiletop_s       = path .."Icon/layouts_small/tiletop.png"
 theme.layout_spiral_s        = path .."Icon/layouts_small/spiral.png"
 theme.layout_spiraldwindle_s = path .."Icon/layouts_small/spiral_d.png"
 
+wibox_w.textbox.draw = function(self,w, cr, width, height,args)
+    cr:update_layout(self._layout)
+    self._layout.width = pango.units_from_double(width)
+    self._layout.height = pango.units_from_double(height)
+    local ink, logical = self._layout:get_pixel_extents()
+    themeutils.draw_text(cr,self._layout,x_offset,(height-logical.height)/2 - ink.y/4,theme.enable_glow or false,theme.glow_color)
+end
 
 return theme
 -- vim: filetype=lua:expandtab:shiftwidth=4:tabstop=8:softtabstop=4:encoding=utf-8:textwidth=80

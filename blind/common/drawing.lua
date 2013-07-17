@@ -203,4 +203,10 @@ function module.status_ellipse(cr,width,height)
     cr:restore()
 end
 
+function module.pattern(path)
+    local pat = cairo.Pattern.create_for_surface(cairo.ImageSurface.create_from_png(path))
+    cairo.Pattern.set_extend(pat,cairo.Extend.REPEAT)
+    return pat
+end
+
 return setmetatable(module, { })

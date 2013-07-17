@@ -74,11 +74,11 @@ config.scr           = {
 config.load()
 config.themePath = awful.util.getdir("config") .. "/blind/" .. config.themeName .. "/"
 config.iconPath  = config.themePath       .. "Icon/"
-beautiful.init(config.themePath                .. "/theme.lua")
+beautiful.init(config.themePath                .. "/themeSciFi.lua")
 
 -- {{{ Variable definitions
 -- Themes define colours, icons, and wallpapers
-beautiful.init(awful.util.getdir("config").."/blind/arrow/theme.lua")
+beautiful.init(awful.util.getdir("config").."/blind/arrow/themeSciFi.lua")
 
 -- This is used later as the default terminal and editor to run.
 terminal = "urxvtc"
