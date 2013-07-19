@@ -136,7 +136,7 @@ local function add_item(data,args)
   set_map.selected = function(value)
     private_data.selected = value
     if value == false then
-      data.item_style(data,item,false--[[ or (item._tmp_menu ~= nil and item._tmp_menu == data._tmp_menu)]],false)
+      data.item_style(data,item,false,false)
       return
     end
     if data._current_item and data._current_item ~= item then
@@ -144,6 +144,7 @@ local function add_item(data,args)
         data._current_item._tmp_menu.visible = false
         data._current_item._tmp_menu = nil
         data._tmp_menu = nil
+        data.item_style(data,data._current_item,false,false)
       end
       data._current_item.selected = false
     end
@@ -302,6 +303,11 @@ local function new(args)
       local fit_w,fit_h = data._internal.layout:fit()
       data.width = fit_w
       data.height = fit_h
+    elseif data._tmp_menu and data._current_item then
+--       data._tmp_menu = nil
+      data._current_item._tmp_menu = nil
+--       data._current_item.selected = false
+      data.item_style(data,data._current_item,false,false)
     end
     if internal.has_changed and data.style then
       data.style(data,{arrow_x=20,margin=internal.margin})

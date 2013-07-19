@@ -179,8 +179,6 @@ local function create(screen, args)
                         return smenu
                     end})
                     local imb = wibox.widget.imagebox()
---                     imb:set_image("/home/lepagee/_67296177_67296103.jpg")
---                     menu:add_widget(imb,{height=75})
                     menu:connect_signal("visible::changed",function(_,visible)
                         if not menu.visible then
                             lauchBar.visible = false
@@ -198,7 +196,12 @@ local function create(screen, args)
             draw_item(data,instances,width)
         end)
         draw_item(data,nil,width)
-        widgetsL:add(icon)
+        local m = wibox.layout.margin()
+        m:set_top(2)
+        m:set_bottom(2)
+        m:set_right(4)
+        m:set_widget(icon)
+        widgetsL:add(m)
         displayInfo(icon,name,getTooltip)
     end
 
@@ -243,9 +246,13 @@ local function create(screen, args)
         add_separator()
     end
 
+    local need_sep = false --Prevent the last item to be a separator
     for k,v in pairs(categories_other) do
+        if need_sep then
+            add_separator()
+        end
         add_items(v)
-        add_separator()
+        need_sep = true
     end
 
     --Resize the dock if necessary
