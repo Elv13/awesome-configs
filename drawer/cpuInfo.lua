@@ -11,10 +11,13 @@ local widget2      = require( "awful.widget"   )
 local config       = require( "forgotten"         )
 local vicious      = require( "extern.vicious" )
 local menu         = require( "radical.context"   )
+local embed         = require( "radical.embed"   )
 local util         = require( "awful.util"     )
 local wibox        = require( "wibox"          )
 local radtab       = require("radical.widgets.table")
 local themeutils = require( "blind.common.drawing"    )
+local color     = require( "gears.color"              )
+local cairo      = require( "lgi"                     ).cairo
 
 local data     = {}
 local procMenu = nil
@@ -37,7 +40,7 @@ local function match_icon(arr,name)
 end
 
 local function reload_top(procMenu,data)
-    procMenu:clear()
+--     procMenu:clear()
     if data.process then
         local procIcon = {}
         for k2,v2 in ipairs(capi.client.get()) do
@@ -51,21 +54,26 @@ local function reload_top(procMenu,data)
 
             local wdg = {}
             wdg.percent       = wibox.widget.textbox()
+            wdg.percent.fit = function()
+                return 30,procMenu.item_height
+            end
+            wdg.percent.draw = function(self,w, cr, width, height)
+                cr:save()
+                cr:set_source(color(procMenu.bg_alternate))
+                cr:paint()
+                cr:restore()
+                wibox.widget.textbox.draw(self,w, cr, width, height)
+            end
             wdg.percent.width = 50
             wdg.percent.bg    = "#0F2051"
             wdg.percent.align = "right"
-            wdg.process       = wibox.widget.textbox()
             wdg.kill          = wibox.widget.imagebox()
             wdg.kill:set_image(config.iconPath .. "kill.png")
 
             local processWl = wibox.layout.align.horizontal()
-            processWl:set_left   ( wdg.percent       )
-            processWl:set_middle ( wdg.process   )
-            processWl:set_right  ( wdg.kill )
             w:set_widget(processWl)
 
             wdg.percent:set_text(data.process[i].percent.."%")
-            wdg.process:set_text(" "..data.process[i].name)
 
             if procIcon[data.process[i].name:lower()] then
                 wdg.percent.bg_image = procIcon[data.process[i].name:lower()].icon
@@ -74,7 +82,8 @@ local function reload_top(procMenu,data)
             end
             wdg.percent.bg_resize = true
 
-            procMenu:add_widget(processWl , {height = 20  , width = 200})
+--             procMenu:add_widget(processWl , {height = 20  , width = 200})
+            procMenu:add_item({text=data.process[i].name,suffix_widget=wdg.kill,prefix_widget=wdg.percent})
         end
     end
 end
@@ -254,7 +263,7 @@ local function new(margin, args)
         aMenu:add_widget(volUsage        , {height = 30  , width = 200})
         aMenu:add_widget(cpuWidgetArrayL         , {width = 200})
         aMenu:add_widget(processHeaderWl , {height = 20  , width = 200})
-        procMenu = menu({width=198,maxvisible=6,has_decoration=false,has_side_deco=true})
+        procMenu = embed({max_items=6})
         aMenu:add_embeded_menu(procMenu)
 
         aMenu.x = capi.screen[capi.mouse.screen].geometry.width - 200 + capi.screen[capi.mouse.screen].geometry.x - margin + 40 + 15 + 15

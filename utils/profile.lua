@@ -54,7 +54,9 @@ function module.trace(class)
                     }
             end
             local lines = functions[f.func].lines
-            lines[#lines + 1] =("%d %d"):format(f.currentline, instr_count - last_line_instr_count)
+            if functions[f.func].meta.name and functions[f.func].meta.name:sub(1,1) ~= '_' then
+                lines[#lines + 1] =("%d %d"):format(f.currentline, instr_count - last_line_instr_count)
+            end
             functions[f.func].last_line = f.currentline
 
             if not mainfunc then mainfunc = f.func end
@@ -84,9 +86,9 @@ function module.trace(class)
             end
 
             -- is this method already known ?
-            if f.name then
-                    methods[tostring(f.func)] = { name = f.name }
-            end
+--             if f.name and f.name:sub(1,1) ~= '_' then
+            methods[tostring(f.func)] = { name = f.name }
+--             end
 
             -- print((" "):rep(call_indent)..">>"..tostring(f.func).." (".. tostring(f.name)..")")
             call_indent = call_indent + 1
@@ -103,7 +105,12 @@ function module.trace(class)
                             -- print("handling error()")
                             -- the error() is already removed
                             -- removed every thing up to pcall()
-                            while callstack[#callstack].func ~= f.func do
+                            if #callstack == 0 then
+                                return --Nothing we can do
+                            end
+                            local f1,f2 = callstack[#callstack].func,f.func
+                            while f1 and f2 ~= f1 and #callstack > 0 do
+                                    f1 = callstack[#callstack].func
                                     table.remove(callstack)
 
                                     call_indent = call_indent - 1
@@ -128,13 +135,18 @@ function module.trace(class)
                     call_indent = call_indent - 1
 
                     -- in case the assert below fails, enable this print and the one in the "call" handling
-                    -- print((" "):rep(call_indent).."<<"..tostring(ret.func).." "..tostring(f.func).. " =? " .. tostring(f.func == ret.func))
-                    assert(ret.func == f.func)
-
-                    lines[#lines + 1] = ("cfl=%s"):format(ret.short_src)
-                    lines[#lines + 1] = ("cfn=%s"):format(tostring(ret.func))
-                    lines[#lines + 1] = ("calls=1 %d"):format(ret.linedefined)
-                    lines[#lines + 1] = ("%d %d"):format(last_line and last_line or -1, instr_count - ret.instr_count)
+                    if not ret or ret.func ~= f.func then
+--                         print((" "):rep(call_indent).."<<"..tostring(ret.func).." "..tostring(f.func).. " =? " .. tostring(f.func == ret.func))
+                        return --There is nothing we can do
+                    end
+--                     assert(ret.func == f.func)
+-- print(tostring(ret.func),last_line,ret.short_src,"here",ret.short_src:match("/lgi/") == "/lgi/")
+--                     if ret.short_src:match("/lgi/") ~= "/lgi/" then
+                        lines[#lines + 1] = ("cfl=%s"):format(ret.short_src)
+                        lines[#lines + 1] = ("cfn=%s"):format(tostring(ret.func))
+                        lines[#lines + 1] = ("calls=1 %d"):format(ret.linedefined)
+                        lines[#lines + 1] = ("%d %d"):format(last_line and last_line or -1, instr_count - ret.instr_count)
+--                     end
             end
             -- tracefile:write("# --callstack: " .. #callstack .. "\n")
     else
@@ -190,11 +202,11 @@ function module.stop(glob)
             end
 
             tracefile:write("fl="..f.short_src.."\n")
-            tracefile:write("fn="..func_name.."\n")
+            tracefile:write("fn="..(func_name or "N/A").."\n")
 
             for i, line in ipairs(func.lines) do
                     if line:sub(1, 4) == "cfn=" and methods[line:sub(5)] then
-                            tracefile:write("cfn="..(methods[line:sub(5)].name).."\n")
+                            tracefile:write("cfn="..(methods[line:sub(5)].name or "N/A").."\n")
                     else
                             tracefile:write(line.."\n")
                     end
@@ -204,3 +216,5 @@ function module.stop(glob)
 
     tracefile:close()
 end
+
+return module

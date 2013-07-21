@@ -50,3 +50,27 @@ gears.color.create_pattern = function(col)
     end
     return gears.color.create_solid_pattern(col)
 end
+
+
+-- function base.draw_widget(wibox, cr, widget, x, y, width, height)
+--     -- Use save() / restore() so that our modifications aren't permanent
+--     cr:save()
+-- 
+--     -- Move (0, 0) to the place where the widget should show up
+--     cr:translate(x, y)
+-- 
+--     -- Make sure the widget cannot draw outside of the allowed area
+--     cr:rectangle(0, 0, width, height)
+--     cr:clip()
+-- 
+--     -- Let the widget draw itself
+--     local success, msg = pcall(widget.draw, widget, wibox, cr, width, height)
+--     if not success then
+--         print("Error while drawing widget: " .. msg)
+--     end
+-- 
+--     -- Register the widget for input handling
+--     wibox:widget_at(widget, base.rect_to_device_geometry(cr, 0, 0, width, height))
+-- 
+--     cr:restore()
+-- end
