@@ -39,7 +39,7 @@ module.get_end_arrow2 = function(args)--bg_color,fg_color,padding,direction
     local cr = cairo.Context(img)
     cr:move_to(0,0)
     cr:set_source(color(args.bg_color or beautiful.bg_normal))
-    cr:set_antialias(0)
+    cr:set_antialias(cairo.ANTIALIAS_NONE)
     for i=0,(default_height/2+1) do
         cr:rectangle((args.direction == "left") and 0 or i+1, i               , default_height/2-i, 1)
         cr:rectangle((args.direction == "left") and 0 or i+1, default_height-i, default_height/2-i, 1)
@@ -67,7 +67,7 @@ module.get_beg_arrow2 = function(args)--bg_color,fg_color,padding,direction
     local cr = cairo.Context(img)
     cr:move_to(0,0)
     cr:set_source(color(args.bg_color or beautiful.fg_normal))
-    cr:set_antialias(0)
+    cr:set_antialias(cairo.ANTIALIAS_NONE)
     for i=0,(default_height/2) do
         cr:rectangle((args.direction == "left") and default_height/2-i+(args.padding or 0) or 0, i   , i, 1)
         cr:rectangle((args.direction == "left") and default_height/2-i+(args.padding or 0) or 0, default_height-i, i, 1)
