@@ -1,33 +1,29 @@
 local setmetatable = setmetatable
 local io           = io
-local table        = table
 local ipairs       = ipairs
 local loadstring   = loadstring
 local print        = print
 local tonumber     = tonumber
-local beautiful    = require( "beautiful"      )
-local button       = require( "awful.button"   )
-local widget2      = require( "awful.widget"   )
-local config       = require( "forgotten"         )
-local vicious      = require( "extern.vicious" )
-local menu         = require( "radical.context"   )
-local embed         = require( "radical.embed"   )
-local util         = require( "awful.util"     )
-local wibox        = require( "wibox"          )
-local radtab       = require("radical.widgets.table")
-local themeutils = require( "blind.common.drawing"    )
-local color     = require( "gears.color"              )
-local cairo      = require( "lgi"                     ).cairo
+local beautiful    = require( "beautiful"                )
+local button       = require( "awful.button"             )
+local widget2      = require( "awful.widget"             )
+local config       = require( "forgotten"                )
+local vicious      = require( "extern.vicious"           )
+local menu         = require( "radical.context"          )
+local embed        = require( "radical.embed"            )
+local radical      = require( "radical"                  )
+local util         = require( "awful.util"               )
+local wibox        = require( "wibox"                    )
+local radtab       = require( "radical.widgets.table"    )
+local themeutils   = require( "blind.common.drawing"     )
+local color        = require( "gears.color"              )
+local cairo        = require( "lgi"                      ).cairo
 
 local data     = {}
 local procMenu = nil
 
-local capi = { image  = image  ,
-               screen = screen ,
-               client = client ,
-               widget = widget ,
-               mouse  = mouse  ,
-               timer  = timer  }
+local capi = { screen = screen , client = client ,
+               mouse  = mouse  , timer  = timer  }
 
 local module = {}
 
@@ -49,9 +45,6 @@ local function reload_top(procMenu,data)
             end
         end
         for i=1,#data.process do
-            local w = wibox({ position = "free" , screen = s , ontop = true, bg = beautiful.menu_bg})
-            w.visible = false
-
             local wdg = {}
             wdg.percent       = wibox.widget.textbox()
             wdg.percent.fit = function()
@@ -64,14 +57,8 @@ local function reload_top(procMenu,data)
                 cr:restore()
                 wibox.widget.textbox.draw(self,w, cr, width, height)
             end
-            wdg.percent.width = 50
-            wdg.percent.bg    = "#0F2051"
-            wdg.percent.align = "right"
             wdg.kill          = wibox.widget.imagebox()
             wdg.kill:set_image(config.iconPath .. "kill.png")
-
-            local processWl = wibox.layout.align.horizontal()
-            w:set_widget(processWl)
 
             wdg.percent:set_text(data.process[i].percent.."%")
 
@@ -82,50 +69,24 @@ local function reload_top(procMenu,data)
             end
             wdg.percent.bg_resize = true
 
---             procMenu:add_widget(processWl , {height = 20  , width = 200})
             procMenu:add_item({text=data.process[i].name,suffix_widget=wdg.kill,prefix_widget=wdg.percent})
         end
     end
 end
 
-
-local function update()
-
-end
-
 local function new(margin, args)
-    local coreWidgets       = {}
     local cpuInfo           = {}
     local cpulogo           = wibox.widget.imagebox()
     local cpuwidget         = wibox.widget.textbox()
 
-    local infoHeader
-    local usageHeader
-    local tempHeader
-    local processHeader
     local cpuModel
-    local iowaitHeader
-    local usageHeader2
-    local emptyCornerHeader
-    local clockHeader
-    local idleHeader
     local spacer1
     local volUsage
 
-    local topCpuW
-    local infoHeaderW
-    local usageHeaderW
-    local processHeaderW
-    local modelW
-    local tableW
-
-    local infoHeaderWl    
-    local usageHeaderWl   
-    local processHeaderWl 
-    local modelWl         
+    local modelWl
     local cpuWidgetArrayL
     local main_table
-    
+
     local function loadData()
         local f = io.open('/tmp/cpuStatistic.lua','r')
         local cpuStat = {}
@@ -168,16 +129,7 @@ local function new(margin, args)
     end
 
     local function createDrawer()
-        infoHeader        = wibox.widget.textbox()
-        usageHeader       = wibox.widget.textbox()
-        tempHeader        = wibox.widget.textbox()
-        processHeader     = wibox.widget.textbox()
         cpuModel          = wibox.widget.textbox()
-        iowaitHeader      = wibox.widget.textbox()
-        usageHeader2      = wibox.widget.textbox()
-        emptyCornerHeader = wibox.widget.textbox()
-        clockHeader       = wibox.widget.textbox()
-        idleHeader        = wibox.widget.textbox()
         spacer1           = wibox.widget.textbox()
         volUsage          = widget2.graph()
 
@@ -191,32 +143,18 @@ local function new(margin, args)
             h_header = {"GHz","Temp","Used","I/O","Idle"}
         })
         main_table = widgets
-
-        infoHeaderWl    = wibox.layout.fixed.horizontal()
-        usageHeaderWl   = wibox.layout.fixed.horizontal()
-        processHeaderWl = wibox.layout.fixed.horizontal()
         modelWl         = wibox.layout.fixed.horizontal()
-        infoHeaderWl:add    ( infoHeader    )
-        usageHeaderWl:add   ( usageHeader2  )
-        processHeaderWl:add ( processHeader )
         modelWl:add         ( cpuModel      )
 
-
         loadData()
-        
+
         cpuWidgetArrayL = wibox.layout.margin()
         cpuWidgetArrayL:set_margins(3)
         cpuWidgetArrayL:set_bottom(10)
         cpuWidgetArrayL:set_widget(tab)
-        
-        infoHeader:set_markup(" <span color='".. beautiful.bg_normal .."'><b><tt>INFO</tt></b></span> ")
-        infoHeader.bg      = beautiful.fg_normal
-        infoHeader.width   = 212
+
         cpuModel:set_text(data.cpuStat and data.cpuStat.model or "N/A")
         cpuModel.width     = 212
-        usageHeader2:set_markup(" <span color='".. beautiful.bg_normal .."'><b><tt>USAGE</tt></b></span> ")
-        usageHeader2.bg    = beautiful.fg_normal
-        usageHeader2.width = 212
 
         volUsage:set_width        ( 212                                  )
         volUsage:set_height       ( 30                                   )
@@ -228,10 +166,6 @@ local function new(margin, args)
         local f2 = io.popen("cat /proc/cpuinfo | grep processor | tail -n1 | grep -e'[0-9]*' -o")
         local coreNb = f2:read("*all") or "0"
         f2:close()
-        coreWidgets["count"] = tonumber(coreNb)
-        processHeader:set_markup(" <span color='".. beautiful.bg_normal .."'><b><tt>PROCESS</tt></b></span> ")
-        processHeader.bg = beautiful.fg_normal
-        processHeader.width = 212
     end
 
     local function updateTable()
@@ -245,46 +179,41 @@ local function new(margin, args)
         if data.cpuStat ~= nil and data.cpuStat["core0"] ~= nil and main_table ~= nil then  
             for i=0 , data.cpuStat["core"] do --TODO add some way to correct the number of core, it usually fail on load --Solved
                 if i <= (#main_table or 1) and main_table[i+1] then
-                    main_table[i+1][cols["CLOCK"]]:set_text(tonumber(data.cpuStat["core"..i]["speed"]) /1024 .. "Ghz")
-                    main_table[i+1][cols["TEMP"]]:set_text(data.cpuStat["core"..i].temp)
-                    main_table[i+1][cols["USED"]]:set_text(data.cpuStat["core"..i].usage)
-                    main_table[i+1][cols["IO"]]:set_text(data.cpuStat["core"..i].iowait)
-                    main_table[i+1][cols["IDLE"]]:set_text(data.cpuStat["core"..i].idle)
+                    main_table[i+1][cols[ "CLOCK" ]]:set_text(tonumber(data.cpuStat["core"..i]["speed"]) /1024 .. "Ghz"  )
+                    main_table[i+1][cols[ "TEMP"  ]]:set_text(data.cpuStat["core"..i].temp                               )
+                    main_table[i+1][cols[ "USED"  ]]:set_text(data.cpuStat["core"..i].usage                              )
+                    main_table[i+1][cols[ "IO"    ]]:set_text(data.cpuStat["core"..i].iowait                             )
+                    main_table[i+1][cols[ "IDLE"  ]]:set_text(data.cpuStat["core"..i].idle                               )
                 end
             end
         end
     end
 
     local function regenMenu()
-        aMenu = menu({item_width=198,width=200})
-        aMenu:add_widget(infoHeaderWl    , {height = 20  , width = 200})
+        aMenu = menu({item_width=198,width=200,arrow_type=radical.base.arrow_type.CENTERED})
+        aMenu:add_widget(radical.widgets.header(aMenu,"INFO")  , {height = 20  , width = 200})
         aMenu:add_widget(modelWl         , {height = 40  , width = 200})
-        aMenu:add_widget(usageHeaderWl   , {height = 20  , width = 200})
+        aMenu:add_widget(radical.widgets.header(aMenu,"USAGE")   , {height = 20  , width = 200})
         aMenu:add_widget(volUsage        , {height = 30  , width = 200})
         aMenu:add_widget(cpuWidgetArrayL         , {width = 200})
-        aMenu:add_widget(processHeaderWl , {height = 20  , width = 200})
+        aMenu:add_widget(radical.widgets.header(aMenu,"PROCESS") , {height = 20  , width = 200})
         procMenu = embed({max_items=6})
         aMenu:add_embeded_menu(procMenu)
-
-        aMenu.x = capi.screen[capi.mouse.screen].geometry.width - 200 + capi.screen[capi.mouse.screen].geometry.x - margin + 40 + 15 + 15
-        aMenu.y = 16
         return aMenu
     end
 
-    local visible = false
     function show()
         if not data.menu then
             createDrawer()
             data.menu = regenMenu()
         else
         end
-        if not visible then
+        if not data.menu.visible then
             loadData()
             updateTable()
             reload_top(procMenu,data)
         end
-        visible = not visible
-        data.menu.visible = visible
+        data.menu.visible = not data.menu.visible
     end
 
     cpulogo:set_image(themeutils.apply_color_mask(config.iconPath .. "brain.png"))
@@ -292,11 +221,6 @@ local function new(margin, args)
     cpuwidget.width = 27
     cpuwidget.bg = beautiful.bg_alternate
   vicious.register(cpuwidget, vicious.widgets.cpu,'$1%')
-
-  local buttons2 = util.table.join(button({ }, 1, function () show() end))
-
-  cpuwidget:buttons (buttons2)
-  cpulogo:buttons   (buttons2)
 
   local cpuBar = widget2.graph()
   cpuBar:set_width(40)
@@ -315,7 +239,7 @@ local function new(margin, args)
   end
 
   vicious.register(cpuBar, vicious.widgets.cpu,'$1',1)
-  
+
   cpuwidget.fit = function(box, w, h)
       local w, h = wibox.widget.textbox.fit(box, w, h)
       return 27, h
@@ -325,7 +249,9 @@ local function new(margin, args)
   l:add(cpulogo)
   l:add(cpuwidget)
   l:add(marg)
-  return l--{logo = cpulogo, text = cpuwidget, graph = cpuBar.widget}
+  l:buttons (util.table.join(button({ }, 1, function (geo) show(); data.menu.parent_geometry = geo end)))
+  return l
 end
 
 return setmetatable(module, { __call = function(_, ...) return new(...) end })
+-- kate: space-indent on; indent-width 2; replace-tabs on;
