@@ -5,7 +5,7 @@ return {
     places      = require( "customMenu.places"      ),
     tagOption   = require( "customMenu.tagOption"   ),
     altTab      = require( "customMenu.altTab"      ),
-    aeroTag     = require( "customMenu.aeroTag"     ),
+--     aeroTag     = require( "customMenu.aeroTag"     ),
     launcher    = require( "customMenu.launcher"    ),
 --     logout      = require( "customMenu.logout"      ),
     taghover    = require( "customMenu.taghover"    ),
