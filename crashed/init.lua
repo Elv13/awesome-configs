@@ -17,6 +17,7 @@ local type = type
 local string = string
 local print = print
 local cairo =require( "lgi" ).cairo
+local wibox = require("wibox")
 
 
 local color_cache = {}
@@ -51,13 +52,32 @@ gears.color.create_pattern = function(col)
     return gears.color.create_solid_pattern(col)
 end
 
+-- Cannot work unless the widget_at code can be untangled from draw. It would be very nice
 
--- function base.draw_widget(wibox, cr, widget, x, y, width, height)
+-- local base = wibox.layout.base
+-- local count = 1
+-- function wibox.layout.base.draw_widget(wibox, cr, widget, x, y, width, height)
+--     print("here",count)
+--     if not widget.cache then
+--         widget.cache = {}
+--         widget:connect_signal("widget::updated",function()
+--             widget.cache = {}
+--         end)
+--     end
+--     count = count +1
 --     -- Use save() / restore() so that our modifications aren't permanent
 --     cr:save()
 -- 
 --     -- Move (0, 0) to the place where the widget should show up
 --     cr:translate(x, y)
+--     local cached = widget.cache[width+10000*height]
+--     if cached then
+--         print("use cache")
+--         cr:set_source_surface(cached)
+--         cr:paint()
+--         cr:restore()
+--         return
+--     end
 -- 
 --     -- Make sure the widget cannot draw outside of the allowed area
 --     cr:rectangle(0, 0, width, height)
@@ -71,6 +91,13 @@ end
 -- 
 --     -- Register the widget for input handling
 --     wibox:widget_at(widget, base.rect_to_device_geometry(cr, 0, 0, width, height))
+--     
+--     local img  = cairo.ImageSurface.create(cairo.Format.ARGB32, width, height)--target:create_similar(target:get_content(),width,height) 
+--     local cr2 = cairo.Context(img)
+--     cr2:set_source_surface(cr:get_target(),-x,-y)
+--     cr2:translate(x,y)
+--     cr2:paint()
+--     widget.cache[width+10000*height] = img
 -- 
 --     cr:restore()
 -- end

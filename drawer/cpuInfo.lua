@@ -10,12 +10,12 @@ local widget2      = require( "awful.widget"             )
 local config       = require( "forgotten"                )
 local vicious      = require( "extern.vicious"           )
 local menu         = require( "radical.context"          )
-local embed        = require( "radical.embed"            )
-local radical      = require( "radical"                  )
 local util         = require( "awful.util"               )
 local wibox        = require( "wibox"                    )
-local radtab       = require( "radical.widgets.table"    )
 local themeutils   = require( "blind.common.drawing"     )
+local radtab       = require( "radical.widgets.table"    )
+local embed        = require( "radical.embed"            )
+local radical      = require( "radical"                  )
 local color        = require( "gears.color"              )
 local cairo        = require( "lgi"                      ).cairo
 
@@ -36,7 +36,7 @@ local function match_icon(arr,name)
 end
 
 local function reload_top(procMenu,data)
---     procMenu:clear()
+    procMenu:clear()
     if data.process then
         local procIcon = {}
         for k2,v2 in ipairs(capi.client.get()) do
@@ -202,7 +202,7 @@ local function new(margin, args)
         return aMenu
     end
 
-    function show()
+    local function show()
         if not data.menu then
             createDrawer()
             data.menu = regenMenu()

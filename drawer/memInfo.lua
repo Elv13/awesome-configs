@@ -234,9 +234,9 @@ local function repaint(margin)
 end
 
 local function update()
---     usrMenu:clear()
---     typeMenu:clear()
---     topMenu:clear()
+    usrMenu:clear()
+    typeMenu:clear()
+    topMenu:clear()
   reload_user(usrMenu,data)
   reload_state(typeMenu,data)
   reload_top(topMenu,data)
