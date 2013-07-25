@@ -37,7 +37,7 @@ local function apply_icon_transformations(c)
     cr5:paint()
 
     --Generate the mask
-    local img4 = cairo.ImageSurface.create(cairo.Format.A8, height, height)
+    local img4 = cairo.ImageSurface.create(cairo.Format.A8, sw, sh)
     local cr4 = cairo.Context(img4)
     --cr4:set_matrix(matrix)
     cr4:set_source(icp)

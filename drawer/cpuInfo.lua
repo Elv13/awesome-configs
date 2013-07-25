@@ -48,11 +48,14 @@ local function reload_top(procMenu,data)
             local wdg = {}
             wdg.percent       = wibox.widget.textbox()
             wdg.percent.fit = function()
-                return 30,procMenu.item_height
+                return 42,procMenu.item_height
             end
             wdg.percent.draw = function(self,w, cr, width, height)
                 cr:save()
                 cr:set_source(color(procMenu.bg_alternate))
+                cr:rectangle(0,0,width-height/2,height)
+                cr:fill()
+                cr:set_source_surface(themeutils.get_beg_arrow2({bg_color=procMenu.bg_alternate}),width-height/2,0)
                 cr:paint()
                 cr:restore()
                 wibox.widget.textbox.draw(self,w, cr, width, height)
@@ -190,16 +193,19 @@ local function new(margin, args)
     end
 
     local function regenMenu()
-        aMenu = menu({item_width=198,width=200,arrow_type=radical.base.arrow_type.CENTERED})
-        aMenu:add_widget(radical.widgets.header(aMenu,"INFO")  , {height = 20  , width = 200})
-        aMenu:add_widget(modelWl         , {height = 40  , width = 200})
-        aMenu:add_widget(radical.widgets.header(aMenu,"USAGE")   , {height = 20  , width = 200})
-        aMenu:add_widget(volUsage        , {height = 30  , width = 200})
-        aMenu:add_widget(cpuWidgetArrayL         , {width = 200})
-        aMenu:add_widget(radical.widgets.header(aMenu,"PROCESS") , {height = 20  , width = 200})
-        procMenu = embed({max_items=6})
-        aMenu:add_embeded_menu(procMenu)
-        return aMenu
+      local imb = wibox.widget.imagebox()
+      imb:set_image(beautiful.path .. "Icon/reload.png")
+
+      aMenu = menu({item_width=198,width=200,arrow_type=radical.base.arrow_type.CENTERED})
+      aMenu:add_widget(radical.widgets.header(aMenu,"INFO")  , {height = 20  , width = 200})
+      aMenu:add_widget(modelWl         , {height = 40  , width = 200})
+      aMenu:add_widget(radical.widgets.header(aMenu,"USAGE")   , {height = 20  , width = 200})
+      aMenu:add_widget(volUsage        , {height = 30  , width = 200})
+      aMenu:add_widget(cpuWidgetArrayL         , {width = 200})
+      aMenu:add_widget(radical.widgets.header(aMenu,"PROCESS",{suffix_widget=imb}) , {height = 20  , width = 200})
+      procMenu = embed({max_items=6})
+      aMenu:add_embeded_menu(procMenu)
+      return aMenu
     end
 
     local function show()
@@ -226,7 +232,8 @@ local function new(margin, args)
   cpuBar:set_width(40)
   cpuBar:set_height(14)
   cpuBar:set_background_color(beautiful.bg_alternate)
-  cpuBar:set_border_color(beautiful.fg_normal)
+  cpuBar:set_color(beautiful.icon_grad or beautiful.fg_normal)
+  cpuBar:set_border_color(beautiful.icon_grad or beautiful.fg_normal)
   cpuBar:set_color(beautiful.fg_normal)
 
   local marg = wibox.layout.margin(cpuBar)

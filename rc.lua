@@ -162,7 +162,7 @@ local cpuinfo                = drawer.cpuInfo           ( 300                   
 local lauchDock              = widgets.dock             ( nil                                )
 
 -- Create the laucher dock
-local endArrow               = blind.common.drawing.get_beg_arrow_wdg2()
+local endArrow               = blind.common.drawing.get_beg_arrow_wdg2({bg_color=beautiful.icon_grad })
 -- Create the laucher dock
 local endArrow_alt           = blind.common.drawing.get_beg_arrow_wdg2({bg_color=beautiful.bg_alternate})
 
@@ -335,7 +335,7 @@ for s = 1, screen.count() do
     wibox_bot[s]:set_widget(layout_bot)
 
     local endArrow2 = wibox.widget.imagebox()
-    endArrow2:set_image(blind.common.drawing.get_beg_arrow2({direction="left"}))
+    endArrow2:set_image(blind.common.drawing.get_beg_arrow2({bg_color=beautiful.icon_grad,direction="left"}))
 
     local left_layout_right_bot = wibox.layout.fixed.horizontal()
     left_layout_right_bot:add(endArrow2)

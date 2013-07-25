@@ -51,10 +51,10 @@ local function update()
     end
 
     f = io.popen('/bin/ifconfig | grep -e "inet[a-z: ]*[0-9.]*" -o |  grep -e "[0-9.]*" -o')
-    local ip4Value = "<i><b>  v4: </b>" .. (f:read("*line") or "") .. "</i>"
+    local ip4Value = "\n<i><b>  v4: </b>" .. (f:read("*line") or "") .. "</i>"
     f:close()
     f = io.popen('/bin/ifconfig | grep -e "inet6[a-z: ]*[0-9.A-Fa-f;:]*" -o | awk \'{print $(NF)}\'')
-    local ip6Value = "<i><b>  v6: </b>" .. (f:read("*line") or "") .. "</i>\n\n"
+    local ip6Value = "<i><b>  v6: </b>" .. (f:read("*line") or "") .. "</i>\n\n\n."
     f:close()
 
     ip4Info:set_markup(ip4Value)
@@ -76,16 +76,20 @@ local function reload_conn(connMenu,data)
         if data.connectionInfo[i] then
             local application          = wibox.widget.textbox()
             application.fit = function()
-                return 35,connMenu.item_height
+                return 48,connMenu.item_height
             end
             application.draw = function(self,w, cr, width, height)
                 cr:save()
                 cr:set_source(color(connMenu.bg_alternate))
+                cr:rectangle(height/2,0,width-height/2,height)
+                cr:fill()
+                cr:set_source_surface(themeutils.get_beg_arrow2({bg_color=connMenu.bg_alternate,direction="left"}),0,0)
                 cr:paint()
                 cr:restore()
                 wibox.widget.textbox.draw(self,w, cr, width, height)
             end
-            application:set_text(data.connectionInfo[i]['protocol']    or "")
+            application:set_text(data.connectionInfo[i]['protocol'].." "    or "")
+            application:set_align("right")
 
             local icon = nil
             for k2,v2 in ipairs(capi.client.get()) do
@@ -94,8 +98,10 @@ local function reload_conn(connMenu,data)
                     break
                 end
             end
-            appStat[data.connectionInfo[i]['application'  ] ] = (protocolStat[data.connectionInfo[i]['application'] ] or 0) + 1
+            print("adding",data.connectionInfo[i]['application'  ],appStat[data.connectionInfo[i]['application'  ] ] )
+            appStat[data.connectionInfo[i]['application'  ] ] = (appStat[data.connectionInfo[i]['application'  ] ]or 0) + 1
             protocolStat[data.connectionInfo[i]['protocol'] ] = (protocolStat[data.connectionInfo[i]['protocol'   ] ] or 0) + 1
+            print("now",appStat[data.connectionInfo[i]['application'  ] ])
             connMenu:add_item({text=(data.connectionInfo[i]['site'] or ""),icon=icon,suffix_widget=application})
         end
     end
@@ -127,7 +133,8 @@ local function reload_appstat(appMenu,data)
                 break
             end
         end
-        appMenu:add_item({text=v .."("..i..")",suffix_widget=testImage2,icon=icon})
+        print("this",i)
+        appMenu:add_item({text=v,suffix_widget=testImage2,icon=icon,underlay = beautiful.draw_underlay(i)})
     end
 end
 
@@ -184,19 +191,22 @@ local function repaint(margin)
     mainMenu:add_widget(graphDWH1l      ,{height = 20, width = 200})
     mainMenu:add_widget(netDownGraph      ,{height = 30, width = 200})
     mainMenu:add_widget(radical.widgets.header(mainMenu,"IP"),{height = 20 , width = 200})
-    mainMenu:add_widget(ipInfoVl       ,{height = 30, width = 200})
-    mainMenu:add_widget(radical.widgets.header(mainMenu,"APPLICATIONS"),{height = 20 , width = 200})
+    mainMenu:add_widget(ipInfoVl       ,{height = 40, width = 200})
+
+    local imb = wibox.widget.imagebox()
+    imb:set_image(beautiful.path .. "Icon/reload.png")
+    mainMenu:add_widget(radical.widgets.header(mainMenu,"CONNECTIONS",{suffix_widget=imb}),{height = 20 , width = 200})
 
     if data.connectionInfo ~= nil then
         connMenu = embed({width=198,max_items=5,has_decoration=false,has_side_deco=true})
         mainMenu:add_embeded_menu(connMenu)
     end
-    mainMenu:add_widget(radical.widgets.header(mainMenu,"CONNECTIONS"),{height = 20 , width = 200})
+    mainMenu:add_widget(radical.widgets.header(mainMenu,"PROTOCOLS",{suffix_widget=imb}),{height = 20 , width = 200})
 
     protMenu = embed({width=198,max_items=5,has_decoration=false,has_side_deco=true})
     mainMenu:add_embeded_menu(protMenu)
 
-    mainMenu:add_widget(radical.widgets.header(mainMenu,"PROTOCOLS"),{height = 20 , width = 200})
+    mainMenu:add_widget(radical.widgets.header(mainMenu,"APPLICATIONS",{suffix_widget=imb}),{height = 20 , width = 200})
 
     appMenu = embed({width=198,max_items=3,has_decoration=false,has_side_deco=true})
     mainMenu:add_embeded_menu(appMenu)

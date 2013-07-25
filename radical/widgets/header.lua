@@ -8,15 +8,19 @@ local beautiful    = require( "beautiful"    )
 
 local module = {}
 
-local function new(data,text)
+local function new(data,text,args)
+  local args = args or {}
   local bg = wibox.widget.background()
   local infoHeader     = wibox.widget.textbox()
   infoHeader:set_font("")
   infoHeader:set_markup( " <span color='".. beautiful.bg_normal .."'><b><tt>".. text .."</tt></b></span> " )
-  local l = wibox.layout.fixed.horizontal()
-  l:add(infoHeader)
+  local l = wibox.layout.align.horizontal()
+  l:set_left(infoHeader)
   bg:set_widget(l)
-  bg:set_bg(beautiful.fg_normal)
+  bg:set_bg(data.bg_header)
+  if args.suffix_widget then
+    l:set_right(args.suffix_widget)
+  end
   return bg
 end
 

@@ -161,7 +161,7 @@ local function reload_top(topMenu,data)
       local aMem = wibox.widget.textbox()
       aMem:set_text(data.process[i]["mem"])
       aMem.fit = function()
-        return 50,topMenu.item_height
+        return 58,topMenu.item_height
       end
 
       for k2,v2 in ipairs(capi.client.get()) do
@@ -174,11 +174,15 @@ local function reload_top(topMenu,data)
       aMem.draw = function(self,w, cr, width, height)
         cr:save()
         cr:set_source(color(topMenu.bg_alternate))
-        cr:paint()
+        cr:rectangle(0,0,width-height/2,height)
+        cr:fill()
 --                 if aMem.bg_image then
 --                     cr:set_source(aMem.bg_image)
 --                     cr:paint()
 --                 end
+        
+        cr:set_source_surface(themeutils.get_beg_arrow2({bg_color=topMenu.bg_alternate}),width-height/2,0)
+        cr:paint()
         cr:restore()
         wibox.widget.textbox.draw(self,w, cr, width, height)
       end
@@ -222,7 +226,9 @@ local function repaint(margin)
   reload_state(typeMenu,data)
   mainMenu:add_embeded_menu(typeMenu)
 
-  mainMenu:add_widget(radical.widgets.header(mainMenu,"PROCESS"),{height = 20 , width = 200})
+  local imb = wibox.widget.imagebox()
+  imb:set_image(beautiful.path .. "Icon/reload.png")
+  mainMenu:add_widget(radical.widgets.header(mainMenu,"PROCESS",{suffix_widget=imb}),{height = 20 , width = 200})
 
   topMenu = embed({max_items=3})
   reload_top(topMenu,data)
@@ -295,8 +301,8 @@ local function new(margin, args)
 
   membarwidget:set_vertical(false)
   membarwidget:set_background_color(beautiful.bg_alternate)
-  membarwidget:set_border_color(beautiful.fg_normal)
-  membarwidget:set_color(beautiful.fg_normal)
+  membarwidget:set_border_color(beautiful.icon_grad or beautiful.fg_normal)
+  membarwidget:set_color(beautiful.icon_grad or beautiful.fg_normal)
 
   local marg = wibox.layout.margin(membarwidget)
   marg:set_top(2)

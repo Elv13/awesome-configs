@@ -35,7 +35,7 @@ theme.bg_highlight   = "#0E2051"
 theme.bg_alternate   = "#081B37"
 
 theme.fg_normal      = "#6DA1D4"
-theme.fg_focus       = "#D6E3F3"
+theme.fg_focus       = "#ABCCEA"
 theme.fg_urgent      = "#FF7777"
 theme.fg_minimize    = "#1577D3"
 
@@ -62,7 +62,8 @@ theme.tasklist_ontop_focus_icon    = path .."Icon/titlebar/ontop_focus.png"
 theme.tasklist_sticky_focus_icon   = path .."Icon/titlebar/sticky_focus.png"
 theme.tasklist_plain_task_name     = true
 
-theme.icon_grad = { type = "linear", from = { 0, 0 }, to = { 0, 20 }, stops = { { 0, "#7FD0EF" }, { 1, "#4273EF" }}}
+theme.icon_grad        = { type = "linear", from = { 0, 0 }, to = { 0, 20 }, stops = { { 0, "#8AC2D5" }, { 1, "#3D619C" }}}
+theme.icon_grad_invert = { type = "linear", from = { 0, 0 }, to = { 0, 20 }, stops = { { 0, "#000000" }, { 1, "#112543" }}}
 
 
 ------------------------------------------------------------------------------------------------------
@@ -126,10 +127,11 @@ theme.menu_border_width         = 2
 theme.border_width              = 1
 theme.border_color              = theme.fg_normal
 theme.menu_fg_normal            = "#ffffff"
-theme.menu_bg_focus             = themeutils.pattern(path .."Icon/bg/menu_bg_focus_scifi.png")
-theme.menu_bg_normal            = themeutils.pattern(path .."Icon/bg/menu_bg_scifi.png"      )
-theme.menu_bg_highlight         = themeutils.pattern(path .."Icon/bg/menu_bg_highlight.png"  )
-theme.bg_dock                   = themeutils.pattern(path .."Icon/bg/bg_dock.png"            )
+theme.menu_bg_focus             = themeutils.pattern(path .."Icon/bg/menu_bg_focus_scifi.png" )
+theme.menu_bg_header            = themeutils.pattern(path .."Icon/bg/menu_bg_header_scifi.png")
+theme.menu_bg_normal            = themeutils.pattern(path .."Icon/bg/menu_bg_scifi.png"       )
+theme.menu_bg_highlight         = themeutils.pattern(path .."Icon/bg/menu_bg_highlight.png"   )
+theme.bg_dock                   = themeutils.pattern(path .."Icon/bg/bg_dock.png"             )
 
 theme.wallpaper = "/home/lepagee/bg/final/bin_ascii_ds.png"
 theme.draw_underlay = themeutils.draw_underlay
