@@ -50,7 +50,8 @@ local tabWdgRow = {
 -- util.spawn("/bin/bash -c 'while true;do "..util.getdir("config") .."/Scripts/memStatistics.sh > /tmp/memStatistics.lua && sleep 5;done'")
 -- util.spawn("/bin/bash -c 'while true; do "..util.getdir("config") .."/Scripts/topMem2.sh > /tmp/topMem.lua;sleep 5;done'")
   
-function refreshStat()
+local function refreshStat()
+  print("\n\n\n\nICI\n\n\n\n")
     local f = io.open('/tmp/memStatistics.lua','r')
     if f ~= nil then
       local text3 = f:read("*all")
@@ -252,7 +253,7 @@ local function new(margin, args)
 
   local memwidget = wibox.widget.textbox()
 
-  refreshStat()
+--   refreshStat()
 
   --It does work, but there is some exteral issues with the menu
 --     local mytimer = capi.timer({ timeout = 10 })
@@ -271,6 +272,7 @@ local function new(margin, args)
   local visible = false
   function toggle()
       if not data.menu then
+          refreshStat()
           data.menu = repaint(margin-memwidget._layout:get_pixel_extents().width-20-10)
       end
       visible = not visible
