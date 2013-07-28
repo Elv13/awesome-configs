@@ -51,7 +51,6 @@ local tabWdgRow = {
 -- util.spawn("/bin/bash -c 'while true; do "..util.getdir("config") .."/Scripts/topMem2.sh > /tmp/topMem.lua;sleep 5;done'")
   
 local function refreshStat()
-  print("\n\n\n\nICI\n\n\n\n")
     local f = io.open('/tmp/memStatistics.lua','r')
     if f ~= nil then
       local text3 = f:read("*all")

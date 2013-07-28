@@ -63,7 +63,7 @@ local function reload_top(procMenu,data)
             wdg.kill          = wibox.widget.imagebox()
             wdg.kill:set_image(config.iconPath .. "kill.png")
 
-            wdg.percent:set_text(data.process[i].percent.."%")
+            wdg.percent:set_text((data.process[i].percent or "N/A").."%")
 
             if procIcon[data.process[i].name:lower()] then
                 wdg.percent.bg_image = procIcon[data.process[i].name:lower()].icon
@@ -234,7 +234,7 @@ local function new(margin, args)
   cpuBar:set_background_color(beautiful.bg_alternate)
   cpuBar:set_color(beautiful.icon_grad or beautiful.fg_normal)
   cpuBar:set_border_color(beautiful.icon_grad or beautiful.fg_normal)
-  cpuBar:set_color(beautiful.fg_normal)
+--   cpuBar:set_color(beautiful.fg_normal)
 
   local marg = wibox.layout.margin(cpuBar)
   marg:set_top(2)

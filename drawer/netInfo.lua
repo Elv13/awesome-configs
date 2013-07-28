@@ -5,6 +5,7 @@ local ipairs       = ipairs
 local loadstring   = loadstring
 local table        = table
 local print        = print
+local math         = math
 local beautiful    = require( "beautiful"                )
 local widget2      = require( "awful.widget"             )
 local wibox        = require( "wibox"                    )
@@ -30,8 +31,8 @@ local data, connectionInfo, protocolStat, appStat = {},{},{},{}
 
 --WIDGET
 local ip4Info          , ip6Info          , localInfo        , netUsageUp
-local downloadImg      , uploadImg        , netUsageDown     , appHeader
-local downlogo         , uplogo           , netUpGraph       , netDownGraph
+local netUsageDown     , appHeader        , netUpGraph       , netDownGraph
+local ip4lbl,ip6lbl
 
 local function update()
     local connectionInfo
@@ -51,10 +52,10 @@ local function update()
     end
 
     f = io.popen('/bin/ifconfig | grep -e "inet[a-z: ]*[0-9.]*" -o |  grep -e "[0-9.]*" -o')
-    local ip4Value = "\n<i><b>  v4: </b>" .. (f:read("*line") or "") .. "</i>"
+    local ip4Value = "<i>"..(f:read("*line") or "") .. "</i>"
     f:close()
     f = io.popen('/bin/ifconfig | grep -e "inet6[a-z: ]*[0-9.A-Fa-f;:]*" -o | awk \'{print $(NF)}\'')
-    local ip6Value = "<i><b>  v6: </b>" .. (f:read("*line") or "") .. "</i>\n\n\n."
+    local ip6Value = "<i>"..(f:read("*line") or "") .. "</i>"
     f:close()
 
     ip4Info:set_markup(ip4Value)
@@ -150,48 +151,45 @@ local function repaint(margin)
 
     local ipInfoVl  = wibox.layout.fixed.vertical()
     local ipInfoH1l = wibox.layout.fixed.horizontal()
+    ipInfoH1l:add(ip4lbl)
     ipInfoH1l:add(ip4Info)
     local ipInfoH2l = wibox.layout.fixed.horizontal()
+    ipInfoH2l:add(ip6lbl)
     ipInfoH2l:add(ip6Info)
     ipInfoVl:add(ipInfoH1l)
     ipInfoVl:add(ipInfoH2l)
+    
+    local ipm = wibox.layout.margin()
+    ipm:set_widget(ipInfoVl)
+    ipm:set_top(5)
+    ipm:set_bottom(5)
 
     local function setup_graph(g)
         g:set_width             (190                )
-        g:set_height            (20                 )
+        g:set_height            (30                 )
         g:set_scale             (true               )
-        g:set_background_color  (beautiful.bg_normal)
+        g:set_background_color(beautiful.menu_bg_normal or beautiful.bg_normal)
         g:set_border_color      (beautiful.fg_normal)
-        g:set_color             (beautiful.fg_normal)
+        g:set_color             (beautiful.menu_bg_header or beautiful.fg_normal)
     end
     setup_graph(netUpGraph)
     vicious.register                 (netUpGraph, vicious.widgets.net  , '${eth0 up_kb}'  ,1)
     setup_graph(netDownGraph)
     vicious.register                 (netDownGraph, vicious.widgets.net, '${eth0 down_kb}',1)
 
-    uploadImg:set_image(config.iconPath .. "arrowUp.png"  )
-    uploadImg.fit = function(...) return 20,20 end
-    downloadImg:set_image(config.iconPath .. "arrowDown.png")
-    downloadImg.fit = function(...) return 20,20 end
-    netUsageUp:set_markup("<b>Up: </b>")
-    netUsageDown:set_markup("<b>Down: </b>")
-
-    local graphUWH1l = wibox.layout.fixed.horizontal()
-    graphUWH1l:add( uploadImg  )
-    graphUWH1l:add( netUsageUp )
-
-    local graphDWH1l = wibox.layout.fixed.horizontal()
-    graphDWH1l:add( downloadImg  )
-    graphDWH1l:add( netUsageDown )
+    local mar = wibox.layout.margin()
+    local lay = wibox.layout.fixed.vertical()
+    lay:add(netUpGraph)
+    lay:add(netDownGraph)
+    mar:set_margins(3)
+    mar:set_bottom(10)
+    mar:set_widget(lay)
 
     local mainMenu = menu({width=200,arrow_type=radical.base.arrow_type.CENTERED})
     mainMenu:add_widget(radical.widgets.header(mainMenu,"GRAPH"),{height = 20 , width = 200})
-    mainMenu:add_widget(graphUWH1l      ,{height = 20, width = 200})
-    mainMenu:add_widget(netUpGraph      ,{height = 30, width = 200})
-    mainMenu:add_widget(graphDWH1l      ,{height = 20, width = 200})
-    mainMenu:add_widget(netDownGraph      ,{height = 30, width = 200})
+    mainMenu:add_widget(mar ,{height = 73, width = 200})
     mainMenu:add_widget(radical.widgets.header(mainMenu,"IP"),{height = 20 , width = 200})
-    mainMenu:add_widget(ipInfoVl       ,{height = 40, width = 200})
+    mainMenu:add_widget(ipm       ,{height = 50, width = 200})
 
     local imb = wibox.widget.imagebox()
     imb:set_image(beautiful.path .. "Icon/reload.png")
@@ -213,9 +211,65 @@ local function repaint(margin)
     return mainMenu
 end
 
+local upsur,downsur
+local function down_graph_draw(self,w, cr, width, height)
+    if not downsur then
+        downsur = themeutils.apply_color_mask(config.iconPath .. "arrowDown.png"         )
+    end
+    cr:save()
+    cr:rotate(math.pi)
+    cr:translate(-width,-height)
+    widget2.graph.draw(self,w, cr, width, height)
+    cr:restore()
+    cr:move_to(18,height/2+3)
+    cr:set_source(color(beautiful.fg_normal))
+    cr:select_font_face("Verdana", cairo.FontSlant.NORMAL, cairo.FontWeight.BOLD)
+    cr:set_font_size(10)
+    cr:show_text("Download")
+    cr:set_source_surface(downsur,3,height/4)
+    cr:paint()
+end
+
+local function up_graph_draw(self,w, cr, width, height)
+    if not upsur then
+        upsur = themeutils.apply_color_mask(config.iconPath .. "arrowUp.png"         )
+    end
+    cr:save()
+    cr:scale(-1,1)
+    cr:translate(-width,0)
+    widget2.graph.draw(self,w, cr, width, height)
+    cr:restore()
+    cr:move_to(18,height/2+3)
+    cr:set_source(color(beautiful.fg_normal))
+    cr:select_font_face("Verdana", cairo.FontSlant.NORMAL, cairo.FontWeight.BOLD)
+    cr:set_font_size(10)
+    cr:show_text("Upload")
+    cr:set_source_surface(upsur,3,height/4)
+    cr:paint()
+end
+
+local function ip_label_draw(self,w, cr, width, height)
+    cr:save()
+    cr:set_source(color(beautiful.bg_alternate))
+    cr:rectangle(0,1,width-height/2,height-2)
+    cr:fill()
+    cr:set_source_surface(themeutils.get_beg_arrow2({bg_color=beautiful.bg_alternate}),width-height/2,2)
+    cr:paint()
+    cr:restore()
+--     cr:set_source(color(beautiful.fg_normal))
+    wibox.widget.textbox.draw(self,w, cr, width, height)
+end
+
+local function ip_label_fit(...)
+--     local w,h = wibox.widget.textbox(...)
+    return 42,20
+end
+
 local function new(margin, args)
     ip4Info          = wibox.widget.textbox()
     ip6Info          = wibox.widget.textbox()
+    ip4lbl           = wibox.widget.textbox()
+    ip6lbl           = wibox.widget.textbox()
     localInfo        = wibox.widget.textbox()
     netUsageUp       = wibox.widget.textbox()
     netUsageDown     = wibox.widget.textbox()
@@ -226,6 +280,15 @@ local function new(margin, args)
     uplogo           = wibox.widget.imagebox()
     netUpGraph       = widget2.graph(                  )
     netDownGraph     = widget2.graph(                  )
+
+    netDownGraph.draw = down_graph_draw
+    netUpGraph.draw   = up_graph_draw
+    ip4lbl:set_markup("<b>IPv4</b>")
+    ip6lbl:set_markup("<b>IPv6</b>")
+    ip4lbl.fit        = ip_label_fit
+    ip4lbl.draw       = ip_label_draw
+    ip6lbl.fit        = ip_label_fit
+    ip6lbl.draw       = ip_label_draw
     local function show()
         if not data.menu or data.menu.visible ~= true then
             update()
