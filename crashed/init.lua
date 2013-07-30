@@ -205,6 +205,34 @@ function wibox.layout.align:draw(wibox2, cr, width, height)
     end
 end
 
+-- Setup layout doesn't seem to be required
+-- Add caching
+function wibox.widget.textbox:fit(width, height)
+    if not self.cache_fit then
+        self.cache_fit,self.cache_fith = {},{}
+        self.cached_text = self._layout.text
+        self:connect_signal("widget::updated",function()
+            if self._layout.text ~= self.cached_text then
+                self.cache_fit = {}
+                self.cache_fith = {}
+                self.cached_text = self._layout.text
+            end
+        end)
+    end
+    local hash = width+10000*height
+    if self.cache_fit[hash] then
+        return self.cache_fit[hash],self.cache_fith[hash]
+    end
+    local ink, logical = self._layout:get_pixel_extents()
+
+    if logical.width == 0 or logical.height == 0 then
+        return 0, 0
+    end
+    self.cache_fit[hash],self.cache_fith[hash] =logical.width, logical.height
+    
+    return logical.width, logical.height
+end
+
 -- Cannot work unless the widget_at code can be untangled from draw. It would be very nice
 
 -- local base = wibox.layout.base
