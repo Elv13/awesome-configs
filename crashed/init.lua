@@ -18,8 +18,46 @@ local string = string
 local print = print
 local cairo =require( "lgi" ).cairo
 local wibox = require("wibox")
+local awful = require("awful")
 
+-- Let it crash
+function gears.object:add_signal(name)
+    if not self._signals[name] then
+        self._signals[name] = {}
+    end
+end
 
+-- Skip the check, if it was really necessary, it would print an error anyway
+function gears.object:connect_signal(name, func)
+    self._signals[name][func] = func
+end
+
+-- Skip the check, if it was really necessary, it would print an error anyway
+function gears.object:disconnect_signal(name, func)
+    self._signals[name][func] = nil
+end
+
+-- Same as above
+function gears.object:emit_signal(name, ...)
+    local sig = self._signals[name] or {}
+    for func in pairs(sig) do
+        func(self, ...)
+    end
+end
+
+-- Nil data can happen only once, so this avoid the hash call (it took 10% of the non-LGI calls)
+local tags = {}
+function awful.tag.getproperty(_tag, prop)
+    local data = tags[_tag]
+    if not data then
+        data = awful.tag.getdata(_tag)
+        if not data then return nil end
+        tags[_tag] = data
+    end
+    return data[prop]
+end
+
+-- Cache the colors, calling LGI 100x per second is expensive
 local color_cache = {}
 gears.color.create_pattern = function(col)
     -- If it already is a cairo pattern, just leave it as that
