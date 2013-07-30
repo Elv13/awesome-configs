@@ -90,6 +90,121 @@ gears.color.create_pattern = function(col)
     return gears.color.create_solid_pattern(col)
 end
 
+-- Cache fixed layout size
+function wibox.layout.fixed:fit(orig_width, orig_height)
+    if not self._has_cache then
+        self._cache,self._cache2 = {},{}
+        self._has_cache = true
+        self:connect_signal("widget::updated",function()
+            self._cache,self._cache2 = {},{}
+        end)
+    end
+    local hash = orig_height*10000+orig_width
+    if self._cache[hash] then
+        return self._cache[hash],self._cache2[hash]
+    end
+    local width, height = orig_width, orig_height
+    local used_in_dir, used_max = 0, 0
+
+    for k, v in pairs(self.widgets) do
+        local w, h = v:fit(width, height)
+        local in_dir, max
+        if self.dir == "y" then
+            max, in_dir = w, h
+            height = height - in_dir
+        else
+            in_dir, max = w, h
+            width = width - in_dir
+        end
+        if max > used_max then
+            used_max = max
+        end
+        used_in_dir = used_in_dir + in_dir
+
+        if width <= 0 or height <= 0 then
+            if self.dir == "y" then
+                used_in_dir = orig_height
+            else
+                used_in_dir = orig_width
+            end
+            break
+        end
+    end
+
+    if self.dir == "y" then
+        return used_max, used_in_dir
+    end
+    self._cache[hash],self._cache2[hash] = used_in_dir,used_max
+    return used_in_dir, used_max
+end
+
+-- Use fixed layout cache if available
+function wibox.layout.align:draw(wibox2, cr, width, height)
+    local size_first = 0
+    local size_third = 0
+    local size_limit = self.dir == "y" and height or width
+
+    if self.first then
+        local w, h, _ = width, height, nil
+        if self.dir == "y" then
+            if self.first._has_cache and self.first.cache2[h*10000+w] then
+                h = self.first._cache2[h*10000+w]
+            else
+                _, h = self.first:fit(w, h)
+            end
+            size_first = h
+        else
+            if self.first._has_cache and self.first._cache[h*10000+w]  then
+                w = self.first._cache[h*10000+w]
+            else
+                w, _ = self.first:fit(w, h)
+            end
+            size_first = w
+        end
+        wibox.layout.base.draw_widget(wibox2, cr, self.first, 0, 0, w, h)
+    end
+
+    if self.third and size_first < size_limit then
+        local w, h, x, y, _
+        if self.dir == "y" then
+            w, h = width, height - size_first
+            if self.third._has_cache  and self.third._cache[h*10000+w] then
+                h = self.third._cache2[h*10000+w]
+            else
+                _, h = self.third:fit(w, h)
+            end
+            x, y = 0, height - h
+            size_third = h
+        else
+            w, h = width - size_first, height
+            if self.third._has_cache  and self.third._cache[h*10000+w] then
+                w = self.third._cache[h*10000+w]
+            else
+                w, _ = self.third:fit(w, h)
+            end
+            x, y = width - w, 0
+            size_third = w
+        end
+        wibox.layout.base.draw_widget(wibox2, cr, self.third, x, y, w, h)
+    end
+
+    if self.second and size_first + size_third < size_limit then
+        local x, y, w, h
+        if self.dir == "y" then
+            w, h = width, size_limit - size_first - size_third
+            local real_w, real_h = self.second:fit(w, h)
+            x, y = 0, size_first + h / 2 - real_h / 2
+            h = real_h
+        else
+            w, h = size_limit - size_first - size_third, height
+            local real_w, real_h = self.second:fit(w, h)
+            x, y = size_first + w / 2 - real_w / 2, 0
+            w = real_w
+        end
+        wibox.layout.base.draw_widget(wibox2, cr, self.second, x, y, w, h)
+    end
+end
+
 -- Cannot work unless the widget_at code can be untangled from draw. It would be very nice
 
 -- local base = wibox.layout.base
