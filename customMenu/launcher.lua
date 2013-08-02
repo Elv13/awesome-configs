@@ -85,7 +85,15 @@ function createMenu(offset)
             util.spawn(v[2])
             save(v[2])
         end
-       local item = mainMenu:add_item({prefixbg = beautiful.fg_normal, text =  v[2], button1 = onclick,underlay=beautiful.draw_underlay(v[1].."x")})
+        local str = v[2]:gsub(" ", "_"):gsub("-", "_")
+--         print(str)
+print("her",config.is_set(config.launcsher3[str].counter))
+--        local count = config.is_set(config.launcsher3[str].counter) and config.launcsher3[str].counter or 0
+--        if count == 0 then
+           config.launcsher3[str].counter = "sdfsdfsdf"
+           count = 1
+--        end
+       local item = mainMenu:add_item({prefixbg = beautiful.fg_normal, text =  v[2], button1 = onclick,underlay=beautiful.draw_underlay(count.."x")})
        counter = counter + 1
     end
 

@@ -14,7 +14,7 @@ local module = {}
 --2) Resize and move it                                                    --
 --3) Apply a few layers of color effects to desaturate, then tint the icon --
 -----------------------------------------------------------------------------
-local function apply_icon_transformations(c)
+local function apply_icon_transformations(c,col)
     -- Get size
     local ic = cairo.Surface(c.icon)
     local icp = cairo.Pattern.create_for_surface(ic)
@@ -48,13 +48,7 @@ local function apply_icon_transformations(c)
     cr5:set_operator(cairo.Operator.HSL_SATURATION)
     cr5:mask(cairo.Pattern.create_for_surface(img4))
     cr5:set_operator(cairo.Operator.HSL_COLOR)
-    if capi.client.focus == c then
-        cr5:set_source(color(module.theme.fg_focus))
-    elseif c.urgent then
-        cr5:set_source(color(module.theme.bg_urgent))
-    else
-        cr5:set_source(color(module.theme.fg_normal))
-    end
+    cr5:set_source(col)
     cr5:mask(cairo.Pattern.create_for_surface(img4))
     return img5
 end
@@ -109,16 +103,11 @@ end
 local task_cache = {}
 local icon_cache = setmetatable({}, { __mode = "kv" })
 local arr,arr1=nil,nil
-local function gen_task_bg_real(wdg,width,args)
+local function gen_task_bg_real(wdg,width,args,col,image)
     if not arr1 then
         arr,arr1=themeutils.get_end_arrow2({bg_color=module.theme.bg_normal}),themeutils.get_end_arrow2({bg_color=module.theme.bg_normal,direction="left"})
     end
-    local c,m,image = wdg.data.c,wdg.data.m,nil
-    if c.urgent then
-        image = module.theme.taglist_bg_image_urgent
-    else
-        image = wdg.data.image
-    end
+    local c,m = wdg.data.c,wdg.data.m
     local height = args.height or module.theme.default_height
     local hash = width..(image or "nil")..(client.floating.get(c) and "c" or "")..(c.ontop == true and "o" or "")..
         (c.sticky == true and "s" or "")..(c.urgent and "u" or "")..(height)
@@ -141,7 +130,7 @@ local function gen_task_bg_real(wdg,width,args)
         end
         if c.icon and not icon_cache[c.icon][(c.urgent and "u" or "") .. ((capi.client.focus == c) and "f" or "")] then
             --Cache
-            icon_cache[c.icon][(c.urgent and "u" or "") .. ((capi.client.focus == c) and "f" or "")] = apply_icon_transformations(c)
+            icon_cache[c.icon][(c.urgent and "u" or "") .. ((capi.client.focus == c) and "f" or "")] = apply_icon_transformations(c,col)
         end
 
         if c.icon then
@@ -169,10 +158,22 @@ end
 function module.task_widget_draw(self,w, cr, width, height,args)
    args = args or {}
    args.height = height
-   local pattern =  gen_task_bg_real(self,width,args)
-   cr:set_source(pattern)
-   cr:paint()
-   cr:update_layout(self._layout)
+   local col,image = nil,nil
+    if capi.client.focus == self.data.c then
+        col   = color(awful.util.color_strip_alpha(module.theme.fg_focus))
+        image = module.theme.taglist_bg_image_selected
+    elseif self.data.c.urgent then
+        col   = color(awful.util.color_strip_alpha(module.theme.fg_urgent))
+        image = module.theme.taglist_bg_image_urgent
+    else
+        col   = color(awful.util.color_strip_alpha(module.theme.fg_normal))
+        image = self.data.image
+    end
+    local pattern =  gen_task_bg_real(self,width,args,col,image)
+    cr:set_source(pattern)
+    cr:paint()
+    cr:set_source(col)
+    cr:update_layout(self._layout)
     local ink, logical = self._layout:get_pixel_extents()
     local offset = 0
     if self._valign == "center" then
@@ -182,13 +183,6 @@ function module.task_widget_draw(self,w, cr, width, height,args)
     end
 
     cr:select_font_face(module.theme.font, cairo.FontSlant.NORMAL, cairo.FontWeight.NORMAL)
-    if capi.client.focus == self.data.c then
-        cr:set_source(color(awful.util.color_strip_alpha(module.theme.fg_focus)))
-    elseif self.data.c.urgent then
-        cr:set_source(color(awful.util.color_strip_alpha(module.theme.fg_urgent)))
-    else
-        cr:set_source(color(awful.util.color_strip_alpha(module.theme.fg_normal)))
-    end
 
     local x_offset = module.theme.default_height/2 + (self.data.c.icon and module.theme.default_height + 12 or 6)
 
@@ -201,6 +195,7 @@ function module.task_widget_draw(self,w, cr, width, height,args)
         cr:rectangle(x_offset,0,width-x_offset-height/2 - 1 - 9*rad,height)
         cr:clip()
     end
+
     themeutils.draw_text(cr,self._layout,x_offset,(height-logical.height)/2 - ink.y/4,module.theme.enable_glow or false,module.theme.glow_color)
 
     if width-x_offset-height/2 -4 < logical.width then

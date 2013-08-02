@@ -222,6 +222,7 @@ wibox_w.textbox.draw = function(self,w, cr, width, height,args)
         self:connect_signal("widget::updated",function()
             if self._layout.text ~= self.cached_text then
                 self.cache = {}
+                self.cached_text = self._layout.text
             end
         end)
     end

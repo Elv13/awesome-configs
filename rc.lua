@@ -14,6 +14,9 @@ local menubar = require("menubar")
 local customButton = require("customButton")
 local customMenu = require("customMenu")
 local config = require("forgotten")
+-- config.load()
+-- print(config.idfgdfgdfgdfgdfgdf.dfgdfg.dfgdfg)
+-- exit(3)
 local drawer = require("drawer")
 local widgets = require("widgets")
 -- local shifty = require("shifty")
@@ -79,7 +82,7 @@ beautiful.init(config.themePath                .. "/themeSciFi.lua")
 
 -- {{{ Variable definitions
 -- Themes define colours, icons, and wallpapers
-beautiful.init(awful.util.getdir("config").."/blind/arrow/themeSciFi.lua")
+-- beautiful.init(awful.util.getdir("config").."/blind/arrow/themeSciFi.lua")
 
 -- This is used later as the default terminal and editor to run.
 terminal = "urxvtc"
@@ -182,8 +185,7 @@ local keyboardSwitcherWidget = widgets.keyboardSwitcher ( nil                   
 --Some spacers with dirrent text
 spacer3 = widgets.spacer({text = "| "}); spacer2 = widgets.spacer({text = "  |"}); spacer4 = widgets.spacer({text = "|"})
 spacer5 = widgets.spacer({text = " ",width=5})
-local spacer_img = wibox.widget.imagebox()
-spacer_img:set_image(config.iconPath.."bg_arrow.png")
+local spacer_img = blind.common.drawing.separator_widget()
 
 -- Menubar configuration
 menubar.utils.terminal = terminal -- Set the terminal for applications that require it
@@ -351,7 +353,7 @@ end
 
 -- Add the drives list on the desktop
 if config.deviceOnDesk == true then
-  widgets.devices()
+--   widgets.devices()
 end
 if config.desktopIcon == true then
 --     for i=1,20 do

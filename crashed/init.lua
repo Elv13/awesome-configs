@@ -17,6 +17,7 @@ local type = type
 local string = string
 local print = print
 local cairo =require( "lgi" ).cairo
+local Pango =require( "lgi" ).Pango
 local wibox = require("wibox")
 local awful = require("awful")
 
@@ -147,14 +148,14 @@ function wibox.layout.align:draw(wibox2, cr, width, height)
     if self.first then
         local w, h, _ = width, height, nil
         if self.dir == "y" then
-            if self.first._has_cache and self.first.cache2[h*10000+w] then
+            if self.first.cache2 and self.first.cache2[h*10000+w] then
                 h = self.first._cache2[h*10000+w]
             else
                 _, h = self.first:fit(w, h)
             end
             size_first = h
         else
-            if self.first._has_cache and self.first._cache[h*10000+w]  then
+            if self.first._cache and self.first._cache[h*10000+w]  then
                 w = self.first._cache[h*10000+w]
             else
                 w, _ = self.first:fit(w, h)
@@ -168,7 +169,7 @@ function wibox.layout.align:draw(wibox2, cr, width, height)
         local w, h, x, y, _
         if self.dir == "y" then
             w, h = width, height - size_first
-            if self.third._has_cache  and self.third._cache[h*10000+w] then
+            if self.third._cache  and self.third._cache2[h*10000+w] then
                 h = self.third._cache2[h*10000+w]
             else
                 _, h = self.third:fit(w, h)
@@ -177,7 +178,7 @@ function wibox.layout.align:draw(wibox2, cr, width, height)
             size_third = h
         else
             w, h = width - size_first, height
-            if self.third._has_cache  and self.third._cache[h*10000+w] then
+            if self.third._cache  and self.third._cache[h*10000+w] then
                 w = self.third._cache[h*10000+w]
             else
                 w, _ = self.third:fit(w, h)
@@ -223,6 +224,9 @@ function wibox.widget.textbox:fit(width, height)
     if self.cache_fit[hash] then
         return self.cache_fit[hash],self.cache_fith[hash]
     end
+    local layout = self._layout
+    layout.width = Pango.units_from_double(width)
+    layout.height = Pango.units_from_double(height)
     local ink, logical = self._layout:get_pixel_extents()
 
     if logical.width == 0 or logical.height == 0 then
@@ -232,6 +236,80 @@ function wibox.widget.textbox:fit(width, height)
     
     return logical.width, logical.height
 end
+
+local function matt(cr)
+    return cr:get_matrix()
+end
+
+local function dr(widget, wibox2, cr, width, height)
+    local success, msg = pcall(widget.draw, widget, wibox2, cr, width, height)
+    if not success then
+        print("Error while drawing widget: " .. msg)
+    end
+end
+
+-- Cache the x,y,width,height position of the widget
+function wibox.layout.base.draw_widget(wibox2, cr, widget, x, y, width, height)
+    -- Use save() / restore() so that our modifications aren't permanent
+    cr:save()
+
+    -- Move (0, 0) to the place where the widget should show up
+    cr:translate(x, y)
+
+    -- Make sure the widget cannot draw outside of the allowed area
+    cr:rectangle(0, 0, width, height)
+    cr:clip()
+
+    -- Let the widget draw itself
+    dr(widget, wibox2, cr, width, height)
+
+    -- Register the widget for input handling
+    if not widget.rect_cache then
+        widget.rect_cache = {}
+        widget:connect_signal("widget::updated",function()
+            widget.rect_cache = {}
+        end)
+    end
+    local mat  = matt(cr)
+    local hash = (x+mat.x0)*17+1053*(y+mat.y0)+30050*width+707003*height*9999
+    ca = widget.rect_cache[hash]
+    if ca then
+        wibox2:widget_at(widget,ca.x, ca.y, ca.width, ca.height)
+    else
+        local x2, y2, width2, height2 = wibox.layout.base.rect_to_device_geometry(cr, 0, 0, width, height)
+        widget.rect_cache[hash] = {x=x2,y=y2,width=width2,height=height2}
+        wibox2:widget_at(widget,x2, y2, width2, height2)
+    end
+
+    cr:restore()
+end
+-- wibox.layout.fixed._horizontal = wibox.layout.fixed.horizontal
+-- function wibox.layout.fixed.horizontal()
+--     local self = wibox.layout.fixed._horizontal()
+--     if not self.notifychildcache then
+--         self.notifychildcache = true
+--         self:connect_signal("widget::updated",function()
+--             for k, v in pairs(self.widgets) do
+--                 if v.rect_cache then v.rect_cache ={} end
+--             end
+--         end)
+--     end
+--     return self
+-- end
+-- 
+-- wibox.layout.fixed._vertical = wibox.layout.fixed.vertical
+-- function wibox.layout.fixed.vertical()
+--     local self = wibox.layout.fixed._vertical()
+--     if not self.notifychildcache then
+--         self.notifychildcache = true
+--         self:connect_signal("widget::updated",function()
+--             for k, v in pairs(self.widgets) do
+--                 if v.rect_cache then v.rect_cache ={} end
+--             end
+--         end)
+--     end
+--     return self
+-- end
 
 -- Cannot work unless the widget_at code can be untangled from draw. It would be very nice
 

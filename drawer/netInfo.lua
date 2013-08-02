@@ -32,7 +32,7 @@ local data, connectionInfo, protocolStat, appStat = {},{},{},{}
 --WIDGET
 local ip4Info          , ip6Info          , localInfo        , netUsageUp
 local netUsageDown     , appHeader        , netUpGraph       , netDownGraph
-local ip4lbl,ip6lbl
+local ip4lbl           , ip6lbl           , mainMenu
 
 local function update()
     local connectionInfo
@@ -185,7 +185,7 @@ local function repaint(margin)
     mar:set_bottom(10)
     mar:set_widget(lay)
 
-    local mainMenu = menu({width=200,arrow_type=radical.base.arrow_type.CENTERED})
+    mainMenu = menu({width=200,arrow_type=radical.base.arrow_type.CENTERED})
     mainMenu:add_widget(radical.widgets.header(mainMenu,"GRAPH"),{height = 20 , width = 200})
     mainMenu:add_widget(mar ,{height = 73, width = 200})
     mainMenu:add_widget(radical.widgets.header(mainMenu,"IP"),{height = 20 , width = 200})
@@ -213,51 +213,57 @@ end
 
 local upsur,downsur
 local function down_graph_draw(self,w, cr, width, height)
-    if not downsur then
-        downsur = themeutils.apply_color_mask(config.iconPath .. "arrowDown.png"         )
+    if mainMenu and mainMenu.visible then
+        if not downsur then
+            downsur = themeutils.apply_color_mask(config.iconPath .. "arrowDown.png"         )
+        end
+        cr:save()
+        cr:rotate(math.pi)
+        cr:translate(-width,-height)
+        widget2.graph.draw(self,w, cr, width, height)
+        cr:restore()
+        cr:move_to(18,height/2+3)
+        cr:set_source(color(beautiful.fg_normal))
+        cr:select_font_face("Verdana", cairo.FontSlant.NORMAL, cairo.FontWeight.BOLD)
+        cr:set_font_size(10)
+        cr:show_text("Download")
+        cr:set_source_surface(downsur,3,height/4)
+        cr:paint()
     end
-    cr:save()
-    cr:rotate(math.pi)
-    cr:translate(-width,-height)
-    widget2.graph.draw(self,w, cr, width, height)
-    cr:restore()
-    cr:move_to(18,height/2+3)
-    cr:set_source(color(beautiful.fg_normal))
-    cr:select_font_face("Verdana", cairo.FontSlant.NORMAL, cairo.FontWeight.BOLD)
-    cr:set_font_size(10)
-    cr:show_text("Download")
-    cr:set_source_surface(downsur,3,height/4)
-    cr:paint()
 end
 
 local function up_graph_draw(self,w, cr, width, height)
-    if not upsur then
-        upsur = themeutils.apply_color_mask(config.iconPath .. "arrowUp.png"         )
+    if mainMenu and mainMenu.visible then
+        if not upsur then
+            upsur = themeutils.apply_color_mask(config.iconPath .. "arrowUp.png"         )
+        end
+        cr:save()
+        cr:scale(-1,1)
+        cr:translate(-width,0)
+        widget2.graph.draw(self,w, cr, width, height)
+        cr:restore()
+        cr:move_to(18,height/2+3)
+        cr:set_source(color(beautiful.fg_normal))
+        cr:select_font_face("Verdana", cairo.FontSlant.NORMAL, cairo.FontWeight.BOLD)
+        cr:set_font_size(10)
+        cr:show_text("Upload")
+        cr:set_source_surface(upsur,3,height/4)
+        cr:paint()
     end
-    cr:save()
-    cr:scale(-1,1)
-    cr:translate(-width,0)
-    widget2.graph.draw(self,w, cr, width, height)
-    cr:restore()
-    cr:move_to(18,height/2+3)
-    cr:set_source(color(beautiful.fg_normal))
-    cr:select_font_face("Verdana", cairo.FontSlant.NORMAL, cairo.FontWeight.BOLD)
-    cr:set_font_size(10)
-    cr:show_text("Upload")
-    cr:set_source_surface(upsur,3,height/4)
-    cr:paint()
 end
 
 local function ip_label_draw(self,w, cr, width, height)
-    cr:save()
-    cr:set_source(color(beautiful.bg_alternate))
-    cr:rectangle(0,1,width-height/2,height-2)
-    cr:fill()
-    cr:set_source_surface(themeutils.get_beg_arrow2({bg_color=beautiful.bg_alternate}),width-height/2,2)
-    cr:paint()
-    cr:restore()
---     cr:set_source(color(beautiful.fg_normal))
-    wibox.widget.textbox.draw(self,w, cr, width, height)
+    if mainMenu and mainMenu.visible then
+        cr:save()
+        cr:set_source(color(beautiful.bg_alternate))
+        cr:rectangle(0,1,width-height/2,height-2)
+        cr:fill()
+        cr:set_source_surface(themeutils.get_beg_arrow2({bg_color=beautiful.bg_alternate}),width-height/2,2)
+        cr:paint()
+        cr:restore()
+    --     cr:set_source(color(beautiful.fg_normal))
+        wibox.widget.textbox.draw(self,w, cr, width, height)
+    end
 end
 
 local function ip_label_fit(...)

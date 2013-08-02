@@ -36,21 +36,21 @@ module.get_end_arrow2 = function(args)--bg_color,fg_color,padding,direction
     if end_cache[hash] then
         return end_cache[hash]
     end
-    local width,height = (args.width or default_height/2+1)+(args.padding or 0),args.height or default_height
-    local img = cairo.ImageSurface(cairo.Format.ARGB32, width, height)
+    local width,height = (args.width or default_height/2+1),args.height or default_height
+    local img = cairo.ImageSurface(cairo.Format.ARGB32, width+(args.padding or 0), height)
     local cr = cairo.Context(img)
     cr:set_source(color(args.bg_color or beautiful.bg_normal))
     cr:new_path()
     if (args.direction == "left") then
-        cr:move_to(0,width)
+        cr:move_to(0,width+(args.padding or 0))
         cr:line_to(0,height/2)
-        cr:line_to(width,height)
+        cr:line_to(width+(args.padding or 0),height)
         cr:line_to(0,height)
         cr:line_to(0,0)
-        cr:line_to(width,0)
+        cr:line_to(width+(args.padding or 0),0)
     else
-        cr:line_to(width,0)
-        cr:line_to(width,height)
+        cr:line_to(width+(args.padding or 0),0)
+        cr:line_to(width+(args.padding or 0),height)
         cr:line_to(0,height)
         cr:line_to(width-1,height/2)
         cr:line_to(0,0)
@@ -92,6 +92,7 @@ module.get_beg_arrow2 = function(args)--bg_color,fg_color,padding,direction
         cr:line_to(0,0)
     end
     cr:close_path()
+--     cr:set_antialias(cairo.ANTIALIAS_NONE)
     cr:fill()
     beg_cache[hash] = img
     return img
@@ -231,6 +232,23 @@ function module.pattern(path)
     local pat = cairo.Pattern.create_for_surface(cairo.ImageSurface.create_from_png(path))
     cairo.Pattern.set_extend(pat,cairo.Extend.REPEAT)
     return pat
+end
+
+local sep_wdgs = nil
+function module.separator_widget()
+    if not sep_wdgs then
+        local img2 = cairo.ImageSurface.create(cairo.Format.ARGB32, beautiful.default_height/2+2, beautiful.default_height)
+        local cr = cairo.Context(img2)
+        cr:set_source(color(beautiful.bg_normal))
+        cr:set_line_width(1.2)
+        cr:move_to(beautiful.default_height/2+2,-2)
+        cr:line_to(2,beautiful.default_height/2)
+        cr:line_to(beautiful.default_height/2+2,beautiful.default_height+2)
+        cr:stroke()
+        sep_wdgs = wibox.widget.imagebox()
+        sep_wdgs:set_image(img2)
+    end
+    return sep_wdgs
 end
 
 return setmetatable(module, { })
