@@ -208,7 +208,7 @@ local function add_widget(data,widget,args)
   data._internal.layout:add(item)
   if data.visible then
     local fit_w,fit_h = data._internal.layout:fit()
-    data.width = fit_w
+    data.width = internal.width or fit_w
     data.height = fit_h
   end
 end
@@ -305,7 +305,7 @@ local function new(args)
     private_data.visible = value
     if value then
       local fit_w,fit_h = data._internal.layout:fit(9999,9999)
-      data.width = fit_w
+      data.width = internal.width or fit_w
       data.height = fit_h
     elseif data._tmp_menu and data._current_item then
 --       data._tmp_menu = nil

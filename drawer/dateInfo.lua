@@ -130,15 +130,19 @@ local function createDrawer()
   mainMenu:add_widget(testImage3)
   mainMenu:add_widget(spacer96)
   mainMenu:add_widget(radical.widgets.header(mainMenu, "FORCAST"      ),{height = 20 , width = 200})
+  return calInfo:fit(9999,9999)
 end
 
 local function new(screen, args)
   local mytextclock = widget.textclock()
-  mytextclock:buttons (util.table.join(button({ }, 1, function ()
+  mytextclock:buttons (util.table.join(button({ }, 1, function (geo)
       if not mainMenu then
-        mainMenu = menu({width=200,arrow_type=radical.base.arrow_type.CENTERED})
-        createDrawer()
+        mainMenu = menu({arrow_type=radical.base.arrow_type.CENTERED})
+        min_width = createDrawer()
+        mainMenu.width = min_width + 2*mainMenu.border_width + 150
+        mainMenu._internal.width = min_width
       end
+      mainMenu.parent_geometry = geo
       mainMenu.visible = not mainMenu.visible
   end)))
   return mytextclock
