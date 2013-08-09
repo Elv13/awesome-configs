@@ -24,6 +24,12 @@ local layouts =
 
 tags = {} --TODO remove
 
+
+tyrannical.settings.block_transient_for_focus_stealing = true
+tyrannical.settings.group_children = true
+tyrannical.settings.default_layout =  awful.layout.suit.tile.left
+tyrannical.settings.mwfact = 0.66
+
 tyrannical.tags = {
     {
         name = "Term",
@@ -315,6 +321,7 @@ tyrannical.properties.intrusive = {
     "ksnapshot"     , "pinentry"       , "gtksu"     , "kcalc"        , "xcalc"           ,
     "feh"           , "Gradient editor", "About KDE" , "Paste Special", "Background color",
     "kcolorchooser" , "plasmoidviewer" , "plasmaengineexplorer" , "Xephyr" , "kruler"     ,
+    "yakuake"       ,
 }
 tyrannical.properties.floating = {
     "MPlayer"      , "pinentry"        , "ksnapshot"  , "pinentry"     , "gtksu"          ,
@@ -335,12 +342,6 @@ tyrannical.properties.ontop = {
 tyrannical.properties.border_color = {
     URxvt = "#0A1535"
 }
-
-
-tyrannical.settings.block_transient_for_focus_stealing = true
-tyrannical.settings.group_children = true
-tyrannical.settings.default_layout =  awful.layout.suit.tile.left
-tyrannical.settings.mwfact = 0.2
 
 tyrannical.properties.centered = { "kcalc" }
 

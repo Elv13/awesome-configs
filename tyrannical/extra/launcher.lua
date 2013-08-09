@@ -56,6 +56,7 @@ module.spawn = function(args)
         by_ns[aaa] = param
         tyrannical.sn_callback[aaa] = on_callback
     end
+    return 100
 end
 
 --------SN Callbacks------

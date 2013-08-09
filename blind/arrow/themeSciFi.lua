@@ -24,7 +24,7 @@ arrow.task.theme,arrow.tag.theme = theme,theme
 ------------------------------------------------------------------------------------------------------
 
 theme.default_height = 16
-theme.font           = "snap"
+theme.font           = "ohsnap 8"
 theme.path           = path
 
 theme.bg_normal      = "#000000"
@@ -90,6 +90,7 @@ theme.icon_grad_invert = { type = "linear", from = { 0, 0 }, to = { 0, 20 }, sto
 -- Display the taglist squares
 theme.taglist_bg_image_empty           = nil
 theme.taglist_bg_image_selected        = path .."Icon/bg/selected_bg_scifi.png"
+theme.taglist_bg_image_focus           = path .."Icon/bg/selected_bg_scifi.png"
 theme.taglist_bg_image_used            = path .."Icon/bg/selected_bg_scifi.png"
 theme.taglist_bg_image_urgent          = path .."Icon/bg/urgent_bg.png"
 theme.taglist_bg_image_remote_selected = path .."Icon/bg/selected_bg_green.png"
@@ -118,8 +119,8 @@ theme.monochrome_icons                 = true
 -- menu_[bg|fg]_[normal|focus]
 -- menu_[border_color|border_width]
 theme.menu_submenu_icon         = path .."Icon/tags/arrow.png"
-theme.menu_scrollmenu_down_icon = path .."Icon/tags/arrow_down.png"
-theme.menu_scrollmenu_up_icon   = path .."Icon/tags/arrow_up.png"
+-- theme.menu_scrollmenu_down_icon = path .."Icon/tags/arrow_down.png"
+-- theme.menu_scrollmenu_up_icon   = path .."Icon/tags/arrow_up.png"
 theme.awesome_icon              = path .."Icon/awesome2.png"
 theme.menu_height               = 20
 theme.menu_width                = 130

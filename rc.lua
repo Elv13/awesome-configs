@@ -1,6 +1,8 @@
 -- Standard awesome library
 require("crashed")
 local gears = require("gears")
+local cairo     = require( "lgi"              ).cairo
+local color     = require( "gears.color"      )
 local awful = require("awful")
 awful.rules = require("awful.rules")
 require("awful.autofocus")
@@ -65,7 +67,6 @@ config.deviceOnDesk  = true
 config.desktopIcon   = true
 config.advTermTB     = true
 config.scriptPath    = awful.util.getdir("config") .. "/Scripts/"
-config.listPrefix    = {'①','②','③','④','⑤','⑥','⑦','⑧','⑨','⑩','⑪','⑫','⑬','⑭','⑮','⑯','⑰','⑱','⑲','⑳'}
 config.scr           = {
     pri         = 1,
     sec         = 2,
@@ -168,6 +169,18 @@ local lauchDock              = widgets.dock             ( nil                   
 local endArrow               = blind.common.drawing.get_beg_arrow_wdg2({bg_color=beautiful.icon_grad })
 -- Create the laucher dock
 local endArrow_alt           = blind.common.drawing.get_beg_arrow_wdg2({bg_color=beautiful.bg_alternate})
+local endArrow_alt2i         = cairo.ImageSurface(cairo.Format.ARGB32, beautiful.default_height/2+2, beautiful.default_height)
+local cr = cairo.Context(endArrow_alt2i)
+cr:set_source_surface(blind.common.drawing.get_beg_arrow2({bg_color=beautiful.bg_alternate}))
+cr:paint()
+cr:set_source(color(beautiful.icon_grad or beautiful.fg_normal))
+cr:set_line_width(1.5)
+cr:move_to(0,-2)
+cr:line_to(beautiful.default_height/2,beautiful.default_height/2)
+cr:line_to(0,beautiful.default_height+2)
+cr:stroke()
+local endArrow_alt2 = wibox.widget.imagebox()
+endArrow_alt2:set_image(endArrow_alt2i)
 
 -- End arrow
 local endArrowR = wibox.widget.imagebox()
@@ -281,7 +294,11 @@ for s = 1, screen.count() do
     left_layout_top:add(mytaglist[s])
     local bgb = wibox.widget.background()
     local l2 = wibox.layout.fixed.horizontal()
-    bgb:set_widget(l2)
+    local mar = wibox.layout.margin()
+    mar:set_left(1)
+    mar:set_right(4)
+    mar:set_widget(l2)
+    bgb:set_widget(mar)
     bgb:set_bg(beautiful.bg_alternate)
     l2:add(addTag     )
     l2:add(delTag  [s])
@@ -291,7 +308,7 @@ for s = 1, screen.count() do
 --     left_layout_top:add(movetagR[s])
     l2:add(layoutmenu[s])
     left_layout_top:add(bgb)
-    left_layout_top:add(endArrow_alt)
+    left_layout_top:add(endArrow_alt2)
 
     -- Widgets that are aligned to the right
     local right_layout = wibox.layout.fixed.horizontal()
@@ -327,7 +344,7 @@ for s = 1, screen.count() do
 
     local runbg = wibox.widget.background()
     runbg:set_widget(mypromptbox[s])
-    runbg:set_bg(beautiful.fg_normal)
+    runbg:set_bg(beautiful.icon_grad or beautiful.fg_normal)
     runbg:set_fg(beautiful.bg_normal)
     left_layout_bot:add(runbg)
     left_layout_bot:add(endArrow)
@@ -451,18 +468,25 @@ globalkeys = awful.util.table.join(
 
     -- Prompt
     awful.key({ modkey },            "r",     
+--               function ()
+--                   mypromptbox[mouse.screen]:run()
+--                   awful.prompt.run({ prompt = "Run:" },
+--                       mypromptbox[mouse.screen].widget,
+--                       awful.util.spawn,
+--                       awful.completion.shell,
+--                       awful.util.getdir("cache") .. "/history")
+--               end
               function ()
-                  mypromptbox[mouse.screen]:run()
-                  awful.prompt.run({ prompt = mypromptbox[mouse.screen].prompt },
-                      mypromptbox[mouse.screen].widget,
-                      function (com)
+                  awful.prompt.run({ prompt = "Run: " },
+                  mypromptbox[mouse.screen].widget,
+                  function (com)
                           local result = tyr_launcher.spawn({command=com})
                           if type(result) == "string" then
                               promptbox.widget:set_text(result)
                           end
-                      end,
-                      awful.completion.shell,
-                      awful.util.getdir("cache") .. "/history")
+                          return true
+                  end, awful.completion.shell,
+                  awful.util.getdir("cache") .. "/history")
               end),
 
     awful.key({ modkey }, "x",

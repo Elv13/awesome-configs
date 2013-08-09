@@ -1,44 +1,38 @@
 local setmetatable = setmetatable
-local pairs = pairs
-local print = print
-local ipairs = ipairs
-local button       = require( "awful.button"             )
-local beautiful    = require( "beautiful"                )
-local util         = require( "awful.util"               )
-local menu         = require( "radical.context"          )
-local tooltip2      = require( "widgets.tooltip2"          )
-local mouse        = require( "awful.mouse"              )
-local fdutils      = require( "extern.freedesktop.utils" )
-local themeutils   = require( "blind.common.drawing"              )
-local wibox        = require("wibox")
-local color = require("gears.color")
-local cairo = require("lgi").cairo
-local style = require("radical.style.classic")
-local item_style = require("radical.item_style.classic")
-local capi = { image   = image  ,
-               screen  = screen ,
-               mouse   = mouse  ,
-               widget  = widget ,
-               awesome = awesome}
+local pairs        = pairs
+local ipairs       = ipairs
+local button       = require( "awful.button"               )
+local beautiful    = require( "beautiful"                  )
+local util         = require( "awful.util"                 )
+local menu         = require( "radical.context"            )
+local tooltip2     = require( "widgets.tooltip2"           )
+local fdutils      = require( "extern.freedesktop.utils"   )
+local themeutils   = require( "blind.common.drawing"       )
+local wibox        = require( "wibox"                      )
+local cairo        = require( "lgi"                        ).cairo
+local style        = require( "radical.style.classic"      )
+local item_style   = require( "radical.item_style.classic" )
+local capi         = { screen  = screen }
 
-local module = {}
 fdutils.icon_theme = 'oxygen'
 
-all_menu_dirs = { '/usr/share/applications/', '/usr/local/share/applications/',
-    '~/.local/share/applications/', '/home/kde-devel/kde/share/applications/' }
-
-show_generic_name = false
+local show_generic_name = false
 
 fdutils.add_base_path ( "/home/kde-devel/kde/share/icons/"         )
 fdutils.add_theme_path( "/home/kde-devel/kde/share/icons/hicolor/" )
 
+local categories = {
+    AudioVideo ={icon="applications-multimedia.png" ,name="Multimedia"  }, Development={icon="applications-development.png",name="Development" },
+    Education  ={icon="applications-science.png"    ,name="Education"   }, Game       ={icon="applications-games.png"      ,name="Games"       },
+    Graphics   ={icon="applications-graphics.png"   ,name="Graphics"    }, Network    ={icon="applications-internet.png"   ,name="Internet"    },
+    Office     ={icon="applications-office.png"     ,name="Office"      }, Settings   ={icon="preferences-desktop.png"     ,name="Settings"    },
+    System     ={icon="applications-system.png"     ,name="System Tools"}, Utility    ={icon="applications-accessories.png",name="Accessories" },
+    Other      ={icon="applications-other.png"      ,name="Other"       }, }
 
-local categories = {AudioVideo=true,Development=true,Education=true,Game=true,Graphics=true,Network=true,Office=true,Settings=true,System=true,Utility=true,Other}
-
-local programs = {}
-local parse_init,cats = false,{}
+local parse_init,cats,programs = false,{},{}
 local function parse_files()
-    local dirs = all_menu_dirs
+    local dirs = { '/usr/share/applications/', '/usr/local/share/applications/',
+    '~/.local/share/applications/', '/home/kde-devel/kde/share/applications/' }
     for i=1,#dirs do
         local entries = fdutils.parse_desktop_files({dir = dirs[i],size='22x22',category='apps'})
         for j=1, #entries do
@@ -90,31 +84,18 @@ local function gen_menu(parent)
     local m = menu({filter = true, showfilter = true, y = capi.screen[1].geometry.height - 18, x = offset, 
     autodiscard = true,has_decoration=false,x=0,filtersubmenu=true,maxvisible=20,style=style,item_style=item_style,
     show_filter=true})
-    local item = m:add_item({text = "System Tools", icon = fdutils.lookup_icon({ icon = 'applications-system.png'     , icon_size='22x22' }), sub_menu = function() return gen_category_menu('System'      ) end })
-    local item = m:add_item({text = "Settings"    , icon = fdutils.lookup_icon({ icon = 'preferences-desktop.png'     , icon_size='22x22' }), sub_menu = function() return gen_category_menu('Settings'    ) end })
-    local item = m:add_item({text = "Other"       , icon = fdutils.lookup_icon({ icon = 'applications-other.png'      , icon_size='22x22' }), sub_menu = function() return gen_category_menu('Other'       ) end })
-    local item = m:add_item({text = "Office"      , icon = fdutils.lookup_icon({ icon = 'applications-office.png'     , icon_size='22x22' }), sub_menu = function() return gen_category_menu('Office'      ) end })
-    local item = m:add_item({text = "Multimedia"  , icon = fdutils.lookup_icon({ icon = 'applications-multimedia.png' , icon_size='22x22' }), sub_menu = function() return gen_category_menu('AudioVideo'  ) end })
-    local item = m:add_item({text = "Internet"    , icon = fdutils.lookup_icon({ icon = 'applications-internet.png'   , icon_size='22x22' }), sub_menu = function() return gen_category_menu('Network'     ) end })
-    local item = m:add_item({text = "Graphics"    , icon = fdutils.lookup_icon({ icon = 'applications-graphics.png'   , icon_size='22x22' }), sub_menu = function() return gen_category_menu('Graphics'    ) end })
-    local item = m:add_item({text = "Games"       , icon = fdutils.lookup_icon({ icon = 'applications-games.png'      , icon_size='22x22' }), sub_menu = function() return gen_category_menu('Game'        ) end })
-    local item = m:add_item({text = "Education"   , icon = fdutils.lookup_icon({ icon = 'applications-science.png'    , icon_size='22x22' }), sub_menu = function() return gen_category_menu('Education'   ) end })
-    local item = m:add_item({text = "Development" , icon = fdutils.lookup_icon({ icon = 'applications-development.png', icon_size='22x22' }), sub_menu = function() return gen_category_menu('Development' ) end })
-    local item = m:add_item({text = "Accessories" , icon = fdutils.lookup_icon({ icon = 'applications-accessories.png', icon_size='22x22' }), sub_menu = function() return gen_category_menu('Utility'     ) end })
+    for k,v in pairs(categories) do
+        m:add_item({text=v.name,icon=fdutils.lookup_icon({icon=v.icon,icon_size='22x22'}),sub_menu=function() return gen_category_menu(k) end})
+    end
 
     return m
 end
 
-
-
 local function new(screen, args)
-    local bgb = wibox.widget.background()
-    local tt = tooltip2(bgb,"Classic application menu",{down=true})
-    local mylaunchertext     = wibox.widget.textbox()
+    local bgb,mylaunchertext = wibox.widget.background(),wibox.widget.textbox()
+    tooltip2(bgb,"Classic application menu",{down=true})
     mylaunchertext:set_text("Apps")
-    mylaunchertext.bg_resize = false
-    local l = wibox.layout.fixed.horizontal()
-    local m = wibox.layout.margin(mylaunchertext)
+    local l,m = wibox.layout.fixed.horizontal(),wibox.layout.margin(mylaunchertext)
     m:set_right(10)
     l:add(m)
     l:fill_space(true)
@@ -130,8 +111,7 @@ local function new(screen, args)
     cr:paint()
 
     local ic = themeutils.apply_color_mask(beautiful.awesome_icon)
-    local sh = ic:get_width(),ic:get_height()
-    local ratio =  sh / (beautiful.default_height)
+    local ratio =  ic:get_width() / (beautiful.default_height)
     local matrix = cairo.Matrix()
     cairo.Matrix.init_scale(matrix,ratio,ratio)
 
@@ -139,22 +119,13 @@ local function new(screen, args)
     bgb:set_bgimage(img2)
     m:set_left(beautiful.default_height*1.5+3)
 
-    bgb:connect_signal("mouse::enter", function()
-        if not focus_bg_img then
---             focus_bg_img  = themeutils.gen_button_bg(head_img,extents,true )
-        end
-        mylaunchertext.bg_image = focus_bg_img
-    end)
-    bgb:connect_signal("mouse::leave", function()mylaunchertext.bg_image = normal_bg_img  end)
-
     bgb:buttons( util.table.join(
         button({ }, 1, function(geometry)
             mymainmenu = mymainmenu or gen_menu(bgb)
             mymainmenu.parent_geometry = geometry
             mymainmenu.visible = not mymainmenu.visible
-        end)
-    ))
+        end)))
     return bgb
 end
 
-return setmetatable(module, { __call = function(_, ...) return new(...) end })
+return setmetatable({}, { __call = function(_, ...) return new(...) end })

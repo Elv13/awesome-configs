@@ -213,11 +213,11 @@ function wibox.widget.textbox:fit(width, height)
         self.cache_fit,self.cache_fith = {},{}
         self.cached_text = self._layout.text
         self:connect_signal("widget::updated",function()
-            if self._layout.text ~= self.cached_text then
+--             if self._layout.text ~= self.cached_text then
                 self.cache_fit = {}
                 self.cache_fith = {}
                 self.cached_text = self._layout.text
-            end
+--             end
         end)
     end
     local hash = width+10000*height

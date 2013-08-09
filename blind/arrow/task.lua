@@ -215,7 +215,8 @@ local function handle_preview(geo,data)
         data.time.timeout = 1
         data.time:connect_signal("timeout",function()
             if not data.menu then
-                data.menu = radical.context({layout=radical.layout.horizontal,item_width=140,item_height=140,icon_size=100,arrow_type=radical.base.arrow_type.CENTERED})
+                data.menu = radical.context({layout=radical.layout.horizontal,item_width=140,item_height=140,icon_size=100,
+                    arrow_type=radical.base.arrow_type.CENTERED,enable_keyboard=false})
                 data.item = data.menu:add_item({text = "<b>"..data.c.name.."</b>",icon=data.c.content})
                 data.menu.wibox.opacity=0.8
             end

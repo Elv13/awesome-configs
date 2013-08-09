@@ -1,3 +1,5 @@
+-- Source: https://github.com/Elv13/awesome-configs/awesome3.4/utils/profile.lua
+
 local io = io
 local debug = debug
 local tostring = tostring
@@ -5,7 +7,6 @@ local table = table
 local assert = assert
 local ipairs = ipairs
 local pairs = pairs
-local print = print
 local type = type
 
 local module = {}
@@ -39,7 +40,7 @@ function module.start()
     call_indent = 0
 end
 
-function module.trace(class)
+local function trace(class)
     -- print("calling tracer: "..class)
     if class == "count" then
             instr_count = instr_count + 1
@@ -54,9 +55,7 @@ function module.trace(class)
                     }
             end
             local lines = functions[f.func].lines
-            if functions[f.func].meta.name and functions[f.func].meta.name:sub(1,1) ~= '_' then
-                lines[#lines + 1] =("%d %d"):format(f.currentline, instr_count - last_line_instr_count)
-            end
+            lines[#lines + 1] =("%d %d"):format(f.currentline, instr_count - last_line_instr_count)
             functions[f.func].last_line = f.currentline
 
             if not mainfunc then mainfunc = f.func end
@@ -86,9 +85,9 @@ function module.trace(class)
             end
 
             -- is this method already known ?
---             if f.name and f.name:sub(1,1) ~= '_' then
-            methods[tostring(f.func)] = { name = f.name }
---             end
+            if f.name then
+                    methods[tostring(f.func)] = { name = f.name }
+            end
 
             -- print((" "):rep(call_indent)..">>"..tostring(f.func).." (".. tostring(f.name)..")")
             call_indent = call_indent + 1
@@ -105,12 +104,7 @@ function module.trace(class)
                             -- print("handling error()")
                             -- the error() is already removed
                             -- removed every thing up to pcall()
-                            if #callstack == 0 then
-                                return --Nothing we can do
-                            end
-                            local f1,f2 = callstack[#callstack].func,f.func
-                            while f1 and f2 ~= f1 and #callstack > 0 do
-                                    f1 = callstack[#callstack].func
+                            while callstack[#callstack].func ~= f.func do
                                     table.remove(callstack)
 
                                     call_indent = call_indent - 1
@@ -135,18 +129,13 @@ function module.trace(class)
                     call_indent = call_indent - 1
 
                     -- in case the assert below fails, enable this print and the one in the "call" handling
-                    if not ret or ret.func ~= f.func then
---                         print((" "):rep(call_indent).."<<"..tostring(ret.func).." "..tostring(f.func).. " =? " .. tostring(f.func == ret.func))
-                        return --There is nothing we can do
-                    end
---                     assert(ret.func == f.func)
--- print(tostring(ret.func),last_line,ret.short_src,"here",ret.short_src:match("/lgi/") == "/lgi/")
---                     if ret.short_src:match("/lgi/") ~= "/lgi/" then
-                        lines[#lines + 1] = ("cfl=%s"):format(ret.short_src)
-                        lines[#lines + 1] = ("cfn=%s"):format(tostring(ret.func))
-                        lines[#lines + 1] = ("calls=1 %d"):format(ret.linedefined)
-                        lines[#lines + 1] = ("%d %d"):format(last_line and last_line or -1, instr_count - ret.instr_count)
---                     end
+                    -- print((" "):rep(call_indent).."<<"..tostring(ret.func).." "..tostring(f.func).. " =? " .. tostring(f.func == ret.func))
+                    assert(ret.func == f.func)
+
+                    lines[#lines + 1] = ("cfl=%s"):format(ret.short_src)
+                    lines[#lines + 1] = ("cfn=%s"):format(tostring(ret.func))
+                    lines[#lines + 1] = ("calls=1 %d"):format(ret.linedefined)
+                    lines[#lines + 1] = ("%d %d"):format(last_line and last_line or -1, instr_count - ret.instr_count)
             end
             -- tracefile:write("# --callstack: " .. #callstack .. "\n")
     else
@@ -155,7 +144,7 @@ function module.trace(class)
 end
 
 
-function func2name(m, tbl, prefix)
+local function func2name(m, tbl, prefix)
         prefix = prefix and prefix .. "." or ""
 
         -- print(prefix)
@@ -167,11 +156,11 @@ function func2name(m, tbl, prefix)
                         -- already mapped
                 elseif type(func) == "function" then
                         -- remove the package.loaded. prefix from the loaded methods
-                        if type(name) == "function" then
-                            print("WARNING: prefix '"..prefix.."' seem to have invalid members")
-                            name = "ERROR"
+                        if type(name) == "string" then
+                            m[tostring(func)] = { name = (prefix..name):gsub("^package\\.loaded\\.", ""), id = method_id }
+                        else
+                            --print("HERE",name())
                         end
-                        m[tostring(func)] = { name = (prefix..name):gsub("^package\\.loaded\\.", ""), id = method_id }
                         method_id = method_id + 1
                 elseif type(func) == "table" and type(name) == "string" then
                         -- a package, class, ...
@@ -202,11 +191,11 @@ function module.stop(glob)
             end
 
             tracefile:write("fl="..f.short_src.."\n")
-            tracefile:write("fn="..(func_name or "N/A").."\n")
+            tracefile:write("fn="..func_name.."\n")
 
             for i, line in ipairs(func.lines) do
                     if line:sub(1, 4) == "cfn=" and methods[line:sub(5)] then
-                            tracefile:write("cfn="..(methods[line:sub(5)].name or "N/A").."\n")
+                            tracefile:write("cfn="..(methods[line:sub(5)].name).."\n")
                     else
                             tracefile:write(line.."\n")
                     end
