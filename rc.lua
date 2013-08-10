@@ -25,6 +25,7 @@ local widgets = require("widgets")
 local utils = require("utils")
 local vicious = require("extern.vicious")
 local menu4 = require( "radical.context"          )
+local radical = require("radical")
 local tyrannical = require("tyrannical")
 local tyr_launcher = require("tyrannical.extra.launcher")
 local indicator = require("customIndicator")
@@ -204,6 +205,25 @@ local spacer_img = blind.common.drawing.separator_widget()
 menubar.utils.terminal = terminal -- Set the terminal for applications that require it
 -- }}}
 
+local prev_menu,prev_item = nil
+
+beautiful.on_tag_hover = customMenu.taghover
+beautiful.on_task_hover = function(c,geo,visible)
+    if not visible and prev_menu then
+        prev_menu.visible = false
+        return
+    end
+    if not prev_menu then
+        prev_menu = radical.context({layout=radical.layout.horizontal,item_width=140,item_height=140,icon_size=100,
+            arrow_type=radical.base.arrow_type.CENTERED,enable_keyboard=false})
+        prev_item = prev_menu:add_item({text = "<b>"..c.name.."</b>",icon=c.content})
+        prev_menu.wibox.opacity=0.8
+    end
+    prev_item.icon = c.content
+    prev_item.text  = "<b>"..c.name.."</b>"
+    prev_menu.parent_geometry = geo
+    prev_menu.visible = true
+end
 
 -- Create a wibox for each screen and add it
 wibox_top = {}
@@ -217,9 +237,7 @@ mytaglist.buttons = awful.util.table.join(
                     awful.button({ modkey }, 1, awful.client.movetotag),
                     awful.button({ }, 2, awful.tag.viewtoggle),
                     awful.button({ }, 3, function(q,w,e,r)
---                         local menu = customMenu.tagOption.getMenu()
-                        customMenu.taghover.tag = q
-                        local menu = customMenu.taghover.getMenu()
+                        local menu = customMenu.tagOption.getMenu()
                         menu.visible = true
                     end),
                     awful.button({ modkey }, 3, awful.client.toggletag),
@@ -313,6 +331,7 @@ for s = 1, screen.count() do
     -- Widgets that are aligned to the right
     local right_layout = wibox.layout.fixed.horizontal()
     local right_layout_meta = wibox.layout.fixed.horizontal()
+    if s < 3 then
     right_layout_meta:add(endArrowR)
     right_layout:add(spacer5)
     right_layout:add(cpuinfo)
@@ -327,12 +346,15 @@ for s = 1, screen.count() do
     local right_bg = wibox.widget.background()
     right_bg:set_bg(beautiful.bg_alternate)
     right_bg:set_widget(right_layout)
+    right_layout_meta:add(right_bg)
+    end
 
     -- Now bring it all together (with the tasklist in the middle)
     local layout_top = wibox.layout.align.horizontal()
-    right_layout_meta:add(right_bg)
     layout_top:set_left(left_layout_top)
+    if s < 3 then
     layout_top:set_right(right_layout_meta)
+    end
 
     wibox_top[s]:set_widget(layout_top)
 

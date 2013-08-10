@@ -107,7 +107,7 @@ local function new(screen, args)
   return mainMenu
 end
 
-function getMenu()
+function module.getMenu()
     if not aTagMenu then
         aTagMenu = new()
     end

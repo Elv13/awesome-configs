@@ -6,6 +6,7 @@ local client     = require( "awful.client"   )
 local themeutils = require( "blind.common.drawing"    )
 local radical    = require( "radical"        )
 local wibox      = require( "wibox" )
+local beautiful  = require( "beautiful" )
 
 local module = {}
 
@@ -19,7 +20,7 @@ local function apply_icon_transformations(c,col)
     local ic = cairo.Surface(c.icon)
     local icp = cairo.Pattern.create_for_surface(ic)
     local sw,sh = ic:get_width(),ic:get_height()
-    local height = module.theme.default_height
+    local height = beautiful.default_height
     -- Create matrix
     local ratio = (height-2) / ((sw > sh) and sw or sh)
     local matrix = cairo.Matrix()
@@ -62,7 +63,7 @@ end
 local function gen_matrix(image,off,width)
     local ic = cairo.ImageSurface.create_from_png(image)
     local sw,sh = ic:get_width(),ic:get_height()
-    local ratio = sh/(module.theme.default_height)
+    local ratio = sh/(beautiful.default_height)
     local status_matrix = cairo.Matrix()
     cairo.Matrix.init_scale(status_matrix,ratio,ratio)
     offset = sw/ratio + 5/ratio
@@ -79,17 +80,17 @@ end
 local function add_status_indicator(composed,c,image,width)
     local tmp_offset = offset
     if client.floating.get(c) then
-        local path  = module.theme["tasklist_floating".. (image and "_focus" or "") .."_icon"]
+        local path  = beautiful["tasklist_floating".. (image and "_focus" or "") .."_icon"]
         composed[#composed+1] = {layer=path,matrix=gen_matrix(path,nil,width)}
         tmp_offset = offset*2
     end
     if c.ontop == true then
-        local path  = module.theme["tasklist_ontop"   .. (image and "_focus" or "") .."_icon"]
+        local path  = beautiful["tasklist_ontop"   .. (image and "_focus" or "") .."_icon"]
         composed[#composed+1] = {layer=path,matrix=gen_matrix(path,tmp_offset,width)}
         tmp_offset = tmp_offset + offset
     end
     if c.sticky == true then
-        local path  = module.theme["tasklist_sticky"  .. (image and "_focus" or "") .."_icon"]
+        local path  = beautiful["tasklist_sticky"  .. (image and "_focus" or "") .."_icon"]
         composed[#composed+1] = {layer=path,matrix=gen_matrix(path,tmp_offset,width)}
     end
 end
@@ -105,10 +106,10 @@ local icon_cache = setmetatable({}, { __mode = "kv" })
 local arr,arr1=nil,nil
 local function gen_task_bg_real(wdg,width,args,col,image)
     if not arr1 then
-        arr,arr1=themeutils.get_end_arrow2({bg_color=module.theme.bg_normal}),themeutils.get_end_arrow2({bg_color=module.theme.bg_normal,direction="left"})
+        arr,arr1=themeutils.get_end_arrow2({bg_color=beautiful.bg_normal}),themeutils.get_end_arrow2({bg_color=beautiful.bg_normal,direction="left"})
     end
     local c,m = wdg.data.c,wdg.data.m
-    local height = args.height or module.theme.default_height
+    local height = args.height or beautiful.default_height
     local hash = width..(image or "nil")..(client.floating.get(c) and "c" or "")..(c.ontop == true and "o" or "")..
         (c.sticky == true and "s" or "")..(c.urgent and "u" or "")..(height)
     if task_cache[c] and task_cache[c][hash] then
@@ -160,13 +161,13 @@ function module.task_widget_draw(self,w, cr, width, height,args)
    args.height = height
    local col,image = nil,nil
     if capi.client.focus == self.data.c then
-        col   = color(awful.util.color_strip_alpha(module.theme.fg_focus))
-        image = module.theme.taglist_bg_image_selected
+        col   = color(awful.util.color_strip_alpha(beautiful.fg_focus))
+        image = beautiful.taglist_bg_image_selected
     elseif self.data.c.urgent then
-        col   = color(awful.util.color_strip_alpha(module.theme.fg_urgent))
-        image = module.theme.taglist_bg_image_urgent
+        col   = color(awful.util.color_strip_alpha(beautiful.fg_urgent))
+        image = beautiful.taglist_bg_image_urgent
     else
-        col   = color(awful.util.color_strip_alpha(module.theme.fg_normal))
+        col   = color(awful.util.color_strip_alpha(beautiful.fg_normal))
         image = self.data.image
     end
     local pattern =  gen_task_bg_real(self,width,args,col,image)
@@ -182,9 +183,9 @@ function module.task_widget_draw(self,w, cr, width, height,args)
         offset = height - logical.height
     end
 
-    cr:select_font_face(module.theme.font, cairo.FontSlant.NORMAL, cairo.FontWeight.NORMAL)
+    cr:select_font_face(beautiful.font, cairo.FontSlant.NORMAL, cairo.FontWeight.NORMAL)
 
-    local x_offset = module.theme.default_height/2 + (self.data.c.icon and module.theme.default_height + 12 or 6)
+    local x_offset = beautiful.default_height/2 + (self.data.c.icon and beautiful.default_height + 12 or 6)
 
     if width-x_offset-height/2 -4 < logical.width then
         local rad = height/11
@@ -196,7 +197,7 @@ function module.task_widget_draw(self,w, cr, width, height,args)
         cr:clip()
     end
 
-    themeutils.draw_text(cr,self._layout,x_offset,(height-logical.height)/2 - ink.y/4,module.theme.enable_glow or false,module.theme.glow_color)
+    themeutils.draw_text(cr,self._layout,x_offset,(height-logical.height)/2 - ink.y/4,beautiful.enable_glow or false,beautiful.glow_color)
 
     if width-x_offset-height/2 -4 < logical.width then
         cr:reset_clip()
@@ -214,16 +215,7 @@ local function handle_preview(geo,data)
         data.time = capi.timer({})
         data.time.timeout = 1
         data.time:connect_signal("timeout",function()
-            if not data.menu then
-                data.menu = radical.context({layout=radical.layout.horizontal,item_width=140,item_height=140,icon_size=100,
-                    arrow_type=radical.base.arrow_type.CENTERED,enable_keyboard=false})
-                data.item = data.menu:add_item({text = "<b>"..data.c.name.."</b>",icon=data.c.content})
-                data.menu.wibox.opacity=0.8
-            end
-            data.item.icon = data.c.content
-            data.item.text  = "<b>"..data.c.name.."</b>"
-            data.menu.parent_geometry = data.geom
-            data.menu.visible = true
+            beautiful.on_task_hover(data.c,geo,true)
             data.time:stop()
         end)
     end
@@ -243,17 +235,16 @@ function module.gen_task_bg(wdg,c,m,objects,image)
     wdg.draw = module.task_widget_draw
 
     local data = {c=c}
-    if not wdg.hover_ready then
+    if not wdg.hover_ready and beautiful.on_task_hover then
         wdg:connect_signal("mouse::enter", function(_,geo)
+            beautiful.on_task_hover(nil,nil,false)
             handle_preview(geo,data)
         end)
         wdg:connect_signal("mouse::leave", function()
             if data.time and data.time.started then
                 data.time:stop()
             end
-            if data.menu and data.menu.visible then
-                data.menu.visible = false
-            end
+            beautiful.on_task_hover(data.c,geo,false)
         end)
         wdg.hover_ready = true
     end

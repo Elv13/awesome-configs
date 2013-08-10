@@ -112,6 +112,7 @@ tyrannical.tags = {
         icon        = utils.tools.invertedIconPath("info.png")       ,
 --                     screen      = config.scr.music                          ,
         layout      = awful.layout.suit.max                          ,
+        force_screen= true                                           ,
         class       = {
             "Assistant"     , "Okular"         , "Evince"    , "EPDFviewer"   , "xpdf",
             "Xpdf"          ,                                        }
@@ -297,6 +298,7 @@ tyrannical.tags = {
         init        = true                                           ,
         position    = 15                                             ,
         exclusive   = false                                          ,
+        selected    = true                                           ,
         icon        = utils.tools.invertedIconPath("term.png")       ,
         max_clients = 5                                              ,
         screen      = {3, 4, 5}                                      ,
