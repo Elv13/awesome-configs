@@ -162,7 +162,7 @@ function module.task_widget_draw(self,w, cr, width, height,args)
    local col,image = nil,nil
     if capi.client.focus == self.data.c then
         col   = color(awful.util.color_strip_alpha(beautiful.fg_focus))
-        image = beautiful.taglist_bg_image_selected
+        image = beautiful.tasklist_bg_image_selected or beautiful.taglist_bg_image_selected
     elseif self.data.c.urgent then
         col   = color(awful.util.color_strip_alpha(beautiful.fg_urgent))
         image = beautiful.taglist_bg_image_urgent
@@ -197,7 +197,7 @@ function module.task_widget_draw(self,w, cr, width, height,args)
         cr:clip()
     end
 
-    themeutils.draw_text(cr,self._layout,x_offset,(height-logical.height)/2 - ink.y/4,beautiful.enable_glow or false,beautiful.glow_color)
+    themeutils.draw_text(cr,self._layout,x_offset,(height-logical.height)/2 - ink.y/4,beautiful.enable_glow or false,self.data.c.urgent and "#220000" or beautiful.glow_color)
 
     if width-x_offset-height/2 -4 < logical.width then
         cr:reset_clip()

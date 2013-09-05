@@ -171,32 +171,33 @@ function module.apply_color_mask(img,mask)
 end
 
 -- Draw information buble intended for menus background
-local pango_l,pango_crx = nil,nil
-function module.draw_underlay(text)
-    local height = beautiful.menu_height-4
-    if not pango_l then
-        pango_crx = pangocairo.font_map_get_default():create_context()
-        pango_l = pango.Layout.new(pango_crx)
+local pango_l,pango_crx = {},{}
+function module.draw_underlay(text,args)
+    local args = args or {}
+    local height = args.height or (beautiful.menu_height-3)
+    if not pango_l[height] then
+        local pango_crx = pangocairo.font_map_get_default():create_context()
+        pango_l[height] = pango.Layout.new(pango_crx)
         local desc = pango.FontDescription()
         desc:set_family("Verdana")
         desc:set_weight(pango.Weight.BOLD)
         desc:set_size((height-8) * pango.SCALE)
-        pango_l:set_font_description(desc)
+        pango_l[height]:set_font_description(desc)
     end
-    pango_l.text = text
-    local width = pango_l:get_pixel_extents().width + height + 4
-    local img = cairo.ImageSurface.create(cairo.Format.ARGB32, width, height+4)
+    pango_l[height].text = text
+    local width = pango_l[height]:get_pixel_extents().width + height + 4
+    local img = cairo.ImageSurface.create(cairo.Format.ARGB32, width+(args.padding_right or 0), height+4)
     cr = cairo.Context(img)
-    cr:set_source(color(beautiful.bg_alternate))
-    cr:arc((height-4)/2 + 2, (height-4)/2 + 2, (height-4)/2,0,2*math.pi)
+    cr:set_source(color(args.bg or beautiful.bg_alternate))
+    cr:arc((height-4)/2 + 2, (height-4)/2 + 2 + (args.margins or 0), (height-4)/2+(args.padding or 0)/2,0,2*math.pi)
     cr:fill()
-    cr:arc(width - (height-4)/2 - 2, (height-4)/2 + 2, (height-4)/2,0,2*math.pi)
-    cr:rectangle((height-4)/2+2,2,width - (height),(height-4))
+    cr:arc(width - (height-4)/2 - 2, (height-4)/2 + 2 + (args.margins or 0), (height-4)/2+(args.padding or 0)/2,0,2*math.pi)
+    cr:rectangle((height-4)/2+2,2 + (args.margins or 0)-(args.padding or 0)/2,width - (height),(height-4)+(args.padding or 0))
     cr:fill()
-    cr:set_source(color(beautiful.bg_normal))
+    cr:set_source(color(args.fg or beautiful.bg_normal))
     cr:set_operator(cairo.Operator.CLEAR)
-    cr:move_to(height/2 + 2,1)
-    cr:show_layout(pango_l)
+    cr:move_to(height/2 + 2,1 + (args.margins or 0)-(args.padding or 0)/2)
+    cr:show_layout(pango_l[height])
     return img
 end
 
@@ -239,7 +240,7 @@ function module.separator_widget()
     if not sep_wdgs then
         local img2 = cairo.ImageSurface.create(cairo.Format.ARGB32, beautiful.default_height/2+2, beautiful.default_height)
         local cr = cairo.Context(img2)
-        cr:set_source(color(beautiful.bg_normal))
+        cr:set_source(color(beautiful.icon_grad or beautiful.bg_normal))
         cr:set_line_width(1.2)
         cr:move_to(beautiful.default_height/2+2,-2)
         cr:line_to(2,beautiful.default_height/2)

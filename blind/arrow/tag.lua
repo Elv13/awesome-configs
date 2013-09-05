@@ -20,7 +20,7 @@ local function setup_hover(wdg,t)
         beautiful.on_tag_hover(nil,nil,false)
         if not wdg.timer then
             wdg.timer = capi.timer({})
-            wdg.timer.timeout = 1
+            wdg.timer.timeout = 3
             wdg.timer:connect_signal("timeout",function()
                 beautiful.on_tag_hover(t,geo,true)
                 wdg.timer:stop()

@@ -18,9 +18,7 @@ local color        = require( "gears.color"              )
 local cairo        = require( "lgi"                      ).cairo
 local tyr_launcher = require("tyrannical.extra.launcher")
 local themeutils = require( "blind.common.drawing"    )
-local capi = { image  = image  ,
-               screen = screen ,
-               widget = widget }
+local capi = { screen = screen }
 
 local module={}
 local lauchBar,visible_tt,sensibleArea = nil,nil,nil

@@ -213,16 +213,19 @@ beautiful.on_task_hover = function(c,geo,visible)
         prev_menu.visible = false
         return
     end
+    if not c then return end
     if not prev_menu then
         prev_menu = radical.context({layout=radical.layout.horizontal,item_width=140,item_height=140,icon_size=100,
             arrow_type=radical.base.arrow_type.CENTERED,enable_keyboard=false})
         prev_item = prev_menu:add_item({text = "<b>"..c.name.."</b>",icon=c.content})
         prev_menu.wibox.opacity=0.8
     end
-    prev_item.icon = c.content
-    prev_item.text  = "<b>"..c.name.."</b>"
-    prev_menu.parent_geometry = geo
-    prev_menu.visible = true
+    if prev_item then
+        prev_item.icon = c.content
+        prev_item.text  = "<b>"..c.name:gsub('&','&amp;').."</b>"
+        prev_menu.parent_geometry = geo
+        prev_menu.visible = true
+    end
 end
 
 -- Create a wibox for each screen and add it
@@ -342,7 +345,10 @@ for s = 1, screen.count() do
     right_layout:add(spacer_img)
     right_layout:add(soundWidget)
     right_layout:add(spacer_img)
+    local ib2 = wibox.widget.imagebox()
+    ib2:set_image(blind.common.drawing.draw_underlay("Aug 29",{bg="#060E1A",fg=beautiful.bg_alternate,height=beautiful.default_height+4,margins=2,padding=2,padding_right=3}))
     right_layout:add(clock)
+    right_layout:add(ib2)
     local right_bg = wibox.widget.background()
     right_bg:set_bg(beautiful.bg_alternate)
     right_bg:set_widget(right_layout)
@@ -696,7 +702,7 @@ client.connect_signal("manage", function (c, startup)
             local width, height = wibox.widget.textbox.fit(box, w, h);
             return width+ 50, beautiful.titlebar_height or height
         end
-        title.data = {c = c,image=beautiful.taglist_bg_image_used}
+        title.data = {c = c,image=beautiful.tasklist_bg_image_selected or beautiful.taglist_bg_image_used}
         title.draw = function(self,w, cr, width, height) blind.arrow.task.task_widget_draw(self,w, cr, width, height,{no_marker=true}) end
 --         title:buttons(buttons)
 
@@ -742,7 +748,7 @@ end)
 client.connect_signal("unfocus", function(c) 
     local tb = awful.titlebar(c)
     if tb and tb.title_wdg then
-        tb.title_wdg.data.image = beautiful.taglist_bg_image_used
+        tb.title_wdg.data.image = beautiful.tasklist_bg_image_selected or beautiful.taglist_bg_image_used
     end
     if not c.class == "URxvt" then
         c.border_color = beautiful.border_normal

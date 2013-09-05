@@ -134,7 +134,7 @@ local function createDrawer()
 end
 
 local function new(screen, args)
-  local mytextclock = widget.textclock()
+  local mytextclock = widget.textclock(" %H:%M ")
   mytextclock:buttons (util.table.join(button({ }, 1, function (geo)
       if not mainMenu then
         mainMenu = menu({arrow_type=radical.base.arrow_type.CENTERED})

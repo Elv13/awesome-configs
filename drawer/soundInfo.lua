@@ -1,6 +1,5 @@
 local setmetatable = setmetatable
 local tonumber = tonumber
-local table = table
 local io = io
 local type = type
 local print = print
@@ -11,8 +10,8 @@ local widget2 = require("awful.widget")
 local config = require("forgotten")
 local beautiful = require("beautiful")
 local util = require("awful.util")
-local themeutils = require( "blind.common.drawing"    )
 local radical      = require( "radical"                  )
+local allinone = require("widgets.allinone")
 local capi = { screen = screen, mouse = mouse}
 
 local module = {}
@@ -77,12 +76,8 @@ function soundInfo()
 end
 
 local function new(mywibox3,left_margin)
-  local volumewidget = wibox.widget.textbox()
-  local volumepixmap =  wibox.widget.imagebox()
-  volumepixmap:set_image(themeutils.apply_color_mask(config.iconPath .. "vol.png"))
-
-
-  local top,bottom
+  local volumewidget2 = allinone()
+  volumewidget2:set_icon(config.iconPath .. "vol.png")
 
   local btn = util.table.join(
      button({ }, 1, function(geo)
@@ -99,19 +94,16 @@ local function new(mywibox3,left_margin)
         musicBarVisibility = true
       end),
       button({ }, 4, function()
-          util.spawn("amixer -c0 sset Master 2dB+ >/dev/null") 
+          util.spawn("amixer -c0 sset Master 2dB+ >/dev/null")
       end),
       button({ }, 5, function()
-          util.spawn("amixer -c0 sset Master 2dB- >/dev/null") 
+          util.spawn("amixer -c0 sset Master 2dB- >/dev/null")
       end)
   )
 
-  vicious.register(volumewidget, amixer_volume_int, '$1%')
-  local l = wibox.layout.fixed.horizontal()
-  l:add(volumepixmap)
-  l:add(volumewidget)
-  l:buttons(btn)
-  return l
+  vicious.register(volumewidget2, amixer_volume_int, '$1')
+  volumewidget2:buttons(btn)
+  return volumewidget2
 end
 
 return setmetatable(module, { __call = function(_, ...) return new(...) end })

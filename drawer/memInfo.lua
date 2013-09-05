@@ -22,6 +22,7 @@ local themeutils   = require( "blind.common.drawing"     )
 local embed        = require( "radical.embed"            )
 local color        = require( "gears.color"              )
 local cairo        = require( "lgi"                      ).cairo
+local allinone     = require( "widgets.allinone"         )
 
 local capi = { image  = image  ,
                screen = screen ,
@@ -240,34 +241,15 @@ local function repaint(margin)
 end
 
 local function update()
-    usrMenu:clear()
-    typeMenu:clear()
-    topMenu:clear()
+  usrMenu:clear()
+  typeMenu:clear()
+  topMenu:clear()
   reload_user(usrMenu,data)
   reload_state(typeMenu,data)
   reload_top(topMenu,data)
 end
 
 local function new(margin, args)
-
-  local memwidget = wibox.widget.textbox()
-
---   refreshStat()
-
-  --It does work, but there is some exteral issues with the menu
---     local mytimer = capi.timer({ timeout = 10 })
---     mytimer:add_signal("timeout", function()
---         if data.menu.settings.visible == true then
---             refreshStat()
---             update()
---             data.menu:toggle(true)
---         end
---     end)
---     mytimer:start()
-
-  ramlogo       = wibox.widget.imagebox()
-  ramlogo:set_image(themeutils.apply_color_mask(config.iconPath .. "cpu.png"))
-
   local visible = false
   function toggle()
       if not data.menu then
@@ -283,49 +265,15 @@ local function new(margin, args)
       data.menu.visible = visible
   end
 
-
-
-
-  vicious.register(memwidget, vicious.widgets.mem, '$1%')
-
   local buttonclick = util.table.join(button({ }, 1, function (geo) toggle();data.menu.parent_geometry=geo end))
 
-  ramlogo.bg = beautiful.bg_alternate
-  memwidget.bg = beautiful.bg_alternate
+  local volumewidget2 = allinone()
+  volumewidget2:set_icon(config.iconPath .. "cpu.png")
+  vicious.register(volumewidget2, vicious.widgets.mem, '$1', 1, 'mem')
 
-  membarwidget = widget2.progressbar()
-  membarwidget:set_width(40)
-  membarwidget:set_height(14)
-  if (widget2.progressbar.set_offset ~= nil) then
-      membarwidget:set_offset(1)
-  end
-
-  membarwidget:set_vertical(false)
-  membarwidget:set_background_color(beautiful.bg_alternate)
-  membarwidget:set_border_color(beautiful.icon_grad or beautiful.fg_normal)
-  membarwidget:set_color(beautiful.icon_grad or beautiful.fg_normal)
-
-  local marg = wibox.layout.margin(membarwidget)
-  marg:set_top(2)
-  marg:set_bottom(2)
-  marg:set_right(4)
-
-  vicious.register(membarwidget, vicious.widgets.mem, '$1', 1, 'mem')
-
-  memwidget.fit = function(box, w, h)
-      local w, h = wibox.widget.textbox.fit(box, w, h);
-      return 22, h
-  end
-
-  local l = wibox.layout.fixed.horizontal()
-  l:buttons (buttonclick)
-  l:add(ramlogo)
-  l:add(memwidget)
-  l:add(marg)
-    return l
+  volumewidget2:buttons (buttonclick)
+  return volumewidget2
 end
 
-
 return setmetatable(module, { __call = function(_, ...) return new(...) end })
-
 -- kate: space-indent on; indent-width 2; replace-tabs on;
