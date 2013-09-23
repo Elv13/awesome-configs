@@ -185,7 +185,19 @@ endArrow_alt2:set_image(endArrow_alt2i)
 
 -- End arrow
 local endArrowR = wibox.widget.imagebox()
-endArrowR:set_image(blind.common.drawing.get_beg_arrow2({bg_color=beautiful.bg_alternate ,direction="left"}))
+
+local endArrowR2i         = cairo.ImageSurface(cairo.Format.ARGB32, beautiful.default_height/2+2, beautiful.default_height)
+local cr = cairo.Context(endArrowR2i)
+cr:set_source_surface(blind.common.drawing.get_beg_arrow2({bg_color=beautiful.bg_alternate ,direction="left"}),2,0)
+cr:paint()
+cr:set_source(color(beautiful.icon_grad or beautiful.fg_normal))
+cr:set_line_width(1.5)
+cr:move_to(beautiful.default_height/2+2,-2)
+cr:line_to(2,beautiful.default_height/2)
+cr:line_to(beautiful.default_height/2+2,beautiful.default_height+2)
+cr:stroke()
+
+endArrowR:set_image(endArrowR2i)
 
 -- Create the addTag icon (depend on shifty rule)
 local addTag                 = customButton.addTag                      ( nil )
@@ -346,7 +358,7 @@ for s = 1, screen.count() do
     right_layout:add(soundWidget)
     right_layout:add(spacer_img)
     local ib2 = wibox.widget.imagebox()
-    ib2:set_image(blind.common.drawing.draw_underlay("Aug 29",{bg="#060E1A",fg=beautiful.bg_alternate,height=beautiful.default_height+4,margins=2,padding=2,padding_right=3}))
+    ib2:set_image(blind.common.drawing.draw_underlay("Aug 29",{bg="#1F2F4F",fg=beautiful.bg_alternate,height=beautiful.default_height+2,margins=2,padding=2,padding_right=3}))
     right_layout:add(clock)
     right_layout:add(ib2)
     local right_bg = wibox.widget.background()
@@ -712,7 +724,7 @@ client.connect_signal("manage", function (c, startup)
         local right_layout2 = wibox.layout.fixed.horizontal()
         right_layout2:add(endArrowR)
         right_layout2:add(bgbr)
-        
+
         local bgbl = wibox.widget.background()
         bgbl:set_widget(left_layout)
         bgbl:set_bg(beautiful.bg_alternate)
@@ -720,15 +732,19 @@ client.connect_signal("manage", function (c, startup)
         left_layout2:add(bgbl)
         left_layout2:add(endArrow_alt)
 --         left_layout2:add(awful.titlebar.widget.iconwidget(c))
-        
+
         -- Now bring it all together
         local layout = wibox.layout.align.horizontal()
         layout:set_left(left_layout2)
-        
+
         layout:set_right(right_layout2)
         layout:set_middle(title)
 
-        local tb = awful.titlebar(c,{size=height})
+        local tb = awful.titlebar(c,{size=beautiful.titlebar_height or 16})
+        tb:connect_signal("property::height",function(tb)
+            print(debug.traceback())
+            print("meh",tb.height,tb.drawable:geometry().height,beautiful.titlebar_height)
+        end)
         tb:set_widget(layout)
         tb.title_wdg = title
         title:buttons(buttons)
@@ -737,7 +753,7 @@ end)
 
 
 client.connect_signal("focus", function(c) 
-    local tb = awful.titlebar(c)
+    local tb = c:titlebar_top()
     if tb and tb.title_wdg then
         tb.title_wdg.data.image = beautiful.taglist_bg_image_selected
     end
@@ -746,7 +762,7 @@ client.connect_signal("focus", function(c)
     end
 end)
 client.connect_signal("unfocus", function(c) 
-    local tb = awful.titlebar(c)
+    local tb = c:titlebar_top()
     if tb and tb.title_wdg then
         tb.title_wdg.data.image = beautiful.tasklist_bg_image_selected or beautiful.taglist_bg_image_used
     end

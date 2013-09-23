@@ -226,6 +226,9 @@ function module.status_ellipse(cr,width,height)
     cr:set_source(color({ type = "linear", from = { 0, 0 }, to = { 0, 7 }, stops = { { 0, "#0c2e72dd" }, { 1, "#00000000" }}}))
     cr:rectangle(0,0,width,7)
     cr:fill()
+    cr:set_source(color(beautiful.taglist_underline or beautiful.bg_alternate))
+    cr:rectangle(2*height+5,height-2,width - 3*height-25,2)
+    cr:fill()
     cr:restore()
 end
 

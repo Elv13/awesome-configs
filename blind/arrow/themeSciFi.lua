@@ -24,7 +24,7 @@ arrow.task.theme,arrow.tag.theme = theme,theme
 ------------------------------------------------------------------------------------------------------
 
 theme.default_height = 16
-theme.font           = "ohsnap 8"
+-- theme.font           = "ohsnap 8"
 theme.path           = path
 
 theme.bg_normal      = "#000000"
@@ -49,7 +49,7 @@ theme.bg_systray     = theme.fg_normal
 
 theme.border_width   = "0"
 theme.border_width2  = "2"
-theme.border_normal  = "#555555"
+theme.border_normal  = "#1F1F1F"
 theme.border_focus   = "#535d6c"
 theme.border_marked  = "#91231c"
 theme.enable_glow    = true
@@ -89,6 +89,7 @@ theme.icon_grad_invert = { type = "linear", from = { 0, 0 }, to = { 0, 20 }, sto
 ------------------------------------------------------------------------------------------------------
 
 -- Display the taglist squares
+theme.taglist_underline                = "#094CA5"
 theme.taglist_bg_image_empty           = nil
 theme.taglist_bg_image_selected        = path .."Icon/bg/selected_bg_scifi_focus.png"
 theme.taglist_bg_image_focus           = path .."Icon/bg/selected_bg_scifi_focus.png"
@@ -181,7 +182,7 @@ theme.titlebar_tag    = path .."Icon/titlebar/tag.png"
 theme.titlebar_bg_focus = theme.bg_normal
 
 theme.titlebar_title_align = "left"
-theme.titlebar_height = 16
+theme.titlebar_height = 14
 
 
 ------------------------------------------------------------------------------------------------------

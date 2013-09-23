@@ -65,14 +65,6 @@ local function reload_top(procMenu,data)
             wdg.kill:set_image(config.iconPath .. "kill.png")
 
             wdg.percent:set_text((data.process[i].percent or "N/A").."%")
-
-            if procIcon[data.process[i].name:lower()] then
-                wdg.percent.bg_image = procIcon[data.process[i].name:lower()].icon
-            else --Slower, but better chances of success
-                wdg.percent.bg_image = match_icon(procIcon,data.process[i].name:lower())
-            end
-            wdg.percent.bg_resize = true
-
             procMenu:add_item({text=data.process[i].name,suffix_widget=wdg.kill,prefix_widget=wdg.percent})
         end
     end

@@ -182,8 +182,8 @@ function module.task_widget_draw(self,w, cr, width, height,args)
     elseif self._valign == "bottom" then
         offset = height - logical.height
     end
-
-    cr:select_font_face(beautiful.font, cairo.FontSlant.NORMAL, cairo.FontWeight.NORMAL)
+    self._layout:set_font_description(beautiful.get_font(beautiful.font))
+--     cr:select_font_face(beautiful.get_font(beautiful.font), cairo.FontSlant.NORMAL, cairo.FontWeight.NORMAL)
 
     local x_offset = beautiful.default_height/2 + (self.data.c.icon and beautiful.default_height + 12 or 6)
 

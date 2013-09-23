@@ -20,6 +20,7 @@ local embed        = require( "radical.embed"            )
 local radical      = require( "radical"                  )
 local color        = require( "gears.color"              )
 local cairo        = require( "lgi"                      ).cairo
+local allinone     = require( "widgets.allinone"         )
 
 local capi = { widget = widget , client = client ,
                mouse  = mouse  , timer  = timer  }
@@ -308,34 +309,44 @@ local function new(margin, args)
         end
     end
 
-    local netDownWidget    = wibox.widget.textbox()
-    local netUpWidget      = wibox.widget.textbox()
-    uplogo:set_image(themeutils.apply_color_mask(config.iconPath .. "arrowUp.png"         ))
-    downlogo:set_image(themeutils.apply_color_mask(config.iconPath .. "arrowDown.png"       ))
-    vicious.register(netUpWidget  , vicious.widgets.net   ,  '${eth0 up_kb}KBs'   ,3 )
-    vicious.register(netDownWidget, vicious.widgets.net   ,  '${eth0 down_kb}KBs' ,3 )
-    local btn = util.table.join(button({ }, 1, function (geo) show();data.menu.parent_geometry=geo end))
+    local volumewidget2 = allinone()
+    volumewidget2:hide_left(true)
+    volumewidget2:set_mirror(true)
+    volumewidget2:set_icon(config.iconPath .. "arrowUp.png")
+    volumewidget2:set_suffix("")
+    volumewidget2:set_suffix_icon(config.iconPath .. "kbs.png")
+    volumewidget2:set_value(1)
+    volumewidget2:use_percent(false)
+    volumewidget2:icon_align("left")
 
-    for k,v in ipairs({downlogo,netDownWidget,uplogo,netUpWidget}) do
-        v.bg = beautiful.bg_alternate
-    end
-
-    netDownWidget.fit = function(box, w, h)
-        local w, h = wibox.widget.textbox.fit(box, w, h)
-        return 55, h
-    end
-
-    netUpWidget.fit = function(box, w, h)
-        local w, h = wibox.widget.textbox.fit(box, w, h)
-        return 55, h
-    end
+    local volumewidget3 = allinone()
+    volumewidget3:hide_left(true)
+    volumewidget3:set_icon(config.iconPath .. "arrowDown.png")
+    volumewidget3:set_suffix("")
+    volumewidget3:set_suffix_icon(config.iconPath .. "kbs.png")
+    
+    volumewidget3:set_value(1)
+    volumewidget3:use_percent(false)
+    volumewidget3:icon_align("left")
+    vicious.register(volumewidget2  , vicious.widgets.net   ,  '${eth0 up_kb}'   ,3 )
+    vicious.register(volumewidget3, vicious.widgets.net   ,  '${eth0 down_kb}' ,3 )
 
     local l = wibox.layout.fixed.horizontal()
-    l:add(downlogo)
-    l:add(netDownWidget)
-    l:add(uplogo)
-    l:add(netUpWidget)
+    l:add(volumewidget2)
+    l:add(volumewidget3)
     l:buttons(btn)
+
+    l.draw = function(self,w, cr, width, height)
+        wibox.layout.fixed.draw(self,w, cr, width, height)
+        cr:save()
+        cr:set_source(color(beautiful.bg_allinone or beautiful.fg_normal))
+        cr:rectangle(width/2-3,1,6,2)
+        cr:rectangle(width/2-3,height-3,6,2)
+        cr:arc(width/2, height/2,height/2-4,0,2*math.pi)
+        cr:fill()
+        cr:restore()
+    end
+
     return l
 end
 
