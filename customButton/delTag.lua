@@ -36,13 +36,13 @@ local function new(screen, args)
   data[screen].visible = false
   data[screen].bg      = beautiful.bg_alternate
   tooltip2(data[screen],"Remove Tag",{})
-  
+
   data[screen]:buttons( util.table.join(
     button({ }, 1, function()
-	tag.delete(tag.selected(capi.mouse.screen))
+        tag.delete(tag.selected(capi.mouse.screen))
     end)
   ))
-  
+
   tag.attached_connect_signal(screen, "property::selected", toggleVisibility)
   tag.attached_connect_signal(screen, "property::layout", toggleVisibility)
 

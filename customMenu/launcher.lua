@@ -4,7 +4,8 @@ local print        = print
 local ipairs       = ipairs
 local pairs        = pairs
 local io           = io
-local tooltip2      = require( "widgets.tooltip2" )
+local type         = type
+local tooltip2     = require( "widgets.tooltip2" )
 local button       = require( "awful.button"    )
 local beautiful    = require( "beautiful"       )
 local naughty      = require( "naughty"         )
@@ -90,7 +91,15 @@ function createMenu(offset)
 -- print("her",config.is_set(config.launcsher3[str].counter))
 --        local count = config.is_set(config.launcsher3[str].counter) and config.launcsher3[str].counter or 0
 --        if count == 0 then
-           config.launcsher3[str].counter = "sdfsdfsdf"
+        if str ~= "" then
+--         print("ICI2","'"..str.."'","meh",config.launcsher3,config.launcsher3[str])
+            local tmp = config.launcsher3[str].counter
+            if type(tmp) ~= "number" then
+                tmp = 0
+            end
+           config.launcsher3[str].counter = tmp + 1
+--            print("NOW IS",config.launcsher3[str].counter)
+        end
            count = 1
 --        end
        local item = mainMenu:add_item({prefixbg = beautiful.fg_normal, text =  v[2], button1 = onclick,underlay=beautiful.draw_underlay(count.."x")})

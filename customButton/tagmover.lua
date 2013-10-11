@@ -14,19 +14,22 @@ local wibox = require("wibox")
 
 local capi = { image  = image  ,
                screen = screen ,
+               mouse  = mouse  ,
                widget = widget }
 
 local module = {}
 
 
 local data = {}
-local screenMenu = nil               --
+local screenMenu = nil
 
 local function btn1(id,addOrSub)
     if data[id].selected ~= nil then
         local screen2 = tag.getscreen(data[id].selected) + addOrSub
         if screen2 > capi.screen.count() then
             screen2 = 1
+        elseif screen2 == 0 then
+            screen2 = capi.screen.count()
         end
         tag.setscreen(data[id].selected,screen2)
         tag.viewonly(data[id].selected)
@@ -37,9 +40,16 @@ local function btn3(id,addOrSub)
         if not screenMenu then
         screenMenu = menu()
         for i=1,capi.screen.count() do
-            screenMenu:add_item({text=i, onclick = function()
---                 utils.tag_to_screen(data[screenMenu.id].selected, screen2)
-                tag.setscreen(data[screenMenu.id].selected,screen2)
+            screenMenu:add_item({text=i, button1 = function()
+                local t = tag.selected(capi.mouse.screen)
+                local screen2 = tag.getscreen(t) + addOrSub
+                if screen2 > capi.screen.count() then
+                    screen2 = 1
+                elseif screen2 == 0 then
+                    screen2 = capi.screen.count()
+                end
+                tag.setscreen(t,screen2)
+                tag.viewonly(t)
                 screenMenu.visible = not screenMenu.visible
             end})
         end
@@ -78,8 +88,7 @@ local function new(screen, args)
     local icon       = args.icon         or nil
     local id         = screen..direction --
     local addOrSub   = 0                 --
-    
-    
+
     if direction == "left" then
       addOrSub = -1
     elseif direction == "right" then
@@ -87,7 +96,7 @@ local function new(screen, args)
     else
       return nil
     end
-    
+
     data[id] = {}
     if icon ~= nil then
       data[id].widget       = wibox.widget.imagebox()
@@ -104,7 +113,7 @@ local function new(screen, args)
       data[id].widget:set_text(direction)
     end
     data[id].widget.bg = beautiful.bg_alternate
-    
+
     if direction == "left" and screen == 1 then
       data[id].widget.visible = false
     elseif direction == "right" and screen == capi.screen.count() then
@@ -112,10 +121,10 @@ local function new(screen, args)
     else
       data[id].widget.visible = true
     end
-    
+
     data[id].screen = screen
     data[id].direction = direction
-    
+
     data[id].widget:connect_signal("mouse::enter", function ()
                                                   data[id].selected = tag.selected()
                                                   data[id].widget.bg = beautiful.bg_normal
@@ -131,7 +140,6 @@ local function new(screen, args)
       button({ }, 4, function() btn4(id,addOrSub) end),
       button({ }, 5, function() btn5(id,addOrSub) end)
     ))
-    
 
     return data[id].widget
 end

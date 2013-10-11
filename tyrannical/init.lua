@@ -114,10 +114,17 @@ local function match_client(c, startup)
     local rules = class_client[low]
     if c.transient_for and settings.group_children == true then
         c.sticky = c.transient_for.sticky or false
-        return c:tags(c.transient_for:tags())
+        c:tags(c.transient_for:tags())
+        capi.client.focus = c
+        return
     elseif rules then
         local ret = apply_properties(c,{},rules.properties)
-        if ret then return ret end
+        if ret then
+            if not rules.properties.no_autofocus then
+                capi.client.focus = c
+            end
+            return ret
+        end
         --Add to matches
         local tags,tags_src,fav_scr,c_src,mouse_s = {},{},false,c.screen,capi.mouse.screen
         for j=1,#(rules.tags or {}) do
@@ -142,13 +149,18 @@ local function match_client(c, startup)
             elseif awful.tag.getproperty(tags[1],"no_focus_stealing") then
                 c.urgent = true
             end
+            if not rules.properties.no_autofocus then
+                capi.client.focus = c
+            end
             return
         end
     end
     --Add to the current tag if not exclusive
     local cur_tag = awful.tag.selected(c.screen)
     if awful.tag.getproperty(cur_tag,"exclusive") ~= true then
-        return c:tags({cur_tag})
+        c:tags({cur_tag})
+        capi.client.focus = c
+        return true
     end
     --Last resort, create a new tag
     class_client[low] = class_client[low] or {tags={},properties={}}
@@ -206,13 +218,13 @@ awful.tag.add,awful.tag._setscreen = function(tag,props)
 end,awful.tag.setscreen
 
 awful.tag.setscreen,awful.tag._viewonly = function(tag,screen) --Why this isn't by default...
-    if not tag or type(tag) ~= tag then return end
-    awful.tag.history.restore(tag.screen,1)
+    if not tag or type(tag) ~= "tag" then return end
     awful.tag._setscreen(tag,screen)
     for k,c in ipairs(tag:clients()) do
         c.screen = screen or 1 --Move all clients
         c:tags({tag}) --Prevent some very strange side effects, does create some issue with multitag clients
     end
+    awful.tag.history.restore(tag.screen,1)
 end,awful.tag.viewonly
 
 awful.tag.viewonly = function(t)

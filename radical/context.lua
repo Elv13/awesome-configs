@@ -15,7 +15,7 @@ local layout    = require( "radical.layout"   )
 local checkbox  = require( "radical.widgets.checkbox" )
 local arrow_style = require( "radical.style.arrow" )
 
-local capi,module = { mouse = mouse , screen = screen , keygrabber = keygrabber },{}
+local capi,module = { mouse = mouse , screen = screen },{}
 
 local function get_direction(data)
   local parent_geometry = data.parent_geometry --Local cache to avoid always calling the object hooks
@@ -151,8 +151,11 @@ local function setup_drawable(data)
   end
   function internal:set_visible(value)
     internal.w.visible = value
+    if not value then
+      capi.keygrabber.stop()
+    end
   end
-  
+
   if data.visible then
     local fit_w,fit_h = data._internal.layout:fit()
     data.width = fit_w

@@ -9,6 +9,7 @@ local tag          = require( "awful.tag"        )
 local menu         = require( "radical.box"      )
 local util         = require( "awful.util"       )
 local config       = require( "forgotten"           )
+local themeutils = require( "blind.common.drawing"    )
 local wibox        = require( "wibox"            )
 local color      = require( "gears.color"    )
 local cairo      = require( "lgi"            ).cairo
@@ -66,7 +67,8 @@ local function new2(screen, args)
     local args = args or {}
     local menuX = (capi.screen[(screen or capi.mouse.screen)].geometry.width)/4
     local menuY = (capi.screen[(screen or capi.mouse.screen)].geometry.height - (beautiful.menu_height*#capi.client.get(screen)))/2
-    local currentMenu = menu({x= menuX, y= menuY, filter = true, show_filter=true, autodiscard = true,noarrow=true,fkeys_prefix=true,width=(((screen or capi.screen[capi.mouse.screen]).geometry.width)/2)})
+    local currentMenu = menu({x= menuX, y= menuY, filter = true, show_filter=true, autodiscard = true,
+        disable_markup=true,fkeys_prefix=true,width=(((screen or capi.screen[capi.mouse.screen]).geometry.width)/2)})
     currentMenu.width = (((screen or capi.screen[capi.mouse.screen]).geometry.width)/2)
 
     currentMenu:add_key_hook({}, "Tab", "press", function(menu)
@@ -100,7 +102,7 @@ local function new2(screen, args)
                 end
                 capi.client.focus = v
             end,
-            icon    = v.icon,
+            icon    = themeutils.apply_icon_transformations(v.icon or config.iconPath .. "tags/other.png",color(beautiful.fg_focus)),
             suffix_widget = l,
             selected = capi.client.focus == v,
             underlay = v:tags()[1] and draw_underlay(v:tags()[1].name)

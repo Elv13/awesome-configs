@@ -11,6 +11,7 @@ local naughty      = require( "naughty"      )
 local tag          = require( "awful.tag"    )
 local wibox        = require( "wibox"  )
 local color = require("gears.color")
+local gsurface = require("gears.surface")
 local cairo = require("lgi").cairo
 local pango = require("lgi").Pango
 local pangocairo = require("lgi").PangoCairo
@@ -254,5 +255,51 @@ function module.separator_widget()
     end
     return sep_wdgs
 end
+
+-----------------------------------------------------------------------------
+--1) Take the client icon                                                  --
+--2) Resize and move it                                                    --
+--3) Apply a few layers of color effects to desaturate, then tint the icon --
+-----------------------------------------------------------------------------
+function module.apply_icon_transformations(icon,col)
+    -- Get size
+    local ic = gsurface(icon)
+    local icp = cairo.Pattern.create_for_surface(ic)
+    local sw,sh = ic:get_width(),ic:get_height()
+    local height = beautiful.default_height
+    -- Create matrix
+    local ratio = (height-2) / ((sw > sh) and sw or sh)
+    local matrix = cairo.Matrix()
+    cairo.Matrix.init_scale(matrix,ratio,ratio)
+    matrix:translate(height/2 - 6,-2)
+
+    --Copy to surface
+    local img5 = cairo.ImageSurface.create(cairo.Format.ARGB32, height, height)
+    local cr5 = cairo.Context(img5)
+    cr5:set_operator(cairo.Operator.CREAR)
+    cr5:paint()
+    cr5:set_operator(cairo.Operator.SOURCE)
+    cr5:set_matrix(matrix)
+    cr5:set_source(icp)
+    cr5:paint()
+
+    --Generate the mask
+    local img4 = cairo.ImageSurface.create(cairo.Format.A8, sw, sh)
+    local cr4 = cairo.Context(img4)
+    --cr4:set_matrix(matrix)
+    cr4:set_source(icp)
+    cr4:paint()
+
+    -- Apply desaturation
+    cr5:set_source_rgba(0,0,0,1)
+    cr5:set_operator(cairo.Operator.HSL_SATURATION)
+    cr5:mask(cairo.Pattern.create_for_surface(img4))
+    cr5:set_operator(cairo.Operator.HSL_COLOR)
+    cr5:set_source(col)
+    cr5:mask(cairo.Pattern.create_for_surface(img4))
+    return img5
+end
+
+
 
 return setmetatable(module, { })

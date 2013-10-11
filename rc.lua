@@ -198,6 +198,8 @@ cr:line_to(beautiful.default_height/2+2,beautiful.default_height+2)
 cr:stroke()
 
 endArrowR:set_image(endArrowR2i)
+local endArrowR2 = wibox.widget.imagebox()
+endArrowR2:set_image(blind.common.drawing.get_beg_arrow2({bg_color=beautiful.bg_alternate ,direction="left"}),2,0)
 
 -- Create the addTag icon (depend on shifty rule)
 local addTag                 = customButton.addTag                      ( nil )
@@ -358,7 +360,7 @@ for s = 1, screen.count() do
     right_layout:add(soundWidget)
     right_layout:add(spacer_img)
     local ib2 = wibox.widget.imagebox()
-    ib2:set_image(blind.common.drawing.draw_underlay("Aug 29",{bg="#1F2F4F",fg=beautiful.bg_alternate,height=beautiful.default_height+2,margins=2,padding=2,padding_right=3}))
+    ib2:set_image(blind.common.drawing.draw_underlay("Oct 01",{bg="#1F2F4F",fg=beautiful.bg_alternate,height=beautiful.default_height+2,margins=2,padding=2,padding_right=3}))
     right_layout:add(clock)
     right_layout:add(ib2)
     local right_bg = wibox.widget.background()
@@ -507,6 +509,22 @@ globalkeys = awful.util.table.join(
     awful.key({                   }, "#129"  , function () utils.mouseManager.switchTo(2)       end ),
 
     -- Prompt
+    awful.key({ modkey, "Shift"   }, "r",
+              function ()
+                 awful.prompt.run({ prompt = "New tag name: " },
+                                  mypromptbox[mouse.screen].widget,
+                                  function(new_name)
+                                     if not new_name or #new_name == 0 then
+                                        return
+                                     else
+                                        local screen = mouse.screen
+                                        local tag = awful.tag.selected(screen)
+                                        if tag then
+                                           tag.name = new_name
+                                        end
+                                     end
+                                  end)
+              end),
     awful.key({ modkey },            "r",     
 --               function ()
 --                   mypromptbox[mouse.screen]:run()
@@ -521,6 +539,12 @@ globalkeys = awful.util.table.join(
                   mypromptbox[mouse.screen].widget,
                   function (com)
                           local result = tyr_launcher.spawn({command=com})
+                          local tmp = config.launcher[com].counter
+                          if type(tmp) ~= "number" then
+                            tmp = 0
+                          end
+                          config.launcher[com].counter = tmp + 1
+                          print("in there",tmp,config.launcher[com].counter,config.sdfsdf.sdfsdf.werwr.werasd.xcvxcsef)
                           if type(result) == "string" then
                               promptbox.widget:set_text(result)
                           end
@@ -722,7 +746,7 @@ client.connect_signal("manage", function (c, startup)
         bgbr:set_widget(right_layout)
         bgbr:set_bg(beautiful.bg_alternate)
         local right_layout2 = wibox.layout.fixed.horizontal()
-        right_layout2:add(endArrowR)
+        right_layout2:add(endArrowR2)
         right_layout2:add(bgbr)
 
         local bgbl = wibox.widget.background()
@@ -743,7 +767,6 @@ client.connect_signal("manage", function (c, startup)
         local tb = awful.titlebar(c,{size=beautiful.titlebar_height or 16})
         tb:connect_signal("property::height",function(tb)
             print(debug.traceback())
-            print("meh",tb.height,tb.drawable:geometry().height,beautiful.titlebar_height)
         end)
         tb:set_widget(layout)
         tb.title_wdg = title
