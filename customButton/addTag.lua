@@ -43,7 +43,7 @@ local function new(screen, args)
   
   addTag:buttons( util.table.join(
     button({ }, 1, function()
-      tag.add("NewTag",{screen=capi.mouse.screen}).selected = true
+      tag.viewonly(tag.add("NewTag",{screen=capi.mouse.screen}))
       --delTag[capi.mouse.screen].visible = true
     end),
     button({ }, 3, function()
