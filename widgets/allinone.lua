@@ -213,7 +213,7 @@ end
 
 local function set_percent(self,percent,a2)
   if self._use_percent == false then
-    percent = percent*100
+    percent = (percent or 0)*100
   end
   self.percent = percent
   self:emit_signal("widget::updated")
