@@ -163,12 +163,12 @@ local function show_text(self,cr,height,parent_width)
   pango_l.text = ((self.percent or 0)*(self._use_percent ~= false and 100 or 1)..self._suffix)
   local width = pango_l:get_pixel_extents().width
   local icon = get_icon(self,height-4)
+  local x = self._left_item and (height/2 ) or (parent_width - beautiful.default_height - full_width)/2
   if icon then
-    local x = self._left_item and (height/2 ) or (self.width or 80)/2 - full_width/2 - height/2
     cr:set_source_surface(icon,x,2)
     cr:paint()
   end
-  local w_pos = self._left_item and (height/2 + (icon and icon:get_width())) or ((self.width or 80)/2 - width/2 + (icon and height/2 or 0))
+  local w_pos = self._left_item and (height/2 + (icon and icon:get_width())) or (x + beautiful.default_height)
   if beautiful.enable_glow then
     cr:save()
     for i=1,4 do
@@ -208,7 +208,18 @@ local function draw(self,wibox, cr, width, height)
 end
 
 local function fit(self,w,h)
-    return self.width or 80,h
+  if not pango_l then
+    pango_crx = pangocairo.font_map_get_default():create_context()
+    pango_l = pango.Layout.new(pango_crx)
+    pango_l:set_font_description(beautiful.get_font(beautiful.font))
+    pango_l.text = "100%"
+    full_width = pango_l:get_pixel_extents().width
+  end
+  if pango_l then
+    return full_width + 3*h , h
+  else
+    return self.width or beautiful.default_height*5,h
+  end
 end
 
 local function set_percent(self,percent,a2)
