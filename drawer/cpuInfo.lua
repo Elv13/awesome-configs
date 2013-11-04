@@ -99,7 +99,7 @@ local function new(margin, args)
 
       if cpuStat then
           data.cpuStat = cpuStat
-          cpuModel:set_text(cpuStat.model)
+          cpuModel:set_text(cpuStat.model or "")
       end
 
       local process = {}

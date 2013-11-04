@@ -274,7 +274,7 @@ function module.apply_icon_transformations(icon,col)
     matrix:translate(height/2 - 6,-2)
 
     --Copy to surface
-    local img5 = cairo.ImageSurface.create(cairo.Format.ARGB32, height, height)
+    local img5 = cairo.ImageSurface.create(cairo.Format.ARGB32, height*1.5, height)
     local cr5 = cairo.Context(img5)
     cr5:set_operator(cairo.Operator.CREAR)
     cr5:paint()

@@ -198,7 +198,7 @@ end
 
 local usrMenu,typeMenu,topMenu
 
-local function repaint(margin)
+local function repaint()
   mainMenu = menu({arrow_x=90,nokeyboardnav=true,item_width=198,width=200,arrow_type=radical.base.arrow_type.CENTERED})
   mainMenu:add_widget(radical.widgets.header(mainMenu,"USAGE"),{height = 20 , width = 200})
 
@@ -235,8 +235,6 @@ local function repaint(margin)
   reload_top(topMenu,data)
   mainMenu:add_embeded_menu(topMenu)
 
-  mainMenu.x = capi.screen[capi.mouse.screen].geometry.width - 200 + capi.screen[capi.mouse.screen].geometry.x - margin
-  mainMenu.y = 16
   return mainMenu
 end
 
@@ -254,7 +252,7 @@ local function new(margin, args)
   function toggle()
       if not data.menu then
           refreshStat()
-          data.menu = repaint(margin-memwidget._layout:get_pixel_extents().width-20-10)
+          data.menu = repaint()
       end
       visible = not visible
       if visible then
