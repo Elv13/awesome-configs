@@ -132,10 +132,10 @@ local function draw_progres2(self,cr,percent,wi,he)
   cr:paint()
 end
 
-local function get_icon(self,height)
+local function get_icon(self,height,icon)
   if self._icn then return self._icn end
-  if not self._icon then return end
-  local base = cairo.ImageSurface.create_from_png(self._icon)
+  if not icon and not self._icon then return end
+  local base = cairo.ImageSurface.create_from_png(icon or self._icon)
   local base_w,base_h = base:get_width(),base:get_height()
   local img = cairo.ImageSurface.create(cairo.Format.ARGB32, height, height)--themeutils.apply_color_mask
   local cr2 = cairo.Context(img)
@@ -144,7 +144,7 @@ local function get_icon(self,height)
   cr2:set_source_surface(base)
   cr2:paint()
   themeutils.apply_color_mask(img)
-  self._icn = img
+--   self._icn = img
   return img
 end
 
@@ -157,10 +157,10 @@ local function show_text(self,cr,height,parent_width)
     pango_crx = pangocairo.font_map_get_default():create_context()
     pango_l = pango.Layout.new(pango_crx)
     pango_l:set_font_description(beautiful.get_font(beautiful.font))
-    pango_l.text = "100%"
+    pango_l.text = "100"
     full_width = pango_l:get_pixel_extents().width
   end
-  pango_l.text = ((self.percent or 0)*(self._use_percent ~= false and 100 or 1)..self._suffix)
+  pango_l.text = ((self.percent or 0)*(self._use_percent ~= false and 100 or 1))--.self._suffix)
   local width = pango_l:get_pixel_extents().width
   local icon = get_icon(self,height-4)
   local x = self._left_item and (height/2 ) or (parent_width - beautiful.default_height - full_width)/2
@@ -173,11 +173,15 @@ local function show_text(self,cr,height,parent_width)
     cr:save()
     for i=1,4 do
         cr:move_to(x, y)
+        pango_l.text = ((self.percent or 0)*(self._use_percent ~= false and 100 or 1))--.self._suffix)
         cr:set_source(color((beautiful.glow_color or beautiful.fg_normal)..alpha[i]))
         cr:set_line_width(line_width[i])
         cr:move_to(w_pos,3)
         cr:layout_path(pango_l)
         cr:stroke()
+
+        pango_l.text = self._suffix
+        cr:show_layout(pango_l)
     end
     cr:restore()
   end
@@ -185,10 +189,14 @@ local function show_text(self,cr,height,parent_width)
   cr:move_to(w_pos,3)
   cr:show_layout(pango_l)
 
+  cr:move_to(w_pos+full_width,3)
+  pango_l.text = self._suffix
+  cr:show_layout(pango_l)
+
   -- Display suffix image, if any
   if self._suffix_icon then
     cr:set_antialias(cairo.ANTIALIAS_NONE)
-    cr:set_source_surface(self._suffix_icon,parent_width-(height/2)-self._suffix_icon:get_width(),3)
+    cr:set_source_surface(get_icon(self,height*0.6,self._suffix_icon),parent_width-(height/2)-height,3)
     cr:paint_with_alpha(0.5)
   end
 end
@@ -212,11 +220,11 @@ local function fit(self,w,h)
     pango_crx = pangocairo.font_map_get_default():create_context()
     pango_l = pango.Layout.new(pango_crx)
     pango_l:set_font_description(beautiful.get_font(beautiful.font))
-    pango_l.text = "100%"
+    pango_l.text = "100"..self._suffix
     full_width = pango_l:get_pixel_extents().width
   end
   if pango_l then
-    return full_width + 3*h , h
+    return full_width + 3*h + beautiful.default_height/2 , h
   else
     return self.width or beautiful.default_height*5,h
   end
@@ -255,9 +263,9 @@ local function icon_align(self,value)
 end
 
 local function set_suffix_icon(self,value)
-  local base = cairo.ImageSurface.create_from_png(value)
-  themeutils.apply_color_mask(base,beautiful.fg_normal)
-  self._suffix_icon = base
+--   local base = cairo.ImageSurface.create_from_png(value)
+--   themeutils.apply_color_mask(base,beautiful.fg_normal)
+  self._suffix_icon = value
 end
 
 local function new(args)
