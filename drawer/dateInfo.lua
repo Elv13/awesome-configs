@@ -3,6 +3,7 @@ local io           = io
 local os           = os
 local string       = string
 local print        = print
+local tonumber     = tonumber
 local util         = require( "awful.util"               )
 local wibox        = require( "wibox"                    )
 local button       = require( "awful.button"             )
@@ -11,11 +12,14 @@ local menu         = require( "radical.context"          )
 local widget       = require( "awful.widget"             )
 local themeutils   = require( "blind.common.drawing"     )
 local radical      = require( "radical"                  )
+local beautiful    = require( "beautiful"                )
 
 local capi = { screen = screen , mouse  = mouse  , timer  = timer  }
 
 local module = {}
 local mainMenu = nil
+
+local month = {"Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"}
 
 local function getHour(input)
   local toReturn
@@ -135,7 +139,24 @@ end
 
 local function new(screen, args)
   local mytextclock = widget.textclock(" %H:%M ")
-  mytextclock:buttons (util.table.join(button({ }, 1, function (geo)
+
+  local ib2 = wibox.widget.imagebox()
+  ib2:set_image(themeutils.draw_underlay(month[tonumber(os.date('%m'))].." "..os.date('%d'),
+    {
+      bg=beautiful.fg_normal,
+      fg=beautiful.bg_alternate,
+--       height=beautiful.default_height,
+      margins=beautiful.default_height*.2,
+      padding=2,
+      padding_right=3
+    }))
+
+  local right_layout = wibox.layout.fixed.horizontal()
+
+  right_layout:add(mytextclock)
+  right_layout:add(ib2)
+
+  right_layout:buttons (util.table.join(button({ }, 1, function (geo)
       if not mainMenu then
         mainMenu = menu({arrow_type=radical.base.arrow_type.CENTERED})
         min_width = createDrawer()
@@ -145,7 +166,8 @@ local function new(screen, args)
       mainMenu.parent_geometry = geo
       mainMenu.visible = not mainMenu.visible
   end)))
-  return mytextclock
+  
+  return right_layout
 end
 
 return setmetatable(module, { __call = function(_, ...) return new(...) end })
