@@ -30,6 +30,7 @@ local function populate(menu,layouts)
     for i, layout_real in ipairs(layouts) do
         local layout2 = layout.getname(layout_real)
         if layout2 and beautiful["layout_" ..layout2] then
+           print(layout_real,layout2,beautiful["layout_" ..layout2])
             menu:add_item({icon=beautiful["layout_" ..layout2],button1 = function(_,mod)
                 if mod then
                     menu[mod[1] == "Shift" and "previous_item" or "next_item"].selected = true
@@ -38,6 +39,7 @@ local function populate(menu,layouts)
             end, selected = (layout_real == cur)})
         end
     end
+    print("end")
 end
 
 module.centered_menu = function(layouts,backward)
@@ -52,6 +54,7 @@ module.centered_menu = function(layouts,backward)
         centered:add_key_hook({}, "Mod4", "release", function(menu) centered.visible = false end)
     end
     centered.visible = true
+    centered._current_item.button1(centered,backward and {"Shift"} or {})
 end
 
 local function new(screen, layouts)

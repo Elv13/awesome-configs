@@ -22,8 +22,8 @@ arrow.task.theme,arrow.tag.theme = theme,theme
 --                                                                                                  --
 ------------------------------------------------------------------------------------------------------
 
-theme.default_height = 16
-theme.font           = "snap"
+theme.default_height = 24
+theme.font           = "terminus mono 13"
 theme.path           = path
 
 theme.bg_normal      = "#0A1535"
@@ -115,7 +115,7 @@ theme.menu_submenu_icon         = path .."Icon/tags/arrow.png"
 theme.menu_scrollmenu_down_icon = path .."Icon/tags/arrow_down.png"
 theme.menu_scrollmenu_up_icon   = path .."Icon/tags/arrow_up.png"
 theme.awesome_icon              = path .."Icon/awesome2.png"
-theme.menu_height               = 20
+theme.menu_height               = 30
 theme.menu_width                = 130
 theme.menu_border_width         = 2
 theme.border_width              = 1
@@ -168,7 +168,7 @@ theme.titlebar_tag    = path .."Icon/titlebar/tag.png"
 theme.titlebar_bg_focus = theme.bg_normal
 
 theme.titlebar_title_align = "left"
-theme.titlebar_height = 16
+theme.titlebar_height = 24
 
 
 ------------------------------------------------------------------------------------------------------
