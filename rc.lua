@@ -321,8 +321,8 @@ for s = 1, screen.count() do
     layoutmenu[s] = customMenu.layoutmenu ( s,layouts_all                                   )
 
     -- Create the wibox
-    wibox_top[s] = awful.wibox({ position = "top"   , screen = s,height=beautiful.default_height })
-    wibox_bot[s] = awful.wibox({ position = "bottom", screen = s,height=beautiful.default_height })
+    wibox_top[s] = awful.wibox({ position = "top"   , screen = s,height=beautiful.default_height , bg = beautiful.bg_wibar or beautiful.bg_normal })
+    wibox_bot[s] = awful.wibox({ position = "bottom", screen = s,height=beautiful.default_height , bg = beautiful.bg_wibar or beautiful.bg_normal })
 
     -- Widgets that are aligned to the left
     local left_layout_top = wibox.layout.fixed.horizontal()
@@ -359,10 +359,7 @@ for s = 1, screen.count() do
     right_layout:add(spacer_img)
     right_layout:add(soundWidget)
     right_layout:add(spacer_img)
-    local ib2 = wibox.widget.imagebox()
-    ib2:set_image(blind.common.drawing.draw_underlay("Oct 01",{bg="#1F2F4F",fg=beautiful.bg_alternate,height=beautiful.default_height+2,margins=2,padding=2,padding_right=3}))
     right_layout:add(clock)
-    right_layout:add(ib2)
     local right_bg = wibox.widget.background()
     right_bg:set_bg(beautiful.bg_alternate)
     right_bg:set_widget(right_layout)
@@ -736,7 +733,7 @@ client.connect_signal("manage", function (c, startup)
 --         end
         title.fit = function(box, w, h)
             local width, height = wibox.widget.textbox.fit(box, w, h);
-            return width+ 50, beautiful.titlebar_height or height
+            return width+ height*3.5, beautiful.titlebar_height or height
         end
         title.data = {c = c,image=beautiful.tasklist_bg_image_selected or beautiful.taglist_bg_image_used}
         title.draw = function(self,w, cr, width, height) blind.arrow.task.task_widget_draw(self,w, cr, width, height,{no_marker=true}) end

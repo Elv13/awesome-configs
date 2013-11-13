@@ -160,7 +160,8 @@ local function show_text(self,cr,height,parent_width)
     pango_l.text = "100"
     full_width = pango_l:get_pixel_extents().width
   end
-  pango_l.text = ((self.percent or 0)*(self._use_percent ~= false and 100 or 1))--.self._suffix)
+  local text = ((self.percent or 0)*(self._use_percent ~= false and 100 or 1))
+  pango_l.text = text
   local width = pango_l:get_pixel_extents().width
   local icon = get_icon(self,height-4)
   local x = self._left_item and (height/2 ) or (parent_width - beautiful.default_height - full_width)/2
@@ -172,16 +173,11 @@ local function show_text(self,cr,height,parent_width)
   if beautiful.enable_glow then
     cr:save()
     for i=1,4 do
-        cr:move_to(x, y)
-        pango_l.text = ((self.percent or 0)*(self._use_percent ~= false and 100 or 1))--.self._suffix)
         cr:set_source(color((beautiful.glow_color or beautiful.fg_normal)..alpha[i]))
         cr:set_line_width(line_width[i])
         cr:move_to(w_pos,3)
         cr:layout_path(pango_l)
         cr:stroke()
-
-        pango_l.text = self._suffix
-        cr:show_layout(pango_l)
     end
     cr:restore()
   end
@@ -191,6 +187,15 @@ local function show_text(self,cr,height,parent_width)
 
   cr:move_to(w_pos+full_width,3)
   pango_l.text = self._suffix
+
+  if beautiful.enable_glow then
+    for i=1,4 do
+      cr:set_source(color((beautiful.glow_color or beautiful.fg_normal)..alpha[i]))
+      pango_l.text = self._suffix
+      cr:show_layout(pango_l)
+    end
+  end
+  cr:set_source(color(beautiful.fg_normal))
   cr:show_layout(pango_l)
 
   -- Display suffix image, if any
