@@ -137,7 +137,7 @@ local function get_icon(self,height,icon)
   if not icon and not self._icon then return end
   local base = cairo.ImageSurface.create_from_png(icon or self._icon)
   local base_w,base_h = base:get_width(),base:get_height()
-  local img = cairo.ImageSurface.create(cairo.Format.ARGB32, height, height)--themeutils.apply_color_mask
+  local img = cairo.ImageSurface.create(cairo.Format.ARGB32, height*(base_w/base_h), height)--themeutils.apply_color_mask
   local cr2 = cairo.Context(img)
   local aspect_h = height / base_h
   cr2:scale(aspect_h,aspect_h)
@@ -195,13 +195,14 @@ local function show_text(self,cr,height,parent_width)
       cr:show_layout(pango_l)
     end
   end
-  cr:set_source(color(beautiful.fg_normal))
+  cr:set_source(color(beautiful.fg_normal.."7f"))
   cr:show_layout(pango_l)
 
   -- Display suffix image, if any
   if self._suffix_icon then
     cr:set_antialias(cairo.ANTIALIAS_NONE)
-    cr:set_source_surface(get_icon(self,height*0.6,self._suffix_icon),parent_width-(height/2)-height,3)
+    local suffix_icon = get_icon(self,height*0.6,self._suffix_icon)
+    cr:set_source_surface(suffix_icon,parent_width-(height/2)-height,(height-suffix_icon:get_height())/2)
     cr:paint_with_alpha(0.5)
   end
 end
