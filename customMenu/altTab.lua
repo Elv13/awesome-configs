@@ -6,6 +6,7 @@ local print        = print
 local button       = require( "awful.button"     )
 local beautiful    = require( "beautiful"        )
 local tag          = require( "awful.tag"        )
+local client2       = require( "awful.client"     )
 local menu         = require( "radical.box"      )
 local util         = require( "awful.util"       )
 local config       = require( "forgotten"           )
@@ -24,6 +25,33 @@ local module = {}
 
 local function draw_underlay(text)
     return beautiful.draw_underlay and beautiful.draw_underlay(text) or nil
+end
+
+-- Keep its own history instead of using awful.client.focus.history
+local focusIdx,focusTable = 1,setmetatable({}, { __mode = 'v' })
+capi.client.connect_signal("focus", function(c)
+    focusTable[c] = focusIdx
+    focusIdx = focusIdx + 1
+end)
+
+local function compare(a,b)
+  return a[1] > b[1]
+end
+
+local function get_history(screen)
+   local result = {}
+   for k,v in pairs(focusTable) do
+       result[#result+1] = {v,k}
+   end
+   local orphanCount = -100
+   for k,v in ipairs(capi.client.get(screen or 1)) do
+      if not focusTable[v] then
+         result[#result+1] = {orphanCount,v}
+         orphanCount = orphanCount -1
+      end
+   end
+   table.sort(result,compare)
+   return result
 end
 
 local function button_group(args)
@@ -63,6 +91,13 @@ local function button_group(args)
     return widget
 end
 
+local function select_next(menu)
+   local item = menu.next_item
+   item.selected = true
+   item.button1()
+   return true
+end
+
 local function new2(screen, args)
     local args = args or {}
     local menuX = (capi.screen[(screen or capi.mouse.screen)].geometry.width)/4
@@ -71,12 +106,7 @@ local function new2(screen, args)
         disable_markup=true,fkeys_prefix=true,width=(((screen or capi.screen[capi.mouse.screen]).geometry.width)/2)})
     currentMenu.width = (((screen or capi.screen[capi.mouse.screen]).geometry.width)/2)
 
-    currentMenu:add_key_hook({}, "Tab", "press", function(menu)
-        local item = currentMenu.next_item
-        item.selected = true
-        item.button1()
-        return true
-    end)
+    currentMenu:add_key_hook({}, "Tab", "press", select_next)
 
     if args.auto_release then
         currentMenu:add_key_hook({}, "Alt_L", "release", function(menu)
@@ -85,8 +115,8 @@ local function new2(screen, args)
         end)
     end
 
-    for k,v in ipairs(capi.client.get(screen)) do
-        local l = wibox.layout.fixed.horizontal()
+    for k,v2 in ipairs(get_history(screen)) do
+        local l,v = wibox.layout.fixed.horizontal(),v2[2]
         l:add( button_group({client = v, width=5, field = "close",     focus = false, checked = false                            , onclick = function() v:kill() end                      })     )
         l:add( button_group({client = v, width=5, field = "ontop",     focus = false, checked = function() return v.ontop end    , onclick = function() v.ontop = not v.ontop end         })     )
         l:add( button_group({client = v, width=5, field = "maximized", focus = false, checked = function() return v.maximized end, onclick = function() v.maximized = not v.maximized end }) )
@@ -110,6 +140,9 @@ local function new2(screen, args)
     end
 
     currentMenu.visible  = true
+    if args.auto_release then
+      select_next(currentMenu)
+    end
     return currentMenu
 end
 

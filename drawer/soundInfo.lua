@@ -19,7 +19,7 @@ local module = {}
 local mainMenu = nil
 
 function amixer_volume_int(format)
-   local f = io.popen('amixer sget Master | tail -n1 |cut -f 6 -d " " | grep -o -e "[0-9]*"')
+   local f = io.popen('amixer sget Master 2> /dev/null | tail -n1 |cut -f 6 -d " " | grep -o -e "[0-9]*"')
    local l = f:read()
    f:close()
    local toReturn
@@ -32,7 +32,7 @@ function amixer_volume_int(format)
 end
 
 function soundInfo()
-  local f = io.popen('amixer | grep "Simple mixer control" | cut -f 2 -d "\'" | sort -u')
+  local f = io.popen('amixer 2> /dev/null | grep "Simple mixer control" | cut -f 2 -d "\'" | sort -u')
 
   local soundHeader = wibox.widget.textbox()
   soundHeader:set_markup(" <span color='".. beautiful.bg_normal .."'><b><tt>CHANALS</tt></b></span> ")
@@ -42,7 +42,7 @@ function soundInfo()
     local aChannal = f:read("*line")
     if aChannal == nil then break end
 
-    local f2= io.popen('amixer sget '.. aChannal ..' | tail -n1 |cut -f 6 -d " " | grep -o -e "[0-9]*" 2> /dev/null')
+    local f2= io.popen('amixer sget 2> /dev/null'.. aChannal ..' | tail -n1 |cut -f 6 -d " " | grep -o -e "[0-9]*" 2> /dev/null')
     local aVolume = (tonumber(f2:read("*line")) or 0) / 100
     f2:close()
 
