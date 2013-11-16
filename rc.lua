@@ -109,7 +109,7 @@ local layouts =
     awful.layout.suit.fair,
     awful.layout.suit.fair.horizontal,
     awful.layout.suit.spiral,
-    awful.layout.suit.spiral.dwindle,
+--     awful.layout.suit.spiral.dwindle,
     awful.layout.suit.max,
     awful.layout.suit.max.fullscreen,
     awful.layout.suit.magnifier
@@ -124,7 +124,7 @@ local layouts_all =
     awful.layout.suit.fair,
     awful.layout.suit.fair.horizontal,
     awful.layout.suit.spiral,
-    awful.layout.suit.spiral.dwindle,
+--     awful.layout.suit.spiral.dwindle,
     awful.layout.suit.max,
     awful.layout.suit.max.fullscreen,
     awful.layout.suit.magnifier
@@ -427,8 +427,8 @@ root.buttons(awful.util.table.join(
 
 -- {{{ Key bindings
 globalkeys = awful.util.table.join(
-    awful.key({ modkey, "Shift"   }, "Left",   awful.tag.viewprev       ),
-    awful.key({ modkey, "Shift"   }, "Right",  awful.tag.viewnext       ),
+    awful.key({ "Control", "Mod1" }, "Left",   awful.tag.viewprev       ),
+    awful.key({ "Control", "Mod1" }, "Right",  awful.tag.viewnext       ),
 --     awful.key({ modkey,           }, "Escape", awful.tag.history.restore),
 
     awful.key({ modkey,           }, "j",
@@ -493,8 +493,12 @@ globalkeys = awful.util.table.join(
     awful.key({ modkey,           }, "Right", function () indicator.focus.global_bydirection("down")  end),
     awful.key({ modkey,           }, "Up",    function () indicator.focus.global_bydirection("up")    end),
     awful.key({ modkey,           }, "Down",  function () indicator.focus.global_bydirection("down")  end),
-    awful.key({ modkey, "Shift"   }, "#143",  awful.tag.viewnext),
-    awful.key({ modkey, "Shift"   }, "#136",  awful.tag.viewprev),
+    awful.key({ modkey, "Shift"   }, "Left",  function () indicator.focus.global_bydirection("left",nil,true)  end),
+    awful.key({ modkey, "Shift"   }, "Right", function () indicator.focus.global_bydirection("down",nil,true)  end),
+    awful.key({ modkey, "Shift"   }, "Up",    function () indicator.focus.global_bydirection("up",nil,true)    end),
+    awful.key({ modkey, "Shift"   }, "Down",  function () indicator.focus.global_bydirection("down",nil,true)  end),
+    awful.key({ "Control", "Mod1" }, "#143",  awful.tag.viewnext),
+    awful.key({ "Control", "Mod1" }, "#136",  awful.tag.viewprev),
     --220 143 209
 
     --Switch screen
