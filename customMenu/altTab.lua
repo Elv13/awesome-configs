@@ -34,6 +34,11 @@ capi.client.connect_signal("focus", function(c)
     focusIdx = focusIdx + 1
 end)
 
+-- Remove client when closed
+client.connect_signal("unmanage", function (c)
+   focusTable[c] = nil
+end)
+
 local function compare(a,b)
   return a[1] > b[1]
 end
@@ -46,7 +51,7 @@ local function get_history(screen)
    local orphanCount = -100
    for k,v in ipairs(capi.client.get(screen or 1)) do
       if not focusTable[v] then
-         result[#result+1] = {orphanCount,v}
+         result[#result+1] = setmetatable({orphanCount,v}, { __mode = 'v' })
          orphanCount = orphanCount -1
       end
    end
