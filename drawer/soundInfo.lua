@@ -19,16 +19,19 @@ local module = {}
 local mainMenu = nil
 
 function amixer_volume_int(format)
-   local f = io.popen('amixer sget Master 2> /dev/null | tail -n1 |cut -f 6 -d " " | grep -o -e "[0-9]*"')
-   local l = f:read()
-   f:close()
-   local toReturn
-   if l == "" then
-    toReturn = 0
-   else
-    toReturn = tonumber(l)
+   local f = io.popen('amixer sget Master | tail -n1 |cut -f 6 -d " " | grep -o -e "[0-9]*"')
+   if f then
+      local l = f:read()
+      f:close()
+      local toReturn
+      if l == "" then
+      toReturn = 0
+      else
+      toReturn = tonumber(l)
+      end
+      return {toReturn}
    end
-   return {toReturn}
+   return {}
 end
 
 function soundInfo()

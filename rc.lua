@@ -69,11 +69,8 @@ config.desktopIcon   = true
 config.advTermTB     = true
 config.scriptPath    = awful.util.getdir("config") .. "/Scripts/"
 config.scr           = {
-    pri         = 1,
-    sec         = 2,
-    music       = 3,
-    media       = 4,
-    irc         = 5,
+    pri         = 2,
+    sec         = 1,
 }
 
 -- Load the theme
