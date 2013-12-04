@@ -466,7 +466,14 @@ globalkeys = awful.util.table.join(
     awful.key({ modkey,           }, "Return", function () tyr_launcher.spawn({command=terminal})   end ),
     awful.key({ modkey, "Control" }, "r", awesome.restart),
     awful.key({ modkey, "Shift"   }, "q", awesome.quit),
-
+    awful.key({ modkey            }, "n"     , function() awful.tag.viewonly(awful.tag.add("NewTag",{screen= (client.focus and client.focus.screen or mouse.screen) }))    end ),
+    awful.key({ modkey, "Shift"   }, "n"     , function() 
+                                                  local c = client.focus
+                                                  local t = awful.tag.add("NewTag",{screen= (client.focus and client.focus.screen or mouse.screen) })
+                                                  if c then c:tags(awful.util.table.join(c:tags(), {t})) end
+                                                  awful.tag.viewonly(t)
+                                               end ),
+    awful.key({ modkey            }, "d"     , function() awful.tag.delete(client.focus and awful.tag.selected(client.focus.screen) or awful.tag.selected(mouse.screen) )  end ),
     awful.key({ modkey,           }, "l",     function () awful.tag.incmwfact( 0.05)    end),
     awful.key({ modkey,           }, "h",     function () awful.tag.incmwfact(-0.05)    end),
     awful.key({ modkey, "Shift"   }, "h",     function () awful.tag.incnmaster( 1)      end),
@@ -580,17 +587,17 @@ clientkeys = awful.util.table.join(
     awful.key({ modkey,           }, "o",      awful.client.movetoscreen                        ),
     awful.key({ modkey,           }, "t",      function (c) c.ontop = not c.ontop            end),
     awful.key({ modkey,           }, "y",      function (c) indicator.resize.display(c,true) end),
-    awful.key({ modkey,           }, "n",
+    awful.key({ modkey,           }, "m",
         function (c)
             -- The client currently has the input focus, so it cannot be
             -- minimized, since minimized clients can't have the focus.
             c.minimized = true
-        end),
-    awful.key({ modkey,           }, "m",
-        function (c)
-            c.maximized_horizontal = not c.maximized_horizontal
-            c.maximized_vertical   = not c.maximized_vertical
         end)
+--    awful.key({ modkey,           }, "m",
+--        function (c)
+--            c.maximized_horizontal = not c.maximized_horizontal
+--            c.maximized_vertical   = not c.maximized_vertical
+--        end)
 )
 
 -- Compute the maximum number of digit we need, limited to 9
