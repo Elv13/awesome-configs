@@ -2,26 +2,22 @@ local setmetatable = setmetatable
 local type         = type
 local ipairs       = ipairs
 local pairs        = pairs
-local print        = print
 local button       = require( "awful.button"     )
 local beautiful    = require( "beautiful"        )
 local tag          = require( "awful.tag"        )
-local client2       = require( "awful.client"     )
 local menu         = require( "radical.box"      )
 local util         = require( "awful.util"       )
 local config       = require( "forgotten"           )
 local themeutils = require( "blind.common.drawing"    )
 local wibox        = require( "wibox"            )
 local color      = require( "gears.color"    )
-local cairo      = require( "lgi"            ).cairo
-local capi = { image      = image,
-               widget     = widget,
-               client     = client,
+local capi = { client     = client,
                mouse      = mouse,
-               screen     = screen,
-               keygrabber = keygrabber }
+               screen     = screen,}
 
 local module = {}
+
+local pause_monitoring = false
 
 local function draw_underlay(text)
     return beautiful.draw_underlay and beautiful.draw_underlay(text) or nil
@@ -29,10 +25,13 @@ end
 
 -- Keep its own history instead of using awful.client.focus.history
 local focusIdx,focusTable = 1,setmetatable({}, { __mode = 'v' })
-capi.client.connect_signal("focus", function(c)
-    focusTable[c] = focusIdx
-    focusIdx = focusIdx + 1
-end)
+local function push_focus(c)
+   if not pause_monitoring then
+      focusTable[c] = focusIdx
+      focusIdx = focusIdx + 1
+   end
+end
+capi.client.connect_signal("focus", push_focus)
 
 -- Remove client when closed
 client.connect_signal("unmanage", function (c)
@@ -105,11 +104,8 @@ end
 
 local function new2(screen, args)
     local args = args or {}
-    local menuX = (capi.screen[(screen or capi.mouse.screen)].geometry.width)/4
-    local menuY = (capi.screen[(screen or capi.mouse.screen)].geometry.height - (beautiful.menu_height*#capi.client.get(screen)))/2
-    local currentMenu = menu({x= menuX, y= menuY, filter = true, show_filter=true, autodiscard = true,
+    local currentMenu = menu({filter = true, show_filter=true, autodiscard = true,
         disable_markup=true,fkeys_prefix=true,width=(((screen or capi.screen[capi.mouse.screen]).geometry.width)/2)})
-    currentMenu.width = (((screen or capi.screen[capi.mouse.screen]).geometry.width)/2)
 
     currentMenu:add_key_hook({}, "Tab", "press", select_next)
 
@@ -144,10 +140,14 @@ local function new2(screen, args)
         })
     end
 
+    pause_monitoring = true
     currentMenu.visible  = true
     if args.auto_release then
       select_next(currentMenu)
     end
+    currentMenu:connect_signal("visible::changed",function(m)
+         if not m.visible then pause_monitoring = false;push_focus(capi.client.focus) end
+    end)
     return currentMenu
 end
 
