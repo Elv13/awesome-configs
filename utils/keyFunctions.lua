@@ -9,7 +9,7 @@ local client       = require( "awful.client"     )
 local tag          = require( "awful.tag"        )
 local util         = require( "awful.util"       )
 local tools        = require( "utils.tools"      )
-local customMenu   = require( "customMenu.altTab")
+-- local customMenu   = require( "customMenu.altTab")
 
 local capi = { image  = image,
                widget = widget,
@@ -19,38 +19,12 @@ local capi = { image  = image,
 
 local module = {}
 
-function  module.moveTagToScreen() 
+function  module.moveTagToScreen()
     if capi.mouse.screen == 1 then
         tools.tag_to_screen(tag.selected(capi.mouse.screen), 2) 
     else
         tools.tag_to_screen(tag.selected(capi.mouse.screen), 1) 
     end
-end
-
-function  module.altTab(args)
-    local args = args or {}
-    customMenu(nil,{leap = 1,auto_release = args.auto_release})
-    
-    if not capi.client.focus then
-       return 
-    end
-    
-    --client.focus.byidx( 1)
-    --if capi.client.focus then capi.client.focus:raise() end --TODO
-end
-
-function  module.altTabBack(args)
-    local args = args or {}
-    customMenu(nil,{leap = -1,auto_release = args.auto_release})
-    --if not capi.client.focus then
-    --   return 
-    --end
-    
-    --client.focus.byidx(-1)
-    
-    --if capi.client.focus then 
-    --    capi.client.focus:raise() 
-    --end
 end
 
 function  module.focusHistory()

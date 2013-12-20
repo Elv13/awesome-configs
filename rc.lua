@@ -30,6 +30,7 @@ local tyrannical = require("tyrannical")
 local tyr_launcher = require("tyrannical.extra.launcher")
 local indicator = require("customIndicator")
 local blind = require("blind")
+local alttab = require("radical.impl.alttab")
 -- utils.profile.start()
 -- debug.sethook(utils.profile.trace, "crl", 1)
 if awesome.startup_errors then
@@ -238,6 +239,9 @@ beautiful.on_task_hover = function(c,geo,visible)
         prev_menu.visible = true
     end
 end
+alttab.default_icon   = config.iconPath .. "tags/other.png"
+alttab.titlebar_path  = config.themePath.. "Icon/titlebar/" 
+alttab.icon_transform = function(i) return blind.common.drawing.apply_icon_transformations(i,color(beautiful.fg_focus)) end
 
 -- Create a wibox for each screen and add it
 wibox_top = {}
@@ -455,11 +459,11 @@ globalkeys = awful.util.table.join(
 --         end),
 --         
     
-    awful.key({ modkey,           }, "Tab"   , function () utils.keyFunctions.altTab()          end ),
-    awful.key({ modkey, "Shift"   }, "Tab"   , function () utils.keyFunctions.altTabBack()      end ),
+    awful.key({ modkey,           }, "Tab"   , function () alttab.altTab()          end ),
+    awful.key({ modkey, "Shift"   }, "Tab"   , function () alttab.altTabBack()      end ),
     
-    awful.key({ "Mod1",           }, "Tab"   , function () utils.keyFunctions.altTab({auto_release=true})          end ),
-    awful.key({ "Mod1", "Shift"   }, "Tab"   , function () utils.keyFunctions.altTabBack({auto_release=true})      end ),
+    awful.key({ "Mod1",           }, "Tab"   , function () alttab.altTab({auto_release=true})          end ),
+    awful.key({ "Mod1", "Shift"   }, "Tab"   , function () alttab.altTabBack({auto_release=true})      end ),
 
     -- Standard program
     awful.key({         "Control" }, "Escape", function () awful.util.spawn("xkill")    end ),
@@ -741,7 +745,7 @@ client.connect_signal("manage", function (c, startup)
 --         end
         title.fit = function(box, w, h)
             local width, height = wibox.widget.textbox.fit(box, w, h);
-            return width+ height*3.5, beautiful.titlebar_height or height
+            return width+ height*4, beautiful.titlebar_height or height
         end
         title.data = {c = c,image=beautiful.tasklist_bg_image_selected or beautiful.taglist_bg_image_used}
         title.draw = function(self,w, cr, width, height) blind.arrow.task.task_widget_draw(self,w, cr, width, height,{no_marker=true}) end
