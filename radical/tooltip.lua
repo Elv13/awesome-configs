@@ -48,7 +48,7 @@ local function new(widget,text, args)
       end
     end
   end
-  
+
   function data:hide() hide_tooltip() end
 
   function data:showToolTip(show,args2)

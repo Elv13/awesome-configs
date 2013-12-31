@@ -4,7 +4,7 @@ local button    = require( "awful.button"    )
 local beautiful = require( "beautiful"       )
 local util      = require( "awful.util"      )
 local config    = require( "forgotten"          )
-local tooltip2   = require( "widgets.tooltip2" )
+local tooltip2   = require( "radical.tooltip" )
 local wibox     = require( "wibox"           )
 local themeutils = require( "blind.common.drawing"    )
 

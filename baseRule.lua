@@ -325,19 +325,23 @@ tyrannical.properties.intrusive = {
     "feh"           , "Gradient editor", "About KDE" , "Paste Special", "Background color",
     "kcolorchooser" , "plasmoidviewer" , "plasmaengineexplorer" , "Xephyr" , "kruler"     ,
     "yakuake"       ,
-    "sflphone-client-kde", "sflphone-client-gnome",
+    "sflphone-client-kde", "sflphone-client-gnome", "xev",
 }
 tyrannical.properties.floating = {
     "MPlayer"      , "pinentry"        , "ksnapshot"  , "pinentry"     , "gtksu"          ,
     "xine"         , "feh"             , "kmix"       , "kcalc"        , "xcalc"          ,
     "yakuake"      , "Select Color$"   , "kruler"     , "kcolorchooser", "Paste Special"  ,
     "New Form"     , "Insert Picture"  , "kcharselect", "mythfrontend" , "plasmoidviewer" ,
-    "sflphone-client-kde", "sflphone-client-gnome",
+    "sflphone-client-kde", "sflphone-client-gnome", "xev",
     amarok = false ,
 }
 
 tyrannical.properties.ontop = {
     "Xephyr"       , "ksnapshot"       , "kruler"
+}
+
+tyrannical.properties.maximize = {
+    amarok = false,
 }
 
 -- tyrannical.properties.border_width = {

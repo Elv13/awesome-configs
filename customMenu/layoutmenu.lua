@@ -8,7 +8,7 @@ local tag        = require("awful.tag")
 local util       = require("awful.util")
 local beautiful  = require("beautiful")
 local wibox      = require("wibox")
-local tooltip2   = require( "widgets.tooltip2" )
+local tooltip2   = require( "radical.tooltip" )
 local themeutils = require( "blind.common.drawing"    )
 local radical    = require("radical")
 

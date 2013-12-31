@@ -1,7 +1,5 @@
 
-local capi = { image = image,
-               widget = widget,
-               mouse = mouse}
+local capi = { mouse = mouse}
 local setmetatable = setmetatable
 local next = next
 local unpack = unpack
@@ -14,7 +12,7 @@ local mouse     = require( "awful.mouse"     )
 local config    = require( "forgotten"          )
 local menu      = require( "radical.context"    )
 local themeutils = require( "blind.common.drawing"    )
-local tooltip2  = require( "widgets.tooltip2" )
+local tooltip2  = require( "radical.tooltip" )
 local wibox = require("wibox")
 
 local module = {}

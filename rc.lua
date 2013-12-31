@@ -70,8 +70,11 @@ config.desktopIcon   = true
 config.advTermTB     = true
 config.scriptPath    = awful.util.getdir("config") .. "/Scripts/"
 config.scr           = {
-    pri         = 2,
-    sec         = 1,
+    pri         = 1,
+    sec         = 3,
+    music       = 4,
+    irc         = 2,
+    media       = 5,
 }
 
 -- Load the theme
@@ -302,6 +305,25 @@ mytasklist.buttons = awful.util.table.join(
                                               if client.focus then client.focus:raise() end
                                           end))
 
+
+local right_layout = wibox.layout.fixed.horizontal()
+local right_layout_meta = wibox.layout.fixed.horizontal()
+right_layout_meta:add(endArrowR)
+right_layout:add(spacer5)
+right_layout:add(cpuinfo)
+right_layout:add(spacer_img)
+right_layout:add(meminfo)
+right_layout:add(spacer_img)
+right_layout:add(netinfo)
+right_layout:add(spacer_img)
+right_layout:add(soundWidget)
+right_layout:add(spacer_img)
+right_layout:add(clock)
+local right_bg = wibox.widget.background()
+right_bg:set_bg(beautiful.bg_alternate)
+right_bg:set_widget(right_layout)
+right_layout_meta:add(right_bg)
+
 for s = 1, screen.count() do
     -- Create a promptbox for each screen
     mypromptbox[s] = awful.widget.prompt()
@@ -346,33 +368,15 @@ for s = 1, screen.count() do
     left_layout_top:add(bgb)
     left_layout_top:add(endArrow_alt2)
 
+    local layout_top = wibox.layout.align.horizontal()
+
     -- Widgets that are aligned to the right
-    local right_layout = wibox.layout.fixed.horizontal()
-    local right_layout_meta = wibox.layout.fixed.horizontal()
-    if s < 3 then
-    right_layout_meta:add(endArrowR)
-    right_layout:add(spacer5)
-    right_layout:add(cpuinfo)
-    right_layout:add(spacer_img)
-    right_layout:add(meminfo)
-    right_layout:add(spacer_img)
-    right_layout:add(netinfo)
-    right_layout:add(spacer_img)
-    right_layout:add(soundWidget)
-    right_layout:add(spacer_img)
-    right_layout:add(clock)
-    local right_bg = wibox.widget.background()
-    right_bg:set_bg(beautiful.bg_alternate)
-    right_bg:set_widget(right_layout)
-    right_layout_meta:add(right_bg)
+    if s == config.scr.pri or s == config.scr.sec then
+        layout_top:set_right(right_layout_meta)
     end
 
     -- Now bring it all together (with the tasklist in the middle)
-    local layout_top = wibox.layout.align.horizontal()
     layout_top:set_left(left_layout_top)
-    if s < 3 then
-    layout_top:set_right(right_layout_meta)
-    end
 
     wibox_top[s]:set_widget(layout_top)
 
@@ -511,11 +515,11 @@ globalkeys = awful.util.table.join(
 
     --Switch screen
     --              MODIFIERS         KEY                        ACTION                               
-    awful.key({                   }, "#177"  , function () utils.mouseManager.switchTo(3)       end ),
-    awful.key({                   }, "#152"  , function () utils.mouseManager.switchTo(4)       end ),
-    awful.key({                   }, "#190"  , function () utils.mouseManager.switchTo(5)       end ),
-    awful.key({                   }, "#208"  , function () utils.mouseManager.switchTo(1)       end ),
-    awful.key({                   }, "#129"  , function () utils.mouseManager.switchTo(2)       end ),
+    awful.key({                   }, "#179"  , function () utils.mouseManager.switchTo(3)       end ),
+    awful.key({                   }, "#175"  , function () utils.mouseManager.switchTo(4)       end ),
+    awful.key({                   }, "#176"  , function () utils.mouseManager.switchTo(5)       end ),
+    awful.key({                   }, "#178"  , function () utils.mouseManager.switchTo(1)       end ),
+    awful.key({                   }, "#177"  , function () utils.mouseManager.switchTo(2)       end ),
 
     -- Prompt
     awful.key({ modkey, "Shift"   }, "r",
@@ -553,7 +557,7 @@ globalkeys = awful.util.table.join(
                             tmp = 0
                           end
                           config.launcher[com].counter = tmp + 1
-                          print("in there",tmp,config.launcher[com].counter,config.sdfsdf.sdfsdf.werwr.werasd.xcvxcsef)
+--                           print("in there",tmp,config.launcher[com].counter,config.sdfsdf.sdfsdf.werwr.werasd.xcvxcsef)
                           if type(result) == "string" then
                               promptbox.widget:set_text(result)
                           end
@@ -672,6 +676,7 @@ awful.rules.rules = {
 -- Signal function to execute when a new client appears.
 client.connect_signal("manage", function (c, startup)
     -- Enable sloppy focusssdaf
+    print(c.name,c.screen)
     c:connect_signal("mouse::enter", function(c)
         if awful.layout.get(c.screen) ~= awful.layout.suit.magnifier
             and awful.client.focus.filter(c) then
@@ -720,7 +725,7 @@ client.connect_signal("manage", function (c, startup)
         for k,v in ipairs({awful.titlebar.widget.floatingbutton(c) , awful.titlebar.widget.maximizedbutton(c), awful.titlebar.widget.stickybutton(c), 
             awful.titlebar.widget.ontopbutton(c), awful.titlebar.widget.closebutton(c)}) do
             right_layout:add(v)
-            widgets.tooltip2(v,labels[k],{})
+            radical.tooltip(v,labels[k],{})
 --             v:connect_signal("mouse::enter", function() tt[k] = tt[k] or ;tt[k]:showToolTip(true,{y=c:geometry().y+height}) end)
 --             v:connect_signal("mouse::leave", function() tt[k]:showToolTip(false) end)
         end
@@ -774,9 +779,9 @@ client.connect_signal("manage", function (c, startup)
         layout:set_middle(title)
 
         local tb = awful.titlebar(c,{size=beautiful.titlebar_height or 16})
-        tb:connect_signal("property::height",function(tb)
-            print(debug.traceback())
-        end)
+--         tb:connect_signal("property::height",function(tb)
+--             print(debug.traceback())
+--         end)
         tb:set_widget(layout)
         tb.title_wdg = title
         title:buttons(buttons)

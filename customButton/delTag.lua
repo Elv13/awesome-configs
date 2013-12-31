@@ -6,7 +6,7 @@ local config = require("forgotten")
 local util = require("awful.util")
 local wibox = require("wibox")
 -- local shifty = require("shifty")
-local tooltip2   = require( "widgets.tooltip2" )
+local tooltip2   = require( "radical.tooltip" )
 local themeutils = require( "blind.common.drawing"    )
 local capi = { image = image,
                screen = screen,

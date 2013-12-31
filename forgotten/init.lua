@@ -37,7 +37,7 @@ local function mirrorLen(table2)
 end
 
 local function mirrorW(table, key,value)
-    print("writing",key,value)
+--     print("writing",key,value)
     local realT = rawget(table,"__real_table")
     if realT[key] ~= value then
         realT[key] = value
@@ -55,7 +55,7 @@ local function settable_eventR (table, key)
         return auto_save
     end
     local ret = rawget(table,"__real_table")
-    print("in read",key,ret,(ret[key]),type(ret[key]))
+--     print("in read",key,ret,(ret[key]),type(ret[key]))
     if ret[key] then return ret[key] end
     ret[key] = {}
     rawset(table,key,{["__real_table"]=ret[key]})
@@ -227,7 +227,7 @@ function module.is_set(path)
     if t ~= "table" then return true end
     local rt = rawget(path,"__real_table")
     local k,v,k2,v2 = next(rt or {}),next(path)
-    print("keys",k,k2)
+--     print("keys",k,k2)
     return k ~= nil or type(k2) == "string"
 end
 

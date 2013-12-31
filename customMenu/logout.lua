@@ -4,7 +4,7 @@ local beautiful    = require( "beautiful"       )
 local naughty      = require( "naughty"         )
 local tag          = require( "awful.tag"       )
 local util         = require( "awful.util"      )
-local tooltip2      = require( "widgets.tooltip2" )
+local tooltip2      = require( "radical.tooltip" )
 local menu         = require( "widgets.menu"    )
 
 local capi = { image  = image  ,
