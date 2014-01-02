@@ -20,9 +20,7 @@ local cairo        = require( "lgi"              ).cairo
 
 local default = {width=90,height=30,radius=40,base_radius=60}
 
-local capi = { image        = image        ,
-               widget       = widget       ,
-               client       = client       ,
+local capi = { client       = client       ,
                screen       = screen       ,
                mouse        = mouse        ,
                mousegrabber = mousegrabber }
@@ -75,43 +73,43 @@ local function new(screen, args)
   --Nothing to do
 end
 
-local function add_item(w,s)
-    if math.ceil(margin[5]/2)%2 == 0 then margin[1+(margin[5]%2)] = margin[1+(margin[5]%2)]+1 end
-    w.x = (capi.screen[1].geometry.width /2)+((margin[5]%2 == 0) and margin[1]*w.width  * ((-1)^(math.ceil(margin[5]/2)%2)) or 0)
-    w.y = (capi.screen[1].geometry.height/2)+((margin[5]%2 == 1) and margin[2]*w.height * ((-1)^(math.ceil(margin[5]/2)%2)) or 0)
-    margin[5] = margin[5]+1
-end
+-- local function add_item(w,s)
+--     if math.ceil(margin[5]/2)%2 == 0 then margin[1+(margin[5]%2)] = margin[1+(margin[5]%2)]+1 end
+--     w.x = (capi.screen[1].geometry.width /2)+((margin[5]%2 == 0) and margin[1]*w.width  * ((-1)^(math.ceil(margin[5]/2)%2)) or 0)
+--     w.y = (capi.screen[1].geometry.height/2)+((margin[5]%2 == 1) and margin[2]*w.height * ((-1)^(math.ceil(margin[5]/2)%2)) or 0)
+--     margin[5] = margin[5]+1
+-- end
 
 -- local test_color = {color("#0C2625"),color("#69A09C"),color("#27837B"),color("#3F5D57"),color("#123937"),color("#030E10")}
-local function warpPath(cr, func)
-    first = true
-
-    cr:text_path("pycairo - ")
---     print(cr:copy_path().num_data)
-    local path = cr:copy_path()
---     for type2, points in pairs(cr:copy_path()) do
-    for i=1,path.num_data do
-        if type2 == cairo.PATH_MOVE_TO then
-            if first then
-                cr:new_path()
-                first = false
-            end
-            x, y = func(points)
-            cr:move_to(x, y)
-        elseif type2 == cairo.PATH_LINE_TO then
-            x, y = func(points)
-            cr:line_to(x, y)
-        elseif type2 == cairo.PATH_CURVE_TO then
-            x1, y1, x2, y2, x3, y3 = points
-            x1, y1 = func(x1, y1)
-            x2, y2 = func(x2, y2)
-            x3, y3 = func(x3, y3)
-            cr:curve_to(x1, y1, x2, y2, x3, y3)
-        elseif type == cairo.PATH_CLOSE_PATH then
-            cr:close_path()
-        end
-    end
-end
+-- local function warpPath(cr, func)
+--     first = true
+-- 
+--     cr:text_path("pycairo - ")
+-- --     print(cr:copy_path().num_data)
+--     local path = cr:copy_path()
+-- --     for type2, points in pairs(cr:copy_path()) do
+--     for i=1,path.num_data do
+--         if type2 == cairo.PATH_MOVE_TO then
+--             if first then
+--                 cr:new_path()
+--                 first = false
+--             end
+--             x, y = func(points)
+--             cr:move_to(x, y)
+--         elseif type2 == cairo.PATH_LINE_TO then
+--             x, y = func(points)
+--             cr:line_to(x, y)
+--         elseif type2 == cairo.PATH_CURVE_TO then
+--             x1, y1, x2, y2, x3, y3 = points
+--             x1, y1 = func(x1, y1)
+--             x2, y2 = func(x2, y2)
+--             x3, y3 = func(x3, y3)
+--             cr:curve_to(x1, y1, x2, y2, x3, y3)
+--         elseif type == cairo.PATH_CLOSE_PATH then
+--             cr:close_path()
+--         end
+--     end
+-- end
 
 local function curl(x, y)
     xn = x - Textwidth/2
@@ -121,7 +119,7 @@ local function curl(x, y)
     return xnew + Width/2, ynew + Height*2/5
 end
 
-function radial_client_select(args)
+function module.radial_client_select(args)
     --Settings
     local args = args or {}
     local data = {width=400,height=400,layers={},compose={}}

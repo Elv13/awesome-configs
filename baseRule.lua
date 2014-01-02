@@ -316,7 +316,7 @@ tyrannical.tags = {
         screen      = config.scr.media or config.scr.pri   ,
         init        = "mythfrontend"                                 ,
         layout      = awful.layout.suit.tile                         ,
-        class       = {"mythfrontend"  , "xbmc"           ,}
+        class       = {"mythfrontend"  , "xbmc" , "xbmc.bin"        ,}
     } ,
 }
 

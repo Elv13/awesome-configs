@@ -109,20 +109,6 @@ local function reload_conn(connMenu,data)
     end
 end
 
-local function reload_protstat(protMenu,data)
-    protMenu:clear()
-    for v, i in next, protocolStat do
-        local protocol3   = wibox.widget.textbox()
-        local protoCount  = wibox.widget.textbox()
-        local statHl = wibox.layout.fixed.horizontal()
-        statHl:add(protoCount)
-        statHl:add(protocol3)
-        protoCount:set_text("x"..i)
-        protocol3:set_text(v)
-        protMenu:add_widget(statHl,{height = 20, width = 200})
-    end
-end
-
 local function reload_appstat(appMenu,data)
     appMenu:clear()
     for v, i in next, appStat do
@@ -144,7 +130,7 @@ local connMenu,protMenu,appMenu
 
 local function update2()
     reload_conn(connMenu,data)
-    reload_protstat(protMenu,data)
+    protMenu:set_data(protocolStat)
     reload_appstat(appMenu,data)
 end
 
@@ -202,8 +188,9 @@ local function repaint(margin)
     end
     mainMenu:add_widget(radical.widgets.header(mainMenu,"PROTOCOLS",{suffix_widget=imb}),{height = 20 , width = 200})
 
-    protMenu = embed({width=198,max_items=5,has_decoration=false,has_side_deco=true})
-    mainMenu:add_embeded_menu(protMenu)
+    protMenu = radical.widgets.piechart()
+    mainMenu:add_widget(protMenu,{height = 100 , width = 100})
+    protMenu:set_data(protocolStat)
 
     mainMenu:add_widget(radical.widgets.header(mainMenu,"APPLICATIONS",{suffix_widget=imb}),{height = 20 , width = 200})
 
@@ -334,7 +321,7 @@ local function new(margin, args)
     local l = wibox.layout.fixed.horizontal()
     l:add(volumewidget2)
     l:add(volumewidget3)
-    l:buttons(btn)
+    l:buttons(util.table.join(button({ }, 1, function (geo) show();data.menu.parent_geometry=geo end)))
 
     l.draw = function(self,w, cr, width, height)
         wibox.layout.fixed.draw(self,w, cr, width, height)

@@ -142,16 +142,6 @@ local function reload_user(usrMenu,data)
   return totalUser
 end
 
-local function reload_state(typeMenu,data)
-  local totalState = 0
-  for v, i in next, data.state or {} do
-    local anState = wibox.widget.textbox()
-    anState:set_text(i)
-    totalState = totalState +1
-    typeMenu:add_item({text=v,suffix_widget=anState})
-  end
-end
-
 local function reload_top(topMenu,data)
   for i = 0, #(data.process or {}) do
     if data.process ~= nil and data.process[i]["name"] ~= nil then
@@ -223,9 +213,9 @@ local function repaint()
 
   mainMenu:add_widget(radical.widgets.header(mainMenu,"STATE"),{height = 20 , width = 200})
 
-  typeMenu = embed({max_items=3})
-  reload_state(typeMenu,data)
-  mainMenu:add_embeded_menu(typeMenu)
+  typeMenu = radical.widgets.piechart()
+  mainMenu:add_widget(typeMenu,{height = 100 , width = 100})
+  typeMenu:set_data(data.state)
 
   local imb = wibox.widget.imagebox()
   imb:set_image(beautiful.path .. "Icon/reload.png")
@@ -240,10 +230,9 @@ end
 
 local function update()
   usrMenu:clear()
-  typeMenu:clear()
   topMenu:clear()
   reload_user(usrMenu,data)
-  reload_state(typeMenu,data)
+  typeMenu:set_data(data.state)
   reload_top(topMenu,data)
 end
 
