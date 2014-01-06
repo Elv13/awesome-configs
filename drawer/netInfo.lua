@@ -100,10 +100,10 @@ local function reload_conn(connMenu,data)
                     break
                 end
             end
-            print("adding",data.connectionInfo[i]['application'  ],appStat[data.connectionInfo[i]['application'  ] ] )
+--             print("adding",data.connectionInfo[i]['application'  ],appStat[data.connectionInfo[i]['application'  ] ] )
             appStat[data.connectionInfo[i]['application'  ] ] = (appStat[data.connectionInfo[i]['application'  ] ]or 0) + 1
             protocolStat[data.connectionInfo[i]['protocol'] ] = (protocolStat[data.connectionInfo[i]['protocol'   ] ] or 0) + 1
-            print("now",appStat[data.connectionInfo[i]['application'  ] ])
+--             print("now",appStat[data.connectionInfo[i]['application'  ] ])
             connMenu:add_item({text=(data.connectionInfo[i]['site'] or ""),icon=icon,suffix_widget=application})
         end
     end
@@ -121,7 +121,7 @@ local function reload_appstat(appMenu,data)
                 break
             end
         end
-        print("this",i)
+--         print("this",i)
         appMenu:add_item({text=v,suffix_widget=testImage2,icon=icon,underlay = beautiful.draw_underlay(i)})
     end
 end
@@ -259,6 +259,17 @@ local function ip_label_fit(...)
     return 42,20
 end
 
+-- This code will create a pseudo/fake average over the last 15 samples and output a value
+local function set_value(self,value)
+    self._time = (self._time*14 + value)/15
+    local percent = value/self._time
+    if percent > 1 then
+        percent = 1
+    end
+    self:set_text(value*1000)
+    self:set_percent(percent)
+end
+
 local function new(margin, args)
     ip4Info          = wibox.widget.textbox()
     ip6Info          = wibox.widget.textbox()
@@ -297,23 +308,24 @@ local function new(margin, args)
     end
 
     local volumewidget2 = allinone()
+    volumewidget2._time = 0
+    volumewidget2.set_value = set_value
     volumewidget2:hide_left(true)
     volumewidget2:set_mirror(true)
     volumewidget2:set_icon(config.iconPath .. "arrowUp.png")
     volumewidget2:set_suffix("")
     volumewidget2:set_suffix_icon(config.iconPath .. "kbs.png")
     volumewidget2:set_value(1)
-    volumewidget2:use_percent(false)
     volumewidget2:icon_align("left")
 
     local volumewidget3 = allinone()
+    volumewidget3._time = 0
+    volumewidget3.set_value = set_value
     volumewidget3:hide_left(true)
     volumewidget3:set_icon(config.iconPath .. "arrowDown.png")
     volumewidget3:set_suffix("")
     volumewidget3:set_suffix_icon(config.iconPath .. "kbs.png")
-    
     volumewidget3:set_value(1)
-    volumewidget3:use_percent(false)
     volumewidget3:icon_align("left")
     vicious.register(volumewidget2  , vicious.widgets.net   ,  '${eth0 up_kb}'   ,3 )
     vicious.register(volumewidget3, vicious.widgets.net   ,  '${eth0 down_kb}' ,3 )

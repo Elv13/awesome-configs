@@ -160,7 +160,7 @@ local function show_text(self,cr,height,parent_width)
     pango_l.text = "100"
     full_width = pango_l:get_pixel_extents().width
   end
-  local text = ((self.percent or 0)*(self._use_percent ~= false and 100 or 1))
+  local text = self._text and self._text or ((self.percent or 0)*(self._use_percent ~= false and 100 or 1))
   pango_l.text = text
   local width = pango_l:get_pixel_extents().width
   local icon = get_icon(self,height-4)
@@ -268,6 +268,10 @@ local function icon_align(self,value)
   self._left_item = value == "left"
 end
 
+local function set_text(self,value)
+  self._text = value
+end
+
 local function set_suffix_icon(self,value)
 --   local base = cairo.ImageSurface.create_from_png(value)
 --   themeutils.apply_color_mask(base,beautiful.fg_normal)
@@ -279,17 +283,18 @@ local function new(args)
   local tim = timer({})
   local ib = wibox.widget.base.empty_widget()
   ib._suffix = args.suffix or "%"
-  ib.draw= draw
-  ib.fit = fit
-  ib.percent = args.percent or 0
-  ib.set_percent = set_percent
-  ib.set_value = set_percent
-  ib.set_icon = set_icon
-  ib.set_suffix = set_suffix
-  ib.hide_left = hide_left
-  ib.set_mirror = set_mirror
-  ib.use_percent = use_percent
-  ib.icon_align  = icon_align
+  ib.draw            = draw
+  ib.fit             = fit
+  ib.percent         = args.percent or 0
+  ib.set_percent     = set_percent
+  ib.set_value       = set_percent
+  ib.set_icon        = set_icon
+  ib.set_suffix      = set_suffix
+  ib.hide_left       = hide_left
+  ib.set_mirror      = set_mirror
+  ib.use_percent     = use_percent
+  ib.set_text        = set_text
+  ib.icon_align      = icon_align
   ib.set_suffix_icon = set_suffix_icon
   return ib
 end
