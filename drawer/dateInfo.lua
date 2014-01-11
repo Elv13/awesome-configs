@@ -137,19 +137,28 @@ local function createDrawer()
   return calInfo:fit(9999,9999)
 end
 
+local ib2 = nil
+local function update_date()
+  ib2:set_image(themeutils.draw_underlay(month[tonumber(os.date('%m'))].." "..os.date('%d'),
+      {
+        bg=beautiful.fg_normal,
+        fg=beautiful.bg_alternate,
+  --       height=beautiful.default_height,
+        margins=beautiful.default_height*.2,
+        padding=2,
+        padding_right=3
+      }))
+end
+
 local function new(screen, args)
   local mytextclock = widget.textclock(" %H:%M ")
 
-  local ib2 = wibox.widget.imagebox()
-  ib2:set_image(themeutils.draw_underlay(month[tonumber(os.date('%m'))].." "..os.date('%d'),
-    {
-      bg=beautiful.fg_normal,
-      fg=beautiful.bg_alternate,
---       height=beautiful.default_height,
-      margins=beautiful.default_height*.2,
-      padding=2,
-      padding_right=3
-    }))
+  ib2 = wibox.widget.imagebox()
+  local mytimer5 = capi.timer({ timeout = 1800 }) -- 30 mins
+  update_date()
+  mytimer5:connect_signal("timeout", update_date)
+  mytimer5:start()
+
 
   local right_layout = wibox.layout.fixed.horizontal()
 
