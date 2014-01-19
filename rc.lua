@@ -81,7 +81,7 @@ config.scr           = {
 config.load()
 config.themePath = awful.util.getdir("config") .. "/blind/" .. config.themeName .. "/"
 config.iconPath  = config.themePath       .. "Icon/"
-beautiful.init(config.themePath                .. "/themeSciFi.lua")
+beautiful.init(config.themePath                .. "/theme.lua")
 
 -- {{{ Variable definitions
 -- Themes define colours, icons, and wallpapers
@@ -404,6 +404,12 @@ for s = 1, screen.count() do
     left_layout_right_bot:add(endArrow2)
 
     left_layout_right_bot:add(keyboardSwitcherWidget)
+    
+--     local bat = awful.widget.progressbar()
+--     vicious.register(volumewidget2, vicious.widgets.mem, '$1', 1, 'mem')
+-- --   vicious.register(bat, vicious.widgets.bat, '$2', 1, 'BAT0')
+--     bat:set_value(0.50)
+    left_layout_right_bot:add(widgets.battery())
     if s == 1 then
         left_layout_right_bot:add(wibox.widget.systray())
     end
