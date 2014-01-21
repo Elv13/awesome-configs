@@ -261,7 +261,8 @@ end
 
 -- This code will create a pseudo/fake average over the last 15 samples and output a value
 local function set_value(self,value)
-    self._time = (self._time*14 + value)/15
+    local value = value or 0
+    self._time = (self._time*14 + (value or 0))/15
     local percent = value/self._time
     if percent > 1 then
         percent = 1
@@ -341,7 +342,7 @@ local function new(margin, args)
         cr:set_source(color(beautiful.bg_allinone or beautiful.fg_normal))
         cr:rectangle(width/2-3,1,6,2)
         cr:rectangle(width/2-3,height-3,6,2)
-        cr:arc(width/2, height/2,height/2-4,0,2*math.pi)
+        cr:arc(width/2, height/2,height/4,0,2*math.pi)
         cr:fill()
         cr:restore()
     end
