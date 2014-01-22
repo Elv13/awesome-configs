@@ -1,13 +1,28 @@
 local print = print
 local io = io
-local vicious = require("extern.vicious")
-local color   = require( "gears.color"              )
-local cairo   = require( "lgi"                      ).cairo
-local wibox   = require( "wibox"                    )
-local beautiful = require("beautiful")
+local string = string
+local tostring = tostring
+local tonumber = tonumber
+local math = math
+local color     = require( "gears.color"              )
+local cairo     = require( "lgi"                      ).cairo
+local gio       = require( "lgi"                      ).Gio
+local wibox     = require( "wibox"                    )
+local beautiful = require( "beautiful"                )
+
+local capi = {timer=timer}
+
+local battery_state = {
+  ["Full\n"]        = "↯",
+  ["Unknown\n"]     = "?",
+  ["Charged\n"]     = "↯",
+  ["Charging\n"]    = "⌁",
+  ["Discharging\n"] = ""
+}
+
+local full_energy,bat_name = 0
 
 local function set_value(self,value)
-  print(value)
   self._value = value
   self:emit_signal("widget::updated")
 end
@@ -21,13 +36,13 @@ local function draw(self,w,cr,width,height)
   cr:paint()
   local ratio = height / 10
   cr:set_source(color(beautiful.bg_alternate or beautiful.bg_normal))
-  cr:rectangle(ratio,2*ratio,width-3*ratio,height-4*ratio)
+  cr:rectangle(ratio,2*ratio,width-4*ratio,height-4*ratio)
   cr:stroke()
-  cr:rectangle(width-2*ratio,height/3,ratio,height/3)
+  cr:rectangle(width-3*ratio,height/3,1.5*ratio,height/3)
   cr:fill()
-  cr:rectangle(2*ratio,3*ratio,(width-5*ratio)*self._value,height-6*ratio)
+  cr:rectangle(2*ratio,3*ratio,(width-6*ratio)*(self._value or 0),height-6*ratio)
   cr:fill()
-  self._tooltip.text = (self._value*100)..'%'
+  self._tooltip.text = ((self._value or 0)*100)..'%'
 end
 
 local function check_present(name)
@@ -36,15 +51,39 @@ local function check_present(name)
   return f ~= nil
 end
 
+local function timeout(wdg)
+  gio.File.new_for_path('/sys/class/power_supply/'..(bat_name)..'/energy_now'):load_contents_async(nil,function(file,task,c)
+      local content = file:load_contents_finish(task)
+      if content then
+        local now = tonumber(tostring(content))
+        local percent = now/full_energy
+        percent = math.floor(percent* 100)/100
+        wdg:set_value(percent)
+      end
+  end)
+end
+
 local function new(args)
   local args = args or {}
   local ib = wibox.widget.base.empty_widget()
-  if check_present(args.name or "BAT0") then
+  bat_name = args.name or "BAT0"
+  if check_present(bat_name) then
+
+    -- Check try to load the full energy value
+    gio.File.new_for_path('/sys/class/power_supply/'..(bat_name)..'/energy_full'):load_contents_async(nil,function(file,task,c)
+        local content = file:load_contents_finish(task)
+        if content then
+            full_energy = tonumber(tostring(content))
+        end
+    end)
+
     ib.set_value = set_value
     ib.fit=fit
     ib.draw = draw
-    vicious.register(ib, vicious.widgets.bat, '$2', 1, 'BAT0')
     ib:set_tooltip("100%")
+    local t = capi.timer({timeout=5})
+    t:connect_signal("timeout",function() timeout(ib) end)
+    t:start()
   end
   return ib
 end
