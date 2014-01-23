@@ -18,18 +18,29 @@ local module = {}
 
 local mainMenu = nil
 
+local errcount = 0
+
+local volumewidget2 = nil
+
 function amixer_volume_int(format)
-   local f = io.popen('amixer sget Master | tail -n1 |cut -f 6 -d " " | grep -o -e "[0-9]*"')
+   local f = io.popen('amixer sget Master 2> /dev/null | tail -n1 |cut -f 6 -d " " | grep -o -e "[0-9]*"')
    if f then
       local l = f:read()
       f:close()
       local toReturn
-      if l == "" then
-      toReturn = 0
+      if (not l) or l == "" then
+         toReturn = 0
+         errcount = errcount + 1
+         if errcount > 10 then
+            print("Too many amixer failure, stopping listener")
+            vicious.unregister(volumewidget2)
+         end
       else
-      toReturn = tonumber(l)
+         toReturn = tonumber(l)
       end
       return {toReturn}
+   else
+      print("Calling amixer failed")
    end
    return {}
 end
@@ -79,7 +90,8 @@ function soundInfo()
 end
 
 local function new(mywibox3,left_margin)
-  local volumewidget2 = allinone()
+  if volumewidget2 then return volumewidget2 end
+  volumewidget2 = allinone()
   volumewidget2:set_icon(config.iconPath .. "vol.png")
 
   local btn = util.table.join(
