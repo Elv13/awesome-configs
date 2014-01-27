@@ -59,7 +59,7 @@ local function parse_files()
                     cats[target_category] = {}
                     arr = cats[target_category]
                 end
-                arr[#arr+1] = {text = program.Name, icon = program.icon_path,onclick = function() util.spawn(program.cmdline,true) end}
+                arr[#arr+1] = {text = program.Name, icon = program.icon_path,button1 = function() util.spawn(program.cmdline,true) end}
             end
         end
     end

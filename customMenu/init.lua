@@ -9,4 +9,5 @@ return {
     launcher    = require( "customMenu.launcher"    ),
 --     logout      = require( "customMenu.logout"      ),
     taghover    = require( "customMenu.taghover"    ),
+    notifications = require("customMenu.notifications")
 }
