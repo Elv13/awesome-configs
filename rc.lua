@@ -1,5 +1,5 @@
 -- Standard awesome library
-require("crashed")
+-- require("crashed")
 local gears = require("gears")
 local cairo     = require( "lgi"              ).cairo
 local color     = require( "gears.color"      )
@@ -81,7 +81,7 @@ config.scr           = {
 config.load()
 config.themePath = awful.util.getdir("config") .. "/blind/" .. config.themeName .. "/"
 config.iconPath  = config.themePath       .. "Icon/"
-beautiful.init(config.themePath                .. "/theme.lua")
+beautiful.init(config.themePath                .. "/themeSciFi.lua")
 
 -- {{{ Variable definitions
 -- Themes define colours, icons, and wallpapers
@@ -183,6 +183,12 @@ cr:line_to(0,beautiful.default_height+2)
 cr:stroke()
 local endArrow_alt2 = wibox.widget.imagebox()
 endArrow_alt2:set_image(endArrow_alt2i)
+
+-- Create battery
+local bat = widgets.battery()
+
+-- Create notifications history
+local notif = customMenu.notifications()
 
 -- End arrow
 local endArrowR = wibox.widget.imagebox()
@@ -409,7 +415,8 @@ for s = 1, screen.count() do
 --     vicious.register(volumewidget2, vicious.widgets.mem, '$1', 1, 'mem')
 -- --   vicious.register(bat, vicious.widgets.bat, '$2', 1, 'BAT0')
 --     bat:set_value(0.50)
-    left_layout_right_bot:add(widgets.battery())
+    left_layout_right_bot:add(notif)
+    left_layout_right_bot:add(bat)
     if s == 1 then
         left_layout_right_bot:add(wibox.widget.systray())
     end

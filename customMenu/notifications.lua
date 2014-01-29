@@ -16,6 +16,13 @@ local beautiful = require("beautiful")
 local radical   = require("radical")
 local awful     = require("awful")
 local naughty   = require("naughty")
+local cairo     = require("lgi").cairo
+local color     = require( "gears.color"              )
+local pango = require("lgi").Pango
+local pangocairo = require("lgi").PangoCairo
+
+local padding = 3
+local widget = nil
 
 local module = {}
 -- Maximum number of items before showing scrollbar
@@ -78,6 +85,8 @@ function module.main()
         for k,v in ipairs(module.items) do
             module.menu:add_item({
                 button1 = function()
+                    widget._count = widget._count - 1
+                    widget:emit_signal("widget::updated")
                     table.remove(module.items, k)
                     update_icon()
                     module.main() -- display the menu again
@@ -91,14 +100,73 @@ end
 
 -- Callback used to modify notifications
 naughty.config.notify_callback = function(data)
+    widget._count = widget._count + 1
+    widget:emit_signal("widget::updated")
     update_notifications(data)
     return data
 end
 
+local pl = nil
+
+local function init_pl(height)
+    if not pl and height > 0 then
+        local pango_crx = pangocairo.font_map_get_default():create_context()
+        pl = pango.Layout.new(pango_crx)
+        local desc = pango.FontDescription()
+        desc:set_family("Verdana")
+        desc:set_weight(pango.Weight.ULTRABOLD)
+        desc:set_size((height-2-padding*2) * pango.SCALE)
+        pl:set_font_description(desc)
+    end
+end
+
+local function fit(self,w,height)
+    init_pl(height)
+    if pl and self._count > 0 then
+        pl.markup = "<b>"..self._count.."</b>"
+        local text_ext = pl:get_pixel_extents()
+        return 3*(height/4)+3*padding+(text_ext.width or 0),height
+    end
+    return 0,height
+end
+
+local function draw(self, w, cr, width, height)
+    local padding = 3
+    local tri_width = 3*(height/4)
+    cr:set_source(color(beautiful.icon_grad or beautiful.fg_normal))
+    cr:paint()
+    cr:set_source(color(beautiful.bg_alternate or beautiful.bg_normal))
+    cr:move_to(padding + tri_width/2,padding)
+    cr:line_to(padding+tri_width,height-padding)
+    cr:line_to(padding,height-padding)
+    cr:line_to(padding + tri_width/2,padding)
+    cr:close_path()
+    cr:set_line_width(4)
+    cr:set_line_join(1)
+    cr:set_antialias(cairo.ANTIALIAS_SUBPIXEL)
+    cr:stroke_preserve()
+    cr:fill()
+    cr:set_source(color(beautiful.icon_grad or beautiful.fg_normal))
+    pl.text = "!"
+    local text_ext = pl:get_pixel_extents()
+    cr:move_to(padding + tri_width/2-text_ext.width/2 - height/16,padding-text_ext.height/4+1)
+    cr:show_layout(pl)
+
+    pl:set_font_description(beautiful.get_font(font))
+    pl.markup = "<b>"..self._count.."</b>"
+    cr:move_to(tri_width+2*padding,padding-text_ext.height/4+1)--,-text_ext.height/2)
+    cr:set_source(color(beautiful.bg_alternate or beautiful.bg_normal))
+    cr:show_layout(pl)
+end
+
 -- Return widget
 local function new()
-    widget,module.icon = wibox.widget.textbox()
-    widget:set_text("sfsdf")
+    widget = wibox.widget.base.make_widget()
+    widget.draw = draw
+    widget.fit = fit
+    widget._count = 0
+    widget:set_tooltip("Notifications")
+--     widget:set_text("sfsdf")
     widget:buttons(awful.util.table.join(awful.button({ }, 1, module.main), awful.button({ }, 3, module.reset)))
     update_icon()
     return widget
