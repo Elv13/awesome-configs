@@ -12,6 +12,8 @@ local tooltip2   = require( "radical.tooltip" )
 local themeutils = require( "blind.common.drawing"    )
 local radical    = require("radical")
 
+local capi = {client = client,mouse=mouse}
+
 local module = {}
 
 local function update(w, screen)
@@ -26,7 +28,7 @@ end
 local centered = nil
 
 local function populate(menu,layouts)
-    local cur = layout.get(tag.getscreen(tag.selected()))
+    local cur = layout.get(tag.getscreen(tag.selected(capi.client.focus and capi.client.focus.screen)))
     for i, layout_real in ipairs(layouts) do
         local layout2 = layout.getname(layout_real)
         if layout2 and beautiful["layout_" ..layout2] then
@@ -35,7 +37,7 @@ local function populate(menu,layouts)
                 if mod then
                     menu[mod[1] == "Shift" and "previous_item" or "next_item"].selected = true
                 end
-                layout.set(layouts[menu.current_index] or layouts[1],tag.selected())
+                layout.set(layouts[menu.current_index] or layouts[1],tag.selected(capi.client.focus and capi.client.focus.screen))
             end, selected = (layout_real == cur)})
         end
     end
@@ -44,7 +46,8 @@ end
 
 module.centered_menu = function(layouts,backward)
     if not centered then
-        centered = radical.box({filter=false,item_style=radical.item_style.rounded,item_height=45,column=6,layout=radical.layout.grid})
+        local screen = capi.client.focus and capi.client.focus.screen or capi.mouse.screen
+        centered = radical.box({filter=false,item_style=radical.item_style.rounded,item_height=45,column=6,layout=radical.layout.grid,screen=screen})
         populate(centered,layouts)
         centered:add_key_hook({}, " ", "press", function(_,mod) centered._current_item.button1(_,mod) end)
         centered:add_key_hook({"Mod4"}, "Shift_L", "press",   function(menu) end)
@@ -58,7 +61,7 @@ module.centered_menu = function(layouts,backward)
 end
 
 local function new(screen, layouts)
-    local screen = screen or 1
+    local screen = screen or capi.client.focus and capi.client.focus.screen or 1
     local w = wibox.widget.imagebox()
     tooltip2(w,"Change Layout",{})
     w.bg = beautiful.bg_alternate
