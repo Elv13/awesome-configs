@@ -37,6 +37,7 @@ local function get_direction(data)
 end
 
 local function set_position(self)
+  if not self.visible then return end
   local ret,parent = {x=self.wibox.x,y=self.wibox.y},self.parent_geometry
   local prefx,prefy = self._internal.private_data.x,self._internal.private_data.y
   local src_geo = capi.screen[capi.mouse.screen].geometry
@@ -164,16 +165,21 @@ local function setup_drawable(data)
   end
 end
 
-local function setup_item(data,item,args)
-  local f = (data._internal.layout.setup_item) or (layout.vertical.setup_item)
-  f(data._internal.layout,data,item,args)
+local function setup_buttons(data,item,args)
   local buttons = {}
   for i=1,10 do
     if args["button"..i] then
       buttons[#buttons+1] = button({},i,args["button"..i])
     end
   end
-  if not buttons[3] then --Hide on right click
+
+  -- Click to open sub_menu
+  if not buttons[1] and data.sub_menu_on == base.sub_menu_on.BUTTON1 then
+    buttons[#buttons+1] = button({},1,function() base._execute_sub_menu(data,item) end)
+  end
+
+  --Hide on right click
+  if not buttons[3] then
     buttons[#buttons+1] = button({},3,function()
       data.visible = false
       if data.parent_geometry and data.parent_geometry.is_menu then
@@ -181,17 +187,33 @@ local function setup_item(data,item,args)
       end
     end)
   end
+
+  -- Scroll up
   if not buttons[4] then
     buttons[#buttons+1] = button({},4,function()
       data:scroll_up()
     end)
   end
+
+  -- Scroll down
   if not buttons[5] then
     buttons[#buttons+1] = button({},5,function()
       data:scroll_down()
     end)
   end
   item.widget:buttons( util.table.join(unpack(buttons)))
+end
+
+local function setup_item(data,item,args)
+  -- Layout
+  local f = (data._internal.layout.setup_item) or (layout.vertical.setup_item)
+  f(data._internal.layout,data,item,args)
+
+  -- Buttons
+  setup_buttons(data,item,args)
+
+  -- Tooltip
+  item.widget:set_tooltip(item.tooltip)
 end
 
 local function new(args)
