@@ -38,11 +38,13 @@ end
 ---------------------------------------------------------------------
 
 --- Use Gio to scan a directory
-function module.scan_dir_async(path,callback,attributes,extentions)
-  if not callback or not path then return end
+function module.scan_dir_async(path,args)
+  if not path then return end
+  local args = args or {}
+  local req = create_request()
   local attr = ""
-  if attributes then
-    for _,v in ipairs(attributes or {"FILE_ATTRIBUTE_STANDARD_NAME"}) do
+  if args.attributes then
+    for _,v in ipairs(args.attributes or {"FILE_ATTRIBUTE_STANDARD_NAME"}) do
       attr = attr..gio[v]..','
     end
   end
@@ -52,7 +54,7 @@ function module.scan_dir_async(path,callback,attributes,extentions)
       local all_files = file_enum:next_files_finish(task2)
       for _,file in ipairs(all_files) do
         local ret_attr,has_attr = {},false
-        for _,v in ipairs(attributes or {"FILE_ATTRIBUTE_STANDARD_NAME"}) do
+        for _,v in ipairs(args.attributes or {"FILE_ATTRIBUTE_STANDARD_NAME"}) do
           local val = file:get_attribute_as_string(gio[v])
           if val then
             has_attr = true
@@ -64,9 +66,31 @@ function module.scan_dir_async(path,callback,attributes,extentions)
         end
       end
       content:close_async(0,nil)
-      callback(ret or {})
+      req:emit_signal("request::completed",ret or {})
     end)
   end)
+  return req
+end
+
+--- Return a file list (name only)
+function module.list_file_async(path,args)
+  if not path then return end
+  local req,args = create_request(), args or {}
+  module.scan_dir_async("/usr/share/X11/xkb/symbols/"):connect_signal("request::completed",function(content)
+      local ret = {}
+      for k,v in ipairs(content) do
+        local name = v["FILE_ATTRIBUTE_STANDARD_NAME"]
+        if args.match then
+          if name:match(args.match) ~= "" then
+            ret[#ret+1] = name
+          end
+        else
+          ret[#ret+1] = name
+        end
+      end
+      req:emit_signal("request::completed",ret)
+  end)
+  return req
 end
 
 ---------------------------------------------------------------------
@@ -75,24 +99,26 @@ end
 
 -- Read a file, then call "callback" with content as first argument
 function module.load_file_async(path,callback)
+  local req = create_request()
   gio.File.new_for_path(path):load_contents_async(nil,function(file,task,c)
       local content = file:load_contents_finish(task)
       if content then
-        callback(tostring(content))
+        req:emit_signal("request::completed",tostring(content))
       end
   end)
+  return req
 end
 
 --- Read all file from a directory
 function module.load_all_async(path,args)
   local args = args or {}
   local req = create_request()
-  module.scan_dir_async(path,function(files)
+  module.scan_dir_async(path,{attributes=args.attributes}):connect_signal("request::completed",function(files)
     local counter = 0
     for k,v in ipairs(files) do
       local name = v["FILE_ATTRIBUTE_STANDARD_NAME"]
       if not args.extention or name:find("[^%s].*".. args.extention .."$") then
-        module.load_file_async(path..'/'..name,function(content)
+        module.load_file_async(path..'/'..name):connect_signal("request::completed",function(content)
           req:emit_signal("file::content",path..'/'..name,content,v)
           counter = counter - 1
           if counter == 0 then
@@ -101,7 +127,7 @@ function module.load_all_async(path,args)
         end)
       end
     end
-  end,args.attributes)
+  end)
   return req
 end
 
@@ -123,6 +149,8 @@ function module.load_desktop_files(path,load_icon)
   local req_in,req_out = module.load_all_async(path,{attributes={"FILE_ATTRIBUTE_STANDARD_NAME","FILE_ATTRIBUTE_STANDARD_ICON"}}),create_request()
   req_in:connect_signal("file::content",function(name,content,attrs)
     local ini = module.parse_ini(content)
+
+    -- Replace "AWECFG" by the current config directory path
     if ini.Icon then
       ini.Icon=ini.Icon:gsub("AWECFG",util.getdir("config"))
     end
@@ -131,8 +159,6 @@ function module.load_desktop_files(path,load_icon)
   req_in:connect_signal("request::completed",function() req_out:emit_signal("request::completed")end)
   return req_out
 end
-
-module.load_desktop_files("/home/lepagee/.config/awesome/data/dock")
 
 return setmetatable(module, { __call = function(_, ...) return new(...) end })
 -- kate: space-indent on; indent-width 2; replace-tabs on;
