@@ -11,6 +11,7 @@ local beautiful = require("beautiful"                 )
 local wibox     = require( "wibox"                    )
 local color     = require( "gears.color"              )
 local cairo      = require( "lgi"                     ).cairo
+local item_layout= require( "radical.item_layout.horizontal" )
 
 local module = {}
 
@@ -65,15 +66,6 @@ local function item_fit(data,item,...)
   return w, item._private_data.height or h
 end
 
--- Like an overlay, but under
-function module.paint_underlay(data,item,cr,width,height)
-  cr:save()
-  local udl = underlay.draw(item.underlay)
-  cr:set_source_surface(udl,width-udl:get_width()-3)
-  cr:paint_with_alpha(data.underlay_alpha)
-  cr:restore()
-end
-
 -- As of July 2013, LGI is too slow to redraw big menus at ok speed
 -- This do a pixmap cache to allow pre-rendering
 local function cache_pixmap(item)
@@ -96,61 +88,12 @@ local function cache_pixmap(item)
   end
 end
 
-function module:setup_fkey(item,data)
-  item._internal.set_map.f_key = function(value)
-    item._internal.has_changed = true
-    item._internal.f_key = value
-    data:remove_key_hook("F"..value)
-    data:add_key_hook({}, "F"..value      , "press", function()
-      item.button1()
-      data.visible = false
-    end)
-  end
-  item._internal.get_map.f_key = function() return item._internal.f_key end
-end
-
-function module:setup_checked(item,data)
-  if item.checkable then
-    item._internal.get_map.checked = function()
-      if type(item._private_data.checked) == "function" then
-        return item._private_data.checked()
-      else
-        return item._private_data.checked
-      end
-    end
-    local ck = wibox.widget.imagebox()
-    ck:set_image(item.checked and checkbox.checked() or checkbox.unchecked())
-    item._internal.set_map.checked = function (value)
-      item._private_data.checked = value
-      ck:set_image(item.checked and checkbox.checked() or checkbox.unchecked())
-      item._internal.has_changed = true
-    end
-    return ck
-  end
-end
-
-function module:setup_icon(item,data)
-  local icon = wibox.widget.imagebox()
-  icon.fit = function(...)
-    local w,h = wibox.widget.imagebox.fit(...)
-    return w+3,h
-  end
-  if item.icon then
-    icon:set_image(item.icon)
-  end
-
-  item._internal.set_map.icon = function (value)
-    icon:set_image(value)
-  end
-  return icon
-end
-
 function module:setup_text(item,data)
   local text_w = wibox.widget.textbox()
 
   text_w.draw = function(self,w, cr, width, height)
     if item.underlay then
-      module.paint_underlay(data,item,cr,width,height)
+      item_layout.paint_underlay(data,item,cr,width,height)
     end
     wibox.widget.textbox.draw(self,w, cr, width, height)
   end
@@ -186,7 +129,6 @@ function module:setup_item(data,item,args)
   item.widget = wibox.widget.background()
   cache_pixmap(item)
 
-  data.item_style(data,item,{})
   item.widget:set_fg(item._private_data.fg)
   item._internal.has_changed = true
 
@@ -212,10 +154,10 @@ function module:setup_item(data,item,args)
   local l,la,lr = wibox.layout.fixed.horizontal(),wibox.layout.align.horizontal(),wibox.layout.fixed.horizontal()
   local m = wibox.layout.margin(la)
   m:set_margins (0)
-  m:set_left  ( data.item_style.margins.LEFT   )
-  m:set_right ( data.item_style.margins.RIGHT  )
-  m:set_top   ( data.item_style.margins.TOP    )
-  m:set_bottom( data.item_style.margins.BOTTOM )
+  m:set_left  ( (item.item_style or data.item_style).margins.LEFT   )
+  m:set_right ( (item.item_style or data.item_style).margins.RIGHT  )
+  m:set_top   ( (item.item_style or data.item_style).margins.TOP    )
+  m:set_bottom( (item.item_style or data.item_style).margins.BOTTOM )
 
   -- Text
   local text_w = module:setup_text(item,data)
@@ -241,8 +183,14 @@ function module:setup_item(data,item,args)
   end
 
   -- Icon
-  local icon = module:setup_icon(item,data)
+  local icon = item_layout:setup_icon(item,data)
   l:add(icon)
+
+  -- Checkbox
+  local ck = item_layout:setup_checked(item,data)
+  if ck then
+    lr:add(ck)
+  end
 
   if item._private_data.sub_menu_f or item._private_data.sub_menu_m then
     local subArrow  = wibox.widget.imagebox() --TODO, make global
@@ -255,12 +203,6 @@ function module:setup_item(data,item,args)
     end
   end
 
-  -- Checkbox
-  local ck = module:setup_checked(item,data)
-  if ck then
-    lr:add(ck)
-  end
-
   -- Suffix
   if args.suffix_widget then
     lr:add(args.suffix_widget)
@@ -271,6 +213,8 @@ function module:setup_item(data,item,args)
   la:set_middle(text_w)
   la:set_right(lr)
   item.widget:set_widget(m)
+  item._internal.align = la
+
   local fit_w,fit_h = data._internal.layout:fit()
   data.width = fit_w
   data.height = fit_h
@@ -279,7 +223,7 @@ function module:setup_item(data,item,args)
   end
 
   -- F keys
-  module:setup_fkey(item,data)
+  item_layout:setup_fkey(item,data)
 
   -- Enable scrollbar if necessary
   if data._internal.scroll_w and data.rowcount > data.max_items then
@@ -290,6 +234,10 @@ function module:setup_item(data,item,args)
 
   -- Setup tooltip
   item.widget:set_tooltip(item.tooltip)
+
+  -- Apply item style
+  local item_style = item.item_style or data.item_style
+  item_style(data,item,{})
 end
 
 local function compute_geo(data)
