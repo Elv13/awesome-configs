@@ -1,4 +1,4 @@
-local setmetatable,unpack = setmetatable,unpack
+local setmetatable,unpack,table = setmetatable,unpack,table
 local base       = require( "radical.base"                 )
 local color      = require( "gears.color"                  )
 local wibox      = require( "wibox"                        )
@@ -42,7 +42,7 @@ local function setup_drawable(data)
   internal.margin._data = data
   internal.margin.draw = bg_draw
 
-  internal.layout = wibox.layout.fixed.horizontal()
+  internal.layout = internal.layout_func or wibox.layout.fixed.horizontal()
   internal.margin:set_widget(internal.layout)
 
   --Getters
@@ -57,6 +57,25 @@ local function setup_drawable(data)
   -- This widget do not use wibox, so setup correct widget interface
   data.fit = internal.margin.fit
   data.draw = internal.margin.draw
+
+  -- Swap / Move / Remove
+  data:connect_signal("item::swapped",function(_,item1,item2,index1,index2)
+    internal.layout.widgets[index1],internal.layout.widgets[index2] = internal.layout.widgets[index2],internal.layout.widgets[index1]
+    internal.layout:emit_signal("widget::updated")
+  end)
+  data:connect_signal("item::moved",function(_,item,new_idx,old_idx)
+    table.insert(internal.layout.widgets,new_idx,table.remove(internal.layout.widgets,old_idx))
+    internal.layout:emit_signal("widget::updated")
+  end)
+  data:connect_signal("item::removed",function(_,item,old_idx)
+    table.remove(internal.layout.widgets,old_idx)
+    item.widget:disconnect_signal("widget::updated", internal.layout._emit_updated)
+    internal.layout:emit_signal("widget::updated")
+  end)
+  data:connect_signal("item::appended",function(_,item)
+    internal.layout:add(item.widget)
+    internal.layout:emit_signal("widget::updated")
+  end)
 end
 
 local function setup_buttons(data,item,args)
@@ -68,7 +87,7 @@ local function setup_buttons(data,item,args)
   end
 
   -- Setup sub_menu
-  if (item.sub_menu_m or item.sub_menu_f) and data.sub_menu_on >= base.sub_menu_on.BUTTON1 and data.sub_menu_on <= base.sub_menu_on.BUTTON3 then
+  if (item.sub_menu_m or item.sub_menu_f) and data.sub_menu_on >= base.event.BUTTON1 and data.sub_menu_on <= base.event.BUTTON3 then
     buttons[data.sub_menu_on] = item.widget:set_menu(item.sub_menu_m or item.sub_menu_f,data.sub_menu_on)
   end
 
@@ -91,8 +110,13 @@ end
 local function setup_item(data,item,args)
   -- Add widgets
   data._internal.layout:add(item_layout(item,data,args))
-  item.widget:connect_signal("mouse::enter", function() item.selected = true end)
-  item.widget:connect_signal("mouse::leave", function() item.selected = false end)
+  if data.select_on == base.event.HOVER then
+    item.widget:connect_signal("mouse::enter", function() item.selected = true end)
+    item.widget:connect_signal("mouse::leave", function() item.selected = false end)
+  else
+    item.widget:connect_signal("mouse::enter", function() item.hover = true end)
+    item.widget:connect_signal("mouse::leave", function() item.hover = false end)
+  end
 
   -- Setup buttons
   setup_buttons(data,item,args)
@@ -105,9 +129,8 @@ local function new(args)
     args.internal.set_position   = args.internal.set_position   or set_position
     args.internal.setup_drawable = args.internal.setup_drawable or setup_drawable
     args.internal.setup_item     = args.internal.setup_item     or setup_item
---     args.style = args.style or arrow_style
-    args.item_style = item_style
-    args.sub_menu_on = base.sub_menu_on.BUTTON1
+    args.item_style = args.item_style or item_style
+    args.sub_menu_on = args.sub_menu_on or base.event.BUTTON1
     local ret = base(args)
     ret:connect_signal("clear::menu",function(_,vis)
       ret._internal.layout:reset()
@@ -116,6 +139,15 @@ local function new(args)
       item.widget:emit_signal("widget::updated")
     end)
     return ret
+end
+
+function module.flex(args)
+  local args = args or {}
+  args.internal = args.internal or {}
+  args.internal.layout_func = wibox.layout.flex.horizontal()
+  local data = new(args)
+  data._internal.text_fit = function(self,width,height) return width,height end
+  return data
 end
 
 return setmetatable(module, { __call = function(_, ...) return new(...) end })

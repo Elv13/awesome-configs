@@ -2,6 +2,7 @@ local setmetatable = setmetatable
 local pairs,ipairs = pairs, ipairs
 local type,string  = type,string
 local print,unpack = print, unpack
+local table        = table
 local beautiful    = require( "beautiful"               )
 local util         = require( "awful.util"              )
 local aw_key       = require( "awful.key"               )
@@ -16,19 +17,36 @@ local module = {
     PRETTY   = 1,
     CENTERED = 2,
   },
-  sub_menu_on ={
+  event      ={
     NEVER    = 0,
     BUTTON1  = 1,
     BUTTON2  = 2,
     BUTTON3  = 3,
     SELECTED = 100,
+    HOVER    = 1000,
+    LEAVE    = 1001,
   },
   item_flags     = {
-    SELECTED = 1,
-    HOVERED  = 2,
-    PRESSED  = 3,
-    URGENT   = 4,
-    USED     = 5,
+    NONE     = 0,
+    SELECTED = 1, -- Single item selected
+    HOVERED  = 2, -- Mouse hover
+    PRESSED  = 3, -- Mouse pressed
+    URGENT   = 4, -- Need attention
+    USED     = 5, -- Common flag
+    DISABLED = 6, -- Cannot be interacted with
+    CHECKED  = 7, -- When checkbox isn't enough
+
+    -- Implementation defined flags
+    USR1     = 101,
+    USR2     = 102,
+    USR3     = 103,
+    USR4     = 104,
+    USR5     = 105,
+    USR6     = 106,
+    USR7     = 107,
+    USR8     = 108,
+    USR9     = 109,
+    USR10    = 110,
   }
 }
 
@@ -100,7 +118,7 @@ local function activateKeyboard(data)
       end
 
       if (key == 'Return') and data._current_item and data._current_item.button1 then
-        if data.sub_menu_on == module.sub_menu_on.BUTTON1 then
+        if data.sub_menu_on == module.event.BUTTON1 then
           execute_sub_menu(data,data._current_item)
         else
           data._current_item.button1()
@@ -198,7 +216,7 @@ local function add_item(data,args)
       end
       data._current_item.selected = false
     end
-    if data.sub_menu_on == module.sub_menu_on.SELECTED and data._current_item ~= item then
+    if data.sub_menu_on == module.event.SELECTED and data._current_item ~= item then
       execute_sub_menu(data,item)
     end
     data.item_style(data,item,{module.item_flags.SELECTED})
@@ -281,6 +299,8 @@ local function new(args)
       bg_highlight    = args.bg_highlight or beautiful.menu_bg_highlight or beautiful.bg_highlight or beautiful.bg_normal,
       bg_header       = args.bg_header    or beautiful.menu_bg_header or beautiful.fg_normal,
       bg_prefix       = args.bg_prefix    or nil,
+      bg_hover        = args.bg_hover     or nil,
+      fg_hover        = args.fg_hover     or nil,
       border_color    = args.border_color or beautiful.menu_border_color or beautiful.border_color or "#333333",
       border_width    = args.border_width or beautiful.menu_border_width or beautiful.border_width or 3,
       separator_color = args.separator_color or beautiful.menu_separator_color or args.border_color or beautiful.menu_border_color or beautiful.border_color or "#333333",
@@ -314,7 +334,8 @@ local function new(args)
       disable_markup  = args.disable_markup or false,
       x               = args.x or 0,
       y               = args.y or 0,
-      sub_menu_on     = args.sub_menu_on or module.sub_menu_on.SELECTED,
+      sub_menu_on     = args.sub_menu_on or module.event.SELECTED,
+      select_on       = args.select_on or module.event.HOVER,
     },
     get_map = {
       is_menu       = function() return true end,
@@ -448,6 +469,73 @@ local function new(args)
   function data:clear()
     internal.items = {}
     data:emit_signal("clear::menu")
+  end
+
+  function data:swap(item1,item2)
+    if not item1 or not item2 then return end
+    if not item1 or not item2 and item1 ~= item2 then return end
+    local idx1,idx2
+    for k,v in ipairs(internal.items) do --rows
+      for k2,v2 in ipairs(v) do --columns
+        if item2 == v2 then
+          idx2 = k
+        end
+        if item1 == v2 then
+          idx1 = k
+        end
+      end
+      if idx1 and idx2 then
+        break
+      end
+    end
+    if idx1 and idx2 then
+      internal.items[idx1],internal.items[idx2] = internal.items[idx2],internal.items[idx1]
+      data:emit_signal("item::swapped",item1,item2,idx1,idx2)
+    end
+  end
+
+  function data:move(item,idx)
+    if not item or not idx then return end
+    local idx1 = nil
+    for k,v in ipairs(internal.items) do --rows
+      if item == v[1] then
+        idx1 = k
+        break
+      end
+    end
+    if idx1 then
+--       if idx < idx1 then
+--         idx = idx + 1
+--       end
+      if idx1 > #internal.items + 1 then
+        idx1 = #internal.items + 1
+      end
+      if idx ~= idx1 then
+        table.insert(internal.items,idx1,table.remove(internal.items,idx))
+        data:emit_signal("item::moved",item,idx,idx1)
+      end
+    end
+  end
+
+  function data:remove(item)
+    if not item then return end
+    local idx1 = nil
+    for k,v in ipairs(internal.items) do --rows
+      if item == v[1] then
+        idx1 = k
+        break
+      end
+    end
+    if idx1 then
+      table.remove(internal.items,idx1)
+      data:emit_signal("item::removed",item,idx1)
+    end
+  end
+
+  function data:append(item)
+    if not item then return end
+    internal.items[#internal.items + 1] = item
+    data:emit_signal("item::appended",item)
   end
 
   function data:scroll_up()
