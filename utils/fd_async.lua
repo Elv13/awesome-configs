@@ -8,6 +8,8 @@ local ipairs = ipairs
 local pairs = pairs
 local tostring = tostring
 local gio = require("lgi").Gio
+local gobject = require("lgi").GObject
+local glib = require("lgi").GLib
 local util = require("awful.util")
 
 local module = {}
@@ -97,8 +99,8 @@ end
 ---                           Files                               ---
 ---------------------------------------------------------------------
 
--- Read a file, then call "callback" with content as first argument
-function module.load_file_async(path,callback)
+-- Read a file, then emit "request::completed"
+function module.load_file_async(path)
   local req = create_request()
   gio.File.new_for_path(path):load_contents_async(nil,function(file,task,c)
       local content = file:load_contents_finish(task)
@@ -129,6 +131,65 @@ function module.load_all_async(path,args)
     end
   end)
   return req
+end
+
+---------------------------------------------------------------------
+---                            Commands                           ---
+---------------------------------------------------------------------
+
+-- Execute a command async
+function module.load_command_async(command,cwd)
+  local req = create_request()
+  local argv = glib.shell_parse_argv(command)
+
+  local pid, stdin, stdout, stderr = glib.spawn_async_with_pipes(cwd,argv,nil,1,function() end)
+  local stream = gio.UnixInputStream.new(stdout)
+  local filter = gio.DataInputStream.new(stream)
+  local ret = {}
+  local function get_line(obj, res)
+    local result, err = obj:read_line_finish_utf8(res)
+    req:emit_signal("new::line",result)
+    if (result and not filter:is_closed()) then
+      ret[#ret+1] = result
+      filter:read_line_async(glib.PRIORITY_DEFAULT,nil,get_line)
+    else
+      filter:close()
+      stream:close()
+      req:emit_signal("request::completed",table.concat(ret,"\n"))
+    end
+  end
+  filter:read_line_async(glib.PRIORITY_DEFAULT,nil,get_line)
+  return req
+end
+
+---------------------------------------------------------------------
+---                            Sockets                            ---
+---------------------------------------------------------------------
+
+function module.download_binary_async(url)
+--   local req = create_request()
+--   print("starting",command)
+--   gio.File.new_for_commandline_arg(command):load_contents_async(nil,function(file,task,c)
+--       local content = file:load_contents_finish(task)
+--       print("called",content)
+--       if content then
+--         req:emit_signal("request::completed",tostring(content))
+--       end
+--   end)
+--   return req
+end
+
+function module.download_text_async(url)
+--   local req = create_request()
+--   print("starting",url)--glib.PRIORITY_DEFAULT
+--   gio.File.new_for_uri(url):load_contents_async(nil,function(file,task,c)
+--       local content = file:load_contents_finish(task)
+--       print("called",content)
+--       if content then
+--         req:emit_signal("request::completed",tostring(content))
+--       end
+--   end)
+--   return req
 end
 
 ---------------------------------------------------------------------
