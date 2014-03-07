@@ -138,13 +138,15 @@ end
 ---------------------------------------------------------------------
 
 -- Execute a command async
-function module.load_command_async(command,cwd)
+function module.exec_command_async(command,cwd)
   local req = create_request()
   local argv = glib.shell_parse_argv(command)
 
-  local pid, stdin, stdout, stderr = glib.spawn_async_with_pipes(cwd,argv,nil,1,function() end)
+  local pid, stdin, stdout, stderr = glib.spawn_async_with_pipes(cwd,argv,nil,2,function() end)
   local stream = gio.UnixInputStream.new(stdout)
   local filter = gio.DataInputStream.new(stream)
+  local errstream = gio.UnixInputStream.new(stderr)
+  local errfilter = gio.DataInputStream.new(errstream)
   local ret = {}
   local function get_line(obj, res)
     local result, err = obj:read_line_finish_utf8(res)
@@ -155,10 +157,26 @@ function module.load_command_async(command,cwd)
     else
       filter:close()
       stream:close()
+      errfilter:close()
+      errstream:close()
+      req:emit_signal("request::completed",table.concat(ret,"\n"))
+    end
+  end
+  local function get_error_line(obj,res)
+    local result, err = obj:read_line_finish_utf8(res)
+    req:emit_signal("new::error",result)
+    if result or not errstream:is_open() then
+      errfilter:read_line_async(glib.PRIORITY_DEFAULT,nil,get_error)
+    else
+      filter:close()
+      stream:close()
+      errfilter:close()
+      errstream:close()
       req:emit_signal("request::completed",table.concat(ret,"\n"))
     end
   end
   filter:read_line_async(glib.PRIORITY_DEFAULT,nil,get_line)
+  errfilter:read_line_async(glib.PRIORITY_DEFAULT,nil,get_error)
   return req
 end
 
@@ -203,6 +221,10 @@ function module.parse_ini(content)
     ret[k] = v
   end
   return ret
+end
+
+function module.eval_as_lua()
+  --TODO
 end
 
 -- Load all desktop files from a path
