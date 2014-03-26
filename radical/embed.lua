@@ -19,52 +19,70 @@ local capi,module = { mouse = mouse , screen = screen , keygrabber = keygrabber 
 
 local function setup_drawable(data)
   local internal = data._internal
-  local get_map,set_map,private_data = internal.get_map,internal.set_map,internal.private_data
+  local private_data = internal.private_data
 
   -- An embeded menu can only be visible if the parent is
-  get_map.visible = function() return data._embeded_parent and data._embeded_parent.visible or false end --Let the parent handle that
-  set_map.visible = function(v) if data._embeded_parent then data._embeded_parent.visible = v end end
+  data.get_visible = function() return data._embeded_parent and data._embeded_parent.visible or false end --Let the parent handle that
+  data.set_visible = function(_,v) if data._embeded_parent then data._embeded_parent.visible = v end end
 
   -- Enumate geometry --BUG this is fake, but better than nothing
-  get_map.width = function() return data._embeded_parent and data._embeded_parent.width end
-  get_map.y = function() return data._embeded_parent and data._embeded_parent.y end
-  get_map.x = function() return data._embeded_parent and data._embeded_parent.x end
+  data.get_width = function() return data._embeded_parent and (data._embeded_parent.width)end
+  data.get_y = function() return data._embeded_parent and (data._embeded_parent.y) end
+  data.get_x = function() return data._embeded_parent and (data._embeded_parent.x) end
   if not data.layout then
     data.layout = layout.vertical
   end
   internal.layout = data.layout(data)
   data.width,data.height = data._internal.layout:fit()
   data.margins={left=0,right=0,bottom=0,top=0}
+  internal.layout:connect_signal("mouse::enter",function(_,geo)
+    if data._embeded_parent._current_item then
+      data._embeded_parent._current_item.selected = false
+    end
+  end)
+  internal.layout:connect_signal("mouse::leave",function(_,geo)
+    if data._current_item then
+      data._current_item.selected = false
+    end
+  end)
 end
 
 local function setup_item(data,item,args)
+
+  -- Create the layout
   local f = (data._internal.layout.setup_item) or (layout.vertical.setup_item)
   f(data._internal.layout,data,item,args)
   local buttons = {}
   for i=1,10 do
     if args["button"..i] then
-      buttons[#buttons+1] = button({},i,args["button"..i])
+      buttons[i] = args["button"..i]
     end
   end
   if not buttons[3] then --Hide on right click
-    buttons[#buttons+1] = button({},3,function()
+    buttons[3] = function()
       data.visible = false
       if data.parent_geometry and data.parent_geometry.is_menu then
         data.parent_geometry.visible = false
       end
-    end)
+    end
   end
   if not buttons[4] then
-    buttons[#buttons+1] = button({},4,function()
+    buttons[4] = function()
       data:scroll_up()
-    end)
+    end
   end
   if not buttons[5] then
-    buttons[#buttons+1] = button({},5,function()
+    buttons[5] = function()
       data:scroll_down()
-    end)
+    end
   end
-  item.widget:buttons( util.table.join(unpack(buttons)))
+
+  item:connect_signal("button::release",function(_m,_i,button_id,mods)
+    if #mods == 0 and buttons[button_id] then
+      buttons[button_id](_m,_i,mods)
+    end
+  end)
+
 end
 
 local function new(args)

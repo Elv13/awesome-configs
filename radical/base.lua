@@ -8,6 +8,8 @@ local util         = require( "awful.util"              )
 local aw_key       = require( "awful.key"               )
 local object       = require( "radical.object"          )
 local vertical     = require( "radical.layout.vertical" )
+local theme        = require( "radical.theme"           )
+local item_mod     = require( "radical.item"            )
 
 local capi = { mouse = mouse, screen = screen , keygrabber = keygrabber, root=root, }
 
@@ -27,14 +29,18 @@ local module = {
     LEAVE    = 1001,
   },
   item_flags     = {
-    NONE     = 0,
-    SELECTED = 1, -- Single item selected
-    HOVERED  = 2, -- Mouse hover
-    PRESSED  = 3, -- Mouse pressed
-    URGENT   = 4, -- Need attention
-    USED     = 5, -- Common flag
-    DISABLED = 6, -- Cannot be interacted with
-    CHECKED  = 7, -- When checkbox isn't enough
+    NONE      = 999999 ,
+    DISABLED  = 1 , -- Cannot be interacted with
+    URGENT    = 2 , -- Need attention
+    SELECTED  = 3 , -- Single item selected [[FOCUS]]
+    PRESSED   = 4 , -- Mouse pressed
+    HOVERED   = -1 , -- Mouse hover
+    CHANGED   = 6 , -- The item changed, need attention
+    USED      = 7 , -- Common flag
+    CHECKED   = 8 , -- When checkbox isn't enough
+    ALTERNATE = 9 ,
+    HIGHLIGHT = 10 ,
+    HEADER    = 11,
 
     -- Implementation defined flags
     USR1     = 101,
@@ -47,23 +53,47 @@ local module = {
     USR8     = 108,
     USR9     = 109,
     USR10    = 110,
-  }
+  },
+  colors_by_id = theme.colors_by_id
 }
+
+theme.register_color(module.item_flags.DISABLED  , "disabled"  , "disabled"  , true )
+theme.register_color(module.item_flags.URGENT    , "urgent"    , "urgent"    , true )
+theme.register_color(module.item_flags.SELECTED  , "focus"     , "focus"     , true )
+theme.register_color(module.item_flags.PRESSED   , "pressed"   , "pressed"   , true )
+theme.register_color(module.item_flags.HOVERED   , "hover"     , "hover"     , true )
+theme.register_color(module.item_flags.CHANGED   , "changed"   , "changed"   , true )
+theme.register_color(module.item_flags.USED      , "used"      , "used"      , true )
+theme.register_color(module.item_flags.CHECKED   , "checked"   , "checked"   , true )
+theme.register_color(module.item_flags.ALTERNATE , "alternate" , "alternate" , true )
+theme.register_color(module.item_flags.HIGHLIGHT , "highlight" , "highlight" , true )
+--     register_color(item_flags.HEADER    , ""
+--     register_color(item_flags.USR1      , ""
+--     register_color(item_flags.USR2      , ""
+--     register_color(item_flags.USR3      , ""
+--     register_color(item_flags.USR4      , ""
+--     register_color(item_flags.USR5      , ""
+--     register_color(item_flags.USR6      , ""
+--     register_color(item_flags.USR7      , ""
+--     register_color(item_flags.USR8      , ""
+--     register_color(item_flags.USR9      , ""
+--     register_color(item_flags.USR10     , ""
+
 
 local function filter(data)
   if not data.filter == false then
     local fs,visible_counter = data.filter_string:lower(),0
     data._internal.visible_item_count = 0
     for k,v in pairs(data.items) do
-      local tmp = v[1]._filter_out
-      v[1]._filter_out = (v[1].text:lower():find(fs) == nil)-- or (fs ~= "")
-      if tmp ~= v[1]._filter_out then
-        v[1].widget:emit_signal("widget::updated")
+      local tmp = v._filter_out
+      v._filter_out = (v.text:lower():find(fs) == nil)-- or (fs ~= "")
+      if tmp ~= v._filter_out then
+        v.widget:emit_signal("widget::updated")
       end
-      if (not v[1]._filter_out) and (not v[1]._hidden) then
-        visible_counter = visible_counter + v[1].height
+      if (not v._filter_out) and (not v._hidden) then
+        visible_counter = visible_counter + v.height
         data._internal.visible_item_count = data._internal.visible_item_count +1
-        v[1].f_key = data._internal.visible_item_count
+        v.f_key = data._internal.visible_item_count
       end
     end
     data._total_item_height = visible_counter
@@ -71,21 +101,6 @@ local function filter(data)
     data.height = h
   end
 end
-
-local function execute_sub_menu(data,item)
-  if (item._private_data.sub_menu_f  or item._private_data.sub_menu_m) then
-    local sub_menu = item._private_data.sub_menu_m or item._private_data.sub_menu_f(data,item)
-    if sub_menu and sub_menu.rowcount > 0 then
-      sub_menu.arrow_type = module.arrow_type.NONE
-      sub_menu.parent_item = item
-      sub_menu.parent_geometry = data
-      sub_menu.visible = true
-      item._tmp_menu = sub_menu
-      data._tmp_menu = sub_menu
-    end
-  end
-end
-module._execute_sub_menu = execute_sub_menu
 
 ------------------------------------KEYBOARD HANDLING-----------------------------------
 local function activateKeyboard(data)
@@ -110,6 +125,10 @@ local function activateKeyboard(data)
           if self and type(self) == "table" then
             data = self
           end
+          if retval == false then
+            data.visible = false
+            capi.keygrabber.stop()
+          end
           return retval
         end
       end
@@ -119,7 +138,7 @@ local function activateKeyboard(data)
 
       if (key == 'Return') and data._current_item and data._current_item.button1 then
         if data.sub_menu_on == module.event.BUTTON1 then
-          execute_sub_menu(data,data._current_item)
+          item_mod.execute_sub_menu(data,data._current_item)
         else
           data._current_item.button1()
           data.visible = false
@@ -145,87 +164,13 @@ end
 
 ---------------------------------ITEM HANDLING----------------------------------
 local function add_item(data,args)
-  local args = args or {}
-  local item,set_map,get_map,private_data = object({
-    private_data  = {
-      text        = args.text        or ""                                                                  ,
-      height      = args.height      or beautiful.menu_height or 30                                         ,
-      width       = args.width       or nil                                                                 ,
-      icon        = args.icon        or nil                                                                 ,
-      prefix      = args.prefix      or ""                                                                  ,
-      suffix      = args.suffix      or ""                                                                  ,
-      bg          = args.bg          or nil                                                                 ,
-      fg          = args.fg          or data.fg       or beautiful.menu_fg_normal or beautiful.fg_normal    ,
-      fg_focus    = args.fg_focus    or data.fg_focus or beautiful.menu_fg_focus  or beautiful.fg_focus     ,
-      bg_focus    = args.bg_focus    or data.bg_focus or beautiful.menu_bg_focus  or beautiful.bg_focus     ,
-      bg_prefix   = args.bg_prefix   or data.bg_prefix                                                      ,
-      sub_menu_m  = (args.sub_menu   and type(args.sub_menu) == "table" and args.sub_menu.is_menu) and args.sub_menu or nil,
-      sub_menu_f  = (args.sub_menu   and type(args.sub_menu) == "function") and args.sub_menu or nil        ,
-      checkable   = args.checkable   or (args.checked ~= nil) or false                                      ,
-      checked     = args.checked     or false                                                               ,
-      underlay    = args.underlay    or nil                                                                 ,
-      tooltip     = args.tooltip     or nil                                                                 ,
-      item_style  = args.item_style  or nil                                                                 ,
-      item_layout = args.item_layout or nil                                                                 ,
-      selected    = false,
-    },
-    force_private = {
-      visible = true,
-      selected = true,
-    },
-    get_map = {
-      y = function() return (args.y and args.y >= 0) and args.y or data.height - (data.margins.top or data.border_width) - data.item_height end, --Hack around missing :fit call for last item
-    },
-    autogen_getmap  = true,
-    autogen_setmap  = true,
-    autogen_signals = true,
-  })
-  item._private_data = private_data
-  item._internal = {get_map=get_map,set_map=set_map}
-
-  for i=1,10 do
-    item["button"..i] = args["button"..i]
-  end
-
-  if data.max_items ~= nil and data.rowcount >= data.max_items then-- and (data._start_at or 0)
-    item._hidden = true
-  end
-
-  -- Use _internal to avoid the radical.object trigger
-  data._internal.visible_item_count = (data._internal.visible_item_count or 0) + 1
-  item._internal.f_key = data._internal.visible_item_count
-
-  -- Need to be done before painting
-  data._internal.items[#data._internal.items+1] = {}
-  data._internal.items[#data._internal.items][1] = item
+  local item = item_mod(data,args)
   data._internal.setup_item(data,item,args)
-
-  -- Setters
-  set_map.selected = function(value)
-    private_data.selected = value
-    if value == false then
-      data.item_style(data,item,{})
-      return
-    end
-    if data._current_item and data._current_item ~= item then
-      if data._current_item._tmp_menu then
-        data._current_item._tmp_menu.visible = false
-        data._current_item._tmp_menu = nil
-        data._tmp_menu = nil
-        data.item_style(data,data._current_item,{})
-      end
-      data._current_item.selected = false
-    end
-    if data.sub_menu_on == module.event.SELECTED and data._current_item ~= item then
-      execute_sub_menu(data,item)
-    end
-    data.item_style(data,item,{module.item_flags.SELECTED})
-    data._current_item = item
-  end
   if args.selected == true then
     item.selected = true
   end
-
+  item.index = data.rowcount
+  data:emit_signal("item::added",item)
   return item
 end
 
@@ -239,7 +184,7 @@ local function add_widget(data,widget,args)
     return args.width or w,args.height or h
   end
 
-  local item,set_map,get_map,private_data = object({
+  local item,private_data = object({
     private_data = {
       widget = widget,
       selected = false,
@@ -248,24 +193,30 @@ local function add_widget(data,widget,args)
       visible = true,
       selected = true,
     },
-    get_map = {
-      y = function() return (args.y and args.y >= 0) and args.y or data.height - (data.margins.top or data.border_width) - data.item_height end, --Hack around missing :fit call for last item
-    },
     autogen_getmap  = true,
     autogen_setmap  = true,
     autogen_signals = true,
   })
   item._private_data = private_data
-  item._internal = {get_map=get_map,set_map=set_map}
+  item._internal = {}
+  item.get_y = function() return (args.y and args.y >= 0) and args.y or data.height - (data.margins.top or data.border_width) - data.item_height end --Hack around missing :fit call for last item
 
   data._internal.widgets[#data._internal.widgets+1] = item
   data._internal.items[#data._internal.items+1] = {item}
-  data._internal.layout:add(item)
+  data:emit_signal("widget::added",item,widget)
   if data.visible then
-    local fit_w,fit_h = data._internal.layout:fit()
+    local fit_w,fit_h = data._internal.layout:fit(9999,9999)
     data.width = data._internal.width or fit_w
     data.height = fit_h
   end
+end
+
+local function add_prefix_widget(data,widget,args)
+  data:emit_signal("prefix_widget::added",widget,args)
+end
+
+local function add_suffix_widget(data,widget,args)
+  data:emit_signal("suffix_widget::added",widget,args)
 end
 
 local function add_embeded_menu(data,menu)
@@ -288,19 +239,19 @@ local function new(args)
   if not internal.widgets then internal.widgets = {} end
 
   -- All the magic in the universe
-  local data,set_map,get_map,private_data = object({
+  local data,private_data = object({
     private_data = {
       -- Default settings
       bg              = args.bg or beautiful.menu_bg_normal or beautiful.bg_normal or "#000000",
       fg              = args.fg or beautiful.menu_fg_normal or beautiful.fg_normal or "#ffffff",
-      bg_focus        = args.bg_focus or beautiful.menu_bg_focus or beautiful.bg_focus or "#ffffff",
-      fg_focus        = args.fg_focus or beautiful.menu_fg_focus or beautiful.fg_focus or "#000000",
-      bg_alternate    = args.bg_alternate or beautiful.menu_bg_alternate or beautiful.bg_alternate or beautiful.bg_normal,
-      bg_highlight    = args.bg_highlight or beautiful.menu_bg_highlight or beautiful.bg_highlight or beautiful.bg_normal,
+--       bg_focus        = args.bg_focus or beautiful.menu_bg_focus or beautiful.bg_focus or "#ffffff",
+--       fg_focus        = args.fg_focus or beautiful.menu_fg_focus or beautiful.fg_focus or "#000000",
+--       bg_alternate    = args.bg_alternate or beautiful.menu_bg_alternate or beautiful.bg_alternate or beautiful.bg_normal,
+--       bg_highlight    = args.bg_highlight or beautiful.menu_bg_highlight or beautiful.bg_highlight or beautiful.bg_normal,
       bg_header       = args.bg_header    or beautiful.menu_bg_header or beautiful.fg_normal,
       bg_prefix       = args.bg_prefix    or nil,
-      bg_hover        = args.bg_hover     or nil,
-      fg_hover        = args.fg_hover     or nil,
+--       bg_hover        = args.bg_hover     or nil,
+--       fg_hover        = args.fg_hover     or nil,
       border_color    = args.border_color or beautiful.menu_border_color or beautiful.border_color or "#333333",
       border_width    = args.border_width or beautiful.menu_border_width or beautiful.border_width or 3,
       separator_color = args.separator_color or beautiful.menu_separator_color or args.border_color or beautiful.menu_border_color or beautiful.border_color or "#333333",
@@ -320,14 +271,16 @@ local function new(args)
       layout          = args.layout or nil,
       screen          = args.screen or nil,
       style           = args.style  or nil,
-      item_style      = args.item_style or require("radical.item_style.basic"),
+      item_style      = args.item_style or require("radical.item.style.basic"),
       filter          = args.filter ~= false,
       show_filter     = args.show_filter or false,
       filter_string   = args.filter_string or "",
       suffix_widget   = args.suffix_widget or nil,
       prefix_widget   = args.prefix_widget or nil,
       fkeys_prefix    = args.fkeys_prefix or false,
-      underlay_alpha  = args.underlay_alpha or 0.7,
+      underlay_alpha  = args.underlay_alpha or beautiful.underlay_alpha  or 0.7,
+      underlay_style  = args.underlay_style or nil,
+      filter_underlay = args.filter_underlay or nil,
       filter_prefix   = args.filter_prefix or "Filter:",
       enable_keyboard = (args.enable_keyboard ~= false),
       max_items       = args.max_items or nil,
@@ -336,16 +289,12 @@ local function new(args)
       y               = args.y or 0,
       sub_menu_on     = args.sub_menu_on or module.event.SELECTED,
       select_on       = args.select_on or module.event.HOVER,
-    },
-    get_map = {
-      is_menu       = function() return true end,
-      margin        = function() return {left=0,bottom=0,right=0,left=0} end,
-      items         = function() return internal.items end,
-      rowcount      = function() return #internal.items end,
-      columncount   = function() return (#internal.items > 0) and #(internal.items[1]) or 0  end,
-    },
-    set_map = {
-      auto_resize  = function(val) private_data[""] = val end,
+      overlay         = args.overlay or nil,
+      opacity         = args.opacity or beautiful.menu_opacity or 1,
+      icon_transformation = args.icon_transformation or nil,
+      filter_underlay_style = args.filter_underlay_style or nil,
+      filter_underlay_color = args.filter_underlay_color,
+      filter_placeholder    = args.filter_placeholder or "",
     },
     force_private = {
       parent  = true,
@@ -359,9 +308,20 @@ local function new(args)
     autogen_setmap  = true,
     autogen_signals = true,
   })
-  internal.get_map,internal.set_map,internal.private_data = get_map,set_map,private_data
+  internal.private_data = private_data
   data.add_item,data.add_widget,data.add_embeded_menu,data._internal,data.add_key_binding = add_item,add_widget,add_embeded_menu,internal,add_key_binding
-  set_map.parent_geometry = function(value)
+  data.add_prefix_widget,data.add_suffix_widget=add_prefix_widget,add_suffix_widget
+  theme.setup_colors(data,args)
+
+  -- Getters
+  data.get_is_menu       = function(_) return true end
+  data.get_margin        = function(_) return {left=0,bottom=0,right=0,left=0} end
+  data.get_items         = function(_) return internal.items end
+  data.get_rowcount      = function(_) return #internal.items end
+
+  -- Setters
+  data.set_auto_resize  = function(_,val) private_data[""] = val end
+  data.set_parent_geometry = function(_,value)
     private_data.parent_geometry = value
     if data._internal.get_direction then
       data.direction = data._internal.get_direction(data)
@@ -371,7 +331,7 @@ local function new(args)
     end
   end
 
-  set_map.visible = function(value)
+  data.set_visible = function(_,value)
     private_data.visible = value
     if value then
       local fit_w,fit_h = data._internal.layout:fit(9999,9999)
@@ -381,7 +341,7 @@ local function new(args)
 --       data._tmp_menu = nil
       data._current_item._tmp_menu = nil
 --       data._current_item.selected = false
-      data.item_style(data,data._current_item,{})
+      data.item_style(data._current_item,{})
     end
     if internal.has_changed and data.style then
       data.style(data,{arrow_x=20,margin=internal.margin})
@@ -398,8 +358,8 @@ local function new(args)
       capi.keygrabber.stop()
     end
   end
-  
-  set_map.layout = function(value)
+
+  data.set_layout = function(_,value)
     if value then
       value:setup_key_hooks(data)
     end
@@ -412,31 +372,29 @@ local function new(args)
 --     end
 --   end
 
-  get_map.current_index = function()
+  data.get_current_index = function(_)
     if data._current_item then
       for k,v in ipairs(internal.items) do --rows
-        for k2,v2 in ipairs(v) do --columns
-          if data._current_item == v2 then
-            return k,k2 --row, column as row is expected in most configurations
-          end
+        if data._current_item == v then
+          return k
         end
       end
     end
   end
 
-  get_map.previous_item = function()
+  data.get_previous_item = function(_)
     local candidate,idx = internal.items[(data.current_index or 0)-1],(data.current_index or 0)-1
-    while candidate and (candidate[1]._hidden or candidate[1]._filter_out) and idx > 0 do
+    while candidate and (candidate._hidden or candidate._filter_out) and idx > 0 do
       candidate,idx = internal.items[idx - 1],idx-1
     end
-    return (candidate or internal.items[data.rowcount])[1]
+    return (candidate or internal.items[data.rowcount])
   end
-  get_map.next_item     = function()
+  data.get_next_item     = function(_)
     local candidate,idx = internal.items[(data.current_index or 0)+1],(data.current_index or 0)+1
-    while candidate and (candidate[1]._hidden or candidate[1]._filter_out) and idx <= data.rowcount do
+    while candidate and (candidate._hidden or candidate._filter_out) and idx <= data.rowcount do
       candidate,idx = internal.items[idx + 1],idx+1
     end
-    return (candidate or internal.items[1])[1]
+    return (candidate or internal.items[1])
   end
 
   --Repaint when appearance properties change
@@ -490,6 +448,7 @@ local function new(args)
     end
     if idx1 and idx2 then
       internal.items[idx1],internal.items[idx2] = internal.items[idx2],internal.items[idx1]
+      item1.index,item2.index = idx2,idx1
       data:emit_signal("item::swapped",item1,item2,idx1,idx2)
     end
   end
@@ -498,7 +457,7 @@ local function new(args)
     if not item or not idx then return end
     local idx1 = nil
     for k,v in ipairs(internal.items) do --rows
-      if item == v[1] then
+      if item == v then
         idx1 = k
         break
       end
@@ -512,7 +471,11 @@ local function new(args)
       end
       if idx ~= idx1 then
         table.insert(internal.items,idx1,table.remove(internal.items,idx))
+        item.index = idx
         data:emit_signal("item::moved",item,idx,idx1)
+        for i=idx,idx1 do
+          internal.items[i].index = i
+        end
       end
     end
   end
@@ -521,7 +484,7 @@ local function new(args)
     if not item then return end
     local idx1 = nil
     for k,v in ipairs(internal.items) do --rows
-      if item == v[1] then
+      if item == v then
         idx1 = k
         break
       end
@@ -529,33 +492,44 @@ local function new(args)
     if idx1 then
       table.remove(internal.items,idx1)
       data:emit_signal("item::removed",item,idx1)
+      for i=idx1,#internal.items do
+        internal.items[i].index = i
+      end
     end
   end
 
   function data:append(item)
     if not item then return end
-    internal.items[#internal.items + 1] = item
+    internal.items[#internal.items + 1] = {item}
     data:emit_signal("item::appended",item)
   end
 
   function data:scroll_up()
     if data.max_items ~= nil and data.rowcount >= data.max_items and (data._start_at or 1) > 1 then
+      local current_item = data._current_item
+      if current_item then
+        current_item:set_selected(false,true)
+      end
       data._start_at  = (data._start_at or 1) - 1
-      internal.items[data._start_at][1]._hidden = false
-      data:emit_signal("_hidden::changed",internal.items[data._start_at][1])
-      internal.items[data._start_at+data.max_items][1]._hidden = true
-      data:emit_signal("_hidden::changed",internal.items[data._start_at+data.max_items][1])
+      internal.items[data._start_at]._hidden = false
+      data:emit_signal("_hidden::changed",internal.items[data._start_at])
+      internal.items[data._start_at+data.max_items]._hidden = true
+      data:emit_signal("_hidden::changed",internal.items[data._start_at+data.max_items])
       filter(data)
     end
   end
 
   function data:scroll_down()
     if data.max_items ~= nil and data.rowcount >= data.max_items and (data._start_at or 1)+data.max_items <= data.rowcount then
+      local current_item = data._current_item
+      if current_item then
+        current_item:set_selected(false,true)
+      end
       data._start_at  = (data._start_at or 1) + 1
-      internal.items[data._start_at-1][1]._hidden = true
-      data:emit_signal("_hidden::changed",internal.items[data._start_at-1][1])
-      internal.items[data._start_at-1+data.max_items][1]._hidden = false
-      data:emit_signal("_hidden::changed",internal.items[data._start_at-1+data.max_items][1])
+      internal.items[data._start_at-1]._hidden = true
+      data:emit_signal("_hidden::changed",internal.items[data._start_at-1])
+      internal.items[data._start_at-1+data.max_items]._hidden = false
+      data:emit_signal("_hidden::changed",internal.items[data._start_at-1+data.max_items])
       filter(data)
     end
   end

@@ -5,7 +5,7 @@ local util      = require( "awful.util"       )
 local button    = require( "awful.button"     )
 local checkbox  = require( "radical.widgets.checkbox" )
 local wibox     = require( "wibox" )
-local item_layout = require("radical.item_layout.icon")
+local item_layout = require("radical.item.layout.icon")
 local base = nil
 
 local module = {}
@@ -13,7 +13,7 @@ local module = {}
 local function left(data)
   if data._current_item._tmp_menu then
     data = data._current_item._tmp_menu
-    data.items[1][1].selected = true
+    data.items.selected = true
     return true,data
   end
 end
@@ -21,8 +21,8 @@ end
 local function right(data)
   if data.parent_geometry.is_menu then
     for k,v in ipairs(data.items) do
-      if v[1]._tmp_menu == data or v[1].sub_menu_m == data then
-        v[1].selected = true
+      if v._tmp_menu == data or v.sub_menu_m == data then
+        v.selected = true
       end
     end
     data.visible = false
@@ -98,7 +98,7 @@ function module:setup_item(data,item,args)
   local icon_w = item._internal.icon_w
 
   -- Setup text
-  item._internal.set_map.text = function (value)
+  item.set_text = function (_,value)
     if data.disable_markup then
       text_w:set_text(value)
     else
@@ -114,17 +114,17 @@ function module:setup_item(data,item,args)
       end
     end
   end
-  item._internal.set_map.icon = function (value)
+  item.set_icon = function (_,value)
     icon_w:set_image(value)
   end
-  item._internal.set_map.text(item._private_data.text)
+  item:set_text(item._private_data.text)
 
   -- Setup tooltip
   bg:set_tooltip(item.tooltip)
 
   -- Set widget
   item.widget = bg
-  data.item_style(data,item,{})
+  data.item_style(item,{})
   setup_event(data,item,args)
 end
 
@@ -155,6 +155,11 @@ local function new(data)
   l.item_fit = item_fit
   l.setup_key_hooks = module.setup_key_hooks
   l.setup_item = module.setup_item
+
+  data:connect_signal("widget::added",function(_,item,widget)
+    wibox.layout.fixed.add(l,item.widget)
+    l:emit_signal("widget::updated")
+  end)
   return l
 end
 

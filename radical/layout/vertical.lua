@@ -5,14 +5,14 @@ local filter    = require( "radical.widgets.filter"   )
 local wibox     = require( "wibox"                    )
 local cairo     = require( "lgi"                      ).cairo
 local base      = nil
-local horizontal_item_layout= require( "radical.item_layout.horizontal" )
+local horizontal_item_layout= require( "radical.item.layout.horizontal" )
 
 local module = {}
 
 local function left(data)
   if data._current_item._tmp_menu then
     data = data._current_item._tmp_menu
-    data.items[1][1].selected = true
+    data.items[1].selected = true
     return true,data
   end
 end
@@ -20,13 +20,15 @@ end
 local function right(data)
   if data.parent_geometry and data.parent_geometry.is_menu then
     for k,v in ipairs(data.items) do
-      if v[1]._tmp_menu == data or v[1].sub_menu_m == data then
-        v[1].selected = true
+      if v._tmp_menu == data or v.sub_menu_m == data then
+        v.selected = true
       end
     end
     data.visible = false
     data = data.parent_geometry
     return true,data
+  else
+    return false
   end
 end
 
@@ -43,10 +45,10 @@ function module:setup_key_hooks(data)
   data:add_key_hook({}, "&"       , "press", up    ) -- Xephyr bug
   data:add_key_hook({}, "Down"    , "press", down  )
   data:add_key_hook({}, "KP_Enter", "press", down  ) -- Xephyr bug
-  data:add_key_hook({}, "Left"    , "press", left  )
-  data:add_key_hook({}, "\""      , "press", left  ) -- Xephyr bug
-  data:add_key_hook({}, "Right"   , "press", right )
-  data:add_key_hook({}, "#"       , "press", right ) -- Xephyr bug
+  data:add_key_hook({}, "Left"    , "press", right )
+  data:add_key_hook({}, "\""      , "press", right ) -- Xephyr bug
+  data:add_key_hook({}, "Right"   , "press", left  )
+  data:add_key_hook({}, "#"       , "press", left  ) -- Xephyr bug
 end
 
 --Get preferred item geometry
@@ -92,33 +94,22 @@ function module:setup_text(item,data,text_w)
   end
   text_w.fit = function(self,width,height) return width,height end
 
-  item._internal.set_map.text = function (value)
+  item.set_text = function (_,value)
     if data.disable_markup then
       text_w:set_text(value)
     else
       text_w:set_markup(value)
     end
     item._private_data.text = value
-    if data.auto_resize then
-      local fit_w,fit_h = wibox.widget.textbox.fit(text_w,9999,9999)
-      local is_largest = item == data._internal.largest_item_w
-      item.widget:emit_signal("widget::updated")
-      if not data._internal.largest_item_w_v or data._internal.largest_item_w_v < fit_w then
-        data._internal.largest_item_w = item
-        data._internal.largest_item_w_v = fit_w
-      end
-      --TODO find new largest is item is smaller
-  --     if data._internal.largest_item_h_v < fit_h then
-  --       data._internal.largest_item_h =item
-  --       data._internal.largest_item_h_v = fit_h
-  --     end
-    end
   end
-  item._internal.set_map.text(item._private_data.text)
+  item:set_text(item._private_data.text)
   return text_w
 end
 
 function module:setup_item(data,item,args)
+  if not base then
+    base = require( "radical.base" )
+  end
   --Create the background
   local item_layout = item.item_layout or horizontal_item_layout
   item.widget = item_layout(item,data,args)--wibox.widget.background()
@@ -126,11 +117,21 @@ function module:setup_item(data,item,args)
 
   --Event handling
   if data.select_on == base.event.HOVER then
-    item.widget:connect_signal("mouse::enter", function() item.selected = true end)
-    item.widget:connect_signal("mouse::leave", function() item.selected = false end)
+    item.widget:connect_signal("mouse::enter", function(_,geo)
+      item.y = geo.y
+      item.selected = true
+    end)
+    item.widget:connect_signal("mouse::leave", function()
+      item.selected = false
+    end)
   else
-    item.widget:connect_signal("mouse::enter", function() item.hover = true end)
-    item.widget:connect_signal("mouse::leave", function() item.hover = false end)
+    item.widget:connect_signal("mouse::enter", function(_,geo)
+      item.y = geo.y
+      item.hover = true
+    end)
+    item.widget:connect_signal("mouse::leave", function()
+      item.hover = false
+    end)
   end
   data._internal.layout:add(item)
 
@@ -174,7 +175,17 @@ function module:setup_item(data,item,args)
 
   -- Apply item style
   local item_style = item.item_style or data.item_style
-  item_style(data,item,{})
+  item_style(item,{})
+
+  -- Compute the minimum width
+  if data.auto_resize then
+    local fit_w,fit_h = wibox.layout.margin.fit(item._internal.margin_w,9999,9999)
+    local is_largest = item == data._internal.largest_item_w
+    if fit_w < 1000 and (not data._internal.largest_item_w_v or data._internal.largest_item_w_v < fit_w) then
+      data._internal.largest_item_w = item
+      data._internal.largest_item_w_v = fit_w
+    end
+  end
 
   item.widget:emit_signal("widget::updated")
 end
@@ -182,22 +193,24 @@ end
 local function compute_geo(data)
   local w = data.default_width
   if data.auto_resize and data._internal.largest_item_w then
-    w = data._internal.largest_item_w_v+100 > data.default_width and data._internal.largest_item_w_v+100 or data.default_width
+    w = data._internal.largest_item_w_v > data.default_width and data._internal.largest_item_w_v or data.default_width
   end
   local visblerow = data.filter_string == "" and data.rowcount or data._internal.visible_item_count
   if data.max_items and data.max_items < data.rowcount then
     visblerow = data.max_items
     if data.filter_string ~= "" then
       local cur,vis = (data._start_at or 1),0
-      while (data._internal.items[cur] and data._internal.items[cur][1]) and cur < data.max_items + (data._start_at or 1) do
-        vis = vis + (data._internal.items[cur][1]._filter_out and 0 or 1)
+      while (data._internal.items[cur] and data._internal.items[cur]) and cur < data.max_items + (data._start_at or 1) do
+        vis = vis + (data._internal.items[cur]._filter_out and 0 or 1)
         cur = cur +1
       end
       visblerow = vis
     end
   end
+  local sw,sh = data._internal.suf_l:fit(9999,9999)
+  local pw,ph = data._internal.pref_l:fit(9999,9999)
   if not data._internal.has_widget then
-    return w,(total and total > 0 and total or visblerow*data.item_height) + (data._internal.filter_tb and data.item_height or 0) + (data.max_items and data._internal.scroll_w.visible and (2*data.item_height) or 0)
+    return w,(total and total > 0 and total or visblerow*data.item_height) + ph + sh
   else
     local h = (visblerow-#data._internal.widgets)*data.item_height
     for k,v in ipairs(data._internal.widgets) do
@@ -214,21 +227,24 @@ local function new(data)
   end
   local l,real_l = wibox.layout.fixed.vertical(),nil
   real_l = wibox.layout.fixed.vertical()
+  local pref_l,suf_l = wibox.layout.fixed.vertical(),wibox.layout.fixed.vertical()
+  real_l:add(pref_l)
   if data.max_items then
     data._internal.scroll_w = scroll(data)
-    real_l:add(data._internal.scroll_w["up"])
+    pref_l:add(data._internal.scroll_w["up"])
   end
   real_l:add(l)
+  real_l:add(suf_l)
   if data.show_filter then
     if data.max_items then
-      real_l:add(data._internal.scroll_w["down"])
+      suf_l:add(data._internal.scroll_w["down"])
     end
     local filter_tb = filter(data)
-    real_l:add(filter_tb)
+    suf_l:add(filter_tb)
     data._internal.filter_tb = filter_tb.widget
   else
     if data.max_items then
-      real_l:add(data._internal.scroll_w["down"])
+      suf_l:add(data._internal.scroll_w["down"])
     end
   end
   real_l.fit = function(a1,a2,a3)
@@ -244,23 +260,36 @@ local function new(data)
   real_l.setup_key_hooks = module.setup_key_hooks
   real_l.setup_item = module.setup_item
   data._internal.content_layout = l
+  data._internal.suf_l,data._internal.pref_l=suf_l,pref_l
 
   --SWAP / MOVE / REMOVE
   data:connect_signal("item::swapped",function(_,item1,item2,index1,index2)
-    real_l.widgets[index1],real_l.widgets[index2] = real_l.widgets[index2],real_l.widgets[index1]
-    real_l:emit_signal("widget::updated")
+    l.widgets[index1],l.widgets[index2] = l.widgets[index2],l.widgets[index1]
+    l:emit_signal("widget::updated")
   end)
   data:connect_signal("item::moved",function(_,item,new_idx,old_idx)
-    table.insert(real_l.widgets,new_idx,table.remove(real_l.widgets,old_idx))
-    real_l:emit_signal("widget::updated")
+    table.insert(l.widgets,new_idx,table.remove(l.widgets,old_idx))
+    l:emit_signal("widget::updated")
   end)
   data:connect_signal("item::removed",function(_,item,old_idx)
-    table.remove(real_l.widgets,old_idx)
-    real_l:emit_signal("widget::updated")
+    table.remove(l.widgets,old_idx)
+    l:emit_signal("widget::updated")
   end)
   data:connect_signal("item::appended",function(_,item)
-    real_l.widgets[#real_l.widgets+1] = item.widget
+    l.widgets[#l.widgets+1] = item.widget
+    l:emit_signal("widget::updated")
+  end)
+  data:connect_signal("widget::added",function(_,item,widget)
+    wibox.layout.fixed.add(l,item.widget)
+    l:emit_signal("widget::updated")
+  end)
+  data:connect_signal("prefix_widget::added",function(_,widget,args)
+    table.insert(pref_l.widgets,1,widget)
+    pref_l:emit_signal("widget::updated")
     real_l:emit_signal("widget::updated")
+  end)
+  data:connect_signal("suffix_widget::added",function(_,widget,args)
+    suf_l:add(widget)
   end)
   data._internal.text_fit = function(self,width,height) return width,height end
   return real_l

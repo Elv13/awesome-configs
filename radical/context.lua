@@ -10,10 +10,10 @@ local beautiful = require( "beautiful"        )
 local cairo     = require( "lgi"              ).cairo
 local awful     = require( "awful"            )
 local util      = require( "awful.util"       )
-local button    = require( "awful.button"     )
 local layout    = require( "radical.layout"   )
 local checkbox  = require( "radical.widgets.checkbox" )
 local arrow_style = require( "radical.style.arrow" )
+local item_mod  = require("radical.item")
 
 local capi,module = { mouse = mouse , screen = screen, keygrabber = keygrabber },{}
 
@@ -45,16 +45,16 @@ local function set_position(self)
     if parent.direction == "right" then
       ret={x=parent.x-self.width,y=parent.y+(self.parent_item.y)}
     else
-      ret={x=parent.x+parent.width,y=parent.y+(self.parent_item.y)- (parent.show_filter and parent.item_height or 0)}
+      ret={x=parent.x+parent.width,y=parent.y+(self.parent_item.y)-self.style.margins.TOP}
 
       --Handle when the menu doesn't fit in the srceen horizontally
       if ret.x+self.width > src_geo.x + src_geo.width then
-        ret.x = src_geo.x + src_geo.width - self.width - parent.width
+        ret.x = parent.x - self.width
       end
 
       -- Handle when the menu doesn't fit on the screen vertically
-      if ret.y+self.height > src_geo.height then
-       ret.y = ret.y - self.height + self.item_height
+      if ret.y+self.height > src_geo.y + src_geo.height then
+       ret.y = ret.y - self.height + self.item_height + 2*self.style.margins.TOP
       end
     end
   elseif parent then
@@ -100,7 +100,7 @@ end
 
 local function setup_drawable(data)
   local internal = data._internal
-  local get_map,set_map,private_data = internal.get_map,internal.set_map,internal.private_data
+  local private_data = internal.private_data
 
   --Init
   internal.w = wibox({})
@@ -114,16 +114,17 @@ local function setup_drawable(data)
   internal.margin:set_widget(internal.layout)
   internal.w:set_widget(internal.margin)
   internal.w:set_fg(data.fg)
+  internal.w.opacity = data.opacity
 
   --Getters
-  get_map.wibox     = function() return internal.w end
-  get_map.x         = function() return internal.w.x end
-  get_map.y         = function() return internal.w.y end
-  get_map.width     = function() return internal.w.width end
-  get_map.height    = function() return internal.w.height end
-  get_map.visible   = function() return private_data.visible end
-  get_map.direction = function() return private_data.direction end
-  get_map.margins   = function()
+  data.get_wibox     = function() return internal.w end
+  data.get_x         = function() return internal.w.x end
+  data.get_y         = function() return internal.w.y end
+  data.get_width     = function() return internal.w.width end
+  data.get_height    = function() return internal.w.height end
+  data.get_visible   = function() return private_data.visible end
+  data.get_direction = function() return private_data.direction end
+  data.get_margins   = function()
     local ret = {left=data.border_width,right=data.border_width,top=data.style.margins.TOP,bottom=data.style.margins.BOTTOM}
     if data.arrow_type ~= base.arrow_type.NONE then
       ret[data.direction] = ret[data.direction]+13
@@ -132,7 +133,7 @@ local function setup_drawable(data)
   end
 
   --Setters
-  set_map.direction = function(value)
+  data.set_direction = function(_,value)
     if private_data.direction ~= value and (value == "top" or value == "bottom" or value == "left" or value == "right") then
       private_data.direction = value
       local fit_w,fit_h = internal.layout:fit()
@@ -140,9 +141,9 @@ local function setup_drawable(data)
       data.width  = fit_w
     end
   end
-  set_map.x      = function(value) internal.w.x      = value end
-  set_map.y      = function(value) internal.w.y      = value end
-  set_map.width  = function(value)
+  data.set_x      = function(_,value) internal.w.x      = value end
+  data.set_y      = function(_,value) internal.w.y      = value end
+  data.set_width  = function(_,value)
     local need_update = internal.w.width == (value + 2*data.border_width)
     local margins = data.margins
     internal.w.width  = value + data.margins.left + data.margins.right
@@ -150,7 +151,7 @@ local function setup_drawable(data)
       data.style(data)
     end
   end
-  set_map.height = function(value)
+  data.set_height = function(_,value)
     local margins = data.margins
     local need_update = (internal.w.height ~= (value + margins.top + margins.bottom))
     local new_height = (value + margins.top + margins.bottom) or 1
@@ -162,7 +163,7 @@ local function setup_drawable(data)
   end
   function internal:set_visible(value)
     internal.w.visible = value
-    if not value then
+    if not value and (not data.parent_geometry or not data.parent_geometry.is_menu) then
       capi.keygrabber.stop()
     end
   end
@@ -178,39 +179,44 @@ local function setup_buttons(data,item,args)
   local buttons = {}
   for i=1,10 do
     if args["button"..i] then
-      buttons[#buttons+1] = button({},i,args["button"..i])
+      buttons[i] = args["button"..i]
     end
   end
 
   -- Click to open sub_menu
   if not buttons[1] and data.sub_menu_on == base.event.BUTTON1 then
-    buttons[#buttons+1] = button({},1,function() base._execute_sub_menu(data,item) end)
+    buttons[1] = function() item_mod.execute_sub_menu(data,item) end
   end
 
   --Hide on right click
   if not buttons[3] then
-    buttons[#buttons+1] = button({},3,function()
+    buttons[3] = function()
       data.visible = false
       if data.parent_geometry and data.parent_geometry.is_menu then
         data.parent_geometry.visible = false
       end
-    end)
+    end
   end
 
   -- Scroll up
   if not buttons[4] then
-    buttons[#buttons+1] = button({},4,function()
+    buttons[4] = function()
       data:scroll_up()
-    end)
+    end
   end
 
   -- Scroll down
   if not buttons[5] then
-    buttons[#buttons+1] = button({},5,function()
+    buttons[5] = function()
       data:scroll_down()
-    end)
+    end
   end
-  item.widget:buttons( util.table.join(unpack(buttons)))
+
+  item:connect_signal("button::release",function(_m,_i,button_id,mods)
+    if #mods == 0 and buttons[button_id] then
+      buttons[button_id](_m,_i,mods)
+    end
+  end)
 end
 
 local function setup_item(data,item,args)

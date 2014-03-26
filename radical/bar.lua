@@ -9,9 +9,9 @@ local util       = require( "awful.util"                   )
 local fkey       = require( "radical.widgets.fkey"         )
 local button     = require( "awful.button"                 )
 local checkbox   = require( "radical.widgets.checkbox"     )
-local item_style = require( "radical.item_style.arrow_single" )
+local item_style = require( "radical.item.style.arrow_single" )
 local vertical   = require( "radical.layout.vertical"      )
-local item_layout= require( "radical.item_layout.horizontal" )
+local item_layout= require( "radical.item.layout.horizontal" )
 
 local capi,module = { mouse = mouse , screen = screen, keygrabber = keygrabber },{}
 
@@ -24,39 +24,43 @@ local function set_position(self)
 end
 
 -- Draw the menu background
-local function bg_draw(self, w, cr, width, height)
-    cr:save()
-    cr:set_source(color(self._data.bg))
-    cr:rectangle(0,0,width,height)
-    cr:fill()
-    cr:restore()
-  wibox.layout.margin.draw(self, w, cr, width, height)
+-- local function bg_draw(self, w, cr, width, height)
+--     cr:save()
+--     cr:set_source(color(self._data.bg))
+--     cr:rectangle(0,0,width,height)
+--     cr:fill()
+--     cr:restore()
+--   wibox.layout.margin.draw(self, w, cr, width, height)
+-- end
+
+local function proxy_draw(_,...)
+  local l = _._internal and _._internal.layout or _
+  return wibox.layout.fixed.draw(l,...)
+end
+
+local function proxy_fit(_,...)
+  local l = _._internal and _._internal.layout or _
+  return wibox.layout.fixed.fit(l,...)
 end
 
 local function setup_drawable(data)
   local internal = data._internal
-  local get_map,set_map,private_data = internal.get_map,internal.set_map,internal.private_data
-
-  --Init
-  internal.margin = wibox.layout.margin()
-  internal.margin._data = data
-  internal.margin.draw = bg_draw
+  local private_data = internal.private_data
 
   internal.layout = internal.layout_func or wibox.layout.fixed.horizontal()
-  internal.margin:set_widget(internal.layout)
 
   --Getters
-  get_map.x         = function() return 0                                            end
-  get_map.y         = function() return 0                                            end
-  get_map.width     = function() return internal.margin.fix(internal.margin,9999,99) end
-  get_map.height    = function() return beautiful.default_height                     end
-  get_map.visible   = function() return true                                         end
-  get_map.direction = function() return "left"                                       end
-  get_map.margins   = function() return {left=0,right=0,top=0,bottom=0}              end
+  data.get_x         = function() return 0                                            end
+  data.get_y         = function() return 0                                            end
+  data.get_width     = function() return internal.layout.fit(internal.layout,9999,99) end
+  data.get_height    = function() return beautiful.default_height                     end
+  data.get_visible   = function() return true                                         end
+  data.get_direction = function() return "left"                                       end
+  data.get_margins   = function() return {left=0,right=0,top=0,bottom=0}              end
 
   -- This widget do not use wibox, so setup correct widget interface
-  data.fit = internal.margin.fit
-  data.draw = internal.margin.draw
+  data.fit = internal.layout
+  data.draw = internal.layout
 
   -- Swap / Move / Remove
   data:connect_signal("item::swapped",function(_,item1,item2,index1,index2)
@@ -76,13 +80,17 @@ local function setup_drawable(data)
     internal.layout:add(item.widget)
     internal.layout:emit_signal("widget::updated")
   end)
+  data:connect_signal("widget::added",function(_,item,widget)
+    internal.layout:add(widget)
+    internal.layout:emit_signal("widget::updated")
+  end)
 end
 
 local function setup_buttons(data,item,args)
   local buttons = {}
   for i=1,10 do
     if args["button"..i] then
-      buttons[#buttons+1] = button({},i,args["button"..i])
+      buttons[i] = args["button"..i]
     end
   end
 
@@ -93,18 +101,23 @@ local function setup_buttons(data,item,args)
 
   -- Scrool up
   if not buttons[4] then
-    buttons[#buttons+1] = button({},4,function()
+    buttons[4] = function()
       data:scroll_up()
-    end)
+    end
   end
 
   -- Scroll down
   if not buttons[5] then
-    buttons[#buttons+1] = button({},5,function()
+    buttons[5] = function()
       data:scroll_down()
-    end)
+    end
   end
-  item.widget:buttons( util.table.join(unpack(buttons)))
+
+  item:connect_signal("button::release",function(_m,_i,button_id,mods)
+    if #mods == 0 and buttons[button_id] then
+      buttons[button_id](_m,_i,mods)
+    end
+  end)
 end
 
 local function setup_item(data,item,args)
@@ -138,7 +151,15 @@ local function new(args)
     ret:connect_signal("_hidden::changed",function(_,item)
       item.widget:emit_signal("widget::updated")
     end)
-    return ret
+
+--     rawset(ret,"fit", proxy_fit)
+--     rawset(ret,"draw", proxy_draw)
+--     rawset(ret,"_fit_geometry_cache", ret._internal.layout._fit_geometry_cache)
+--     rawset(ret,"add_signal", function()end)
+--     ret._internal.layout:connect_signal("widget::updated",function()
+--       ret:emit_signal("widget::updated")
+--     end)
+    return ret,ret._internal.layout
 end
 
 function module.flex(args)
