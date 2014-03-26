@@ -75,10 +75,10 @@ function module.scan_dir_async(path,args)
 end
 
 --- Return a file list (name only)
-function module.list_file_async(path,args)
+function module.list_files_async(path,args)
   if not path then return end
   local req,args = create_request(), args or {}
-  module.scan_dir_async("/usr/share/X11/xkb/symbols/"):connect_signal("request::completed",function(content)
+  module.scan_dir_async(path):connect_signal("request::completed",function(content)
       local ret = {}
       for k,v in ipairs(content) do
         local name = v["FILE_ATTRIBUTE_STANDARD_NAME"]
@@ -141,8 +141,16 @@ end
 function module.exec_command_async(command,cwd)
   local req = create_request()
   local argv = glib.shell_parse_argv(command)
+  if not argv then
+    print("Command parsing failed",command)
+    return req
+  end
 
-  local pid, stdin, stdout, stderr = glib.spawn_async_with_pipes(cwd,argv,nil,2,function() end)
+  local pid, stdin, stdout, stderr = glib.spawn_async_with_pipes(cwd,argv,nil,4,function() end)
+  if not pid then
+    print("Command execution failed",command,argv)
+    return req
+  end
   local stream = gio.UnixInputStream.new(stdout)
   local filter = gio.DataInputStream.new(stream)
   local errstream = gio.UnixInputStream.new(stderr)
