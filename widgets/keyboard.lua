@@ -15,7 +15,9 @@ local glib         = require("lgi").GLib
 
 local module = {}
 local menu,ready,checked,sub_item = nil,false,nil,nil
+local widget = nil
 
+local glob = nil
 local layouts = {}
 
 
@@ -24,20 +26,23 @@ local quick_switch = nil
 -- Select the next layout
 local function select_next(menu)
   local item = menu.next_item
+  if not item then return end
   item.selected = true
   item.button1(menu,item)
   return true
 end
 
 local function set_keymap(m,i)
-  glib.idle_add(glib.PRIORITY_DEFAULT_IDLE, function() print("foo",i.text);util.spawn("setxkbmap".." "..i.text) end)
+  glib.idle_add(glib.PRIORITY_DEFAULT_IDLE, function()
+    util.spawn("setxkbmap".." "..i.text)
+  end)
+  widget:set_image(i.icon)
 end
 
 
 -- Get the contry flag
 local function get_flag(code)
   local path = util.getdir("config").."/data/flags-24x24/"..code..".png"
-  print(util.getdir("config").."/data/flags-24x24/"..code..".png")
   local file = io.open(path)
     if file then
       file:close()
@@ -112,27 +117,15 @@ local function fit(self,w,h)
   return h,h
 end
 
--- Draw the current layout flag
-local function draw(self,w,cr,width,height)
-  cr:set_source_rgba(0,0,0,1)
-  cr:set_operator(cairo.Operator.CLEAR)
-  cr:paint()
-  
-  cr:set_operator(cairo.Operator.SOURCE)
-  if self._image then
-    cr:set_source_surface(self._image)
-    cr:paint()
-  end
-end
-
 -- 
-local function add_layout(menu, country,  full_name)
+local function add_layout(country,  full_name)
   local path = get_flag(country)
   local ib = wibox.widget.imagebox()
   ib:set_image(beautiful.titlebar_close_button_normal)
-  menu:add_item({text=country.." "..full_name,icon=path,suffix_widget=ib,bg_prefix=beautiful.bg_alternate,style=radical.item.style.arrow_prefix})
+  if glob then
+    glob:add_item({text=country.." "..full_name,icon=path,suffix_widget=ib,bg_prefix=beautiful.bg_alternate,style=radical.item.style.arrow_prefix})
+  end
   layouts[#layouts+1] = {name = country.." "..full_name, icon = path}
-  print("adding layout",quick_switch,#layouts)
   if quick_switch then
     quick_switch:add_item{text=country.." "..full_name,icon=path,button1=set_keymap}
   end
@@ -146,10 +139,11 @@ end
 
 -- Create a keyboard switched widget
 local function new()
-  local widget = wibox.widget.imagebox()
+  if not widget then
+    widget = wibox.widget.imagebox()
+  end
 --   widget.draw = draw
   widget.fit = fit
-  local glob = nil
   function show(geometry)
     if ready then
       if geometry then
@@ -167,20 +161,25 @@ local function new()
         glob:add_embeded_menu(menu)
         glob:add_item({text="<b>[Add]</b>",style=radical.item.style.arrow_single,layout=radical.item.layout.centerred,button1=function()
           if checked then
-            add_layout(glob,checked.text,sub_item.text)
+            add_layout(checked.text,sub_item.text)
             check()
           end
         end})
         glob:add_widget(radical.widgets.separator())
         local ib = wibox.widget.imagebox()
         ib:set_image(beautiful.titlebar_close_button_normal)
-        add_layout(glob,"us","")
-        add_layout(glob,"ca","fr")
+        for k,v in ipairs(layouts) do
+          glob:add_item({text=v.name,icon=v.icon,suffix_widget=ib,bg_prefix=beautiful.bg_alternate,style=radical.item.style.arrow_prefix,button1=set_keymap})
+        end
+
         fill_menu(show)
+
       end
       show(geometry)
     end))
   )
+  add_layout("us","")
+  add_layout("ca","fr")
 
   reload_widget(widget)
 
