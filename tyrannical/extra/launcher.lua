@@ -46,15 +46,16 @@ module.spawn = function(args)
         timeout_f   = args.timeout_f  ,
         screen      = args.screen     ,
     }
-    local pid,aaa = awful.util.spawn(param.command,true)
+    local pid,snid = awful.util.spawn(param.command,true)
+    print("HERE",snid)
     if pid then
         param.pid = pid
         by_pid[pid] = param
     end
-    if aaa then
-        param.startup_id = aaa
-        by_ns[aaa] = param
-        tyrannical.sn_callback[aaa] = on_callback
+    if snid then
+        param.startup_id = snid
+        by_ns[snid] = param
+        tyrannical.sn_callback[snid] = on_callback
     end
     return 100
 end

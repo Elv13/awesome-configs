@@ -16,7 +16,7 @@ local config       = require( "forgotten"          )
 local themeutils   = require( "blind.common.drawing"     )
 local wibox        = require( "wibox"           )
 local style        = require( "radical.style.classic"      )
-local item_style   = require( "radical.item_style.classic" )
+local item_style   = require( "radical.item.style.classic" )
 local color = require("gears.color")
 local cairo = require("lgi").cairo
 
@@ -102,7 +102,7 @@ function createMenu(offset)
         end
            count = 1
 --        end
-       local item = mainMenu:add_item({prefixbg = beautiful.fg_normal, text =  v[2], button1 = onclick,underlay=beautiful.draw_underlay(count.."x")})
+       local item = mainMenu:add_item({prefixbg = beautiful.fg_normal, text =  v[2], button1 = onclick,underlay=count.."x"})
        counter = counter + 1
     end
 
@@ -130,12 +130,10 @@ local function new(offset, args)
     local arr = themeutils.get_end_arrow2({bg_color=beautiful.icon_grad or beautiful.fg_normal})
     local arr2 = themeutils.get_beg_arrow2({bg_color=beautiful.icon_grad or beautiful.fg_normal})
     local cr = cairo.Context(img2)
-    local pat = cairo.Pattern.create_for_surface(cairo.ImageSurface.create_from_png(beautiful.taglist_bg_image_used))
-    cairo.Pattern.set_extend(pat,cairo.Extend.REPEAT)
-    cr:set_source(pat)
+    cr:set_source(color(beautiful.button_bg_normal or beautiful.bg_normal))
     cr:paint()
 
-    local ic = themeutils.apply_color_mask(head_img)
+    local ic = color.apply_mask(head_img)
     local sw,sh = ic:get_width(),ic:get_height()
     local ratio = ((sw > sh) and sw or sh) / (beautiful.default_height)
     local matrix = cairo.Matrix()

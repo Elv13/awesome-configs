@@ -7,6 +7,7 @@ local tag        = require( "awful.tag"           )
 local config     = require( "forgotten"           )
 local themeutils = require( "blind.common.drawing")
 local wibox      = require( "wibox"               )
+local color = require("gears.color")
 
 local data = {}
 
@@ -15,7 +16,7 @@ local function toggleVisibility(t)
   local w = data[tag.getscreen(t)]
   if w and t.selected then
     local locked = tag.getproperty(t,"exclusive")
-    w:set_image(themeutils.apply_color_mask(locked and config.iconPath .. "tags/locked.png" or config.iconPath .. "tags/unlocked.png"))
+    w:set_image(color.apply_mask(locked and config.iconPath .. "tags/locked.png" or config.iconPath .. "tags/unlocked.png"))
   end
 end
 
@@ -25,12 +26,12 @@ local function new(screen)
 
   local lockTag,t  = wibox.widget.imagebox(),tag.selected(scree)
   local locked = t and tag.getproperty(t,"exclusive") or false
-  lockTag:set_image(themeutils.apply_color_mask(locked and config.iconPath .. "tags/locked.png" or config.iconPath .. "tags/unlocked.png"))
+  lockTag:set_image(color.apply_mask(locked and config.iconPath .. "tags/locked.png" or config.iconPath .. "tags/unlocked.png"))
 
   local function btn()
     local t = tag.selected(scree)
     local locked = not tag.getproperty(t,"exclusive")
-    lockTag:set_image(themeutils.apply_color_mask(locked and config.iconPath .. "tags/locked.png" or config.iconPath .. "tags/unlocked.png"))
+    lockTag:set_image(color.apply_mask(locked and config.iconPath .. "tags/locked.png" or config.iconPath .. "tags/unlocked.png"))
     tag.setproperty(t,"exclusive", locked)
   end
 

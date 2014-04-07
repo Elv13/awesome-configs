@@ -14,7 +14,7 @@ local fdutil       = require( "extern.freedesktop.utils"   )
 local themeutils   = require( "blind.common.drawing"                )
 local wibox        = require( "wibox"                      )
 local style        = require( "radical.style.classic"      )
-local item_style   = require( "radical.item_style.classic" )
+local item_style   = require( "radical.item.style.classic" )
 local color        = require( "gears.color"                )
 local cairo        = require( "lgi"                        ).cairo
 local capi = { image  = image  ,
@@ -65,7 +65,7 @@ local function new(offset, args)
     mylauncher2text.bg_align = "left"
     mylauncher2text.bg_resize = true
 
-    local head_img      = themeutils.apply_color_mask(config.iconPath .. "tags/home2.png")
+    local head_img      = color.apply_mask(config.iconPath .. "tags/home2.png")
 --     local extents       = mylauncher2text:extents()
 --     extents.height      = 16
 --     local normal_bg_img = themeutils.gen_button_bg(head_img,extents,false) --TODO port
@@ -83,9 +83,7 @@ local function new(offset, args)
     local arr = themeutils.get_end_arrow2({bg_color=beautiful.icon_grad or beautiful.fg_normal})
     local arr2 = themeutils.get_beg_arrow2({bg_color=beautiful.icon_grad or beautiful.fg_normal})
     local cr = cairo.Context(img2)
-    local pat = cairo.Pattern.create_for_surface(cairo.ImageSurface.create_from_png(beautiful.taglist_bg_image_used))
-    cairo.Pattern.set_extend(pat,cairo.Extend.REPEAT)
-    cr:set_source(pat)
+    cr:set_source(color(beautiful.button_bg_normal or beautiful.bg_normal))
     cr:paint()
 
     local ic = head_img

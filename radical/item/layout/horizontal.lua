@@ -18,7 +18,7 @@ function module:setup_fkey(item,data)
     item._internal.f_key = value
     data:remove_key_hook("F"..value)
     data:add_key_hook({}, "F"..value      , "press", function()
-      item.button1()
+      item.button1(data,menu)
       data.visible = false
     end)
   end
@@ -119,6 +119,8 @@ function module.setup_event(data,item,widget)
     for k,v in ipairs(mod) do
       mods_invert[v] = i
     end
+
+    item.state[4] =  true
     data:emit_signal("button::press",item,id,mods_invert)
     item:emit_signal("button::press",item,id,mods_invert)
   end)
@@ -127,6 +129,7 @@ function module.setup_event(data,item,widget)
     for k,v in ipairs(mod) do
       mods_invert[v] = i
     end
+    item.state[4] =  nil
     data:emit_signal("button::release",item,id,mods_invert)
     item:emit_signal("button::release",item,id,mods_invert)
   end)
@@ -138,6 +141,21 @@ function module.setup_event(data,item,widget)
     data:emit_signal("mouse::leave",item)
     item:emit_signal("mouse::leave",item)
   end)
+
+  -- Always tracking mouse::move is expensive, only do it when necessary
+--   local function conn(b,t)
+--     item:emit_signal("mouse::move",item)
+--   end
+--   item:connect_signal("connection",function(_,name,count)
+--     if name == "mouse::move" then
+--       widget:connect_signal("mouse::move",conn)
+--     end
+--   end)
+--   item:connect_signal("disconnection",function(_,name,count)
+--     if count == 0 then
+--       widget:connect_signal("mouse::move",conn)
+--     end
+--   end)
 end
 
 -- Use all the space, let "align_fit" compute the right size
@@ -261,9 +279,15 @@ local function create_item(item,data,args)
   -- Setup events
   module.setup_event(data,item)
 
-  if item.buttons then
-    bg:buttons(item.buttons)
-  end
+  -- Setup dynamic underlay
+    -- Setup dynamic underlay
+  item:connect_signal("underlay::changed",function(_,udl)
+    bg:emit_signal("widget::updated")
+  end)
+
+--   if item.buttons then
+--     bg:buttons(item.buttons)
+--   end
 
   return bg
 end

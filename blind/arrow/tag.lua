@@ -41,27 +41,27 @@ end
 ----------------------------------------------------------------
 -- Watch urgent clients and set the tag to urgent accordingly --
 ----------------------------------------------------------------
-capi.tag.add_signal("property::urgent")
-local function watch_urgent(c)
-    local modif = c.urgent == true and 1 or -1
-    for k,t in ipairs(c:tags()) do
-        local current = (awful.tag.getproperty(t,"urgent") or 0)
-        if current + modif < 0 then
-            awful.tag.setproperty(t,"urgent",0)
-        else
-            awful.tag.setproperty(t,"urgent",(awful.tag.getproperty(t,"urgent") or 0) + modif)
-        end
-    end
-end
-capi.client.connect_signal("manage", function(c)
-    c:connect_signal("property::urgent",watch_urgent)
-    if c.urgent then
-        watch_urgent(c)
-    end
-end)
-capi.client.connect_signal("unmanage", function(c)
-    c:disconnect_signal("property::urgent",watch_urgent)
-end)
+-- capi.tag.add_signal("property::urgent")
+-- local function watch_urgent(c)
+--     local modif = c.urgent == true and 1 or -1
+--     for k,t in ipairs(c:tags()) do
+--         local current = (awful.tag.getproperty(t,"urgent") or 0)
+--         if current + modif < 0 then
+--             awful.tag.setproperty(t,"urgent",0)
+--         else
+--             awful.tag.setproperty(t,"urgent",(awful.tag.getproperty(t,"urgent") or 0) + modif)
+--         end
+--     end
+-- end
+-- capi.client.connect_signal("manage", function(c)
+--     c:connect_signal("property::urgent",watch_urgent)
+--     if c.urgent then
+--         watch_urgent(c)
+--     end
+-- end)
+-- capi.client.connect_signal("unmanage", function(c)
+--     c:disconnect_signal("property::urgent",watch_urgent)
+-- end)
 
 
 
@@ -159,7 +159,7 @@ function module.gen_tag_bg(wdg,t,m,objects,idx,image)
     -- Apply a color/gradient on top of the icon
     local icon = tag.geticon(t) or beautiful.path .."Icon/tags_invert/other.png"
     if icon and beautiful.monochrome_icons then
-        icon=themeutils.apply_color_mask(icon,col)
+        icon=color.apply_mask(icon,col)
     end
 
     img2 = themeutils.compose({

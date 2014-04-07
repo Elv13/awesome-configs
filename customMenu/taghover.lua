@@ -8,7 +8,7 @@ local aTagMenu = nil
 
 local function show_menu(t,geo,visible)
     if not aTagMenu then
-        aTagMenu = radical.context({layout=radical.layout.horizontal,item_width=140,item_height=140,icon_size=100,enable_keyboard=false})
+        aTagMenu = radical.context({layout=radical.layout.horizontal,item_width=140,item_height=140,icon_size=100,enable_keyboard=false,item_style=radical.item.style.rounded})
     end
     if (not t) and (not visible) then aTagMenu.visible=false;return end
     if not visible then return end

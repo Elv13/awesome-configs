@@ -11,6 +11,8 @@ local wibox      = require("wibox")
 local tooltip2   = require( "radical.tooltip" )
 local themeutils = require( "blind.common.drawing"    )
 local radical    = require("radical")
+local color = require("gears.color")
+local tag_menu = require( "radical.impl.common.tag" )
 
 local capi = {client = client,mouse=mouse}
 
@@ -19,7 +21,7 @@ local module = {}
 local function update(w, screen)
     local layout = layout.getname(layout.get(screen))
     if layout and beautiful["layout_" ..layout.."_s"] then
-        w:set_image(themeutils.apply_color_mask(beautiful["layout_" ..layout.."_s"]))
+        w:set_image(color.apply_mask(beautiful["layout_" ..layout.."_s"]))
     else
         w:set_image()
     end
@@ -27,28 +29,11 @@ end
 
 local centered = nil
 
-local function populate(menu,layouts)
-    local cur = layout.get(tag.getscreen(tag.selected(capi.client.focus and capi.client.focus.screen)))
-    for i, layout_real in ipairs(layouts) do
-        local layout2 = layout.getname(layout_real)
-        if layout2 and beautiful["layout_" ..layout2] then
-           print(layout_real,layout2,beautiful["layout_" ..layout2])
-            menu:add_item({icon=beautiful["layout_" ..layout2],button1 = function(_,mod)
-                if mod then
-                    menu[mod[1] == "Shift" and "previous_item" or "next_item"].selected = true
-                end
-                layout.set(layouts[menu.current_index] or layouts[1],tag.selected(capi.client.focus and capi.client.focus.screen))
-            end, selected = (layout_real == cur)})
-        end
-    end
-    print("end")
-end
-
 module.centered_menu = function(layouts,backward)
+    local screen = capi.client.focus and capi.client.focus.screen or capi.mouse.screen
     if not centered then
-        local screen = capi.client.focus and capi.client.focus.screen or capi.mouse.screen
-        centered = radical.box({filter=false,item_style=radical.item_style.rounded,item_height=45,column=6,layout=radical.layout.grid,screen=screen})
-        populate(centered,layouts)
+        centered = radical.box({filter=false,item_style=radical.item.style.rounded,item_height=45,column=6,layout=radical.layout.grid,screen=screen})
+        tag_menu.layouts(centered,layouts)
         centered:add_key_hook({}, " ", "press", function(_,mod) centered._current_item.button1(_,mod) end)
         centered:add_key_hook({"Mod4"}, "Shift_L", "press",   function(menu) end)
         centered:add_key_hook({"Mod4"}, "Shift_R", "press",   function(menu) end)
@@ -56,6 +41,7 @@ module.centered_menu = function(layouts,backward)
         centered:add_key_hook({"Mod4"}, "Shift_R", "release", function(menu) end)
         centered:add_key_hook({}, "Mod4", "release", function(menu) centered.visible = false end)
     end
+    centered.screen = screen
     centered.visible = true
     centered._current_item.button1(centered,backward and {"Shift"} or {})
 end
@@ -63,15 +49,15 @@ end
 local function new(screen, layouts)
     local screen = screen or capi.client.focus and capi.client.focus.screen or 1
     local w = wibox.widget.imagebox()
-    tooltip2(w,"Change Layout",{})
+    w:set_tooltip("Change Layout")
     w.bg = beautiful.bg_alternate
     update(w, screen)
     local menu = nil
 
     local function btn(geo)
         if not menu then
-            menu = radical.context({filter=false,item_style=radical.item_style.rounded,item_height=30,column=3,layout=radical.layout.grid,arrow_type=radical.base.arrow_type.CENTERED})
-            populate(menu,layouts)
+            menu = radical.context({filter=false,item_style=radical.item.style.rounded,item_height=30,column=3,layout=radical.layout.grid,arrow_type=radical.base.arrow_type.CENTERED})
+            tag_menu.layouts(menu,layouts)
         end
         menu.parent_geometry = geo
         menu.visible = true

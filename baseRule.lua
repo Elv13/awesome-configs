@@ -333,7 +333,7 @@ tyrannical.properties.floating = {
     "yakuake"      , "Select Color$"   , "kruler"     , "kcolorchooser", "Paste Special"  ,
     "New Form"     , "Insert Picture"  , "kcharselect", "mythfrontend" , "plasmoidviewer" ,
     "sflphone-client-kde", "sflphone-client-gnome", "xev",
-    amarok = false ,
+    amarok = false , "yakuake"
 }
 
 tyrannical.properties.ontop = {
@@ -353,5 +353,8 @@ tyrannical.properties.border_color = {
 }
 
 tyrannical.properties.centered = { "kcalc" }
+
+tyrannical.properties.skip_taskbar = {"yakuake"}
+tyrannical.properties.hidden = {"yakuake"}
 
 tyrannical.properties.size_hints_honor = { xterm = false, URxvt = false, aterm = false, sauer_client = false, mythfrontend  = false}

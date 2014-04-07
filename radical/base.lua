@@ -109,13 +109,15 @@ local function activateKeyboard(data)
   if (not (data._internal.private_data.enable_keyboard == false)) and data.visible == true then
     capi.keygrabber.run(function(mod, key, event)
       for k,v in pairs(data._internal.filter_hooks or {}) do --TODO modkeys
-        if k.key == "Mod4" and (key == "End" or key == "Super_L") then
+        if (k.key == "Mod4" or k.key == "Mod1") and (key == "End" or key == "Super_L" or key == "Alt_L") then
           local found = false
           for k3,v3 in ipairs(mod) do
-            if v3 == "Mod4" and event == k.event then
-              local retval,self = v(data,mod)
-              if self and type(self) == "table" then
-                data = self
+            for k4,v4 in ipairs({"Mod4","Mod1"})do
+              if v3 == v4 and event == k.event then
+                local retval,self = v(data,mod)
+                if self and type(self) == "table" then
+                  data = self
+                end
               end
             end
           end
@@ -140,7 +142,7 @@ local function activateKeyboard(data)
         if data.sub_menu_on == module.event.BUTTON1 then
           item_mod.execute_sub_menu(data,data._current_item)
         else
-          data._current_item.button1()
+          data._current_item.button1(data,data._current_item)
           data.visible = false
         end
       elseif key == 'Escape' or (key == 'Tab' and data.filter_string == "") then
@@ -202,7 +204,7 @@ local function add_widget(data,widget,args)
   item.get_y = function() return (args.y and args.y >= 0) and args.y or data.height - (data.margins.top or data.border_width) - data.item_height end --Hack around missing :fit call for last item
 
   data._internal.widgets[#data._internal.widgets+1] = item
-  data._internal.items[#data._internal.items+1] = {item}
+  data._internal.items[#data._internal.items+1] = item
   data:emit_signal("widget::added",item,widget)
   if data.visible then
     local fit_w,fit_h = data._internal.layout:fit(9999,9999)
@@ -500,7 +502,7 @@ local function new(args)
 
   function data:append(item)
     if not item then return end
-    internal.items[#internal.items + 1] = {item}
+    internal.items[#internal.items + 1] = item
     data:emit_signal("item::appended",item)
   end
 

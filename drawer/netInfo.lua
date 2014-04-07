@@ -122,7 +122,7 @@ local function reload_appstat(appMenu,data)
             end
         end
 --         print("this",i)
-        appMenu:add_item({text=v,suffix_widget=testImage2,icon=icon,underlay = beautiful.draw_underlay(i)})
+        appMenu:add_item({text=v,suffix_widget=testImage2,icon=icon,underlay = i})
     end
 end
 
@@ -203,7 +203,7 @@ local upsur,downsur
 local function down_graph_draw(self,w, cr, width, height)
     if mainMenu and mainMenu.visible then
         if not downsur then
-            downsur = themeutils.apply_color_mask(config.iconPath .. "arrowDown.png"         )
+            downsur = color.apply_mask(config.iconPath .. "arrowDown.png"         )
         end
         cr:save()
         cr:rotate(math.pi)
@@ -223,7 +223,7 @@ end
 local function up_graph_draw(self,w, cr, width, height)
     if mainMenu and mainMenu.visible then
         if not upsur then
-            upsur = themeutils.apply_color_mask(config.iconPath .. "arrowUp.png"         )
+            upsur = color.apply_mask(config.iconPath .. "arrowUp.png"         )
         end
         cr:save()
         cr:scale(-1,1)

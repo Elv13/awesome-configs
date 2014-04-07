@@ -135,17 +135,20 @@ end
 local function get_icon(self,height,icon)
   if self._icn then return self._icn end
   if not icon and not self._icon then return end
-  local base = cairo.ImageSurface.create_from_png(icon or self._icon)
-  local base_w,base_h = base:get_width(),base:get_height()
-  local img = cairo.ImageSurface.create(cairo.Format.ARGB32, height*(base_w/base_h), height)--themeutils.apply_color_mask
-  local cr2 = cairo.Context(img)
-  local aspect_h = height / base_h
-  cr2:scale(aspect_h,aspect_h)
-  cr2:set_source_surface(base)
-  cr2:paint()
-  themeutils.apply_color_mask(img)
+  if not self._icn_cache then
+    local base = cairo.ImageSurface.create_from_png(icon or self._icon)
+    local base_w,base_h = base:get_width(),base:get_height()
+    local img = cairo.ImageSurface.create(cairo.Format.ARGB32, height*(base_w/base_h), height)--themeutils.apply_color_mask
+    local cr2 = cairo.Context(img)
+    local aspect_h = height / base_h
+    cr2:scale(aspect_h,aspect_h)
+    cr2:set_source_surface(base)
+    cr2:paint()
+    color.apply_mask(img)
 --   self._icn = img
-  return img
+    self._icn_cache = img
+  end
+  return self._icn_cache
 end
 
 

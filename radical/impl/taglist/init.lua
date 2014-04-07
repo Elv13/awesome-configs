@@ -19,8 +19,10 @@ local tracker   = require( "radical.impl.taglist.tracker" )
 local tag_menu  = require( "radical.impl.taglist.tag_menu" )
 
 local CLONED = 100
+local HIGHLIGHTED = -2
 
-theme.register_color(CLONED , "cloned" , "taglist_cloned" , true )
+theme.register_color(CLONED , "cloned" , "cloned" , true )
+theme.register_color(HIGHLIGHTED , "highlight" , "highlight" , true )
 
 local module,instances = {},{}
 
@@ -32,7 +34,7 @@ local cache = setmetatable({}, { __mode = 'k' })
 module.buttons = { [1] = awful.tag.viewonly,
                       [2] = awful.tag.viewtoggle,
                       [3] = function(q,w,e,r)
-                              local menu = tag_menu()
+                              local menu = tag_menu(q)
                               menu.visible = true
                             end,
                       [4] = function(t) awful.tag.viewnext(awful.tag.getscreen(t)) end,
@@ -64,10 +66,21 @@ local function create_item(t,s)
   local index = tag.getidx(t)
   tw:set_markup(" <b>"..(index).."</b> ")
   w:add(tw)
-  local item = menu:add_item { text = t.name, prefix_widget = w}
+  local suf_w = wibox.layout.fixed.horizontal()
+  local item = menu:add_item { text = t.name, prefix_widget = w,suffix_widget=suf_w}
+  item._internal.icon_w = ib
 --   item:connect_signal("index::changed",function(_,value)
 --     tw:set_markup(" <b>"..(index).."</b> ")
 --   end)
+
+  item.add_suffix = function(_,w2)
+    suf_w:add(w2)
+  end
+  item.add_prefix = function(_,w2)
+    w:add(w2)
+  end
+
+
   item.tw = tw
 
   if tag.getproperty(t,"clone_of") then
@@ -170,10 +183,30 @@ local function init()
   capi.tag.connect_signal("property::icon", function(t)
     local item = cache[t]
     if item then
-      item.icon = tag.geticon(t) or beautiful.taglist_default_icon
+      item._internal.icon_w:set_image(tag.geticon(t) or beautiful.taglist_default_icon)
     end
   end)
   is_init = true
+end
+
+local highlighted = {}
+function module.highlight(t)
+  local tp = type(t)
+  if highlighted and highlighted ~= t then
+    for k,v in ipairs(highlighted) do
+      v.state[HIGHLIGHTED] = nil
+    end
+    highlighted = {}
+  end
+  if t then
+    for k,v in ipairs(tp == "table" and t or {t}) do
+      local item = cache[v]
+      if item then
+        highlighted[#highlighted+1] = item
+        item.state[HIGHLIGHTED] = true
+      end
+    end
+  end
 end
 
 local function new(s)
@@ -189,7 +222,7 @@ local function new(s)
     fg_focus   = beautiful.taglist_fg_selected,
 --     fkeys_prefix = true,
   }
-  for k,v in ipairs {"hover","used","urgent","cloned","changed"} do
+  for k,v in ipairs {"hover","used","urgent","cloned","changed","highlight"} do
     args["bg_"..v] = beautiful["taglist_bg_"..v]
     args["fg_"..v] = beautiful["taglist_fg_"..v]
   end
@@ -222,12 +255,15 @@ capi.tag.connect_signal("property::index2",function(t,i)
     local s = tag.getscreen(t)
     local item = cache[t]
     if item then
-      local index = tag.getidx(t)
-      instances[s]:move(item,index)
-      item.tw:set_markup(" <b>"..(index).."</b> ")
+      instances[s]:move(item,i)
+      item.tw:set_markup(" <b>"..(i).."</b> ")
     end
   end
 end)
+
+function module.item(t)
+  return cache[t]
+end
 
 
 return setmetatable(module, { __call = function(_, ...) return new(...) end })

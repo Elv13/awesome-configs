@@ -42,6 +42,9 @@ theme.fg_minimize    = "#1577D3"
 
 theme.bg_systray     = theme.fg_normal
 
+
+theme.button_bg_normal            = color.create_png_pattern(path .."Icon/bg/menu_bg_scifi.png"       )
+
 --theme.border_width  = "1"
 --theme.border_normal = "#555555"
 --theme.border_focus  = "#535d6c"
@@ -62,8 +65,28 @@ theme.tasklist_floating_focus_icon = path .."Icon/titlebar/floating_focus.png"
 theme.tasklist_ontop_focus_icon    = path .."Icon/titlebar/ontop_focus.png"
 theme.tasklist_sticky_focus_icon   = path .."Icon/titlebar/sticky_focus.png"
 theme.tasklist_plain_task_name     = true
+theme.tasklist_icon_transformation = function(image,data,item)
+    if not item._state_transform_init then
+        item:connect_signal("state::changed",function()
+            if item._original_icon then
+                item:set_icon(item._original_icon)
+            end
+        end)
+        item._state_transform_init = true
+    end
+    local state = item.state or {}
+    local current_state = state._current_key or nil
+    local state_name = radical.base.colors_by_id[current_state] or "normal"
+    return surface.tint(image,color(state_name == "normal" and theme.fg_normal or item["fg_"..state_name]  --[[theme.fg_normal]]),theme.default_height,theme.default_height)
+end
+
+theme.alttab_icon_transformation = function(image,data,item)
+--     return themeutils.desaturate(surface(image),1,theme.default_height,theme.default_height)
+    return surface.tint(surface(image),color(theme.fg_normal),theme.default_height,theme.default_height)
+end
 
 theme.icon_grad        = { type = "linear", from = { 0, 0 }, to = { 0, 20 }, stops = { { 0, "#8AC2D5" }, { 1, "#3D619C" }}}
+theme.icon_mask        = { type = "linear", from = { 0, 0 }, to = { 0, 20 }, stops = { { 0, "#8AC2D5" }, { 1, "#3D619C" }}}
 theme.icon_grad_invert = { type = "linear", from = { 0, 0 }, to = { 0, 20 }, stops = { { 0, "#000000" }, { 1, "#112543" }}}
 
 
@@ -89,20 +112,37 @@ theme.icon_grad_invert = { type = "linear", from = { 0, 0 }, to = { 0, 20 }, sto
 ------------------------------------------------------------------------------------------------------
 
 -- Display the taglist squares
-theme.taglist_underline                = "#094CA5"
-theme.taglist_bg_image_empty           = nil
-theme.taglist_bg_image_selected        = path .."Icon/bg/selected_bg_scifi_focus.png"
-theme.taglist_bg_image_focus           = path .."Icon/bg/selected_bg_scifi_focus.png"
-theme.taglist_bg_image_used            = path .."Icon/bg/selected_bg_scifi.png"
-theme.taglist_bg_image_urgent          = path .."Icon/bg/urgent_bg.png"
-theme.taglist_bg_image_remote_selected = path .."Icon/bg/selected_bg_green.png"
-theme.taglist_bg_image_remote_used     = path .."Icon/bg/used_bg_green.png"
-theme.taglist_squares_unsel            = function(wdg,m,t,objects,idx) return arrow.tag.gen_tag_bg(wdg,m,t,objects,idx,themeutils.status_ellipse) end
-theme.taglist_squares_sel              = function(wdg,m,t,objects,idx) return arrow.tag.gen_tag_bg(wdg,m,t,objects,idx,theme.taglist_bg_image_selected) end
-theme.taglist_squares_sel_empty        = function(wdg,m,t,objects,idx) return arrow.tag.gen_tag_bg(wdg,m,t,objects,idx,theme.taglist_bg_image_selected) end
-theme.taglist_squares_unsel_empty      = function(wdg,m,t,objects,idx) return arrow.tag.gen_tag_bg(wdg,m,t,objects,idx,nil)     end
-theme.taglist_disable_icon             = true
+-- theme.taglist_underline                = "#094CA5"
+
+theme.taglist_bg_hover           = color.create_png_pattern(path .."Icon/bg/menu_bg_focus_scifi.png" )
+theme.taglist_bg_selected        = color.create_png_pattern(path .."Icon/bg/menu_bg_selected_scifi.png")
+theme.taglist_fg_selected        = "#ffffff"
+theme.taglist_bg_cloned          = color.create_png_pattern(path .."Icon/bg/used_bg_green2.png")
+theme.taglist_fg_cloned          = "#00bb00"
+theme.taglist_bg_used            = color.create_png_pattern(path .."Icon/bg/selected_bg_scifi_focus.png")
+theme.taglist_fg_used            = "#7EA5E3"
+theme.taglist_bg_urgent          = color.create_png_pattern(path .."Icon/bg/urgent_bg.png")
+theme.taglist_fg_urgent          = "#FF7777"
+theme.taglist_bg_changed         = color.create_png_pattern(path .."Icon/bg/selected_bg_scifi_changed.png")
+theme.taglist_fg_changed         = "#B78FEE"
+theme.taglist_bg_highlight       = "#bbbb00"
+theme.taglist_fg_highlight       = "#000000"
+theme.taglist_default_icon       = path .."Icon/tags/other.png"
+-- theme.taglist_squares_unsel            = function(wdg,m,t,objects,idx) return arrow.tag.gen_tag_bg(wdg,m,t,objects,idx,themeutils.status_ellipse) end
+-- theme.taglist_squares_sel              = function(wdg,m,t,objects,idx) return arrow.tag.gen_tag_bg(wdg,m,t,objects,idx,theme.taglist_bg_image_selected) end
+-- theme.taglist_squares_sel_empty        = function(wdg,m,t,objects,idx) return arrow.tag.gen_tag_bg(wdg,m,t,objects,idx,theme.taglist_bg_image_selected) end
+-- theme.taglist_squares_unsel_empty      = function(wdg,m,t,objects,idx) return arrow.tag.gen_tag_bg(wdg,m,t,objects,idx,nil)     end
+-- theme.taglist_disable_icon             = true
+theme.tasklist_underlay_bg_urgent      = "#ff0000"
+theme.tasklist_underlay_bg_minimized   = "#4F269C"
+theme.tasklist_underlay_bg_focus       = "#0746B2"
 theme.tasklist_bg_image_selected       = path .."Icon/bg/selected_bg_scifi.png"
+theme.tasklist_bg_minimized            = "#10002C"
+theme.tasklist_fg_minimized            = "#985FEE"
+theme.tasklist_bg_urgent               = color.create_png_pattern(path .."Icon/bg/urgent_bg.png")
+theme.tasklist_bg_hover                = color.create_png_pattern(path .."Icon/bg/menu_bg_focus_scifi.png" )
+theme.tasklist_bg_focus                = color.create_png_pattern(path .."Icon/bg/selected_bg_scifi_focus.png")
+theme.tasklist_default_icon            = path .."Icon/tags/other.png"
 theme.bg_image_normal                  = function(wdg,m,t,objects) return arrow.task.gen_task_bg(wdg,m,t,objects,nil)     end
 theme.bg_image_focus                   = function(wdg,m,t,objects) return arrow.task.gen_task_bg(wdg,m,t,objects,theme.taglist_bg_image_selected)     end
 theme.bg_image_urgent                  = function(wdg,m,t,objects) return arrow.task.gen_task_bg(wdg,m,t,objects,theme.taglist_bg_image_urgent)     end
@@ -126,16 +166,17 @@ theme.menu_submenu_icon         = path .."Icon/tags/arrow.png"
 -- theme.menu_scrollmenu_up_icon   = path .."Icon/tags/arrow_up.png"
 theme.awesome_icon              = path .."Icon/awesome2.png"
 theme.menu_height               = 20
-theme.menu_width                = 130
+theme.menu_width                = 170
 theme.menu_border_width         = 2
 theme.border_width              = 1
+theme.menu_opacity              = 0.9
 theme.border_color              = theme.fg_normal
 theme.menu_fg_normal            = "#ffffff"
-theme.menu_bg_focus             = themeutils.pattern(path .."Icon/bg/menu_bg_focus_scifi.png" )
-theme.menu_bg_header            = themeutils.pattern(path .."Icon/bg/menu_bg_header_scifi.png")
-theme.menu_bg_normal            = themeutils.pattern(path .."Icon/bg/menu_bg_scifi.png"       )
-theme.menu_bg_highlight         = themeutils.pattern(path .."Icon/bg/menu_bg_highlight.png"   )
-theme.bg_dock                   = themeutils.pattern(path .."Icon/bg/bg_dock.png"             )
+theme.menu_bg_focus             = color.create_png_pattern(path .."Icon/bg/menu_bg_focus_scifi.png" )
+theme.menu_bg_header            = color.create_png_pattern(path .."Icon/bg/menu_bg_header_scifi.png")
+theme.menu_bg_normal            = color.create_png_pattern(path .."Icon/bg/menu_bg_scifi.png"       )
+theme.menu_bg_highlight         = color.create_png_pattern(path .."Icon/bg/menu_bg_highlight.png"   )
+theme.bg_dock                   = color.create_png_pattern(path .."Icon/bg/bg_dock.png"             )
 
 theme.wallpaper = "/home/lepagee/bg/final/bin_ascii_ds.png"
 theme.draw_underlay = themeutils.draw_underlay
@@ -218,6 +259,7 @@ theme.layout_tiletop_s       = path .."Icon/layouts_small/tiletop.png"
 theme.layout_spiral_s        = path .."Icon/layouts_small/spiral.png"
 theme.layout_spiraldwindle_s = path .."Icon/layouts_small/spiral_d.png"
 
+wibox_w.textbox._draw = wibox_w.textbox.draw
 wibox_w.textbox.draw = function(self,w, cr, width, height,args)
     --Create the cache
     if not self.cache then

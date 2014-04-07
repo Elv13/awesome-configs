@@ -17,7 +17,8 @@ local fdutils      = require( "extern.freedesktop.utils" )
 local color        = require( "gears.color"              )
 local cairo        = require( "lgi"                      ).cairo
 local tyr_launcher = require("tyrannical.extra.launcher")
-local themeutils = require( "blind.common.drawing"    )
+local themeutils   = require( "blind.common.drawing"    )
+local listTags     = require( "radical.impl.common.tag" ).listTags
 local capi = { screen = screen }
 
 local module={}
@@ -31,8 +32,8 @@ local function draw_item(data,instances,width)
     if data.damage_w ~= width then
         local sw,sh = data.icon_surface:get_width(),data.icon_surface:get_height()
         local ratio = ((sw > sh) and sw or sh) / (width-6)
-        local color = { type = "linear", from = { 0, 0 }, to = { 0, sh }, stops = { { 0, "#1889F2" }, { 1, "#0A3E6E" }}}
-        data.icon_surface_pattern = cairo.Pattern.create_for_surface(themeutils.apply_color_mask(data.icon_surface,color))
+        local grad  = { type = "linear", from = { 0, 0 }, to = { 0, sh }, stops = { { 0, "#1889F2" }, { 1, "#0A3E6E" }}}
+        data.icon_surface_pattern = cairo.Pattern.create_for_surface(color.apply_mask(data.icon_surface,grad))
         local matrix = cairo.Matrix()
         cairo.Matrix.init_scale(matrix,ratio,ratio)
         matrix:translate(-3,-3)
@@ -111,7 +112,7 @@ local function create(screen, args)
     local vertical_extents,widgetsL,img = 0, wibox.layout.fixed.vertical()
     local img = cairo.ImageSurface(cairo.Format.ARGB32, width, 7)
     local cr = cairo.Context(img)
-    lauchBar = wibox({ position = "free", screen = screen, width = width+9, bg = beautiful.dock_bg})
+    lauchBar = wibox({width = width+9})
     lauchBar:geometry({ width = width, height = height, x = 0, y = 50})
     lauchBar.ontop = true
     lauchBar.border_color = beautiful.fg_normal
@@ -166,8 +167,9 @@ local function create(screen, args)
                         smenu:add_item({text="item 1"})
                         return smenu
                     end})
-                    menu:add_item({text="Screen 2"})
-                    menu:add_item({text="Screen 3"})
+                    menu:add_item({text="Open in new tag"})
+                    menu:add_item({text="Open in current tag"})
+                    menu:add_item({text="Open In tag", sub_menu = listTags})
                     menu:add_item({text="Sub Menu",sub_menu = function() 
                         local smenu = menu4({})
                         smenu:add_item({text="item 1",icon=beautiful.path.."Icon/layouts/tileleft.png"})

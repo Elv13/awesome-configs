@@ -8,6 +8,7 @@ local wibox = require("wibox")
 -- local shifty = require("shifty")
 local tooltip2   = require( "radical.tooltip" )
 local themeutils = require( "blind.common.drawing"    )
+local color = require("gears.color")
 local capi = { image = image,
                screen = screen,
                widget = widget,
@@ -32,7 +33,7 @@ end
 
 local function new(screen, args) 
   data[screen]         = wibox.widget.imagebox()
-  data[screen]:set_image(themeutils.apply_color_mask(config.iconPath .. "tags/minus2.png"))
+  data[screen]:set_image(color.apply_mask(config.iconPath .. "tags/minus2.png"))
   data[screen].visible = false
   data[screen].bg      = beautiful.bg_alternate
   tooltip2(data[screen],"Remove Tag",{})
@@ -43,8 +44,8 @@ local function new(screen, args)
     end)
   ))
 
-  tag.attached_connect_signal(screen, "property::selected", toggleVisibility)
-  tag.attached_connect_signal(screen, "property::layout", toggleVisibility)
+--   tag.attached_connect_signal(screen, "property::selected", toggleVisibility)
+--   tag.attached_connect_signal(screen, "property::layout", toggleVisibility)
 
   return data[screen]
 end

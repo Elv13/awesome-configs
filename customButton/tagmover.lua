@@ -10,12 +10,11 @@ local utils        = require( "utils.tools"  )
 local menu         = require( "radical.context" )
 local tooltip2   = require( "radical.tooltip" )
 local themeutils = require( "blind.common.drawing"    )
+local color = require("gears.color")
 local wibox = require("wibox")
 
-local capi = { image  = image  ,
-               screen = screen ,
-               mouse  = mouse  ,
-               widget = widget }
+local capi = { screen = screen ,
+               mouse  = mouse  }
 
 local module = {}
 
@@ -107,7 +106,7 @@ local function new(screen, args)
         return data[id].widget
       end
       data[id].widget.visible = false
-      data[id].widget:set_image(themeutils.apply_color_mask(icon))
+      data[id].widget:set_image(color.apply_mask(icon))
     else
       data[id].widget       = wibox.widget.textbox()
       data[id].widget:set_text(direction)

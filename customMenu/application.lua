@@ -11,7 +11,8 @@ local themeutils   = require( "blind.common.drawing"       )
 local wibox        = require( "wibox"                      )
 local cairo        = require( "lgi"                        ).cairo
 local style        = require( "radical.style.classic"      )
-local item_style   = require( "radical.item_style.classic" )
+local item_style   = require( "radical.item.style.classic" )
+local color = require("gears.color")
 local capi         = { screen  = screen }
 
 fdutils.icon_theme = 'oxygen'
@@ -105,12 +106,10 @@ local function new(screen, args)
     local arr = themeutils.get_end_arrow2({bg_color= beautiful.icon_grad or beautiful.fg_normal})
     local arr2 = themeutils.get_beg_arrow2({bg_color= beautiful.icon_grad or beautiful.fg_normal})
     local cr = cairo.Context(img2)
-    local pat = cairo.Pattern.create_for_surface(cairo.ImageSurface.create_from_png(beautiful.taglist_bg_image_used))
-    cairo.Pattern.set_extend(pat,cairo.Extend.REPEAT)
-    cr:set_source(pat)
+    cr:set_source(color(beautiful.button_bg_normal or beautiful.bg_normal))
     cr:paint()
 
-    local ic = themeutils.apply_color_mask(beautiful.awesome_icon)
+    local ic = color.apply_mask(beautiful.awesome_icon)
     local ratio =  ic:get_width() / (beautiful.default_height)
     local matrix = cairo.Matrix()
     cairo.Matrix.init_scale(matrix,ratio,ratio)

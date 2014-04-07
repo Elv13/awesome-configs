@@ -8,6 +8,7 @@ local tooltip2      = require( "radical.tooltip" )
 local config       = require( "forgotten"          )
 local themeutils = require( "blind.common.drawing"    )
 local wibox        = require( "wibox"           )
+local color = require("gears.color")
 
 local capi = { image  = image  ,
                widget = widget }
@@ -18,7 +19,7 @@ local module = {}
 local function new(screen, args) 
   local desktopPix       = wibox.widget.imagebox()
   tooltip2(desktopPix,"Show Desktop",{down=true})
-  desktopPix:set_image(themeutils.apply_color_mask(config.iconPath .. "tags/desk2.png"))
+  desktopPix:set_image(color.apply_mask(config.iconPath .. "tags/desk2.png"))
   desktopPix:buttons( util.table.join( button({ }, 1, function() tag.viewnone() end) ))
   return desktopPix
 end
