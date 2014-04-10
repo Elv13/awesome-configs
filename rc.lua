@@ -687,7 +687,7 @@ awful.rules.rules = {
 }
 -- }}}
 
-awesome.register_xproperty("_NET_STARTUP_ID","string")
+-- awesome.register_xproperty("_NET_STARTUP_ID","string")
 -- {{{ Signals
 -- Signal function to execute when a new client appears.
 client.connect_signal("manage", function (c, startup)
