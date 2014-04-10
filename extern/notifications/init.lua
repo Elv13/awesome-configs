@@ -113,6 +113,8 @@ function module.main()
             style = radical.style.classic,
             --item_style = radical.item.style.classic,
             max_items = module.conf.max_items,
+            item_height = 40,
+            item_layout = radical.item.layout.notification,
             x = getX(), y = getY()
         })
         for k,v in ipairs(module.items) do
