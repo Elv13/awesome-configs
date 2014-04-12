@@ -23,6 +23,10 @@ local layouts = {}
 
 local quick_switch = nil
 
+local function save_to_disk()
+  --TODO
+end
+
 -- Select the next layout
 local function select_next(menu)
   local item = menu.next_item
@@ -52,12 +56,33 @@ end
 
 -- Get the current keyboard layout
 local function reload_widget(widget)
-  fd_async.exec_command_async('setxkbmap -query -display :0'):connect_signal("request::completed",function(ret)
+  fd_async.exec_command_async('setxkbmap -query'):connect_signal("request::completed",function(ret)
+    local layout  = ""
+    local variant = nil
     for k,v in string.gmatch(ret, "layout:([ ]*)([^\n]+)\n?") do
-      local flag = get_flag(v)
-      widget:set_image(flag)
---       widget:set_image(surface.tint(flag,color("#000000"),beautiful.default_height,beautiful.default_height))
+      layout = v
     end
+    for k,v in string.gmatch(ret, "variant:([ ]*)([^\n]+)\n?") do
+      variant = v
+    end
+
+    -- Set the icon
+    local flag = get_flag(layout)
+    widget:set_image(flag)
+
+    -- Check if the current layout is listed
+    local full_layout_name = layout .. (variant and (" "..variant) or "")
+    local found = false
+    for k2,v2 in ipairs(layouts) do
+      if full_layout_name == v2.name then
+        found = true
+        break
+      end
+    end
+    if not found then
+      layouts[#layouts+1] = {name = full_layout_name, icon = flag}
+    end
+
     widget:emit_signal("widget::updated")
   end)
 end
@@ -122,12 +147,13 @@ local function add_layout(country,  full_name)
   local path = get_flag(country)
   local ib = wibox.widget.imagebox()
   ib:set_image(beautiful.titlebar_close_button_normal)
+  local real_name = country..((full_name and full_name~="") and (" "..full_name) or "")
   if glob then
-    glob:add_item({text=country.." "..full_name,icon=path,suffix_widget=ib,bg_prefix=beautiful.bg_alternate,style=radical.item.style.arrow_prefix})
+    glob:add_item({text=real_name,icon=path,suffix_widget=ib,bg_prefix=beautiful.bg_alternate,style=radical.item.style.arrow_prefix})
   end
-  layouts[#layouts+1] = {name = country.." "..full_name, icon = path}
+  layouts[#layouts+1] = {name = real_name, icon = path}
   if quick_switch then
-    quick_switch:add_item{text=country.." "..full_name,icon=path,button1=set_keymap}
+    quick_switch:add_item{text=real_name,icon=path,button1=set_keymap}
   end
 
 end

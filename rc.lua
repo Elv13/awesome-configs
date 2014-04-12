@@ -692,7 +692,7 @@ awful.rules.rules = {
 -- Signal function to execute when a new client appears.
 client.connect_signal("manage", function (c, startup)
     -- Enable sloppy focus
-    print("SN",c:get_xproperty("_NET_STARTUP_ID"))
+--     print("SN",c:get_xproperty("_NET_STARTUP_ID"))
     c:connect_signal("mouse::enter", function(c)
         if awful.layout.get(c.screen) ~= awful.layout.suit.magnifier
             and awful.client.focus.filter(c) then
