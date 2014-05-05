@@ -23,7 +23,7 @@ local function set_value(self,value)
 end
 
 local function fit(self,width,height)
-  return height * 1.5,height
+  return width > (height * 1.5) and (height * 1.5) or width,height
 end
 
 local function draw(self,w,cr,width,height)

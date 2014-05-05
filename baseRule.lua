@@ -71,7 +71,7 @@ tyrannical.tags = {
         screen      = config.scr.pri                          ,
         layout      = awful.layout.suit.tile                         ,
         exec_once   = {"dolphin"},
-        no_focus_stealing = true,
+        no_focus_stealing_in = true,
         class  = { 
             "Thunar"        , "Konqueror"      , "Dolphin"   , "ark"          , "Nautilus",         }
     } ,
@@ -356,5 +356,7 @@ tyrannical.properties.centered = { "kcalc" }
 
 tyrannical.properties.skip_taskbar = {"yakuake"}
 tyrannical.properties.hidden = {"yakuake"}
+
+-- tyrannical.properties.no_autofocus = {"umbrello"}
 
 tyrannical.properties.size_hints_honor = { xterm = false, URxvt = false, aterm = false, sauer_client = false, mythfrontend  = false}

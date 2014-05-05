@@ -69,6 +69,7 @@ local function create_item(t,s)
   local suf_w = wibox.layout.fixed.horizontal()
   local item = menu:add_item { text = t.name, prefix_widget = w,suffix_widget=suf_w}
   item._internal.icon_w = ib
+  item.tag = t
 --   item:connect_signal("index::changed",function(_,value)
 --     tw:set_markup(" <b>"..(index).."</b> ")
 --   end)
@@ -90,7 +91,7 @@ local function create_item(t,s)
 
   menu:connect_signal("button::press",function(menu,item,button_id,mod)
     if module.buttons and module.buttons[button_id] then
-      module.buttons[button_id](item.client,menu,item,button_id,mod)
+      module.buttons[button_id](item.tag,menu,item,button_id,mod)
     end
   end)
 
@@ -142,22 +143,12 @@ local function select(t)
   end
 end
 
-capi.tag.add_signal("property::urgent")
-local function urgent_callback(c)
-    local modif = c.urgent == true and 1 or -1
-    for k,t in ipairs(c:tags()) do
-        local current = (awful.tag.getproperty(t,"urgent") or 0)
-        local item = cache[t] or create_item(t,tag.getscreen(t))
-        if current + modif < 0 then
-            awful.tag.setproperty(t,"urgent",0)
-            item.state[radical.base.item_flags.URGENT] = nil
-        else
-            awful.tag.setproperty(t,"urgent",current + modif)
-            if not t.selected then
-              item.state[radical.base.item_flags.URGENT] = true
-            end
-        end
-    end
+local function urgent_callback(t)
+  local modif = tag.getproperty(t,"urgent")
+  local item = cache[t] or create_item(t,tag.getscreen(t))
+  if item then
+    item.state[radical.base.item_flags.URGENT] = modif and true or nil
+  end
 end
 
 local is_init = false
@@ -168,9 +159,9 @@ local function init()
   capi.client.connect_signal("tagged", track_used)
   capi.client.connect_signal("untagged", track_used)
   capi.client.connect_signal("unmanage", track_used)
-  capi.client.connect_signal("property::urgent"  , urgent_callback   )
   capi.tag.connect_signal("property::activated",tag_activated)
   capi.tag.connect_signal("property::screen", tag_added)
+  capi.tag.connect_signal("property::urgent", urgent_callback)
 
   -- Property bindings
   capi.tag.connect_signal("property::name", function(t)

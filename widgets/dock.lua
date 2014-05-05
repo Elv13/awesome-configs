@@ -16,7 +16,6 @@ local tooltip2     = require( "radical.tooltip"         )
 local fdutils      = require( "extern.freedesktop.utils" )
 local color        = require( "gears.color"              )
 local cairo        = require( "lgi"                      ).cairo
-local tyr_launcher = require("tyrannical.extra.launcher")
 local themeutils   = require( "blind.common.drawing"    )
 local listTags     = require( "radical.impl.common.tag" ).listTags
 local capi = { screen = screen }
@@ -148,7 +147,7 @@ local function create(screen, args)
         end
         icon:buttons(util.table.join(
             button({ }, 1, function()
-                tyr_launcher.spawn({command=command})
+                awful.util.spawn(command)
                 hide_tooltip()
                 lauchBar.visible = false
                 sensibleArea.visible = true
@@ -169,8 +168,11 @@ local function create(screen, args)
                     end})
                     menu:add_item({text="Open in new tag"})
                     menu:add_item({text="Open in current tag"})
-                    menu:add_item({text="Open In tag", sub_menu = listTags})
-                    menu:add_item({text="Sub Menu",sub_menu = function() 
+                    menu:add_item({text="Open In tag", sub_menu = function() return listTags({button1= function(i,m)
+                        print("launching in",i._tag,i._tag.name)
+                        awful.util.spawn(command,{tag=i._tag})
+                    end}) end})
+                    menu:add_item({text="Sub Menu",sub_menu = function()
                         local smenu = menu4({})
                         smenu:add_item({text="item 1",icon=beautiful.path.."Icon/layouts/tileleft.png"})
                         smenu:add_item({text="item 1",icon=beautiful.path.."Icon/layouts/tileleft.png"})

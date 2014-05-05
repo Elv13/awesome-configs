@@ -8,13 +8,13 @@ capi.client.connect_signal("request::activate",function(c)
     if not tyrannical then
         tyrannical = require("tyrannical")
     end
-    local sel_tags = nil --TODO check if the current tag prevent _out stealing
-    local tags = c:tags()
---     for k,t in ipairs(tags) do
-        --TODO check if one of them is selected
---     end
+    --This is wrong, but as it is not yet possible to know _why_ this function
+    -- is called
     capi.client.focus = c
     c:raise()
+
+    -- This is right
+--     tyrannical.focus_client(c)
 end)
 
 

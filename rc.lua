@@ -29,12 +29,12 @@ local radical = require("radical")
 local rad_task = require("radical.impl.tasklist")
 local rad_tag = require("radical.impl.taglist")
 local tyrannical = require("tyrannical")
-local tyr_launcher = require("tyrannical.extra.launcher")
 local indicator = require("customIndicator")
 local blind = require("blind")
 local alttab = require("radical.impl.alttab")
 local notifications = require("extern.notifications")
 local glib = require("lgi").GLib
+local wacky = require("wacky")
 -- utils.profile.start()
 -- debug.sethook(utils.profile.trace, "crl", 1)
 if awesome.startup_errors then
@@ -449,7 +449,8 @@ globalkeys = awful.util.table.join(
             awful.client.focus.byidx(-1)
             if client.focus then client.focus:raise() end
         end),
-    awful.key({ modkey,           }, "w", function ()  end),
+    awful.key({ modkey,           }, "w", function() wacky.select_rect(10) end),
+    awful.key({ modkey, "Shift"   }, "w", function() wacky.focussed_client(10) end),
 
     -- Layout manipulation
     awful.key({ modkey, "Shift"   }, "j", function () awful.client.swap.byidx(  1)    end),
@@ -474,13 +475,14 @@ globalkeys = awful.util.table.join(
 
     -- Standard program
     awful.key({         "Control" }, "Escape", function () awful.util.spawn("xkill")    end ),
-    awful.key({ modkey,           }, "Return", function () tyr_launcher.spawn({command=terminal})   end ),
+    awful.key({ modkey,           }, "Return", function () awful.util.spawn(terminal)   end ),
+    awful.key({ modkey, "Mod1"    }, "Return", function () awful.util.spawn(terminal,{tag= awful.tag.selected(client.focus and client.focus.screen or mouse.screen),slave=true})   end ),
     awful.key({ modkey, "Control" }, "r", awesome.restart),
     awful.key({ modkey, "Shift"   }, "q", awesome.quit),
     awful.key({ modkey            }, "n"     , function() awful.tag.viewonly(awful.tag.add("NewTag",{screen= (client.focus and client.focus.screen or mouse.screen) }))    end ),
     awful.key({ modkey, "Shift"   }, "n"     , function() 
                                                   local c = client.focus
-                                                  local t = awful.tag.add(c.class,{screen= (client.focus and client.focus.screen or mouse.screen) })
+                                                  local t = awful.tag.add(c.class,{screen= (client.focus and client.focus.screen or mouse.screen),layout=awful.layout.suit.tile })
                                                   if c then c:tags(awful.util.table.join(c:tags(), {t})) end
                                                   awful.tag.viewonly(t)
                                                end ),
@@ -553,28 +555,30 @@ globalkeys = awful.util.table.join(
                                      end
                                   end)
               end),
-    awful.key({ modkey },            "r",     
---               function ()
---                   mypromptbox[mouse.screen]:run()
---                   awful.prompt.run({ prompt = "Run:" },
---                       mypromptbox[mouse.screen].widget,
---                       awful.util.spawn,
---                       awful.completion.shell,
---                       awful.util.getdir("cache") .. "/history")
---               end
+    awful.key({ modkey },            "r",
               function ()
-                  awful.prompt.run({ prompt = "Run: " },
+                  awful.prompt.run({ prompt = "Run: ", hooks = {
+                      {{         },"Return",function(command)
+                          local result = awful.util.spawn(command)
+                          mypromptbox[mouse.screen].widget:set_text(type(result) == "string" and result or "")
+                          return true
+                      end},
+                      {{"Mod1"   },"Return",function(command)
+                          local result = awful.util.spawn(command,{intrusive=true})
+                          mypromptbox[mouse.screen].widget:set_text(type(result) == "string" and result or "")
+                          return true
+                      end},
+                      {{"Shift"  },"Return",function(command)
+                          local result = awful.util.spawn(command,{intrusive=true,ontop=true,floating=true})
+                          mypromptbox[mouse.screen].widget:set_text(type(result) == "string" and result or "")
+                          return true
+                      end}
+                  }},
                   mypromptbox[mouse.screen].widget,
                   function (com)
-                          local result = tyr_launcher.spawn({command=com})
---                           local tmp = config.launcher[com].counter
---                           if type(tmp) ~= "number" then
---                             tmp = 0
---                           end
---                           config.launcher[com].counter = tmp + 1
---                           print("in there",tmp,config.launcher[com].counter,config.sdfsdf.sdfsdf.werwr.werasd.xcvxcsef)
+                          local result = awful.util.spawn(com)
                           if type(result) == "string" then
-                              promptbox.widget:set_text(result)
+                              mypromptbox[mouse.screen].widget:set_text(result)
                           end
                           return true
                   end, awful.completion.shell,
@@ -687,35 +691,28 @@ awful.rules.rules = {
 }
 -- }}}
 
--- awesome.register_xproperty("_NET_STARTUP_ID","string")
 -- {{{ Signals
 -- Signal function to execute when a new client appears.
 client.connect_signal("manage", function (c, startup)
     -- Enable sloppy focus
---     print("SN",c:get_xproperty("_NET_STARTUP_ID"))
     c:connect_signal("mouse::enter", function(c)
         if awful.layout.get(c.screen) ~= awful.layout.suit.magnifier
             and awful.client.focus.filter(c) then
             client.focus = c
         end
     end)
---     client.focus = c
+
     --Fix some wierd reload bugs
     if c.size_hints.user_size and startup then
         c:geometry({width = c.size_hints.user_size.width,height = c.size_hints.user_size.height, x = c:geometry().x})
     end
-
---     if not startup then
-        -- Set the windows at the slave,
-        -- i.e. put it at the end of others instead of setting it master.
-        -- awful.client.setslave(c)
-
-        -- Put windows in a smart way, only if they does not set an initial position.
-        if not c.size_hints.user_position and not c.size_hints.program_position then
-            awful.placement.no_overlap(c)
-            awful.placement.no_offscreen(c)
-        end
---     end
+    if c.size_hints.max_height and c.size_hints.max_height < screen[c.screen].geometry.height/2 then
+        awful.client.setslave(c)
+    end
+    if not c.size_hints.user_position and not c.size_hints.program_position then
+        awful.placement.no_overlap(c)
+        awful.placement.no_offscreen(c)
+    end
 
     local titlebars_enabled = true
     if titlebars_enabled and (c.type == "normal" or c.type == "dialog") then
@@ -760,21 +757,19 @@ client.connect_signal("manage", function (c, startup)
                 end)
                 )
         local title = awful.titlebar.widget.titlewidget(c)
-        title.data = {c = c,image=beautiful.tasklist_bg_image_selected or beautiful.taglist_bg_image_used}
+--         title.data = {c = c,image=beautiful.tasklist_bg_image_selected or beautiful.taglist_bg_image_used}
 
-        title.fit = function(self,w,h)
-            local width, height = wibox.widget.textbox.fit(self, w, h);
-            local rw,rh = width+ height*4, beautiful.titlebar_height or height
-            self._rw1,self._rh = rw,rh
-            return w,h -- take all the space
-        end
-
+-- title.draw = rad_task.item(c).widget.draw
         title.draw = function(self,w, cr, width, height)
             cr:save()
             cr:translate(width/2-self._rw1/2, 0)
             cr:rectangle(0, 0, self._rw1, self._rh)
             cr:clip()
-            blind.arrow.task.task_widget_draw(self,w, cr, self._rw1, self._rh,{no_marker=true})
+            local i = rad_task.item(c)
+            if i and i.widget then
+                i.widget.draw(i.widget,w, cr, self._rw1, height)
+            end
+--             blind.arrow.task.task_widget_draw(self,w, cr, self._rw1, self._rh,{no_marker=true})
             cr:restore()
         end
 --         title:buttons(buttons)
@@ -796,15 +791,22 @@ client.connect_signal("manage", function (c, startup)
 
         -- Now bring it all together
         local layout = wibox.layout.align.horizontal()
+        layout._expand = ""
         layout:set_left(left_layout2)
 
         layout:set_right(right_layout2)
         layout:set_middle(title)
 
+        title.fit = function(self,w,h)
+            local width, height = wibox.widget.textbox.fit(self, w, h);
+            local rw,rh = width+ height*4, beautiful.titlebar_height or height
+            self._rw1,self._rh = rw,rh
+            local w2,h2 = left_layout2.fit(left_layout2,w,h)
+            local w3,h3 = right_layout2.fit(right_layout2,w,h)
+            return w-w2*2-w3*2,h -- take all the space
+        end
+
         local tb = awful.titlebar(c,{size=beautiful.titlebar_height or 16})
---         tb:connect_signal("property::height",function(tb)
---             print(debug.traceback())
---         end)
         tb:set_widget(layout)
         tb.title_wdg = title
         title:buttons(buttons)
@@ -881,25 +883,32 @@ require("radical.impl.tasklist.extensions").add("Running time",function(client)
     end
     return w
 end)
-require("radical.impl.tasklist.extensions").add("Machine",function(client)
-    local w = wibox.widget.base.make_widget()
-    w.fit = function(_,w,h)
-        return 100,h
-    end
-    w.draw = function(self, w, cr, width, height)
-        cr:set_source_surface(radical.widgets.underlay.draw(client.machine,{bg="#ff0000"}))
-        cr:paint()
-    end
-    return w
-end)
-require("radical.impl.taglist.extensions").add("Count",function(client)
-    local w = wibox.widget.base.make_widget()
-    w.fit = function(_,w,h)
-        return 100,h
-    end
-    w.draw = function(self, w, cr, width, height)
-        cr:set_source_surface(radical.widgets.underlay.draw("12",{bg="#ff0000"}))
-        cr:paint()
-    end
-    return w
-end)
+-- require("radical.impl.tasklist.extensions").add("Machine",function(client)
+--     local w = wibox.widget.base.make_widget()
+--     w.fit = function(_,w,h)
+--         return 100,h
+--     end
+--     w.draw = function(self, w, cr, width, height)
+--         cr:set_source_surface(radical.widgets.underlay.draw(client.machine,{bg="#ff0000"}))
+--         cr:paint()
+--     end
+--     return w
+-- end)
+-- require("radical.impl.taglist.extensions").add("Count",function(client)
+--     local w = wibox.widget.base.make_widget()
+--     w.fit = function(_,w,h)
+--         return 100,h
+--     end
+--     w.draw = function(self, w, cr, width, height)
+--         cr:set_source_surface(radical.widgets.underlay.draw("12",{bg="#ff0000"}))
+--         cr:paint()
+--     end
+--     return w
+-- end)
+
+
+-- client.connect_signal("request::urgent", function(c,urgent)
+--     if c ~= client.focus then
+--         c.urgent = urgent
+--     end
+-- end)
