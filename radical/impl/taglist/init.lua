@@ -69,7 +69,6 @@ local function create_item(t,s)
   local suf_w = wibox.layout.fixed.horizontal()
   local item = menu:add_item { text = t.name, prefix_widget = w,suffix_widget=suf_w}
   item._internal.icon_w = ib
-  item.tag = t
 --   item:connect_signal("index::changed",function(_,value)
 --     tw:set_markup(" <b>"..(index).."</b> ")
 --   end)
@@ -91,14 +90,15 @@ local function create_item(t,s)
 
   menu:connect_signal("button::press",function(menu,item,button_id,mod)
     if module.buttons and module.buttons[button_id] then
-      module.buttons[button_id](item.tag,menu,item,button_id,mod)
+      module.buttons[button_id](item.tag[1],menu,item,button_id,mod)
     end
   end)
 
   item._internal.screen = s
   item.state[radical.base.item_flags.SELECTED] = t.selected or nil
   cache[t] = item
-  item.tag = t
+  item.tag = setmetatable({}, { __mode = 'v' })
+  item.tag[1] = t
   return item
 end
 
@@ -230,7 +230,7 @@ local function new(s)
 
   instances[s]:connect_signal("button::press",function(m,item,button_id,mod)
     if module.buttons and module.buttons[button_id] then
-      module.buttons[button_id](item.tag,m,item,button_id,mod)
+      module.buttons[button_id](item.tag[1],m,item,button_id,mod)
     end
   end)
 

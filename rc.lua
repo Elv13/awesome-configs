@@ -29,7 +29,7 @@ local radical = require("radical")
 local rad_task = require("radical.impl.tasklist")
 local rad_tag = require("radical.impl.taglist")
 local tyrannical = require("tyrannical")
-local indicator = require("customIndicator")
+local collision = require("customIndicator")
 local blind = require("blind")
 local alttab = require("radical.impl.alttab")
 local notifications = require("extern.notifications")
@@ -279,7 +279,7 @@ beautiful.on_task_hover = function(c,geo,visible)
     end
 end
 alttab.default_icon   = config.iconPath .. "tags/other.png"
-alttab.titlebar_path  = config.themePath.. "Icon/titlebar/" 
+alttab.titlebar_path  = config.themePath.. "Icon/titlebar/"
 
 -- Create a wibox for each screen and add it
 wibox_top = {}
@@ -476,7 +476,8 @@ globalkeys = awful.util.table.join(
     -- Standard program
     awful.key({         "Control" }, "Escape", function () awful.util.spawn("xkill")    end ),
     awful.key({ modkey,           }, "Return", function () awful.util.spawn(terminal)   end ),
-    awful.key({ modkey, "Mod1"    }, "Return", function () awful.util.spawn(terminal,{tag= awful.tag.selected(client.focus and client.focus.screen or mouse.screen),slave=true})   end ),
+    awful.key({ modkey, "Mod1"    }, "Return", function () awful.util.spawn(terminal,{intrusive=true,slave=true})   end ),
+    awful.key({ modkey, "Control" }, "Return", function () awful.util.spawn(terminal,{new_tag={volatile = true}})   end ),
     awful.key({ modkey, "Control" }, "r", awesome.restart),
     awful.key({ modkey, "Shift"   }, "q", awesome.quit),
     awful.key({ modkey            }, "n"     , function() awful.tag.viewonly(awful.tag.add("NewTag",{screen= (client.focus and client.focus.screen or mouse.screen) }))    end ),
@@ -510,22 +511,26 @@ globalkeys = awful.util.table.join(
 
     awful.key({ modkey, "Control" }, "n", awful.client.restore),
     -- Move focus
-    awful.key({ modkey,           }, "#136",  function () indicator.focus.global_bydirection("left")  end),
-    awful.key({ modkey,           }, "#220",  function () indicator.focus.global_bydirection("down")  end),
-    awful.key({ modkey,           }, "#143",  function () indicator.focus.global_bydirection("right") end),
-    awful.key({ modkey,           }, "#209",  function () indicator.focus.global_bydirection("up")    end),
-    awful.key({ modkey,"Control"  }, "#136",  function () awful.client.swap.global_bydirection("left")  end),
-    awful.key({ modkey,"Control"  }, "#220",  function () awful.client.swap.global_bydirection("down")  end),
-    awful.key({ modkey,"Control"  }, "#143",  function () awful.client.swap.global_bydirection("right") end),
-    awful.key({ modkey,"Control"  }, "#209",  function () awful.client.swap.global_bydirection("up")    end),
-    awful.key({ modkey,           }, "Left",  function () indicator.focus.global_bydirection("left")  end),
-    awful.key({ modkey,           }, "Right", function () indicator.focus.global_bydirection("down")  end),
-    awful.key({ modkey,           }, "Up",    function () indicator.focus.global_bydirection("up")    end),
-    awful.key({ modkey,           }, "Down",  function () indicator.focus.global_bydirection("down")  end),
-    awful.key({ modkey, "Shift"   }, "Left",  function () indicator.focus.global_bydirection("left",nil,true)  end),
-    awful.key({ modkey, "Shift"   }, "Right", function () indicator.focus.global_bydirection("down",nil,true)  end),
-    awful.key({ modkey, "Shift"   }, "Up",    function () indicator.focus.global_bydirection("up",nil,true)    end),
-    awful.key({ modkey, "Shift"   }, "Down",  function () indicator.focus.global_bydirection("down",nil,true)  end),
+--     awful.key({ modkey,           }, "#136",  function () indicator.focus("left")  end),
+--     awful.key({ modkey,           }, "#220",  function () indicator.focus("down")  end),
+--     awful.key({ modkey,           }, "#143",  function () indicator.focus("right") end),
+--     awful.key({ modkey,           }, "#209",  function () indicator.focus("up")    end),
+--     awful.key({ modkey,"Control"  }, "#136",  function () awful.client.swap.global_bydirection("left")  end),
+--     awful.key({ modkey,"Control"  }, "#220",  function () awful.client.swap.global_bydirection("down")  end),
+--     awful.key({ modkey,"Control"  }, "#143",  function () awful.client.swap.global_bydirection("right") end),
+--     awful.key({ modkey,"Control"  }, "#209",  function () awful.client.swap.global_bydirection("up")    end),
+--     awful.key({ modkey,           }, "Left",  function () indicator.focus("left")  end),
+--     awful.key({ modkey,           }, "Right", function () indicator.focus("down")  end),
+--     awful.key({ modkey,           }, "Up",    function () indicator.focus("up")    end),
+--     awful.key({ modkey,           }, "Down",  function () indicator.focus("down")  end),
+--     awful.key({ modkey, "Shift"   }, "Left",  function () indicator.move("left")  end),
+--     awful.key({ modkey, "Shift"   }, "Right", function () indicator.move("right")  end),
+--     awful.key({ modkey, "Shift"   }, "Up",    function () indicator.move("up")    end),
+--     awful.key({ modkey, "Shift"   }, "Down",  function () indicator.move("down")  end),
+--     awful.key({ modkey, "Mod1"    }, "Left",  function () indicator.resize("left")  end),
+--     awful.key({ modkey, "Mod1"    }, "Right", function () indicator.resize("right")  end),
+--     awful.key({ modkey, "Mod1"    }, "Up",    function () indicator.resize("up")    end),
+--     awful.key({ modkey, "Mod1"    }, "Down",  function () indicator.resize("down")  end),
     awful.key({ "Control", "Mod1" }, "#143",  awful.tag.viewnext),
     awful.key({ "Control", "Mod1" }, "#136",  awful.tag.viewprev),
     --220 143 209
@@ -613,7 +618,7 @@ clientkeys = awful.util.table.join(
     awful.key({ modkey, "Control" }, "Return", function (c) c:swap(awful.client.getmaster()) end),
     awful.key({ modkey,           }, "o",      awful.client.movetoscreen                        ),
     awful.key({ modkey,           }, "t",      function (c) c.ontop = not c.ontop            end),
-    awful.key({ modkey,           }, "y",      function (c) indicator.resize.display(c,true) end),
+    awful.key({ modkey,           }, "y",      function (c) collision.resize.display(c,true) end),
     awful.key({ modkey,           }, "m",
         function (c)
             -- The client currently has the input focus, so it cannot be
@@ -724,7 +729,7 @@ client.connect_signal("manage", function (c, startup)
         ib:buttons( awful.util.table.join(
         awful.button({ }, 1, function(geometry)
             root.fake_input("button_release",1,0,0)
-            indicator.resize.display(c,true)
+            collision.resize.display(c,true)
         end)))
         left_layout:add(ib)
         local ib2 = wibox.widget.imagebox()
@@ -849,6 +854,24 @@ client.connect_signal("unfocus", function(c)
         c.border_color = beautiful.border_normal
     end
 end)
+
+-- When setting a client as "slave", use the first available slot instead of the last
+awful.client._setslave = awful.client.setslave
+function awful.client.setslave(c)
+    local t = awful.tag.selected(c.screen)
+    local nmaster = awful.tag.getnmaster(t) or 1
+    local cls = awful.client.tiled(c.screen) or client.get(c.screen)
+    local index = awful.util.table.hasitem(cls,c)
+    if index and index <= nmaster and #cls > nmaster then
+        c:swap(cls[nmaster+1])
+    else
+        awful.client._setslave(c)
+    end
+end
+
+-- Add the Collision shortcuts
+collision()
+
 -- }}}
 -- debug.sethook()
 -- utils.profile.stop(_G)
@@ -864,7 +887,7 @@ end)
 -- print("HONORING",awesome.honor_ewmh_desktop,awesome.font_height,awesome.font)
 -- awesome.honor_ewmh_desktop = false
 -- client.add_signal("property::shape_bounding")
-drawable.add_signal("property::shape_bounding")
+-- drawable.add_signal("property::shape_bounding")
 
 
 -- print("test")

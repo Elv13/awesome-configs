@@ -90,7 +90,7 @@ local function reload_conn(connMenu,data)
                 cr:restore()
                 wibox.widget.textbox.draw(self,w, cr, width, height)
             end
-            application:set_text(data.connectionInfo[i]['protocol'].." "    or "")
+            application:set_markup("<b>"..data.connectionInfo[i]['protocol'].." </b>")
             application:set_align("right")
 
             local icon = nil

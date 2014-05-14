@@ -4,17 +4,22 @@ local tyrannical = nil
 
 -- Use Tyrannical policies instead of the default ones
 capi.client.disconnect_signal("request::activate",ewmh.activate)
-capi.client.connect_signal("request::activate",function(c)
+capi.client.connect_signal("request::activate",function(c,reason)
     if not tyrannical then
         tyrannical = require("tyrannical")
     end
-    --This is wrong, but as it is not yet possible to know _why_ this function
-    -- is called
-    capi.client.focus = c
-    c:raise()
-
-    -- This is right
---     tyrannical.focus_client(c)
+    -- Always grant those request as it probably mean that it is a modal dialog
+    if c.transient_for and capi.client.focus == c.transient_for then
+        capi.client.focus = c
+        c:raise()
+    -- If it is not modal, then use the normal code path
+    elseif reason == "rule" or reason == "ewmh" then
+        tyrannical.focus_client(c)
+    -- Tyrannical doesn't have enough information, grant the request
+    else
+        capi.client.focus = c
+        c:raise()
+    end
 end)
 
 
