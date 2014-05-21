@@ -792,7 +792,13 @@ client.connect_signal("manage", function (c, startup)
 
         -- Now bring it all together
         local layout = wibox.layout.align.horizontal()
-        layout:set_expand("inside")
+        if layout.set_expand then
+            layout:set_expand("inside")
+        else
+            title.fit = function(self,w,h)
+                return w,h
+            end
+        end
         layout:set_left(left_layout2)
 
         layout:set_right(right_layout2)
