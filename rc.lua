@@ -11,7 +11,8 @@ local wibox = require("wibox")
 -- Theme handling library
 local beautiful = require("beautiful")
 -- Notification library
-local naughty = require("naughty")
+-- local wirefu = require("wirefu.demo.notification")
+-- local naughty = require("naughty")
 local menubar = require("menubar")
 local customButton = require("customButton")
 local customMenu = require("customMenu")
@@ -38,9 +39,9 @@ local wacky = require("wacky")
 -- utils.profile.start()
 -- debug.sethook(utils.profile.trace, "crl", 1)
 if awesome.startup_errors then
-    naughty.notify({ preset = naughty.config.presets.critical,
-                     title = "Oops, there were errors during startup!",
-                     text = awesome.startup_errors })
+--     naughty.notify({ preset = naughty.config.presets.critical,
+--                      title = "Oops, there were errors during startup!",
+--                      text = awesome.startup_errors })
 end
 -- Handle runtime errors after startup
 do
@@ -434,8 +435,8 @@ root.buttons(awful.util.table.join(
 
 -- {{{ Key bindings
 globalkeys = awful.util.table.join(
-    awful.key({ "Control", "Mod1" }, "Left",   awful.tag.viewprev       ),
-    awful.key({ "Control", "Mod1" }, "Right",  awful.tag.viewnext       ),
+--     awful.key({ "Control", "Mod1" }, "Left",   awful.tag.viewprev       ),
+--     awful.key({ "Control", "Mod1" }, "Right",  awful.tag.viewnext       ),
     awful.key({ "Mod1"            }, "space",  widgets.keyboard.quickswitchmenu),
 --     awful.key({ modkey,           }, "Escape", awful.tag.history.restore),
 
@@ -762,22 +763,18 @@ client.connect_signal("manage", function (c, startup)
                 end)
                 )
         local title = awful.titlebar.widget.titlewidget(c)
---         title.data = {c = c,image=beautiful.tasklist_bg_image_selected or beautiful.taglist_bg_image_used}
 
--- title.draw = rad_task.item(c).widget.draw
         title.draw = function(self,w, cr, width, height)
-            cr:save()
-            cr:translate(width/2-self._rw1/2, 0)
-            cr:rectangle(0, 0, self._rw1, self._rh)
-            cr:clip()
             local i = rad_task.item(c)
             if i and i.widget then
-                i.widget.draw(i.widget,w, cr, self._rw1, height)
+                local w2,h2 = i.widget:fit(width,height)
+                cr:save()
+                cr:reset_clip()
+                cr:translate((width-w2)/2, 0)
+                i.widget.draw(i.widget,w, cr, w2, height)
+                cr:restore()
             end
---             blind.arrow.task.task_widget_draw(self,w, cr, self._rw1, self._rh,{no_marker=true})
-            cr:restore()
         end
---         title:buttons(buttons)
 
         local bgbr = wibox.widget.background()
         bgbr:set_widget(right_layout)
@@ -792,24 +789,14 @@ client.connect_signal("manage", function (c, startup)
         local left_layout2 = wibox.layout.fixed.horizontal()
         left_layout2:add(bgbl)
         left_layout2:add(endArrow_alt)
---         left_layout2:add(awful.titlebar.widget.iconwidget(c))
 
         -- Now bring it all together
         local layout = wibox.layout.align.horizontal()
-        layout._expand = ""
+        layout:set_expand("inside")
         layout:set_left(left_layout2)
 
         layout:set_right(right_layout2)
         layout:set_middle(title)
-
-        title.fit = function(self,w,h)
-            local width, height = wibox.widget.textbox.fit(self, w, h);
-            local rw,rh = width+ height*4, beautiful.titlebar_height or height
-            self._rw1,self._rh = rw,rh
-            local w2,h2 = left_layout2.fit(left_layout2,w,h)
-            local w3,h3 = right_layout2.fit(right_layout2,w,h)
-            return w-w2*2-w3*2,h -- take all the space
-        end
 
         local tb = awful.titlebar(c,{size=beautiful.titlebar_height or 16})
         tb:set_widget(layout)
@@ -898,36 +885,37 @@ collision()
 require("radical.impl.tasklist.extensions").add("Running time",function(client)
     local w = wibox.widget.base.make_widget()
     w.fit = function(_,w,h)
-        return 75,h
+        return radical.widgets.underlay.fit("foo",{bg="#ff0000"}),h
     end
     w.draw = function(self, w, cr, width, height)
-        cr:set_source_surface(radical.widgets.underlay.draw("foo",{bg="#ff0000"}))
+        cr:set_source_surface(radical.widgets.underlay.draw("foo",{bg=beautiful.fg_normal,height=beautiful.default_height}))
         cr:paint()
     end
     return w
 end)
--- require("radical.impl.tasklist.extensions").add("Machine",function(client)
---     local w = wibox.widget.base.make_widget()
---     w.fit = function(_,w,h)
---         return 100,h
---     end
---     w.draw = function(self, w, cr, width, height)
---         cr:set_source_surface(radical.widgets.underlay.draw(client.machine,{bg="#ff0000"}))
---         cr:paint()
---     end
---     return w
--- end)
--- require("radical.impl.taglist.extensions").add("Count",function(client)
---     local w = wibox.widget.base.make_widget()
---     w.fit = function(_,w,h)
---         return 100,h
---     end
---     w.draw = function(self, w, cr, width, height)
---         cr:set_source_surface(radical.widgets.underlay.draw("12",{bg="#ff0000"}))
---         cr:paint()
---     end
---     return w
--- end)
+
+require("radical.impl.tasklist.extensions").add("Machine",function(client)
+    local w = wibox.widget.base.make_widget()
+    w.fit = function(_,w,h)
+        return radical.widgets.underlay.fit(client.machine,{bg="#ff0000"}),h
+    end
+    w.draw = function(self, w, cr, width, height)
+        cr:set_source_surface(radical.widgets.underlay.draw(client.machine,{bg=beautiful.fg_normal,height=beautiful.default_height}))
+        cr:paint()
+    end
+    return w
+end)
+require("radical.impl.taglist.extensions").add("Count",function(client)
+    local w = wibox.widget.base.make_widget()
+    w.fit = function(_,w,h)
+        return radical.widgets.underlay.fit("12",{bg="#ff0000"}),h
+    end
+    w.draw = function(self, w, cr, width, height)
+        cr:set_source_surface(radical.widgets.underlay.draw("12",{bg=beautiful.fg_normal,height=beautiful.default_height}))
+        cr:paint()
+    end
+    return w
+end)
 
 
 -- client.connect_signal("request::urgent", function(c,urgent)
