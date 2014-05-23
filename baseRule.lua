@@ -3,6 +3,23 @@ local utils = require("utils")
 local tyrannical = require("tyrannical")
 local config = require("forgotten")
 
+local function five_layout(c,tag)
+    local count = #match:clients() + 1
+    if count == 2 then
+        awful.layout.set(awful.layout.suit.tile,tag)
+        awful.tag.setproperty(tag,"nmaster",1)
+        awful.tag.setproperty(tag,"mwfact",0.5)
+    elseif count > 2 and count < 5 then
+        awful.layout.set(awful.layout.suit.tile,tag)
+        awful.tag.setproperty(tag,"nmaster",1)
+        awful.tag.setproperty(tag,"mwfact",0.6)
+    elseif count == 5 then
+        awful.tag.setproperty(tag,"nmaster",2)
+        awful.tag.setproperty(tag,"mwfact",0.6)
+        awful.client.setwfact(0.66, awful.client.getmaster(awful.tag.getscreen(tag)))
+    end
+    return 5
+end
 
 -- }}}
 
@@ -40,15 +57,12 @@ tyrannical.tags = {
         layout      = awful.layout.suit.tile                         ,
         focus_new   = true                                           ,
         selected    = true,
-        nmaster     = 2,
-        mwfact      = 0.6,
-        max_clients = 5,
+--         nmaster     = 2,
+--         mwfact      = 0.6,
+        max_clients = five_layout,
         class       = {
             "xterm" , "urxvt" , "aterm","URxvt","XTerm"
         },
-        match       = {
-            "konsole"
-        }
     } ,
     {
         name = "Internet",
@@ -73,6 +87,7 @@ tyrannical.tags = {
         layout      = awful.layout.suit.tile                         ,
         exec_once   = {"dolphin"},
         no_focus_stealing_in = true,
+        max_clients = five_layout,
         class  = { 
             "Thunar"        , "Konqueror"      , "Dolphin"   , "ark"          , "Nautilus",         }
     } ,

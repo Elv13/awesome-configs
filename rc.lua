@@ -600,7 +600,7 @@ globalkeys = awful.util.table.join(
               end),
     -- Menubar
     awful.key({ modkey }, "p", function() menubar.show() end),
-    
+
     --Custom
     awful.key({ modkey,"Control" }, "p", function() 
         utils.profile.start()
