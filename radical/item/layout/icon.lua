@@ -14,6 +14,14 @@ local function icon_fit(data,...)
   return w,data.icon_size or h
 end
 
+local function icon_draw(self,w, cr, width, height)
+  local w,h = wibox.widget.imagebox.fit(self,width,height)
+  cr:save()
+  cr:translate((width-w)/2,0)
+  wibox.widget.imagebox.draw(self,w, cr, width, height)
+  cr:restore()
+end
+
 local function create_item(item,data,args)
   --Create the background
   local bg = wibox.widget.background()
@@ -53,8 +61,12 @@ local function create_item(item,data,args)
   end
 
   local icon_flex = wibox.layout.align.horizontal()
+  if icon_flex.set_expand then
+    icon_flex:set_expand("inside")
+  end
   local icon = wibox.widget.imagebox()
   icon.fit = function(...) return icon_fit(data,...) end
+  icon.draw = icon_draw
   icon._data = data
   icon.set_image = horizontal.set_icon
   if args.icon then

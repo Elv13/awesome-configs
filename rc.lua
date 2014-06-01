@@ -216,6 +216,8 @@ endArrowR:set_image(endArrowR2i)
 local endArrowR2 = wibox.widget.imagebox()
 endArrowR2:set_image(blind.common.drawing.get_beg_arrow2({bg_color=beautiful.bg_alternate ,direction="left"}),2,0)
 
+rad_tag.taglist_watch_name_changes = true
+
 -- Create the addTag icon (depend on shifty rule)
 local addTag                 = customButton.addTag                      ( nil )
 
@@ -473,6 +475,8 @@ globalkeys = awful.util.table.join(
     
     awful.key({ "Mod1",           }, "Tab"   , function () alttab.altTab({auto_release=true})          end ),
     awful.key({ "Mod1", "Shift"   }, "Tab"   , function () alttab.altTabBack({auto_release=true})      end ),
+    
+    awful.key({ modkey, "Control" }, "Tab"   , function () customButton.lockTag.show_menu()      end ),
 
     -- Standard program
     awful.key({         "Control" }, "Escape", function () awful.util.spawn("xkill")    end ),

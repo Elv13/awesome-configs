@@ -47,7 +47,7 @@ module.buttons = { [1] = awful.tag.viewonly,
 
 local function index_draw(self,w, cr, width, height)
   cr:save()
-  cr:set_source(color(beautiful.bg_normal))
+  cr:set_source(color(beautiful.taglist_fg_prefix or beautiful.fg_normal))
   local d = wibox.widget.textbox._draw or wibox.widget.textbox.draw
   d(self,wibox, cr, width, height)
   cr:restore()
@@ -111,6 +111,14 @@ local function track_used(c,t)
   end
 end
 
+local function track_title(c)
+  for _,t in ipairs(c:tags()) do
+    if t.selected ~= true and cache[t] then
+      cache[t].state[radical.base.item_flags.CHANGED] = true
+    end
+  end
+end
+
 local function tag_activated(t)
   if not t.activated and cache[t] then
     instances[cache[t]._internal.screen]:remove(cache[t])
@@ -156,12 +164,15 @@ local function init()
   if is_init then return end
 
   -- Global signals
-  capi.client.connect_signal("tagged", track_used)
-  capi.client.connect_signal("untagged", track_used)
-  capi.client.connect_signal("unmanage", track_used)
-  capi.tag.connect_signal("property::activated",tag_activated)
-  capi.tag.connect_signal("property::screen", tag_added)
-  capi.tag.connect_signal("property::urgent", urgent_callback)
+  capi.client.connect_signal("tagged"          , track_used      )
+  capi.client.connect_signal("untagged"        , track_used      )
+  capi.client.connect_signal("unmanage"        , track_used      )
+  capi.tag.connect_signal("property::activated", tag_activated   )
+  capi.tag.connect_signal("property::screen"   , tag_added       )
+  capi.tag.connect_signal("property::urgent"   , urgent_callback )
+  if module.taglist_watch_name_changes then
+    capi.client.connect_signal("property::name", track_title     )
+  end
 
   -- Property bindings
   capi.tag.connect_signal("property::name", function(t)

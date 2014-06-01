@@ -127,6 +127,7 @@ theme.taglist_bg_changed         = color.create_png_pattern(path .."Icon/bg/sele
 theme.taglist_fg_changed         = "#B78FEE"
 theme.taglist_bg_highlight       = "#bbbb00"
 theme.taglist_fg_highlight       = "#000000"
+theme.taglist_fg_prefix          = theme.bg_normal
 theme.taglist_default_icon       = path .."Icon/tags/other.png"
 -- theme.taglist_squares_unsel            = function(wdg,m,t,objects,idx) return arrow.tag.gen_tag_bg(wdg,m,t,objects,idx,themeutils.status_ellipse) end
 -- theme.taglist_squares_sel              = function(wdg,m,t,objects,idx) return arrow.tag.gen_tag_bg(wdg,m,t,objects,idx,theme.taglist_bg_image_selected) end

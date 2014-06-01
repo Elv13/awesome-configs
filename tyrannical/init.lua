@@ -179,7 +179,7 @@ local function match_client(c, startup)
     end
     --Last resort, create a new tag
     c_rules.class[low_c] = c_rules.class[low_c] or {tags={},properties={}}
-    local tmp,tag = c_rules.class[low_c],awful.tag.add(c.class or "N/A",{name=c.class or "N/A",volatile=true,exclusive=true,screen=(c.screen <= capi.screen.count())
+    local tmp,tag = c_rules.class[low_c],awful.tag.add(c.class or "N/A",{name=c.class or "N/A",onetimer=true,volatile=true,exclusive=true,screen=(c.screen <= capi.screen.count())
       and c.screen or 1,layout=settings.default_layout or awful.layout.suit.max})
     tmp.tags[#tmp.tags+1] = {name=c.class or "N/A",instances = setmetatable({[c.screen]=tag}, { __mode = 'v' }),volatile=true,screen=c.screen,exclusive=true}
     c:tags({tag})
@@ -191,6 +191,7 @@ capi.client.connect_signal("manage", match_client)
 capi.client.connect_signal("untagged", function (c, t)
     if prop(t,"volatile") == true and #t:clients() == 0 then
         local rules = c_rules.class[string.lower(c.class or "N/A")]
+        c_rules.class[string.lower(c.class or "N/A")] = (prop(t,"onetimer") ~= true or c.class == nil) and rules or nil --Prevent "last ressort tags" from persisting
         for j=1,#(rules and rules.tags or {}) do
             rules.tags[j].instances[c.screen] = rules.tags[j].instances[c.screen] ~= t and rules.tags[j].instances[c.screen] or nil
         end
