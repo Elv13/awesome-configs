@@ -171,6 +171,44 @@ local cpuinfo                = drawer.cpuInfo           ( 300                   
 
 -- Create the laucher dock
 local lauchDock              = widgets.dock             ( nil                                )
+-- local launchDock             =  radical.dock{position="left"}
+-- launchDock:add_item{text="Foo",icon="/home/lepagee/.config/awesome/blind/arrow/Icon/ooformula2.png"}
+-- launchDock:add_item{text="bar",icon="/home/lepagee/.config/awesome/blind/arrow/Icon/ooformula2.png"}
+-- launchDock:add_item{text="Foo",icon="/home/lepagee/.config/awesome/blind/arrow/Icon/ooformula2.png"}
+-- launchDock:add_item{text="bar",icon="/home/lepagee/.config/awesome/blind/arrow/Icon/ooformula2.png"}
+-- launchDock:add_item{text="Foo",icon="/home/lepagee/.config/awesome/blind/arrow/Icon/ooformula2.png"}
+-- launchDock:add_item{text="bar",icon="/home/lepagee/.config/awesome/blind/arrow/Icon/ooformula2.png"}
+-- launchDock:add_item{text="Foo",icon="/home/lepagee/.config/awesome/blind/arrow/Icon/ooformula2.png"}
+-- launchDock:add_item{text="bar",icon="/home/lepagee/.config/awesome/blind/arrow/Icon/ooformula2.png"}
+-- launchDock:add_item{text="Foo",icon="/home/lepagee/.config/awesome/blind/arrow/Icon/ooformula2.png"}
+-- launchDock:add_item{text="bar",icon="/home/lepagee/.config/awesome/blind/arrow/Icon/ooformula2.png"}
+-- launchDock:add_item{text="Foo",icon="/home/lepagee/.config/awesome/blind/arrow/Icon/ooformula2.png"}
+-- launchDock:add_item{text="bar",icon="/home/lepagee/.config/awesome/blind/arrow/Icon/ooformula2.png"}
+-- launchDock:add_item{text="bar",icon="/home/lepagee/.config/awesome/blind/arrow/Icon/ooformula2.png"}
+-- launchDock:add_item{text="Foo",icon="/home/lepagee/.config/awesome/blind/arrow/Icon/ooformula2.png"}
+-- launchDock:add_item{text="bar",icon="/home/lepagee/.config/awesome/blind/arrow/Icon/ooformula2.png"}
+-- launchDock:add_item{text="Foo",icon="/home/lepagee/.config/awesome/blind/arrow/Icon/ooformula2.png"}
+-- launchDock:add_item{text="bar",icon="/home/lepagee/.config/awesome/blind/arrow/Icon/ooformula2.png"}
+-- launchDock:add_item{text="Foo",icon="/home/lepagee/.config/awesome/blind/arrow/Icon/ooformula2.png"}
+-- launchDock:add_item{text="bar",icon="/home/lepagee/.config/awesome/blind/arrow/Icon/ooformula2.png"}
+-- launchDock:add_item{text="Foo",icon="/home/lepagee/.config/awesome/blind/arrow/Icon/ooformula2.png"}
+-- launchDock:add_item{text="Foo",icon="/home/lepagee/.config/awesome/blind/arrow/Icon/ooformula2.png"}
+-- launchDock:add_item{text="Foo",icon="/home/lepagee/.config/awesome/blind/arrow/Icon/ooformula2.png"}
+-- launchDock:add_item{text="bar",icon="/home/lepagee/.config/awesome/blind/arrow/Icon/ooformula2.png"}
+-- launchDock:add_item{text="bar",icon="/home/lepagee/.config/awesome/blind/arrow/Icon/ooformula2.png"}
+-- launchDock:add_item{text="bar",icon="/home/lepagee/.config/awesome/blind/arrow/Icon/ooformula2.png"}
+-- launchDock:add_item{text="Foo",icon="/home/lepagee/.config/awesome/blind/arrow/Icon/ooformula2.png"}
+-- launchDock:add_item{text="bar",icon="/home/lepagee/.config/awesome/blind/arrow/Icon/ooformula2.png"}
+-- launchDock:add_item{text="Foo",icon="/home/lepagee/.config/awesome/blind/arrow/Icon/ooformula2.png"}
+-- launchDock:add_item{text="bar",icon="/home/lepagee/.config/awesome/blind/arrow/Icon/ooformula2.png"}
+-- launchDock:add_item{text="Foo",icon="/home/lepagee/.config/awesome/blind/arrow/Icon/ooformula2.png"}
+-- launchDock:add_item{text="bar",icon="/home/lepagee/.config/awesome/blind/arrow/Icon/ooformula2.png"}
+-- launchDock:add_item{text="Foo",icon="/home/lepagee/.config/awesome/blind/arrow/Icon/ooformula2.png"}
+-- launchDock:add_item{text="Foo",icon="/home/lepagee/.config/awesome/blind/arrow/Icon/ooformula2.png"}
+-- launchDock:add_item{text="Foo",icon="/home/lepagee/.config/awesome/blind/arrow/Icon/ooformula2.png"}
+-- launchDock:add_item{text="bar",icon="/home/lepagee/.config/awesome/blind/arrow/Icon/ooformula2.png"}
+-- launchDock:add_item{text="bar",icon="/home/lepagee/.config/awesome/blind/arrow/Icon/ooformula2.png"}
+-- launchDock:add_item{text="bar",icon="/home/lepagee/.config/awesome/blind/arrow/Icon/ooformula2.png"}
 
 -- Create the laucher dock
 local endArrow               = blind.common.drawing.get_beg_arrow_wdg2({bg_color=beautiful.icon_grad })
@@ -733,8 +771,8 @@ client.connect_signal("manage", function (c, startup)
         ib:set_image(beautiful.titlebar_resize)
         ib:buttons( awful.util.table.join(
         awful.button({ }, 1, function(geometry)
-            root.fake_input("button_release",1,0,0)
-            collision.resize.display(c,true)
+--             root.fake_input("button_release",1,0,0)
+            collision._resize.mouse_resize(c)
         end)))
         left_layout:add(ib)
         local ib2 = wibox.widget.imagebox()
@@ -933,3 +971,48 @@ end)
 --         c.urgent = urgent
 --     end
 -- end)
+
+
+print("START",awful.tag.selected(1))
+
+local function gen_cls(c,results)
+    local ret = setmetatable({},{__index = function(t,i)
+        print ("REQ"..i)
+        local ret = c[i]
+        if type(ret) == "function" then
+            if i == "geometry" then
+                return function(self,...)
+                 if #{...} > 0 then
+                    results[c] = ({...})[1]
+                 end
+                 return c:geometry()
+                end
+            else
+                return function(self,...) return ret(c,...) end
+            end
+        end
+        return ret
+    end})
+    
+    return ret
+end
+
+glib.idle_add(glib.PRIORITY_DEFAULT_IDLE, function()
+    local cls,results = {},setmetatable({},{__mode="k"})
+    for k,v in ipairs (awful.tag.selected(1):clients()) do
+        cls[#cls+1] = gen_cls(v,results)
+    end
+
+    local param =  {
+        tag = awful.tag.selected(1),
+        screen = 1,
+        clients = cls,
+        workarea = screen[1].workarea
+    }
+    awful.layout.suit.tile.left.arrange(param)
+    
+    print("DONE")
+    for c,geom in pairs(results) do
+        print(geom.x,geom.y,geom.width,geom.height)
+    end
+end)

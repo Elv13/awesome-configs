@@ -59,6 +59,7 @@ tyrannical.tags = {
         selected    = true,
 --         nmaster     = 2,
 --         mwfact      = 0.6,
+        index       = 1,
         max_clients = five_layout,
         class       = {
             "xterm" , "urxvt" , "aterm","URxvt","XTerm"

@@ -15,7 +15,7 @@ local signals,module,c_rules,tags_hash,settings,sn_callback,fallbacks,prop = {
   "exclusive"   , "init"      , "volatile"  , "focus_new" , "instances"        ,
   "locked"      , "class"     , "instance"  , "spawn"     , "position"         , "force_screen"     ,
   "max_clients" , "exec_once" , "clone_on"  , "clone_of"  , "no_focus_stealing",
-  "fallback"    , "no_focus_stealing_out","no_focus_stealing_in"
+  "fallback"    , "no_focus_stealing_out"   ,"no_focus_stealing_in"
 },{},{class={},instance={}},{},{},awful.spawn and awful.spawn.snid_buffer or {},{},awful.tag.getproperty
 
 for _,sig in ipairs(signals) do
@@ -124,7 +124,7 @@ end
 --Match client
 local function match_client(c, startup)
     if not c then return end
-
+-- print("HERE",c.name)
     local startup = startup == nil and capi.awesome.startup or startup
     local props = c.startup_id and sn_callback[tostring(c.startup_id)] or {}
 
@@ -133,11 +133,14 @@ local function match_client(c, startup)
 
     if #tags == 0 and c.transient_for and settings.group_children == true then
         c.sticky = c.transient_for.sticky or false
+        
+--             print("two",c.class)
         c:tags(c.transient_for:tags())
         return module.focus_client(c,props)
     elseif rules then
         local ret,props = apply_properties(c,props,rules.properties)
         if ret then
+--             print("\n\nRET")
             return module.focus_client(c,props)
         end
         --Add to matches
@@ -160,7 +163,9 @@ local function match_client(c, startup)
         end
         c.screen = tags[1] and awful.tag.getscreen(tags[1]) or c_src
         if #tags > 0 then
+            print("ONE")--,c.class,tags[1].name,#tags)
             c:tags(tags)
+            print("2")
             return module.focus_client(c,props)
         end
     end
@@ -175,6 +180,8 @@ local function match_client(c, startup)
                                   arr[#arr+1]=awful.tag.getscreen(v) == c.screen and v or nil
                               end; return arr
     end)({})) > 0 then -- Select the first fallback tag if the current tag isn't a fallback
+    
+--             print("THREE",c.class)
         return module.focus_client(c,props)
     end
     --Last resort, create a new tag
@@ -182,6 +189,8 @@ local function match_client(c, startup)
     local tmp,tag = c_rules.class[low_c],awful.tag.add(c.class or "N/A",{name=c.class or "N/A",onetimer=true,volatile=true,exclusive=true,screen=(c.screen <= capi.screen.count())
       and c.screen or 1,layout=settings.default_layout or awful.layout.suit.max})
     tmp.tags[#tmp.tags+1] = {name=c.class or "N/A",instances = setmetatable({[c.screen]=tag}, { __mode = 'v' }),volatile=true,screen=c.screen,exclusive=true}
+    
+            print("FOUR",c.class)
     c:tags({tag})
     return module.focus_client(c,props)
 end
@@ -214,6 +223,7 @@ awful.tag.withcurrent,awful.tag._add  = function(c, startup)
             match_client(c, startup)
         end
     end
+--     print("FIVE",#tags,debug.traceback())
     c:tags(tags)
 end,awful.tag.add
 
@@ -221,10 +231,6 @@ awful.tag.add,awful.tag._setscreen,awful.tag._viewonly = function(tag,props)
     props.screen,props.instances = props.screen or capi.mouse.screen,props.instances or setmetatable({}, { __mode = 'v' })
     props.mwfact,props.layout = props.mwfact or settings.mwfact,props.layout or settings.default_layout or awful.layout.max
     local t = awful.tag._add(tag,props)
-    if prop(t,"clone_on") and prop(t,"clone_on") ~= t.screen then
-        local t3 = awful.tag._add(tag,{screen = prop(t,"clone_on"), clone_of = t,icon=awful.tag.geticon(t)})
-        --TODO prevent clients from being added to the clone
-    end
     fallbacks[#fallbacks+1] = props.fallback and t or nil
     t:connect_signal("property::selected", function(t) on_selected_change(t,props or {}) end)
     t.selected = props.selected or false
@@ -236,10 +242,6 @@ awful.tag.viewonly = function(t)
     if not t then return end
     if not awful.tag.getscreen(t) then awful.tag.setscreen(capi.mouse.screen) end
     awful.tag._viewonly(t)
-    if prop(t,"clone_of") then
-        awful.tag.swap(t,prop(t,"clone_of"))
-        awful.tag.viewonly(prop(t,"clone_of"))
-    end
 end
 
 capi.tag.connect_signal("property::fallback",function(t)
