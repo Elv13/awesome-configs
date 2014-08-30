@@ -1,5 +1,5 @@
 local print = print
-local io = io
+local io,table = io,table
 local setmetatable  = setmetatable
 local string,ipairs = string,ipairs
 local wibox        = require("wibox"          )
@@ -19,13 +19,11 @@ local widget = nil
 
 local glob = nil
 local layouts = {}
+local cache_path = util.getdir("cache").."/keymaps"
 
 
 local quick_switch = nil
 
-local function save_to_disk()
-  --TODO
-end
 
 -- Select the next layout
 local function select_next(menu)
@@ -100,7 +98,7 @@ end
 
 -- Fetch asynchroniously all keyboard layouts for a country
 local function fill_sub_menu(menu,country,parent)
-  fd_async.load_file_async("/usr/share/X11/xkb/symbols/"..country):connect_signal("request::completed",function(content)
+  fd_async.file.load("/usr/share/X11/xkb/symbols/"..country):connect_signal("request::completed",function(content)
     for k,v in string.gmatch(content, "xkb_symbols[ ]*\"(.[^\"]+)\" {\n") do
       local item = nil
       item = menu:add_item({text=k,checkable=true,button1=function()
@@ -116,6 +114,7 @@ end
 -- Asynchroniously get the list of supported countries
 local function fill_menu(callback)
   fd_async.list_files_async("/usr/share/X11/xkb/symbols/",{match = "^%w*"}):connect_signal("request::completed",function(content)
+    table.sort(content)
     for k,v in ipairs(content) do
       local item = nil
       item = menu:add_item({text=v,checkable=true,
@@ -155,7 +154,15 @@ local function add_layout(country,  full_name)
   if quick_switch then
     quick_switch:add_item{text=real_name,icon=path,button1=set_keymap}
   end
+end
 
+-- Reload the disk cache
+local function load_from_disk()
+  fd_async.file.load(cache_path):connect_signal("request::completed",function(content)
+    for country,full_name in string.gmatch(content, "([^\n^ ]*) ([^\n]*)\n") do
+      add_layout(country, full_name)
+    end
+  end)
 end
 
 -- 
@@ -188,7 +195,12 @@ local function new()
         glob:add_item({text="<b>[Add]</b>",style=radical.item.style.arrow_single,layout=radical.item.layout.centerred,button1=function()
           if checked then
             add_layout(checked.text,sub_item.text)
+            -- Add to the cache
+            fd_async.file.append(cache_path,checked.text.." "..sub_item.text)
+
+            -- Unckeck
             check()
+
           end
         end})
         glob:add_widget(radical.widgets.separator())
@@ -204,8 +216,7 @@ local function new()
       show(geometry)
     end))
   )
-  add_layout("us","")
-  add_layout("ca","fr")
+  load_from_disk()
 
   reload_widget(widget)
 
