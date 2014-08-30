@@ -12,7 +12,7 @@ local gobject = require("lgi").GObject
 local glib = require("lgi").GLib
 local util = require("awful.util")
 
-local module = {}
+local module = {file={},command={},net={},outputstream={},directory={}}
 
 ---------------------------------------------------------------------
 ---                           HELPERS                             ---
@@ -95,12 +95,48 @@ function module.list_files_async(path,args)
   return req
 end
 
+--- Read all file from a directory
+function module.directory.load(path,args)
+  local args = args or {}
+  local req = create_request()
+  module.scan_dir_async(path,{attributes=args.attributes}):connect_signal("request::completed",function(files)
+    local counter = 0
+    for k,v in ipairs(files) do
+      local name = v["FILE_ATTRIBUTE_STANDARD_NAME"]
+      if not args.extention or name:find("[^%s].*".. args.extention .."$") then
+        module.file.load(path..'/'..name):connect_signal("request::completed",function(content)
+          req:emit_signal("file::content",path..'/'..name,content,v)
+          counter = counter - 1
+          if counter == 0 then
+            req:emit_signal("request::completed")
+          end
+        end)
+      end
+    end
+  end)
+  return req
+end
+
+---------------------------------------------------------------------
+---                          Streams                              ---
+---------------------------------------------------------------------
+
+-- Write to a stream
+function module.outputstream.write(stream, content)
+  local req = create_request()
+  stream:write_async(content,content:len(),nil,function(file2,task2)
+    local ret = file2:write_finish(task2)
+    req:emit_signal("request::completed")
+  end)
+  return req
+end
+
 ---------------------------------------------------------------------
 ---                           Files                               ---
 ---------------------------------------------------------------------
 
 -- Read a file, then emit "request::completed"
-function module.load_file_async(path)
+function module.file.load(path)
   local req = create_request()
   gio.File.new_for_path(path):load_contents_async(nil,function(file,task,c)
       local content = file:load_contents_finish(task)
@@ -111,25 +147,30 @@ function module.load_file_async(path)
   return req
 end
 
---- Read all file from a directory
-function module.load_all_async(path,args)
-  local args = args or {}
+-- Append to file
+function module.file.append(path,content,auto_close)
   local req = create_request()
-  module.scan_dir_async(path,{attributes=args.attributes}):connect_signal("request::completed",function(files)
-    local counter = 0
-    for k,v in ipairs(files) do
-      local name = v["FILE_ATTRIBUTE_STANDARD_NAME"]
-      if not args.extention or name:find("[^%s].*".. args.extention .."$") then
-        module.load_file_async(path..'/'..name):connect_signal("request::completed",function(content)
-          req:emit_signal("file::content",path..'/'..name,content,v)
-          counter = counter - 1
-          if counter == 0 then
-            req:emit_signal("request::completed")
-          end
-        end)
-      end
-    end
-  end)
+  gio.File.new_for_path(path):append_to_async({},0,nil,function(file,task,c)
+      local stream = file:append_to_finish(task)
+      req:emit_signal("stream::open",stream)
+      module.outputstream.write(stream,content):connect_signal("request::completed",function()
+        if auto_close ~= false then
+          stream:close()
+          req:emit_signal("stream::closed",stream)
+        end
+        req:emit_signal("request::completed")
+      end)
+  end,0)
+  return req
+end
+
+-- Replace a file content or create a new one
+function module.file.write(path,content,auto_close,stream)
+  local req = create_request()
+  gio.File.new_for_path(path):replace_contents_async(content,nil,function(file,task,c)
+    local stream = file:replace_contents_finish(task)
+    req:emit_signal("request::completed")
+  end,0)
   return req
 end
 
@@ -237,7 +278,7 @@ end
 
 -- Load all desktop files from a path
 function module.load_desktop_files(path,load_icon)
-  local req_in,req_out = module.load_all_async(path,{attributes={"FILE_ATTRIBUTE_STANDARD_NAME","FILE_ATTRIBUTE_STANDARD_ICON"}}),create_request()
+  local req_in,req_out = module.directory.load(path,{attributes={"FILE_ATTRIBUTE_STANDARD_NAME","FILE_ATTRIBUTE_STANDARD_ICON"}}),create_request()
   req_in:connect_signal("file::content",function(name,content,attrs)
     local ini = module.parse_ini(content)
 
