@@ -93,42 +93,10 @@ local function gen_menu(parent)
     return m
 end
 
-local function new(screen, args)
-    local bgb,mylaunchertext = wibox.widget.background(),wibox.widget.textbox()
-    tooltip2(bgb,"Classic application menu",{down=true})
-    mylaunchertext:set_text("Apps")
---     mylaunchertext._layout:set_height(pango.units_from_double(beautiful.default_height))
---     mylaunchertext._layout:set_width(pango.units_from_double(9999))
-    local l,m = wibox.layout.fixed.horizontal(),wibox.layout.margin(mylaunchertext)
-    m:set_right(10)
-    l:add(m)
-    l:fill_space(true)
-    bgb:set_widget(l)
-    local wdg_width = mylaunchertext._layout:get_pixel_extents().width
-    local img2 = cairo.ImageSurface.create(cairo.Format.ARGB32,wdg_width+28+beautiful.default_height, beautiful.default_height)
-    local arr = themeutils.get_end_arrow2({bg_color= beautiful.icon_grad or beautiful.fg_normal})
-    local arr2 = themeutils.get_beg_arrow2({bg_color= beautiful.icon_grad or beautiful.fg_normal})
-    local cr = cairo.Context(img2)
-    cr:set_source(color(beautiful.button_bg_normal or beautiful.bg_normal))
-    cr:paint()
 
-    local ic = color.apply_mask(beautiful.awesome_icon)
-    local ratio =  ic:get_width() / (beautiful.default_height)
-    local matrix = cairo.Matrix()
-    cairo.Matrix.init_scale(matrix,ratio,ratio)
-
-    print("WIDTH",wdg_width,mylaunchertext._layout:get_pixel_extents().height)
-    img2 = themeutils.compose({img2,{layer=ic,matrix=matrix},{layer=arr2,x=beautiful.default_height},{layer = arr,y=0,x=wdg_width+14+beautiful.default_height}})
-    bgb:set_bgimage(img2)
-    m:set_left(beautiful.default_height*1.5+3)
-
-    bgb:buttons( util.table.join(
-        button({ }, 1, function(geometry)
-            mymainmenu = mymainmenu or gen_menu(bgb)
-            mymainmenu.parent_geometry = geometry
-            mymainmenu.visible = not mymainmenu.visible
-        end)))
-    return bgb
+local function get_menu()
+    mymainmenu = mymainmenu or gen_menu(bgb)
+    return mymainmenu
 end
 
-return setmetatable({}, { __call = function(_, ...) return new(...) end })
+return setmetatable({get_menu=get_menu}, { __call = function(_, ...) return get_menu(...) end })

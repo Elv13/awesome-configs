@@ -21,6 +21,19 @@ local function five_layout(c,tag)
     return 5
 end
 
+local function fair_split_or_tile(c,tag)
+    if count == 2 then
+        awful.layout.set(awful.layout.suit.tile,tag)
+        awful.tag.setproperty(tag,"nmaster",1)
+        awful.tag.setproperty(tag,"mwfact",0.5)
+    else
+        awful.layout.set(awful.layout.suit.tile,tag)
+        awful.tag.setproperty(tag,"nmaster",1)
+        awful.tag.setproperty(tag,"mwfact",0.6)
+    end
+    return 5
+end
+
 -- }}}
 
 local layouts =
@@ -88,7 +101,7 @@ tyrannical.tags = {
         layout      = awful.layout.suit.tile                         ,
         exec_once   = {"dolphin"},
         no_focus_stealing_in = true,
-        max_clients = five_layout,
+        max_clients = fair_split_or_tile,
         class  = { 
             "Thunar"        , "Konqueror"      , "Dolphin"   , "ark"          , "Nautilus",         }
     } ,
@@ -350,11 +363,24 @@ tyrannical.properties.floating = {
     "yakuake"      , "Select Color$"   , "kruler"     , "kcolorchooser", "Paste Special"  ,
     "New Form"     , "Insert Picture"  , "kcharselect", "mythfrontend" , "plasmoidviewer" ,
     "sflphone-client-kde", "sflphone-client-gnome", "xev",
-    amarok = false , "yakuake"
+    amarok = false , "yakuake", "Conky"
 }
 
 tyrannical.properties.ontop = {
     "Xephyr"       , "ksnapshot"       , "kruler"
+}
+
+tyrannical.properties.focusable = {
+    conky=false
+}
+
+
+tyrannical.properties.no_autofocus = {
+    "Conky"
+}
+
+tyrannical.properties.below = {
+    "Conky"
 }
 
 tyrannical.properties.maximize = {

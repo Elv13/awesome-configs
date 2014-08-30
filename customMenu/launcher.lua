@@ -69,7 +69,7 @@ function createMenu(offset)
     table.sort(commandArray2, compare)
 
     mainMenu = menu({filter = true, show_filter = true, y = capi.screen[1].geometry.height - 18, x = offset, 
-    autodiscard = true,has_decoration=false,x=0,filtersubmenu=true,maxvisible=20,style=style,item_style=item_style,
+    autodiscard = true,has_decoration=false,x=0,filtersubmenu=true,style=style,item_style=item_style,
     show_filter=true,auto_resize=true,fkeys_prefix=true,filter_prefix="Run:",max_items=20})
 
     mainMenu:add_key_hook({}, "Return", "press", function(menu)
@@ -93,11 +93,11 @@ function createMenu(offset)
 --        if count == 0 then
         if str ~= "" then
 --         print("ICI2","'"..str.."'","meh",config.launcsher3,config.launcsher3[str])
-            local tmp = config.launcsher3[str].counter
+--             local tmp = config.launcsher3 and config.launcsher3[str].counter
             if type(tmp) ~= "number" then
                 tmp = 0
             end
-           config.launcsher3[str].counter = tmp + 1
+--            config.launcsher3[str].counter = tmp + 1
 --            print("NOW IS",config.launcsher3[str].counter)
         end
            count = 1
@@ -111,50 +111,10 @@ mainMenu:connect_signal("visible::changed", function() currentMenu = nil end)
     return mainMenu
 end
 
-local function new(offset, args)
-    local launcherText = wibox.widget.textbox()
-    launcherText:set_text("Launch")
-    launcherText.bg_resize = true
-    
-    local head_img      = config.iconPath .. "gearA2.png"
-    
-    local bgb = wibox.widget.background()
-    local l = wibox.layout.fixed.horizontal()
-    local m = wibox.layout.margin(launcherText)
-    m:set_right(10)
-    l:add(m)
-    l:fill_space(true)
-    bgb:set_widget(l)
-    local wdg_width = launcherText._layout:get_pixel_extents().width
-    local img2 = cairo.ImageSurface.create(cairo.Format.ARGB32, wdg_width+28+beautiful.default_height, beautiful.default_height)
-    local arr = themeutils.get_end_arrow2({bg_color=beautiful.icon_grad or beautiful.fg_normal})
-    local arr2 = themeutils.get_beg_arrow2({bg_color=beautiful.icon_grad or beautiful.fg_normal})
-    local cr = cairo.Context(img2)
-    cr:set_source(color(beautiful.button_bg_normal or beautiful.bg_normal))
-    cr:paint()
-
-    local ic = color.apply_mask(head_img)
-    local sw,sh = ic:get_width(),ic:get_height()
-    local ratio = ((sw > sh) and sw or sh) / (beautiful.default_height)
-    local matrix = cairo.Matrix()
-    cairo.Matrix.init_scale(matrix,ratio,ratio)
-    img2 = themeutils.compose({img2,{layer=ic,matrix=matrix},{layer=arr2,x=beautiful.default_height},{layer = arr,y=0,x=wdg_width+14+beautiful.default_height}})
-    m:set_left(beautiful.default_height*1.5+3)
-    bgb:set_bgimage(img2)
-
-    local tt = tooltip2(bgb,"Execute a command",{down=true})
-
-    bgb:buttons( util.table.join(
-    button({ }, 1, function(geo)
-        if not currentMenu then
-            currentMenu = createMenu(offset)
-        end
-        currentMenu.parent_geometry = geo
-        currentMenu.visible = not currentMenu.visible
-    end)
-    ))
-    return bgb
+function module.get_menu()
+    currentMenu = currentMenu or createMenu(offset)
+    return currentMenu
 end
 
 
-return setmetatable(module, { __call = function(_, ...) return new(...) end })
+return setmetatable(module, { __call = function(_, ...) return module.get_menu(...) end })

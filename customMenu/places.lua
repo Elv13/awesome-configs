@@ -23,6 +23,7 @@ local capi = { image  = image  ,
                mouse  = mouse  }
 
 local module = {}
+local data = nil
 
 local function read_kde_bookmark(offset)
     local m = menu({filter = true, showfilter = true, y = capi.screen[1].geometry.height - 18, x = offset, 
@@ -55,61 +56,11 @@ local function read_kde_bookmark(offset)
     return m
 end
 
-local function new(offset, args)
-    local data = nil
-
-    local mylauncher2text = wibox.widget.textbox()--capi.widget({ type = "textbox" })
-    tooltip2(mylauncher2text,"Folder shortcut",{down=true})
---     mylauncher2text:margin({ left = 30,right = 17})
-    mylauncher2text:set_text("Places")
-    mylauncher2text.bg_align = "left"
-    mylauncher2text.bg_resize = true
-
-    local head_img      = color.apply_mask(config.iconPath .. "tags/home2.png")
---     local extents       = mylauncher2text:extents()
---     extents.height      = 16
---     local normal_bg_img = themeutils.gen_button_bg(head_img,extents,false) --TODO port
---     local focus_bg_img  --= themeutils.gen_button_bg(head_img,extents,true )
-
-    local bgb = wibox.widget.background()
-    local l = wibox.layout.fixed.horizontal()
-    local m = wibox.layout.margin(mylauncher2text)
-    m:set_right(10)
-    l:add(m)
-    l:fill_space(true)
-    bgb:set_widget(l)    
-    local wdg_width = mylauncher2text._layout:get_pixel_extents().width
-    local img2 = cairo.ImageSurface.create(cairo.Format.ARGB32,wdg_width+28+beautiful.default_height, beautiful.default_height)
-    local arr = themeutils.get_end_arrow2({bg_color=beautiful.icon_grad or beautiful.fg_normal})
-    local arr2 = themeutils.get_beg_arrow2({bg_color=beautiful.icon_grad or beautiful.fg_normal})
-    local cr = cairo.Context(img2)
-    cr:set_source(color(beautiful.button_bg_normal or beautiful.bg_normal))
-    cr:paint()
-
-    local ic = head_img
-    local sw,sh = ic:get_width(),ic:get_height()
-    local ratio = ((sw > sh) and sw or sh) / (beautiful.default_height)
-    local matrix = cairo.Matrix()
-    cairo.Matrix.init_scale(matrix,ratio,ratio)
-
-
-    img2 = themeutils.compose({img2,{layer=ic,matrix=matrix},{layer=arr2,x=beautiful.default_height},{layer = arr,y=0,x=wdg_width+14+beautiful.default_height}})
-    bgb:set_bgimage(img2)
-    m:set_left(beautiful.default_height*1.5+3)
-
-    mylauncher2text.bg_image = normal_bg_img
-
-    bgb:buttons( util.table.join(
-        button({ }, 1, function(geometry)
-        data = data or read_kde_bookmark(offset)
-        data.parent_geometry = geometry
-        data.visible = not data.visible
-
-    end)
-    ))
-
-    return bgb
+function module.get_menu()
+    data = data or read_kde_bookmark(offset)
+--     data.visible = not data.visible
+    return data
 end
 
 
-return setmetatable(module, { __call = function(_, ...) return new(...) end })
+return setmetatable(module, { __call = function(_, ...) return get_menu(...) end })

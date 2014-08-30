@@ -128,4 +128,8 @@ function stripHtml(str)
     return safeStr
 end
 
+function module.readline(str)
+    return string.gmatch(str, "[^\n]*\n")
+end
+
 return setmetatable(module, { __call = function(_, ...) return new(...) end })
