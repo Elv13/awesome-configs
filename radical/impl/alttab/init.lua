@@ -59,6 +59,7 @@ end
 
 local function select_next(menu)
   local item = menu.next_item
+  if not item then return end
   item.selected = true
   item.button1(nil,nil,nil,nil,true)
   return true
@@ -87,19 +88,24 @@ local function reload_highlight(i)
       hl[#hl+1] = v
     end
     tag_list.highlight(hl)
+
+    i._internal.border_color_back = i.client.border_color
+    i.client.border_color = beautiful.bg_urgent
+  elseif i._internal.border_color_back then
+    i.client.border_color = i._internal.border_color_back
   end
 end
 
 local function new(args)
   local histo = get_history(--[[screen]])
-  if #histo == o then
+  if #histo == 0 then
     return
   end
 
   local t,auto_release = tag.selected(capi.client.focus and capi.client.focus.screen or capi.mouse.screen),args.auto_release
   local currentMenu = radical.box({filter = true, show_filter=not auto_release, autodiscard = true,
     disable_markup=true,fkeys_prefix=not auto_release,width=(((capi.screen[capi.client.focus and capi.client.focus.screen or capi.mouse.screen]).geometry.width)/2),
-    icon_transformation = beautiful.alttab_icon_transformation,filter_underlay="Use [Shift] to toggle clients",filter_underlay_color=beautiful.menu_bg_normal,
+    icon_transformation = beautiful.alttab_icon_transformation,filter_underlay="Use [Shift] and [Control] to toggle clients",filter_underlay_color=beautiful.menu_bg_normal,
     filter_placeholder="<span fgcolor='".. (beautiful.menu_fg_disabled or beautiful.fg_disabled or "#777777") .."'>Type to filter</span>"})
 
   if not auto_release then
@@ -137,47 +143,54 @@ local function new(args)
     end
     return true
   end)
+  currentMenu:add_key_hook({}, "Control_L", "press", function()
+    currentMenu._current_item.checked = not currentMenu._current_item.checked
+    client2.movetotag(t, currentMenu._current_item.client)
+    reload_underlay(currentMenu._current_item.client,currentMenu._current_item)
+    if not auto_release then
+      reload_highlight(currentMenu._current_item)
+    end
+    return true
+  end)
 
 
-  if module.titlebar_path then
-    for k,v2 in ipairs(histo) do
-      local l,v = wibox.layout.fixed.horizontal(),v2[2]
-      if not auto_release then
-        l:add( button_group({client = v, field = "floating" , focus = false, checked = function() return v.floating  end, onclick = function() v.floating  = not v.floating  end }))
-        l:add( button_group({client = v, field = "maximized", focus = false, checked = function() return v.maximized end, onclick = function() v.maximized = not v.maximized end }))
-        l:add( button_group({client = v, field = "sticky"   , focus = false, checked = function() return v.sticky    end, onclick = function() v.sticky    = not v.sticky    end }))
-        l:add( button_group({client = v, field = "ontop"    , focus = false, checked = function() return v.ontop     end, onclick = function() v.ontop     = not v.ontop     end }))
-        l:add( button_group({client = v, field = "close"    , focus = false, checked = function() return false       end, onclick = function() v:kill()                      end }))
-      end
-
-      local underlays = reload_underlay(v)
-
+  for k,v2 in ipairs(histo) do
+    local l,v = wibox.layout.fixed.horizontal(),v2[2]
+    if not auto_release and module.titlebar_path then
+      l:add( button_group({client = v, field = "floating" , focus = false, checked = function() return v.floating  end, onclick = function() v.floating  = not v.floating  end }))
+      l:add( button_group({client = v, field = "maximized", focus = false, checked = function() return v.maximized end, onclick = function() v.maximized = not v.maximized end }))
+      l:add( button_group({client = v, field = "sticky"   , focus = false, checked = function() return v.sticky    end, onclick = function() v.sticky    = not v.sticky    end }))
+      l:add( button_group({client = v, field = "ontop"    , focus = false, checked = function() return v.ontop     end, onclick = function() v.ontop     = not v.ontop     end }))
+      l:add( button_group({client = v, field = "close"    , focus = false, checked = function() return false       end, onclick = function() v:kill()                      end }))
       l.fit = function (s,w,h) return 5*h,h end
-      local i = currentMenu:add_item({
-        text          = v.name,
-        icon          = v.icon or module.default_icon,
-        suffix_widget = not auto_release and l or nil,
-        selected      = capi.client.focus and capi.client.focus == v,
-        underlay      = underlays,
-        checkable     = not auto_release,
-        checked       = not auto_release and is_in_tag(t,v) or nil,
-        button1       = function(a,b,c,d,no_hide)
-          local t = focusTag[v] or v:tags()[1]
-          if t and t.selected == false and not util.table.hasitem(v:tags(),tag.selected(v.screen)) then
-            tag.viewonly(t)
-          end
-          capi.client.focus = v
-          v:raise()
-          if not no_hide then
-            currentMenu.visible = false
-          end
-        end,
-      })
-      i.client = v
+    end
 
-      if not auto_release then
-        i:connect_signal("selected::changed",reload_highlight)
-      end
+    local underlays = reload_underlay(v)
+
+    local i = currentMenu:add_item({
+      text          = v.name,
+      icon          = v.icon or module.default_icon,
+      suffix_widget = not auto_release and l or nil,
+      selected      = capi.client.focus and capi.client.focus == v,
+      underlay      = underlays,
+      checkable     = not auto_release,
+      checked       = not auto_release and is_in_tag(t,v) or nil,
+      button1       = function(a,b,c,d,no_hide)
+        local t = focusTag[v] or v:tags()[1]
+        if t and t.selected == false and not util.table.hasitem(v:tags(),tag.selected(v.screen)) then
+          tag.viewonly(t)
+        end
+        capi.client.focus = v
+        v:raise()
+        if not no_hide then
+          currentMenu.visible = false
+        end
+      end,
+    })
+    i.client = v
+
+    if not auto_release then
+      i:connect_signal("selected::changed",reload_highlight)
     end
   end
 
@@ -196,6 +209,9 @@ local function new(args)
       push_focus(capi.client.focus)
       if not auto_release then
         tag_list.highlight()
+      end
+      if currentMenu._current_item and currentMenu._current_item._internal.border_color_back then
+        currentMenu._current_item.client.border_color = currentMenu._current_item._internal.border_color_back
       end
     end
   end)

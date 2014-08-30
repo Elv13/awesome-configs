@@ -305,6 +305,7 @@ local function new(args)
       filter_underlay_style = args.filter_underlay_style or nil,
       filter_underlay_color = args.filter_underlay_color,
       filter_placeholder    = args.filter_placeholder or "",
+      disable_submenu_icon  = args.disable_submenu_icon or false
     },
     force_private = {
       parent  = true,
@@ -541,6 +542,17 @@ local function new(args)
       internal.items[data._start_at-1+data.max_items]._hidden = false
       data:emit_signal("_hidden::changed",internal.items[data._start_at-1+data.max_items])
       filter(data)
+    end
+  end
+
+  function data:hide()
+    data.visible = false
+    if data.parent_geometry and data.parent_geometry.is_menu then
+      local parent = data.parent_geometry
+      while parent do
+        parent.visible = false
+        parent = parent.parent_geometry and parent.parent_geometry.is_menu and parent.parent_geometry
+      end
     end
   end
 
