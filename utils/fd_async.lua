@@ -12,26 +12,57 @@ local gobject = require("lgi").GObject
 local glib = require("lgi").GLib
 local util = require("awful.util")
 
-local module = {file={},command={},net={},outputstream={},directory={}}
+local module = {file={},command={},network={},outputstream={},directory={}}
 
 ---------------------------------------------------------------------
 ---                           HELPERS                             ---
 ---------------------------------------------------------------------
+
+-- Emit can be daisy-chained
 local function emit_signal(self,name,...)
   for k,v in ipairs(self._connections[name] or {}) do
     v(...)
   end
+  return self
 end
 
+-- Signal conenctions can be daisy-chained
 local function connect_signal(self,name,callback)
   self._connections[name] = self._connections[name] or {}
   self._connections[name][#self._connections[name]+1] = callback
+  return self
 end
 
 local function create_request()
   local req = {_connections={}}
   req.emit_signal = emit_signal
   req.connect_signal = connect_signal
+  return req
+end
+
+local function watch_common(path,method,prefix)
+  local req = create_request()
+  local file = gio.File.new_for_path(path)
+  file[method](file,{}).on_changed:connect(function(self,file1,file2,type)
+    local path1,path2 = file1 and file1:get_path() or "",file2 and file2:get_path() or ""
+--     if type == "CHANGED" or  then
+    if type == "CHANGES_DONE_HINT" then
+      req:emit_signal(prefix.."::changed",path1,path2)
+    elseif type == "DELETED" then
+      req:emit_signal(prefix.."::deleted",path1,path2)
+    elseif type == "CREATED" then
+      req:emit_signal(prefix.."::created",path1,path2)
+    elseif type == "ATTRIBUTE_CHANGED" then
+      req:emit_signal(prefix.."::attribute",path1,path2)
+    elseif type == "PRE_UNMOUNT" then
+      req:emit_signal(prefix.."::unmount_request",path1,path2)
+    elseif type == "UNMOUNTED" then
+      req:emit_signal(prefix.."::unmount",path1,path2)
+    elseif type == "MOVED" then
+      req:emit_signal(prefix.."::moved",path1,path2)
+    end
+    print("")
+  end)
   return req
 end
 
@@ -117,6 +148,21 @@ function module.directory.load(path,args)
   return req
 end
 
+--- Get a notification when the directory change
+-- @usage
+-- <code>
+--awful.util.async.file.watch("~/.config/awesome/"):connect_signal("file::changed",function(path1,path2)
+--    print("file changed",path1,path2)
+--end):connect_signal("file::created",function(path1,path2)
+--    print("file created",path1,path2)
+--end):connect_signal("file::deleted",function(path1,path2)
+--    print("file deleted",path1,path2)
+--end)
+-- </code
+function module.directory.watch(path)
+  return watch_common(path,"monitor_directory","directory")
+end
+
 ---------------------------------------------------------------------
 ---                          Streams                              ---
 ---------------------------------------------------------------------
@@ -172,6 +218,17 @@ function module.file.write(path,content,auto_close,stream)
     req:emit_signal("request::completed")
   end,0)
   return req
+end
+
+--- Get a notification when the file change
+-- @usage
+-- <code>
+--awful.util.async.file.watch("~/.config/awesome/rc.lua"):connect_signal("file::changed",function(path1,path2)
+--    print("file changed",path1,path2)
+--end)
+-- </code
+function module.file.watch(path)
+  return watch_common(path,"monitor_file","file")
 end
 
 ---------------------------------------------------------------------
@@ -246,17 +303,19 @@ function module.download_binary_async(url)
 --   return req
 end
 
-function module.download_text_async(url)
---   local req = create_request()
---   print("starting",url)--glib.PRIORITY_DEFAULT
---   gio.File.new_for_uri(url):load_contents_async(nil,function(file,task,c)
---       local content = file:load_contents_finish(task)
---       print("called",content)
---       if content then
---         req:emit_signal("request::completed",tostring(content))
---       end
---   end)
---   return req
+function module.network.load(url)
+  local req = create_request()
+  print("starting",url)--glib.PRIORITY_DEFAULT
+  gio.File.new_for_uri(url):read_async(glib.PRIORITY_DEFAULT,nil,function(file,task,c)
+      local content,error = file:read_finish(task)
+      print("called",content,foo)
+      if error then
+        req:emit_signal("request::error",tostring(error))
+      elseif content then
+        req:emit_signal("request::completed",tostring(content))
+      end
+  end)
+  return req
 end
 
 ---------------------------------------------------------------------
