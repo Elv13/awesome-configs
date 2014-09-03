@@ -12,7 +12,7 @@ local gobject = require("lgi").GObject
 local glib = require("lgi").GLib
 local util = require("awful.util")
 
-local module = {file={},command={},network={},outputstream={},directory={}}
+local module = {file={},command={},network={},outputstream={},directory={},exec={},ini={}}
 
 ---------------------------------------------------------------------
 ---                           HELPERS                             ---
@@ -70,8 +70,13 @@ end
 ---                           DIRECTORY                           ---
 ---------------------------------------------------------------------
 
---- Use Gio to scan a directory
-function module.scan_dir_async(path,args)
+--- Scan a directory content
+-- This function return multiple file sttributes, see:
+-- https://developer.gnome.org/gio/stable/GFileInfo.html#G-FILE-ATTRIBUTE-STANDARD-TYPE:CAPS
+-- for details. The list of requestion attributes can be passed in the args.attributes
+-- argument. The default only return the file name. Use gears.async.directory.list for a more
+-- basic file list.
+function module.directory.scan(path,args)
   if not path then return end
   local args = args or {}
   local req = create_request()
@@ -82,7 +87,9 @@ function module.scan_dir_async(path,args)
     end
   end
   gio.File.new_for_path(path):enumerate_children_async(attr,0,0,nil,function(file,task,c)
-    local content,ret = file:enumerate_children_finish(task),{}
+    local content,error = file:enumerate_children_finish(task)
+    local ret = {}
+    if not content then req:emit_signal("scan::error",ret);return end
     content:next_files_async(99999,0,nil,function(file_enum,task2,c)
       local all_files = file_enum:next_files_finish(task2)
       for _,file in ipairs(all_files) do
@@ -106,10 +113,10 @@ function module.scan_dir_async(path,args)
 end
 
 --- Return a file list (name only)
-function module.list_files_async(path,args)
+function module.directory.list(path,args)
   if not path then return end
   local req,args = create_request(), args or {}
-  module.scan_dir_async(path):connect_signal("request::completed",function(content)
+  module.directory.scan(path):connect_signal("request::completed",function(content)
       local ret = {}
       for k,v in ipairs(content) do
         local name = v["FILE_ATTRIBUTE_STANDARD_NAME"]
@@ -130,7 +137,7 @@ end
 function module.directory.load(path,args)
   local args = args or {}
   local req = create_request()
-  module.scan_dir_async(path,{attributes=args.attributes}):connect_signal("request::completed",function(files)
+  module.directory.scan(path,{attributes=args.attributes}):connect_signal("request::completed",function(files)
     local counter = 0
     for k,v in ipairs(files) do
       local name = v["FILE_ATTRIBUTE_STANDARD_NAME"]
@@ -151,7 +158,7 @@ end
 --- Get a notification when the directory change
 -- @usage
 -- <code>
---awful.util.async.file.watch("~/.config/awesome/"):connect_signal("file::changed",function(path1,path2)
+--gears.async.file.watch("~/.config/awesome/"):connect_signal("file::changed",function(path1,path2)
 --    print("file changed",path1,path2)
 --end):connect_signal("file::created",function(path1,path2)
 --    print("file created",path1,path2)
@@ -223,7 +230,7 @@ end
 --- Get a notification when the file change
 -- @usage
 -- <code>
---awful.util.async.file.watch("~/.config/awesome/rc.lua"):connect_signal("file::changed",function(path1,path2)
+--gears.async.file.watch("~/.config/awesome/rc.lua"):connect_signal("file::changed",function(path1,path2)
 --    print("file changed",path1,path2)
 --end)
 -- </code
@@ -231,12 +238,50 @@ function module.file.watch(path)
   return watch_common(path,"monitor_file","file")
 end
 
+function module.file.copy(source_path,destination_path,overwirte --[[TODO]], backup --[[TODO]])
+  -- gio.File.copy_async is not exposed by GObject introspection, so it cannot be used by LGI.
+  -- This is why this function re-implement the copy logic.
+  local req = create_request()
+
+  local src,dest = gio.File.new_for_path(source_path),gio.File.new_for_path(destination_path)
+  src:read_async(glib.PRIORITY_DEFAULT,nil,function(file,task,c)
+    local in_stream,err = file:read_finish(task)
+    if not in_stream then
+      req:emit_signal("source::error",err)
+    end
+    dest:replace_async(nil,false,{},glib.PRIORITY_DEFAULT,nil,function(file2,task2,c2)
+      local out_stream,err2 = file2:replace_finish(task2)
+      if not out_stream then
+        req:emit_signal("destination::error",err2)
+      end
+      out_stream:splice_async(in_stream,{0,1,2},glib.PRIORITY_DEFAULT,nil,function(file3,task3,c3)
+        local ret  = file3:splice_finish(task3)
+        req:emit_signal("request::completed",ret)
+      end)
+    end)
+  end)
+  return req
+end
+
 ---------------------------------------------------------------------
 ---                            Commands                           ---
 ---------------------------------------------------------------------
 
--- Execute a command async
-function module.exec_command_async(command,cwd)
+--- Execute a command and get the result either line by line or complete
+-- This method should not be confused with awful.util.spawn. This one is
+-- used to retreive the output rather than simply executing a command
+-- and forgetting about it
+-- 
+-- @param command a shell command
+-- @param cwd current working directory (optional)
+-- @return A request handler
+--
+-- ###Signals:
+--
+-- * request::completed: When the command is over, return a stdout string
+-- * new::error: A new stderr line
+-- * new::line: A new  stdout line
+function module.exec.command(command,cwd)
   local req = create_request()
   local argv = glib.shell_parse_argv(command)
   if not argv then
@@ -271,7 +316,7 @@ function module.exec_command_async(command,cwd)
   local function get_error_line(obj,res)
     local result, err = obj:read_line_finish_utf8(res)
     req:emit_signal("new::error",result)
-    if result or not errstream:is_open() then
+    if result or not errstream:is_closed() then
       errfilter:read_line_async(glib.PRIORITY_DEFAULT,nil,get_error)
     else
       filter:close()
@@ -282,8 +327,16 @@ function module.exec_command_async(command,cwd)
     end
   end
   filter:read_line_async(glib.PRIORITY_DEFAULT,nil,get_line)
-  errfilter:read_line_async(glib.PRIORITY_DEFAULT,nil,get_error)
+  errfilter:read_line_async(glib.PRIORITY_DEFAULT,nil,get_error_line)
   return req
+end
+
+--- Run LUA code when the event loop become idle
+-- @param f function to execute
+-- @return nothing
+function module.exec.idle(f)
+  if not f then return end
+  glib.idle_add(glib.PRIORITY_DEFAULT_IDLE, f)
 end
 
 ---------------------------------------------------------------------
@@ -322,8 +375,8 @@ end
 ---                     General file handling                     ---
 ---------------------------------------------------------------------
 
--- Parse a classical INI file format
-function module.parse_ini(content)
+-- Parse a classical INI file format (used for .desktop and KDE config files)
+function module.ini.parse(content)
   local ret = {}
   for k,v in string.gmatch(content, "(%w+)=([^\n]+)\n?") do
     ret[k] = v
@@ -339,7 +392,7 @@ end
 function module.load_desktop_files(path,load_icon)
   local req_in,req_out = module.directory.load(path,{attributes={"FILE_ATTRIBUTE_STANDARD_NAME","FILE_ATTRIBUTE_STANDARD_ICON"}}),create_request()
   req_in:connect_signal("file::content",function(name,content,attrs)
-    local ini = module.parse_ini(content)
+    local ini = module.ini.parse(content)
 
     -- Replace "AWECFG" by the current config directory path
     if ini.Icon then
