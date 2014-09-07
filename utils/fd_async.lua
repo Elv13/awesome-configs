@@ -10,9 +10,11 @@ local tostring = tostring
 local gio = require("lgi").Gio
 local gobject = require("lgi").GObject
 local glib = require("lgi").GLib
+local cairo = require("lgi").cairo
 local util = require("awful.util")
+local gtk = nil
 
-local module = {file={},command={},network={},outputstream={},directory={},exec={},ini={}}
+local module = {file={},command={},network={},outputstream={},directory={},exec={},ini={},icon={}}
 
 ---------------------------------------------------------------------
 ---                           HELPERS                             ---
@@ -95,7 +97,13 @@ function module.directory.scan(path,args)
       for _,file in ipairs(all_files) do
         local ret_attr,has_attr = {},false
         for _,v in ipairs(args.attributes or {"FILE_ATTRIBUTE_STANDARD_NAME"}) do
-          local val = file:get_attribute_as_string(gio[v])
+          local attr,val = gio[v],nil
+          local attr_type = file:get_attribute_type(attr)
+          if attr_type == "OBJECT" then
+            val = file:get_attribute_object(attr)
+          else
+            val = file:get_attribute_as_string(attr)
+          end
           if val then
             has_attr = true
             ret_attr[v] = val
@@ -138,15 +146,17 @@ function module.directory.load(path,args)
   local args = args or {}
   local req = create_request()
   module.directory.scan(path,{attributes=args.attributes}):connect_signal("request::completed",function(files)
-    local counter = 0
+    local counter = #files
     for k,v in ipairs(files) do
       local name = v["FILE_ATTRIBUTE_STANDARD_NAME"]
       if not args.extention or name:find("[^%s].*".. args.extention .."$") then
+        local ret = {}
         module.file.load(path..'/'..name):connect_signal("request::completed",function(content)
           req:emit_signal("file::content",path..'/'..name,content,v)
+          ret[name] = content
           counter = counter - 1
           if counter == 0 then
-            req:emit_signal("request::completed")
+            req:emit_signal("request::completed",ret)
           end
         end)
       end
@@ -238,21 +248,35 @@ function module.file.watch(path)
   return watch_common(path,"monitor_file","file")
 end
 
+--- Return the name of a file from a path
+function module.file.name(path)
+  return gio.File.new_for_path(path):get_basename()
+end
+
+--- Return the name of a file from a path
+function module.file.exist(path)
+  return gio.File.new_for_path(path):query_exists()
+end
+
 function module.file.copy(source_path,destination_path,overwirte --[[TODO]], backup --[[TODO]])
   -- gio.File.copy_async is not exposed by GObject introspection, so it cannot be used by LGI.
   -- This is why this function re-implement the copy logic.
   local req = create_request()
 
-  local src,dest = gio.File.new_for_path(source_path),gio.File.new_for_path(destination_path)
+  local src  = gio.File.new_for_path( source_path      )
+  local dest = gio.File.new_for_path( destination_path )
+
   src:read_async(glib.PRIORITY_DEFAULT,nil,function(file,task,c)
     local in_stream,err = file:read_finish(task)
     if not in_stream then
       req:emit_signal("source::error",err)
+      return
     end
     dest:replace_async(nil,false,{},glib.PRIORITY_DEFAULT,nil,function(file2,task2,c2)
       local out_stream,err2 = file2:replace_finish(task2)
       if not out_stream then
         req:emit_signal("destination::error",err2)
+        return
       end
       out_stream:splice_async(in_stream,{0,1,2},glib.PRIORITY_DEFAULT,nil,function(file3,task3,c3)
         local ret  = file3:splice_finish(task3)
@@ -372,6 +396,63 @@ function module.network.load(url)
 end
 
 ---------------------------------------------------------------------
+---                         Icon handling                         ---
+---------------------------------------------------------------------
+
+-- Note that this section require GTK
+
+local default_theme = nil
+
+--- Load an icon from the GTK theme
+-- @note Set "gtk-icon-theme-name=oxygen" in .config/gtk-3.0/settings.ini for KDE
+-- @param names A set of icon names, the first one is the best choice, the others are fallbacks. It can also be a GIcon
+-- @param size The icon size (in pixel), 22px is the default
+function module.icon.load(names,size)
+  local req = create_request()
+
+  if not names then return req end
+
+  local size = size or 22
+
+  -- Gtk is not needed until this function is called
+  if not gtk then
+    gtk = require("lgi").Gtk
+  end
+
+  -- GIcon support is necessary to handle attributes
+  local t = type(names)
+  if t == "userdata" then
+    names = names.names
+  elseif t == "string" then
+    names = {names}
+  end
+
+  -- Load the theme
+  if not default_theme then
+    default_theme = gtk.IconTheme.get_default()
+  end
+
+  -- Parse the names
+  local icon_theme,icon_info,bar = gtk.IconTheme,default_theme:choose_icon(names,size,{})
+
+  if not icon_info then return req end --TODO error
+
+  gtk.IconInfo.load_icon_async(icon_info,nil,function(file,task)
+      local pix = file:load_icon_finish(task)
+      if not pix then return end
+
+      -- Convert to Cairo
+      local img = cairo.ImageSurface(cairo.Format.ARGB32, size, size)
+      local cr = cairo.Context(img)
+      cr:set_source_pixbuf(pix,0,0)
+      cr:paint()
+      req:emit_signal("request::completed",img,cr)
+  end)
+
+  return req
+end
+
+---------------------------------------------------------------------
 ---                     General file handling                     ---
 ---------------------------------------------------------------------
 
@@ -389,15 +470,23 @@ function module.eval_as_lua()
 end
 
 -- Load all desktop files from a path
-function module.load_desktop_files(path,load_icon)
-  local req_in,req_out = module.directory.load(path,{attributes={"FILE_ATTRIBUTE_STANDARD_NAME","FILE_ATTRIBUTE_STANDARD_ICON"}}),create_request()
+function module.ini.load_dir(path,load_icon,icon_path)
+  local req_in,req_out = module.directory.load(path,{extention="desktop",attributes={"FILE_ATTRIBUTE_STANDARD_NAME","FILE_ATTRIBUTE_STANDARD_ICON"}}),create_request()
   req_in:connect_signal("file::content",function(name,content,attrs)
     local ini = module.ini.parse(content)
 
     -- Replace "AWECFG" by the current config directory path
     if ini.Icon then
-      ini.Icon=ini.Icon:gsub("AWECFG",util.getdir("config"))
+      ini.Icon=ini.Icon:gsub("AWECFG",icon_path or util.getdir("config"))
     end
+
+    -- Split categories
+    local cats = {}
+    for category in (ini.Categories or {}):gmatch('[^;]+') do
+      cats[#cats+1] = category
+    end
+    ini.Categories = cats
+
     req_out:emit_signal("file::content",path,ini,attrs)
   end)
   req_in:connect_signal("request::completed",function() req_out:emit_signal("request::completed")end)
