@@ -1,7 +1,7 @@
 return {
 --     clientMenu  = require( "customMenu.clientMenu"  ),
     layoutmenu  = require( "customMenu.layoutmenu"  ),
-    application = require( "customMenu.application" ),
+    appmenu = require( "customMenu.appmenu" ),
     places      = require( "customMenu.places"      ),
 --     tagOption   = require( "customMenu.tagOption"   ),
 --     altTab      = require( "customMenu.altTab"      ),

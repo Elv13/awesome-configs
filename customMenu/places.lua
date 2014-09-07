@@ -8,18 +8,18 @@ local button       = require( "awful.button"               )
 local beautiful    = require( "beautiful"                  )
 local util         = require( "awful.util"                 )
 local menu         = require( "radical.context"            )
+local separ        = require( "radical.widgets.separator"  )
 local config       = require( "forgotten"                     )
 local tooltip2     = require( "radical.tooltip"           )
-local fdutil       = require( "extern.freedesktop.utils"   )
 local themeutils   = require( "blind.common.drawing"                )
 local wibox        = require( "wibox"                      )
 local style        = require( "radical.style.classic"      )
 local item_style   = require( "radical.item.style.classic" )
 local color        = require( "gears.color"                )
 local cairo        = require( "lgi"                        ).cairo
-local capi = { image  = image  ,
-               screen = screen ,
-               widget = widget ,
+local filetree     = require("customMenu.filetree")
+local fd_async = require("utils.fd_async")
+local capi = { screen = screen ,
                mouse  = mouse  }
 
 local module = {}
@@ -40,19 +40,22 @@ local function read_kde_bookmark(offset)
             currentItem.title = currentItem.title or (inBook and string.match(line,'<title>(.*)</title>'))
             if string.match(line,"<bookmark:icon") then
                 currentItem.icon = string.match(line,'<bookmark:icon name=\"(.*)"/>')
-                if currentItem.icon then
-                    currentItem.icon = fdutil.lookup_icon({icon_sizes={"32x32"},icon=currentItem.icon})
-                end
             end
 
             if string.match(line,"</bookmark") and currentItem.title and currentItem.path then
                 local item = m:add_item({text =  currentItem.title, icon = currentItem.icon, onclick = function() util.spawn("dolphin " .. currentItem.path) end})
+                fd_async.icon.load(currentItem.icon,32):connect_signal("request::completed",function(icon)
+                  item.icon = icon
+                end)
                 currentItem = {}
             end
             line = f:read("*line")
         end
         f:close()
     end
+    m:add_widget(separ())
+    m:add_item {text="Root",sub_menu=function() return filetree.path("/",{max_items=20,style=style,item_style=item_style}) end}
+    m:add_item {text="Home",sub_menu=function() return filetree.path(os.getenv("HOME"),{max_items=20,style=style,item_style=item_style}) end}
     return m
 end
 

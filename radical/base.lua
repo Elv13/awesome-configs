@@ -243,7 +243,8 @@ end
 
 ---------------------------------MENU HANDLING----------------------------------
 local function new(args)
-  local internal,args = args.internal or {},args or {}
+  local args = args or {}
+  local internal = args.internal or {}
   if not internal.items then internal.items = {} end
   if not internal.widgets then internal.widgets = {} end
 

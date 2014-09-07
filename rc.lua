@@ -39,9 +39,9 @@ local wacky = require("wacky")
 -- utils.profile.start()
 -- debug.sethook(utils.profile.trace, "crl", 1)
 if awesome.startup_errors then
---     naughty.notify({ preset = naughty.config.presets.critical,
---                      title = "Oops, there were errors during startup!",
---                      text = awesome.startup_errors })
+    naughty.notify({ preset = naughty.config.presets.critical,
+                     title = "Oops, there were errors during startup!",
+                     text = awesome.startup_errors })
 end
 -- Handle runtime errors after startup
 do
@@ -140,16 +140,6 @@ movetagL,movetagR = {}, {}
 
 dofile(awful.util.getdir("config") .. "/baseRule.lua")
 
-
--- Create the application menu
-local appMenu                = customMenu.application   ( nil                                )
-
--- Create the place menu TODO use the KDE list instead of the hardcoded one
-local placesMenu             = customMenu.places        ( 100                                )
-
--- Call the laucher wibox
-local launcher               = customMenu.launcher      ( 200                                )
-
 -- Create the "Show Desktop" icon
 local desktopPix             = customButton.showDesktop ( nil                                )
 
@@ -170,45 +160,7 @@ local meminfo                = drawer.memInfo           ( 300                   
 local cpuinfo                = drawer.cpuInfo           ( 300                                )
 
 -- Create the laucher dock
-local lauchDock              = widgets.dock             ( nil                                )
--- local launchDock             =  radical.dock{position="left"}
--- launchDock:add_item{text="Foo",icon="/home/lepagee/.config/awesome/blind/arrow/Icon/ooformula2.png"}
--- launchDock:add_item{text="bar",icon="/home/lepagee/.config/awesome/blind/arrow/Icon/ooformula2.png"}
--- launchDock:add_item{text="Foo",icon="/home/lepagee/.config/awesome/blind/arrow/Icon/ooformula2.png"}
--- launchDock:add_item{text="bar",icon="/home/lepagee/.config/awesome/blind/arrow/Icon/ooformula2.png"}
--- launchDock:add_item{text="Foo",icon="/home/lepagee/.config/awesome/blind/arrow/Icon/ooformula2.png"}
--- launchDock:add_item{text="bar",icon="/home/lepagee/.config/awesome/blind/arrow/Icon/ooformula2.png"}
--- launchDock:add_item{text="Foo",icon="/home/lepagee/.config/awesome/blind/arrow/Icon/ooformula2.png"}
--- launchDock:add_item{text="bar",icon="/home/lepagee/.config/awesome/blind/arrow/Icon/ooformula2.png"}
--- launchDock:add_item{text="Foo",icon="/home/lepagee/.config/awesome/blind/arrow/Icon/ooformula2.png"}
--- launchDock:add_item{text="bar",icon="/home/lepagee/.config/awesome/blind/arrow/Icon/ooformula2.png"}
--- launchDock:add_item{text="Foo",icon="/home/lepagee/.config/awesome/blind/arrow/Icon/ooformula2.png"}
--- launchDock:add_item{text="bar",icon="/home/lepagee/.config/awesome/blind/arrow/Icon/ooformula2.png"}
--- launchDock:add_item{text="bar",icon="/home/lepagee/.config/awesome/blind/arrow/Icon/ooformula2.png"}
--- launchDock:add_item{text="Foo",icon="/home/lepagee/.config/awesome/blind/arrow/Icon/ooformula2.png"}
--- launchDock:add_item{text="bar",icon="/home/lepagee/.config/awesome/blind/arrow/Icon/ooformula2.png"}
--- launchDock:add_item{text="Foo",icon="/home/lepagee/.config/awesome/blind/arrow/Icon/ooformula2.png"}
--- launchDock:add_item{text="bar",icon="/home/lepagee/.config/awesome/blind/arrow/Icon/ooformula2.png"}
--- launchDock:add_item{text="Foo",icon="/home/lepagee/.config/awesome/blind/arrow/Icon/ooformula2.png"}
--- launchDock:add_item{text="bar",icon="/home/lepagee/.config/awesome/blind/arrow/Icon/ooformula2.png"}
--- launchDock:add_item{text="Foo",icon="/home/lepagee/.config/awesome/blind/arrow/Icon/ooformula2.png"}
--- launchDock:add_item{text="Foo",icon="/home/lepagee/.config/awesome/blind/arrow/Icon/ooformula2.png"}
--- launchDock:add_item{text="Foo",icon="/home/lepagee/.config/awesome/blind/arrow/Icon/ooformula2.png"}
--- launchDock:add_item{text="bar",icon="/home/lepagee/.config/awesome/blind/arrow/Icon/ooformula2.png"}
--- launchDock:add_item{text="bar",icon="/home/lepagee/.config/awesome/blind/arrow/Icon/ooformula2.png"}
--- launchDock:add_item{text="bar",icon="/home/lepagee/.config/awesome/blind/arrow/Icon/ooformula2.png"}
--- launchDock:add_item{text="Foo",icon="/home/lepagee/.config/awesome/blind/arrow/Icon/ooformula2.png"}
--- launchDock:add_item{text="bar",icon="/home/lepagee/.config/awesome/blind/arrow/Icon/ooformula2.png"}
--- launchDock:add_item{text="Foo",icon="/home/lepagee/.config/awesome/blind/arrow/Icon/ooformula2.png"}
--- launchDock:add_item{text="bar",icon="/home/lepagee/.config/awesome/blind/arrow/Icon/ooformula2.png"}
--- launchDock:add_item{text="Foo",icon="/home/lepagee/.config/awesome/blind/arrow/Icon/ooformula2.png"}
--- launchDock:add_item{text="bar",icon="/home/lepagee/.config/awesome/blind/arrow/Icon/ooformula2.png"}
--- launchDock:add_item{text="Foo",icon="/home/lepagee/.config/awesome/blind/arrow/Icon/ooformula2.png"}
--- launchDock:add_item{text="Foo",icon="/home/lepagee/.config/awesome/blind/arrow/Icon/ooformula2.png"}
--- launchDock:add_item{text="Foo",icon="/home/lepagee/.config/awesome/blind/arrow/Icon/ooformula2.png"}
--- launchDock:add_item{text="bar",icon="/home/lepagee/.config/awesome/blind/arrow/Icon/ooformula2.png"}
--- launchDock:add_item{text="bar",icon="/home/lepagee/.config/awesome/blind/arrow/Icon/ooformula2.png"}
--- launchDock:add_item{text="bar",icon="/home/lepagee/.config/awesome/blind/arrow/Icon/ooformula2.png"}
+local lauchDock              = widgets.dock             ( nil , {default_cats={"Tools","Development","Network","Player"}})
 
 -- Create the laucher dock
 local endArrow               = blind.common.drawing.get_beg_arrow_wdg2({bg_color=beautiful.icon_grad })
@@ -235,6 +187,34 @@ local notif = notifications()
 
 -- Create keyboard layout manager
 local keyboard = widgets.keyboard()
+
+-- Imitate the Gnome 2 menubar
+local bar_menu,bar_menu_w = radical.bar{item_style=radical.item.style.arrow_prefix,fg=beautiful.fg_normal,fg_focus=beautiful.menu_fg_normal,disable_submenu_icon=true}
+
+local app_menu = nil
+bar_menu:add_item {text="Apps",icon=gears.color.apply_mask(beautiful.awesome_icon,beautiful.button_bg_normal or beautiful.bg_normal),tooltip="Application menu",sub_menu = function()
+    if not app_menu then
+        app_menu = customMenu.appmenu({filter = true, showfilter = true, y = screen[1].geometry.height - 18, x = offset, 
+            autodiscard = true,has_decoration=false,x=0,filtersubmenu=true,maxvisible=20,style=radical.style.classic,item_style=radical.item.style.classic,
+            show_filter=true},{maxvisible=20,style=radical.style.classic,item_style=radical.item.style.classic})
+        end
+    return app_menu
+end}
+bar_menu:add_item {text="Places",
+    icon=gears.color.apply_mask(config.iconPath .. "tags/home.png",
+    beautiful.button_bg_normal or beautiful.bg_normal),tooltip="Folder shortcuts",sub_menu = customMenu.places.get_menu}
+bar_menu:add_item {text="Launch",
+    icon=gears.color.apply_mask(config.iconPath .. "gearA.png", beautiful.button_bg_normal or beautiful.bg_normal),
+    tooltip="Execute a command", sub_menu = customMenu.launcher.get_menu}
+
+bar_menu_w.__draw = bar_menu_w.draw
+
+local arr = blind.common.drawing.get_end_arrow2({bg_color= beautiful.icon_grad or beautiful.fg_normal})
+bar_menu_w.draw = function(self,w, cr, w2, height)
+    bar_menu_w.__draw(self,w, cr, w2, height)
+    cr:set_source_surface(arr,w2-height/2,0)
+    cr:paint()
+end
 
 -- End arrow
 local endArrowR = wibox.widget.imagebox()
@@ -407,9 +387,8 @@ for s = 1, screen.count() do
     wibox_top[s]:set_widget(layout_top)
 
     local left_layout_bot = wibox.layout.fixed.horizontal()
-    left_layout_bot:add(appMenu)
-    left_layout_bot:add(placesMenu)
-    left_layout_bot:add(launcher)
+
+    left_layout_bot:add(bar_menu_w)
     left_layout_bot:add(desktopPix)
 
     local runbg = wibox.widget.background()
@@ -736,6 +715,9 @@ awful.rules.rules = {
                      focus = awful.client.focus.filter,
                      keys = clientkeys,
                      buttons = clientbuttons } },
+    { rule = { class = "Conky" },
+      properties = { border_width = 0,
+                     border_color = beautiful.border_normal,} },
 }
 -- }}}
 
@@ -763,6 +745,7 @@ client.connect_signal("manage", function (c, startup)
     end
 
     local titlebars_enabled = true
+--     print(c.type)
     if titlebars_enabled and (c.type == "normal" or c.type == "dialog") then
         -- Widgets that are aligned to the left
         local left_layout = wibox.layout.fixed.horizontal()
@@ -861,13 +844,15 @@ end)
 
 client.connect_signal("tagged",function(v)
 --     local tb = v:titlebar_top()
+    if titlebars_enabled and (c.type == "normal" or c.type == "dialog") then
         local tb = awful.titlebar(v,{size=beautiful.titlebar_height or 16})
-    if tb and tb.title_wdg then
-        local underlays = {}
-        for k,v in ipairs(v:tags()) do
-            underlays[#underlays+1] = v.name
+        if tb and tb.title_wdg then
+            local underlays = {}
+            for k,v in ipairs(v:tags()) do
+                underlays[#underlays+1] = v.name
+            end
+            tb.title_wdg:set_underlay(underlays,{style=radical.widgets.underlay.draw_arrow,alpha=1,color="#0C2853"})
         end
-        tb.title_wdg:set_underlay(underlays,{style=radical.widgets.underlay.draw_arrow,alpha=1,color="#0C2853"})
     end
 end)
 
@@ -1016,3 +1001,18 @@ glib.idle_add(glib.PRIORITY_DEFAULT_IDLE, function()
         print(geom.x,geom.y,geom.width,geom.height)
     end
 end)
+
+print("monitor")
+utils.fd_async.file.watch("/home/lepagee/foobar"):connect_signal("file::changed",function(path1,path2)
+    print("file changed",path1,path2)
+end):connect_signal("file::created",function(path1,path2)
+    print("file created",path1,path2)
+end):connect_signal("file::deleted",function(path1,path2)
+    print("file deleted",path1,path2)
+end)
+
+utils.fd_async.network.load("http://www.gnu.org/licenses/old-licenses/gpl-2.0.html"):connect_signal("request::completed",function(content)
+    print("ICI",content)
+end)
+
+utils.fd_async.file.copy("/tmp/foo","/tmp/bar")

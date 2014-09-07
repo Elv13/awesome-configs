@@ -12,6 +12,7 @@ local radical      = require("radical"        )
 local beautiful    = require("beautiful"      )
 local surface      = require("gears.surface"  )
 local glib         = require("lgi").GLib
+local filetree     = require("customMenu.filetree")
 
 local module = {}
 local menu,ready,checked,sub_item = nil,false,nil,nil
@@ -54,7 +55,7 @@ end
 
 -- Get the current keyboard layout
 local function reload_widget(widget)
-  fd_async.exec_command_async('setxkbmap -query'):connect_signal("request::completed",function(ret)
+  fd_async.exec.command('setxkbmap -query'):connect_signal("request::completed",function(ret)
     local layout  = ""
     local variant = nil
     for k,v in string.gmatch(ret, "layout:([ ]*)([^\n]+)\n?") do
@@ -113,7 +114,7 @@ end
 
 -- Asynchroniously get the list of supported countries
 local function fill_menu(callback)
-  fd_async.list_files_async("/usr/share/X11/xkb/symbols/",{match = "^%w*"}):connect_signal("request::completed",function(content)
+  fd_async.directory.list("/usr/share/X11/xkb/symbols/",{match = "^%w*"}):connect_signal("request::completed",function(content)
     table.sort(content)
     for k,v in ipairs(content) do
       local item = nil
@@ -191,6 +192,7 @@ local function new()
         glob = radical.context()
         menu = radical.embed({max_items=10})
         glob.parent_geometry = geometry
+        glob:add_item {text="XModMap path", sub_menu = function() return filetree.path("/",{max_items=10},{checkable=true}) end}
         glob:add_embeded_menu(menu)
         glob:add_item({text="<b>[Add]</b>",style=radical.item.style.arrow_single,layout=radical.item.layout.centerred,button1=function()
           if checked then
