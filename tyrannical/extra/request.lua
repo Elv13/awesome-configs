@@ -25,7 +25,6 @@ end)
 
 capi.client.disconnect_signal("request::tag", ewmh.tag)
 capi.client.connect_signal("request::tag", function(c)
-    print("In request tag",c.name)
 --     if capi.awesome.startup then
 --         --TODO create a tag on that screen
 --     else

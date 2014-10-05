@@ -6,6 +6,7 @@ local module = {
   _focus  = require( "collision.focus" ),
   _resize = require( "collision.resize"),
   _max    = require( "collision.max"   ),
+  _screen = require( "collision.screen"),
 }
 
 local current_mode = "focus"
@@ -16,6 +17,7 @@ local event_callback = {
   resize = module._resize.resize                ,
   max    = module._max.change_focus             ,
   tag    = module._max.change_tag               ,
+  screen = module._screen.reload                ,
 }
 
 local start_callback = {
@@ -24,6 +26,7 @@ local start_callback = {
   resize = module._resize.display     ,
   max    = module._max.display_clients,
   tag    = module._max.display_tags   ,
+  screen = module._screen.display     ,
 }
 
 local exit_callback = {
@@ -32,6 +35,7 @@ local exit_callback = {
   resize = module._resize.hide ,
   max    = module._max.hide    ,
   tag    = module._max.hide    ,
+  screen = module._screen.hide ,
 }
 
 local keys = {--Normal  Xephyr        G510 alt         G510
@@ -81,7 +85,7 @@ local function start_loop(is_swap,is_max)
 end
 
 function module.focus(direction,c,max)
-  local screen = (c or capi.client.focus).screen
+  local screen = (c or ((capi.client.focus and capi.client.focus.focusable) and capi.client.focus or capi.mouse)).screen
   -- Useless when there is only 1 client tiled, incompatible with the "max_out" mode (in this case, focus floating mode)
   if awful.layout.get(screen) == awful.layout.suit.max and #awful.client.tiled(screen) > 1 and not max then
     current_mode = "max"
@@ -95,7 +99,7 @@ end
 
 function module.move(direction,c,max)
   current_mode = "move"
-  module._focus.global_bydirection(direction,c,true)
+  module._focus.global_bydirection(direction,c,true,max)
   start_loop(true,max)
 end
 
@@ -112,17 +116,25 @@ function module.tag(direction,c,max)
   start_loop(false,max)
 end
 
+function module.screen(direction)
+  current_mode = "screen"
+  module._screen.display()
+  start_loop(false,max)
+end
+
 local function new(k)
-  local k = k or keys
+  -- Replace the keys array. The new one has to have a valid mapping
+  keys = k or keys
   local aw = {}
 
   for k,v in pairs(keys) do
     for _,key_nane in ipairs(v) do
-      aw[#aw+1] = awful.key({ modkey,                    }, key_nane, function () module.focus (k         ) end)
-      aw[#aw+1] = awful.key({ modkey, "Mod1"             }, key_nane, function () module.resize(k         ) end)
-      aw[#aw+1] = awful.key({ modkey, "Shift"            }, key_nane, function () module.move  (k         ) end)
-      aw[#aw+1] = awful.key({ modkey, "Shift", "Control" }, key_nane, function () module.move  (k,nil,true) end)
-      aw[#aw+1] = awful.key({ modkey,          "Control" }, key_nane, function () module.focus (k,nil,true) end)
+      aw[#aw+1] = awful.key({ "Mod4",                    }, key_nane, function () module.focus (k         ) end)
+      aw[#aw+1] = awful.key({ "Mod4", "Mod1"             }, key_nane, function () module.resize(k         ) end)
+      aw[#aw+1] = awful.key({ "Mod4", "Shift"            }, key_nane, function () module.move  (k         ) end)
+      aw[#aw+1] = awful.key({ "Mod4", "Shift", "Control" }, key_nane, function () module.move  (k,nil,true) end)
+      aw[#aw+1] = awful.key({ "Mod4",          "Control" }, key_nane, function () module.focus (k,nil,true) end)
+      aw[#aw+1] = awful.key({ "Mod4", "Mod1" , "Control" }, key_nane, function () module.screen(k         ) end)
       if k == "left" or k =="right" then -- Conflict with my text editor, so I say no
         aw[#aw+1] = awful.key({ "Mod1",        "Control" }, key_nane, function () module.tag   (k,nil,true) end)
       end
