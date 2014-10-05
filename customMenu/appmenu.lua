@@ -17,7 +17,7 @@ local categories = {
 local categories_menu = {}
 
 local function scan_dir(parent,path,sub_args,item_args)
-  fd_async.directory.scan(path,{attributes={"FILE_ATTRIBUTE_STANDARD_NAME","FILE_ATTRIBUTE_STANDARD_ICON","FILE_ATTRIBUTE_STANDARD_TYPE"}}):connect_signal("request::completed",function(list)
+  fd_async.directory.scan(path,{attributes={"FILE_ATTRIBUTE_STANDARD_NAME","FILE_ATTRIBUTE_STANDARD_TYPE"}}):connect_signal("request::completed",function(list)
     for k,v in ipairs(list) do
       local ftype,name = v["FILE_ATTRIBUTE_STANDARD_TYPE"],v["FILE_ATTRIBUTE_STANDARD_NAME"]
 
@@ -40,9 +40,9 @@ local function scan_dir(parent,path,sub_args,item_args)
             if cat then
 
               -- Create the sub menu only if there is something in them
-              if not categories_menu[category] then
+              if not parent._internal.categories_menu[category] then
                 local m = radical.context(util.table.join(sub_args))
-                categories_menu[category] = m
+                parent._internal.categories_menu[category] = m
                 local item = parent:add_item {text=category,sub_menu=function() return m end}
 
                 -- Icons can be slow to load, use async methods
@@ -68,7 +68,7 @@ local function scan_dir(parent,path,sub_args,item_args)
               end
 
               -- Add to the right sub menu
-              local m = categories_menu[category]
+              local m = parent._internal.categories_menu[category]
               m._internal.entries[#m._internal.entries+1] = ini
             end
           end
@@ -80,6 +80,7 @@ end
 
 local function menu(main_args,sub_args,item_args)
   local m = radical.context (main_args or {})
+  m._internal.categories_menu = {}
   local started = false
   -- Only do this when the menu if first shown, it is IO intensive
   m:connect_signal("visible::changed",function()

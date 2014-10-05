@@ -1,9 +1,10 @@
 -- Standard awesome library
--- require("crashed")
+-- -- require("crashed")
 local gears = require("gears")
 local cairo     = require( "lgi"              ).cairo
 local color     = require( "gears.color"      )
 local awful = require("awful")
+require("repetitive")
 awful.rules = require("awful.rules")
 require("awful.autofocus")
 -- Widget and layout library
@@ -36,6 +37,7 @@ local alttab = require("radical.impl.alttab")
 local notifications = require("extern.notifications")
 local glib = require("lgi").GLib
 local wacky = require("wacky")
+local rad_client = require("radical.impl.common.client")
 -- utils.profile.start()
 -- debug.sethook(utils.profile.trace, "crl", 1)
 if awesome.startup_errors then
@@ -160,7 +162,7 @@ local meminfo                = drawer.memInfo           ( 300                   
 local cpuinfo                = drawer.cpuInfo           ( 300                                )
 
 -- Create the laucher dock
-local lauchDock              = widgets.dock             ( nil , {default_cats={"Tools","Development","Network","Player"}})
+local lauchDock              = widgets.dock             ( nil , {position="left",default_cats={"Tools","Development","Network","Player"}})
 
 -- Create the laucher dock
 local endArrow               = blind.common.drawing.get_beg_arrow_wdg2({bg_color=beautiful.icon_grad })
@@ -280,25 +282,7 @@ menubar.utils.terminal = terminal -- Set the terminal for applications that requ
 local prev_menu,prev_item = nil
 
 beautiful.on_tag_hover = customMenu.taghover
-beautiful.on_task_hover = function(c,geo,visible)
-    if not visible and prev_menu then
-        prev_menu.visible = false
-        return
-    end
-    if not c then return end
-    if not prev_menu then
-        prev_menu = radical.context({layout=radical.layout.horizontal,item_width=140,item_height=140,icon_size=100,
-            arrow_type=radical.base.arrow_type.CENTERED,enable_keyboard=false,item_style=radical.item.style.rounded})
-        prev_item = prev_menu:add_item({text = "<b>"..c.name.."</b>",icon=c.content})
-        prev_menu.wibox.opacity=0.8
-    end
-    if prev_item then
-        prev_item.icon = c.content
-        prev_item.text  = "<b>"..c.name:gsub('&','&amp;').."</b>"
-        prev_menu.parent_geometry = geo
-        prev_menu.visible = true
-    end
-end
+
 alttab.default_icon   = config.iconPath .. "tags/other.png"
 alttab.titlebar_path  = config.themePath.. "Icon/titlebar/"
 
@@ -346,8 +330,8 @@ for s = 1, screen.count() do
     layoutmenu[s] = customMenu.layoutmenu ( s,layouts_all                                   )
 
     -- Create the wibox
-    wibox_top[s] = awful.wibox({ position = "top"   , screen = s,height=beautiful.default_height , bg = beautiful.bg_wibar or beautiful.bg_normal })
-    wibox_bot[s] = awful.wibox({ position = "bottom", screen = s,height=beautiful.default_height , bg = beautiful.bg_wibar or beautiful.bg_normal })
+    wibox_top[s] = awful.wibox({ position = "top"   , ontop=true,screen = s,height=beautiful.default_height , bg = beautiful.bg_wibar or beautiful.bg_normal })
+    wibox_bot[s] = awful.wibox({ position = "bottom", ontop=true,screen = s,height=beautiful.default_height , bg = beautiful.bg_wibar or beautiful.bg_normal })
 
     -- Widgets that are aligned to the left
     local left_layout_top = wibox.layout.fixed.horizontal()
@@ -960,59 +944,59 @@ end)
 
 print("START",awful.tag.selected(1))
 
-local function gen_cls(c,results)
-    local ret = setmetatable({},{__index = function(t,i)
-        print ("REQ"..i)
-        local ret = c[i]
-        if type(ret) == "function" then
-            if i == "geometry" then
-                return function(self,...)
-                 if #{...} > 0 then
-                    results[c] = ({...})[1]
-                 end
-                 return c:geometry()
-                end
-            else
-                return function(self,...) return ret(c,...) end
-            end
-        end
-        return ret
-    end})
-    
-    return ret
-end
+-- local function gen_cls(c,results)
+--     local ret = setmetatable({},{__index = function(t,i)
+-- --         print ("REQ"..i)
+--         local ret = c[i]
+--         if type(ret) == "function" then
+--             if i == "geometry" then
+--                 return function(self,...)
+--                  if #{...} > 0 then
+--                     results[c] = ({...})[1]
+--                  end
+--                  return c:geometry()
+--                 end
+--             else
+--                 return function(self,...) return ret(c,...) end
+--             end
+--         end
+--         return ret
+--     end})
+--     
+--     return ret
+-- end
+-- 
+-- glib.idle_add(glib.PRIORITY_DEFAULT_IDLE, function()
+--     local cls,results = {},setmetatable({},{__mode="k"})
+--     for k,v in ipairs (awful.tag.selected(1):clients()) do
+--         cls[#cls+1] = gen_cls(v,results)
+--     end
+-- 
+--     local param =  {
+--         tag = awful.tag.selected(1),
+--         screen = 1,
+--         clients = cls,
+--         workarea = screen[1].workarea
+--     }
+--     awful.layout.suit.tile.left.arrange(param)
+--     
+--     print("DONE")
+--     for c,geom in pairs(results) do
+--         print(geom.x,geom.y,geom.width,geom.height)
+--     end
+-- end)
 
-glib.idle_add(glib.PRIORITY_DEFAULT_IDLE, function()
-    local cls,results = {},setmetatable({},{__mode="k"})
-    for k,v in ipairs (awful.tag.selected(1):clients()) do
-        cls[#cls+1] = gen_cls(v,results)
-    end
+-- print("monitor")
+-- utils.fd_async.file.watch("/home/lepagee/foobar"):connect_signal("file::changed",function(path1,path2)
+--     print("file changed",path1,path2)
+-- end):connect_signal("file::created",function(path1,path2)
+--     print("file created",path1,path2)
+-- end):connect_signal("file::deleted",function(path1,path2)
+--     print("file deleted",path1,path2)
+-- end)
 
-    local param =  {
-        tag = awful.tag.selected(1),
-        screen = 1,
-        clients = cls,
-        workarea = screen[1].workarea
-    }
-    awful.layout.suit.tile.left.arrange(param)
-    
-    print("DONE")
-    for c,geom in pairs(results) do
-        print(geom.x,geom.y,geom.width,geom.height)
-    end
-end)
+-- utils.fd_async.network.load("http://www.gnu.org/licenses/old-licenses/gpl-2.0.html"):connect_signal("request::completed",function(content)
+--     print("ICI",content)
+-- end)
 
-print("monitor")
-utils.fd_async.file.watch("/home/lepagee/foobar"):connect_signal("file::changed",function(path1,path2)
-    print("file changed",path1,path2)
-end):connect_signal("file::created",function(path1,path2)
-    print("file created",path1,path2)
-end):connect_signal("file::deleted",function(path1,path2)
-    print("file deleted",path1,path2)
-end)
-
-utils.fd_async.network.load("http://www.gnu.org/licenses/old-licenses/gpl-2.0.html"):connect_signal("request::completed",function(content)
-    print("ICI",content)
-end)
-
-utils.fd_async.file.copy("/tmp/foo","/tmp/bar")
+-- utils.fd_async.file.copy("/tmp/foo","/tmp/bar")

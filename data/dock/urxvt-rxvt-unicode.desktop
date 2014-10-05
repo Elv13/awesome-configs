@@ -1,8 +1,8 @@
-[Desktop Entry]
-Name=rxvt-unicode
+TryExec=urxvt
+Class=urxvt
+Icon=/home/lepagee/.config/awesome/blind/arrow/Icon//term.png
+Categories=Tools;
 Type=Application
 Comment=rxvt clone with xft and unicode support
+Name=rxvt-unicode
 Exec=urxvtc
-TryExec=urxvt
-Icon=AWECFG/term.png
-Categories=Tools

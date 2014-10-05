@@ -1,10 +1,10 @@
-[Desktop Entry]
-Name=KCalc
-Exec=kcalc -caption "%c"
-Icon=AWECFG/calc.png
-X-DocPath=kcalc/index.html
 GenericName=Scientific Calculator
-Terminal=false
+StartupNotify=true
 Type=Application
-X-KDE-StartupNotify=true
-Categories=Tools
+Terminal=false
+Name=KCalc
+DocPath=kcalc/index.html
+Icon=/home/lepagee/.config/awesome/blind/arrow/Icon//calc.png
+Categories=Tools;
+Exec=kcalc -caption "%c"
+Class=kcalc

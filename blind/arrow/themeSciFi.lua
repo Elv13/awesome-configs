@@ -179,7 +179,8 @@ theme.menu_bg_header            = color.create_png_pattern(path .."Icon/bg/menu_
 theme.menu_bg_normal            = color.create_png_pattern(path .."Icon/bg/menu_bg_scifi.png"       )
 theme.menu_bg_highlight         = color.create_png_pattern(path .."Icon/bg/menu_bg_highlight.png"   )
 theme.bg_dock                   = color.create_png_pattern(path .."Icon/bg/bg_dock.png"             )
-theme.fg_dock                   = { type = "linear", from = { 0, 0 }, to = { 0, sh }, stops = { { 0, "#1889F2" }, { 1, "#0A3E6E" }}}
+theme.fg_dock_1                 = "#1889F2"
+theme.fg_dock_2                 = "#0A3E6E"
 
 theme.wallpaper = "/home/lepagee/bg/final/bin_ascii_ds.png"
 theme.draw_underlay = themeutils.draw_underlay

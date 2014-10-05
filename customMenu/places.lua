@@ -1,26 +1,15 @@
 local setmetatable = setmetatable
 local string       = string
 local io           = io
-local print        = print
 local os           = os
-local table        = table
-local button       = require( "awful.button"               )
-local beautiful    = require( "beautiful"                  )
 local util         = require( "awful.util"                 )
 local menu         = require( "radical.context"            )
 local separ        = require( "radical.widgets.separator"  )
-local config       = require( "forgotten"                     )
-local tooltip2     = require( "radical.tooltip"           )
-local themeutils   = require( "blind.common.drawing"                )
-local wibox        = require( "wibox"                      )
 local style        = require( "radical.style.classic"      )
 local item_style   = require( "radical.item.style.classic" )
-local color        = require( "gears.color"                )
-local cairo        = require( "lgi"                        ).cairo
 local filetree     = require("customMenu.filetree")
 local fd_async = require("utils.fd_async")
-local capi = { screen = screen ,
-               mouse  = mouse  }
+local capi = { screen = screen }
 
 local module = {}
 local data = nil

@@ -80,6 +80,8 @@ local function show_menu(t)
   local t = t or tag.selected(capi.mouse.screen)
   if not aTagMenu then
     aTagMenu = radical.box({layout=radical.layout.horizontal,item_width=140,item_height=140,icon_size=100,item_style=radical.item.style.rounded})
+    aTagMenu.margins.left  = 10
+    aTagMenu.margins.right = 5
     items.locked    = aTagMenu:add_item({text = "<b>Locked</b>"   ,icon =config.iconPath .. "locked.png",button1=function() capi.client.focus = v end})
     items.exclusive = aTagMenu:add_item({text = "<b>Exclusive</b>",icon =config.iconPath .. "exclusive.png",button1=function() capi.client.focus = v end})
     items.fallback  = aTagMenu:add_item({text = "<b>Fallback</b>" ,icon =config.iconPath .. "fallback.png",button1=function() capi.client.focus = v end})
