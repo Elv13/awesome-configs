@@ -380,6 +380,10 @@ function module.download_binary_async(url)
 --   return req
 end
 
+
+-- Download a file using wget
+-- This is done because Awesome does not depend of GVFS. We also want to avoid
+-- forcing users to run a background daemon for downloading files.
 function module.network.load(url)
   local req = create_request()
   print("starting",url)--glib.PRIORITY_DEFAULT
@@ -415,6 +419,9 @@ function module.icon.load(names,size)
   local size = size or 22
 
   -- Gtk is not needed until this function is called
+  -- It gives an error if GTK is not installed. As we don't want to make it an
+  -- hard dependency, not calling this from the default rc.lua and letting the
+  -- user uncomment the line will allow the best of both world.
   if not gtk then
     gtk = require("lgi").Gtk
   end
@@ -487,10 +494,34 @@ function module.ini.load_dir(path,load_icon,icon_path)
     end
     ini.Categories = cats
 
-    req_out:emit_signal("file::content",path,ini,attrs)
+    req_out:emit_signal("file::content",name,ini,attrs)
   end)
   req_in:connect_signal("request::completed",function() req_out:emit_signal("request::completed")end)
   return req_out
+end
+
+-- Save an INI file
+-- @param ini an array of key/value
+-- @param path Where to save the file
+function module.ini.write(ini,path)
+  if (not ini) or (not path) then return end
+  local ret = ""
+  for k,v in pairs(ini) do
+    local t = type(v)
+    if t == "table" then
+      local ret2 = ""
+      for k2,v2 in pairs(v) do
+        ret2 = ret2 .. v2 .. ";"
+      end
+      v = ret2
+    elseif t ~= "string" then
+      v = ini[k.."_orig"]
+      ini[k.."_orig"] = nil
+    end
+    ret = ret..k.."="..v.."\n"
+  end
+
+  return module.file.write(path,ret)
 end
 
 return setmetatable(module, { __call = function(_, ...) return new(...) end })
