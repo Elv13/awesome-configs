@@ -23,7 +23,7 @@ local errcount = 0
 local volumewidget2 = nil
 
 function amixer_volume_int(format)
-   local f = io.popen('amixer sget Master 2> /dev/null | tail -n1 |cut -f 6 -d " " | grep -o -e "[0-9]*"')
+   local f = io.popen('amixer sget Master 2> /dev/null | tail -n1 |cut -f 7 -d " " | grep -o -e "[0-9]*"')
    if f then
       local l = f:read()
       f:close()
@@ -56,7 +56,7 @@ function soundInfo()
     local aChannal = f:read("*line")
     if aChannal == nil then break end
 
-    local f2= io.popen('amixer sget 2> /dev/null'.. aChannal ..' | tail -n1 |cut -f 6 -d " " | grep -o -e "[0-9]*" 2> /dev/null')
+    local f2= io.popen('amixer sget '.. aChannal ..' 2> /dev/null | tail -n1 |cut -f 7 -d " " | grep -o -e "[0-9]*" 2> /dev/null')
     local aVolume = (tonumber(f2:read("*line")) or 0) / 100
     f2:close()
 
@@ -109,10 +109,10 @@ local function new(mywibox3,left_margin)
         musicBarVisibility = true
       end),
       button({ }, 4, function()
-          util.spawn("amixer -c0 sset Master 2dB+ >/dev/null")
+          util.spawn("amixer sset Master 2%+ >/dev/null")
       end),
       button({ }, 5, function()
-          util.spawn("amixer -c0 sset Master 2dB- >/dev/null")
+          util.spawn("amixer sset Master 2%- >/dev/null")
       end)
   )
 
