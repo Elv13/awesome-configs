@@ -23,7 +23,7 @@ local errcount = 0
 local volumewidget2 = nil
 
 function amixer_volume_int(format)
-   local f = io.popen('amixer sget Master 2> /dev/null | tail -n1 |cut -f 7 -d " " | grep -o -e "[0-9]*"')
+   local f = io.popen('pactl list sinks | grep -A 8 "State: RUNNING" | tail -n 1 | cut -d "/" -f 2 | grep -o -e "[0-9]*"')
    if f then
       local l = f:read()
       f:close()
@@ -109,10 +109,10 @@ local function new(mywibox3,left_margin)
         musicBarVisibility = true
       end),
       button({ }, 4, function()
-          util.spawn("amixer sset Master 2%+ >/dev/null")
+          util.spawn_with_shell("pactl set-sink-volume `pactl list sinks | grep -A 1 'State: RUNNING' | tail -n 1 | cut -d ' ' -f 2` -- +2%")
       end),
       button({ }, 5, function()
-          util.spawn("amixer sset Master 2%- >/dev/null")
+          util.spawn_with_shell('pactl set-sink-volume `pactl list sinks | grep -A 1 "State: RUNNING" | tail -n 1 | cut -d " " -f 2` -- -2%')
       end)
   )
 
