@@ -30,11 +30,11 @@ function amixer_volume_int(format)
       local toReturn
       if (not l) or l == "" then
          toReturn = 0
-         errcount = errcount + 1
-         if errcount > 10 then
-            print("Too many amixer failure, stopping listener")
-            vicious.unregister(volumewidget2)
-         end
+--         errcount = errcount + 1
+--         if errcount > 10 then
+--            print("Too many amixer failure, stopping listener")
+--            vicious.unregister(volumewidget2)
+--         end
       else
          toReturn = tonumber(l)
       end
