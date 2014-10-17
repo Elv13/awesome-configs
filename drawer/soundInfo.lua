@@ -22,19 +22,27 @@ local errcount = 0
 
 local volumewidget2 = nil
 
+-- 0:undefined 1:alsa 2:pulseaudio
+local soundService = 0
+
 function amixer_volume_int(format)
-   local f = io.popen('amixer sget Master 2> /dev/null | tail -n1 |cut -f 6 -d " " | grep -o -e "[0-9]*"')
+    local f
+   if soundService == 2 then
+        f = io.popen('pactl list sinks | grep -A 8 "State: RUNNING" | tail -n 1 | cut -d "/" -f 2 | grep -o -e "[0-9]*"')
+    else
+        f = io.popen('amixer sget Master 2> /dev/null | tail -n1 |cut -f 7 -d " " | grep -o -e "[0-9]*"')
+    end
    if f then
       local l = f:read()
       f:close()
       local toReturn
       if (not l) or l == "" then
          toReturn = 0
-         errcount = errcount + 1
-         if errcount > 10 then
-            print("Too many amixer failure, stopping listener")
-            vicious.unregister(volumewidget2)
-         end
+--         errcount = errcount + 1
+--         if errcount > 10 then
+--            print("Too many amixer failure, stopping listener")
+--            vicious.unregister(volumewidget2)
+--         end
       else
          toReturn = tonumber(l)
       end
@@ -56,7 +64,7 @@ function soundInfo()
     local aChannal = f:read("*line")
     if aChannal == nil then break end
 
-    local f2= io.popen('amixer sget 2> /dev/null'.. aChannal ..' | tail -n1 |cut -f 6 -d " " | grep -o -e "[0-9]*" 2> /dev/null')
+    local f2= io.popen('amixer sget '.. aChannal ..' 2> /dev/null | tail -n1 |cut -f 7 -d " " | grep -o -e "[0-9]*" 2> /dev/null')
     local aVolume = (tonumber(f2:read("*line")) or 0) / 100
     f2:close()
 
@@ -94,27 +102,72 @@ local function new(mywibox3,left_margin)
   volumewidget2 = allinone()
   volumewidget2:set_icon(config.iconPath .. "vol.png")
 
-  local btn = util.table.join(
-     button({ }, 1, function(geo)
-        if not mainMenu then
-            mainMenu = radical.context({width=200,arrow_type=radical.base.arrow_type.CENTERED})
-            soundInfo()
-        end
-        mainMenu.visible = not mainMenu.visible
-        mainMenu.parent_geometry = geo
+  --Check if pulseaudio is running
+    local f = io.popen('ps aux | grep -c pulse')
+    --print("f:",f:read("*line"))
+    soundService = (tonumber(f:read("*line")) or 0)
+    print("Ss:",soundService)
+    f:close()
+    
+    local btn
+    if (soundService <= 1) then
+        --If it's not running use alsa
+        soundService=1
+        print("Pulseaudio not found")
 
-        if mywibox3 and type(mywibox3) == "wibox" then
-            mywibox3.visible = not mywibox3.visible
-        end
-        musicBarVisibility = true
-      end),
-      button({ }, 4, function()
-          util.spawn("amixer -c0 sset Master 2dB+ >/dev/null")
-      end),
-      button({ }, 5, function()
-          util.spawn("amixer -c0 sset Master 2dB- >/dev/null")
-      end)
-  )
+        btn = util.table.join(
+            button({ }, 1, function(geo)
+                    if not mainMenu then
+                        mainMenu = radical.context({width=200,arrow_type=radical.base.arrow_type.CENTERED})
+                        soundInfo()
+                    end
+                    mainMenu.visible = not mainMenu.visible
+                    mainMenu.parent_geometry = geo
+
+                    if mywibox3 and type(mywibox3) == "wibox" then
+                        mywibox3.visible = not mywibox3.visible
+                    end
+                    musicBarVisibility = true
+                end),
+            button({ }, 3, function()
+                    util.spawn_with_shell("amixer set Master 1+ toggle")
+                end),
+            button({ }, 4, function()
+                    util.spawn_with_shell("amixer sset Master 2%+ >/dev/null")
+                end),
+            button({ }, 5, function()
+                    util.spawn_with_shell("amixer sset Master 2%- >/dev/null")
+                end)
+        )
+    else
+        --If pulseaudio is running
+        soundService=0
+        btn = util.table.join(
+            button({ }, 1, function(geo)
+                    --Check if pavucontrol already open
+                    local f2= io.popen('ps -e | grep pavucontrol | cut -d " " -f 1')
+                    local pavuId = (tonumber(f2:read("*line")) or -1)
+                    f2:close()
+                    
+                    if pavuId == -1 then
+                        --Open pavucontrol
+                        util.spawn("pavucontrol")
+                    else
+                        --Close open window
+                        util.spawn_with_shell('kill -3 ' ..pavuId)
+                    end
+                end),
+            button({ }, 3, function()
+                    util.spawn_with_shell("pactl set-sink-mute `pactl list sinks | grep -A 1 'State: RUNNING' | tail -n 1 | cut -d ' ' -f 2` toggle")
+                end),
+            button({ }, 4, function()
+                    util.spawn_with_shell("pactl set-sink-volume `pactl list sinks | grep -A 1 'State: RUNNING' | tail -n 1 | cut -d ' ' -f 2` -- +2%")
+                end),
+            button({ }, 5, function()
+                    util.spawn_with_shell('pactl set-sink-volume `pactl list sinks | grep -A 1 "State: RUNNING" | tail -n 1 | cut -d " " -f 2` -- -2%')
+                end)
+        )
+    end
 
   vicious.register(volumewidget2, amixer_volume_int, '$1')
   volumewidget2:buttons(btn)
