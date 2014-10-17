@@ -143,7 +143,7 @@ local function new(mywibox3,left_margin)
         )
     else
         --If pulseaudio is running
-        soundService=0
+        soundService=2
         btn = util.table.join(
             button({ }, 1, function(geo)
                     --Check if pavucontrol already open
