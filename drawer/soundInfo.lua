@@ -22,6 +22,9 @@ local errcount = 0
 
 local volumewidget2 = nil
 
+--Pulseaudio pid
+local pavuId = -1
+
 -- 0:undefined 1:alsa 2:pulseaudio
 local soundService = 0
 
@@ -146,14 +149,9 @@ local function new(mywibox3,left_margin)
         soundService=2
         btn = util.table.join(
             button({ }, 1, function(geo)
-                    --Check if pavucontrol already open
-                    local f2= io.popen('ps -e | grep pavucontrol | cut -d " " -f 1')
-                    local pavuId = (tonumber(f2:read("*line")) or -1)
-                    f2:close()
-
                     if pavuId == -1 then
                         --Open pavucontrol
-                        util.spawn("pavucontrol")
+                        pavuId=(util.spawn("pavucontrol") or -1)
                     else
                         --Close open window
                         util.spawn_with_shell('kill -3 ' ..pavuId)
