@@ -155,6 +155,7 @@ local function new(mywibox3,left_margin)
                     else
                         --Close open window
                         util.spawn_with_shell('kill -3 ' ..pavuId)
+                        pavuId=-1
                     end
                 end),
             button({ }, 3, function()
