@@ -23,7 +23,7 @@ local function drill(content)
 end
 
 wibox.set_widgets,base.__make_widget,tb.____call = function(self,widgets)
-    local f = self.set_widget or self.add or self.set_right
+    local f = self.set_widget or self.add or self.set_first
     f(self,drill(widgets))
 end,base.make_widget,getmetatable(tb).__call
 

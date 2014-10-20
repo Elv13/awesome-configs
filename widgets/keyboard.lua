@@ -198,7 +198,7 @@ local function new()
           if checked then
             add_layout(checked.text,sub_item.text)
             -- Add to the cache
-            fd_async.file.append(cache_path,checked.text.." "..sub_item.text)
+            fd_async.file.append(cache_path,checked.text.." "..sub_item.text.."\n")
 
             -- Unckeck
             check()

@@ -31,10 +31,11 @@ local drawer       = require( "drawer"                     )
 local widgets      = require( "widgets"                    )
 local radical      = require( "radical"                    )
 local rad_task     = require( "radical.impl.tasklist"      )
-local rad_tag      = require( "radical.impl.taglist"       )
+local rad_taglist  = require( "radical.impl.taglist"       )
 local collision    = require( "collision"                  )
 local alttab       = require( "radical.impl.alttab"        )
 local rad_client   = require( "radical.impl.common.client" )
+local rad_tag      = require( "radical.impl.common.tag"    )
 
 
 -- Data sources
@@ -250,7 +251,7 @@ endArrowR:set_image(endArrowR2i)
 local endArrowR2 = wibox.widget.imagebox()
 endArrowR2:set_image(blind.common.drawing.get_beg_arrow2({bg_color=beautiful.bg_alternate ,direction="left"}),2,0)
 
-rad_tag.taglist_watch_name_changes = true
+rad_taglist.taglist_watch_name_changes = true
 
 -- Create the addTag icon (depend on shifty rule)
 local addTag                 = customButton.addTag                      ( nil )
@@ -334,7 +335,7 @@ for s = 1, screen.count() do
     -- Top Wibox
     wibox_top[s]:set_widgets {
         { --Left
-            rad_tag(s)._internal.margin, --Taglist
+            rad_taglist(s)._internal.margin, --Taglist
             { -- Tag control buttons
                 {
                     {
@@ -381,6 +382,7 @@ for s = 1, screen.count() do
     wibox_bot[s]:set_widgets {
         { --Left
             bar_menu_w     ,
+            mypromptbox[s] ,
             desktopPix     ,
             runbg          ,
             endArrow       ,
@@ -644,6 +646,24 @@ client.connect_signal("manage", function (c, startup)
 
         local tag_selector = wibox.widget.imagebox()
         tag_selector:set_image(beautiful.titlebar_tag)
+        tag_selector:buttons( awful.util.table.join(
+
+            awful.button({ }, 1, function(geometry)
+
+                local m,tag_item = rad_tag({checkable=true,
+                button1 = function(i,m)
+                    awful.client.toggletag(i._tag,c)
+                    i.checked = not i.checked
+                end})
+                for k,t in ipairs(c:tags()) do
+                    if tag_item[t] then
+                        tag_item[t].checked = true
+                    end
+                end
+                m.parent_geometry = geometry
+                m.visible = true
+            end))
+        )
 
         -- Widgets that are aligned to the right
         local right_layout = wibox.layout.fixed.horizontal()
@@ -734,7 +754,7 @@ client.connect_signal("tagged",function(c)
         local tb = awful.titlebar(c,{size=beautiful.titlebar_height or 16})
         if tb and tb.title_wdg then
             local underlays = {}
-            for k,v in ipairs(v:tags()) do
+            for k,v in ipairs(c:tags()) do
                 underlays[#underlays+1] = v.name
             end
             tb.title_wdg:set_underlay(underlays,{style=radical.widgets.underlay.draw_arrow,alpha=1,color="#0C2853"})
@@ -939,6 +959,7 @@ naughty._notify = naughty.notify
 naughty.notify = function(...)
     setmetatable(wibox,fake_naughty_box)
     local ret = naughty._notify(...)
+    print("LA",ret.box)
     setmetatable(wibox,wmt)
     return ret
 end
