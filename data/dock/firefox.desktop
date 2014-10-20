@@ -1,9 +1,9 @@
-[Desktop Entry]
-Name=Mozilla Firefox
-Comment=Web Borwser
-Exec=/usr/bin/firefox %U
-Icon=AWECFG/firefox.png
-Terminal=false
 Type=Application
-Categories=Network
+Terminal=false
+Name=Mozilla Firefox
+Icon=/home/lepagee/.config/awesome/blind/arrow/Icon//firefox.png
+Categories=Network;
+Class=dolphin
+Comment=Web Borwser
 MimeType=x-scheme-handler/http;x-scheme-handler/https;
+Exec=/usr/bin/firefox %U

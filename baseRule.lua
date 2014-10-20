@@ -85,7 +85,7 @@ tyrannical.tags = {
         icon        = utils.tools.invertedIconPath("net.png")        ,
         screen      = config.scr.pri                          ,
         layout      = awful.layout.suit.max                          ,
-        clone_on    = 2,
+--         clone_on    = 2,
         class = {
             "Opera"         , "Firefox"        , "Rekonq"    , "Dillo"        , "Arora",
             "Chromium"      , "nightly"        , "Nightly"   , "minefield"    , "Minefield",
@@ -102,6 +102,8 @@ tyrannical.tags = {
         exec_once   = {"dolphin"},
         no_focus_stealing_in = true,
         max_clients = fair_split_or_tile,
+        rotate_shortcut = true,
+        shortcut    = { {modkey} , "e" },
         class  = { 
             "Thunar"        , "Konqueror"      , "Dolphin"   , "ark"          , "Nautilus",         }
     } ,

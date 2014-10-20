@@ -12,10 +12,10 @@ require("tyrannical.extra.legacy")
 -------------------------------INIT------------------------------
 
 local signals,module,c_rules,tags_hash,settings,sn_callback,fallbacks,prop = {
-  "exclusive"   , "init"      , "volatile"  , "focus_new" , "instances"        ,
-  "locked"      , "class"     , "instance"  , "spawn"     , "position"         , "force_screen"     ,
-  "max_clients" , "exec_once" , "clone_on"  , "clone_of"  , "no_focus_stealing",
-  "fallback"    , "no_focus_stealing_out"   ,"no_focus_stealing_in"
+  "exclusive"   , "init"      , "volatile"  , "focus_new" , "instances"          ,
+  "locked"      , "class"     , "instance"  , "spawn"     , "position"           ,
+  "max_clients" , "exec_once" , "clone_on"  , "onetimer"  , "no_focus_stealing"  ,
+  "force_screen", "fallback"  , "no_focus_stealing_out"   ,"no_focus_stealing_in",
 },{},{class={},instance={}},{},{},awful.spawn and awful.spawn.snid_buffer or {},{},awful.tag.getproperty
 
 for _,sig in ipairs(signals) do
@@ -202,7 +202,6 @@ capi.client.connect_signal("untagged", function (c, t)
         for j=1,#(rules and rules.tags or {}) do
             rules.tags[j].instances[c.screen] = rules.tags[j].instances[c.screen] ~= t and rules.tags[j].instances[c.screen] or nil
         end
-        awful.tag.history.restore(awful.tag.getscreen(t) or 1) --Explicitly return to the last tag
         awful.tag.delete(t)
     end
 end)

@@ -22,7 +22,7 @@ First, clone the repository
 
 Now, open ~/.config/awesome/rc.lua (or copy /etc/xdg/awesome/rc.lua to 
 ~/.config/awesome/rc.lua fist if you never modified your Awesome config before)
- and add this line at the **end** of rc.lua:
+ and add this line somewhere in your `rc.lua`:
 
 ```lua
     require("collision")()
@@ -49,15 +49,16 @@ Using Collision is easy. You just have to hit the arrow keys (`➡` `⬆` `⬇` 
 with some modifiers keys. The `Shift` key is usually used for grabbing something
 while the `Control` key is used to max out the effect.
 
-| Modifier 1 | Modifier 2   | Modifier 3 | Effect                                                |
-| :--------: | :----------: | :--------: | ----------------------------------------------------- |
-| `Mod4`     |              |            | Move the focus om the tiled layer                     |
-| `Mod4`     |              | `Control`  | Move the focus on the floating layer                  |
-| `Mod4`     | `Shift`      |            | Move a client in the tiled or floating layer          |
-| `Mod4`     | `Shift`      | `Control`  | Move a floating client to the far side of that screen |
-| `Mod4`     | `Mod1 (Alt)` |            | Resize a client relative to the bottom right corner   |
-| `Mod4`     | `Mod1 (Alt)` | `Shift`    | Resize a client relative to the top left corner       |
-| `Control`  | `Mod1 (Alt)` |            | Move to the next/previous tag                         |
+| Modifier 1 | Modifier 2   |  Modifier 3  | Effect                                                |
+| :--------: | :----------: | :----------: | ----------------------------------------------------- |
+| `Mod4`     |              |              | Move the focus om the tiled layer                     |
+| `Mod4`     |              | `Control`    | Move the focus on the floating layer                  |
+| `Mod4`     | `Shift`      |              | Move a client in the tiled or floating layer          |
+| `Mod4`     | `Shift`      | `Control`    | Move a floating client to the far side of that screen |
+| `Mod4`     | `Mod1 (Alt)` |              | Resize a client relative to the bottom right corner   |
+| `Mod4`     | `Mod1 (Alt)` | `Shift`      | Resize a client relative to the top left corner       |
+| `Control`  | `Mod1 (Alt)` |              | Move to the next/previous tag                         |
+| `Control`  | `Mod4`       | `Mod1 (Alt)` | Move to the next/previous screen                      |
 
 # Using different keys
 
@@ -86,3 +87,10 @@ This can be used:
 
 Of course, if the `Vim` keys are used, any other shortcut binded to them have to
 be removed from rc.lua.
+
+# Settings
+
+```lua
+-- Swap clients across screen instead of adding them to the other tag
+collision.settings.swap_across_screen = true
+```

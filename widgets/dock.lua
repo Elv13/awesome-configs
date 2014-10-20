@@ -156,8 +156,8 @@ local function load_item(menu,content,path)
         end})
         menu.visible = false
     end}
-    item.margins.left  = 2
-    item.margins.right = 2
+    item.margins.left  = 1
+    item.margins.right = 1
     content.Class = content.Class or content.Name:lower()
     item._internal.ini = content
     item._internal.path = path
@@ -242,7 +242,7 @@ local function create(screen, args)
 
     dockW.margins.top  = 4
     dockW.margins.left = 2
-    dockW.margins.right= 4 --border + 2
+    dockW.margins.right= 3 --border + 2
 
     for k,v in ipairs(default_cats)do
         add_category(dockW,v)

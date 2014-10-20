@@ -18,11 +18,13 @@ local theme     = require( "radical.theme")
 local tracker   = require( "radical.impl.taglist.tracker" )
 local tag_menu  = require( "radical.impl.taglist.tag_menu" )
 
-local CLONED = 100
+local CLONED      = 100
 local HIGHLIGHTED = -2
+local EMPTY       = 101
 
 theme.register_color(CLONED , "cloned" , "cloned" , true )
 theme.register_color(HIGHLIGHTED , "highlight" , "highlight" , true )
+theme.register_color(EMPTY , "empty" , "empty" , true )
 
 local module,instances = {},{}
 
@@ -58,6 +60,9 @@ local function create_item(t,s)
   if not menu or not t then return end
   local w = wibox.layout.fixed.horizontal()
   local icon =  tag.geticon(t)
+  if icon and beautiful.taglist_icon_transformation then
+    icon = beautiful.taglist_icon_transformation(icon,menu,nil)
+  end
   local ib = wibox.widget.imagebox()
   ib:set_image(icon)
   w:add(ib)
@@ -67,7 +72,8 @@ local function create_item(t,s)
   tw:set_markup(" <b>"..(index).."</b> ")
   w:add(tw)
   local suf_w = wibox.layout.fixed.horizontal()
-  local item = menu:add_item { text = t.name, prefix_widget = w,suffix_widget=suf_w}
+  local item = menu:add_item { text = t.name, prefix_widget = w,suffix_widget=suf_w,bg_normal="#ff0000"--[[beautiful.taglist_bg_unused]]}
+  item.state[EMPTY] = true
   item._internal.icon_w = ib
 --   item:connect_signal("index::changed",function(_,value)
 --     tw:set_markup(" <b>"..(index).."</b> ")
@@ -228,12 +234,16 @@ local function new(s)
   local track = tracker(s)
 
   local args = {
-    item_style = beautiful.taglist_theme or radical.item.style.arrow_prefix,
+    item_style = beautiful.taglist_item_style or radical.item.style.arrow_prefix,
+    style      = beautiful.taglist_style,
     select_on  = radical.base.event.NEVER,
     fg         = beautiful.taglist_fg or beautiful.fg_normal,
     bg         = beautiful.taglist_bg or beautiful.bg_normal,
     bg_focus   = beautiful.taglist_bg_selected,
     fg_focus   = beautiful.taglist_fg_selected,
+    spacing    = beautiful.taglist_spacing,
+    default_item_margins = beautiful.taglist_default_item_margins,
+    default_margins      = beautiful.taglist_default_margins     ,
 --     fkeys_prefix = true,
   }
   for k,v in ipairs {"hover","used","urgent","cloned","changed","highlight"} do
