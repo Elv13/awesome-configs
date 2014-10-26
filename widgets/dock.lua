@@ -71,7 +71,7 @@ local function gen_menu(dock,name,command,item)
         if not item then return end
         local exec = item._internal.ini.Exec
         if not exec then return end
-        util.spawn(exec,{new_tag=true})
+        util.spawn(exec,{new_tag=true,volatile=true})
         menu.visible = false
     end})
     menu:add_item({text="Launch in current tag",button1=function()

@@ -36,7 +36,8 @@ local collision    = require( "collision"                  )
 local alttab       = require( "radical.impl.alttab"        )
 local rad_client   = require( "radical.impl.common.client" )
 local rad_tag      = require( "radical.impl.common.tag"    )
-
+local chopped      = require( "chopped"                    )
+require( "chopped.arrow" )
 
 -- Data sources
 local naughty       = require( "naughty"                  )
@@ -179,22 +180,73 @@ local cpuinfo                = drawer.cpuInfo           ( 300                   
 -- Create the laucher dock
 local lauchDock              = widgets.dock             ( nil , {position="left",default_cats={"Tools","Development","Network","Player"}})
 
--- Create the laucher dock
-local endArrow               = blind.common.drawing.get_beg_arrow_wdg2({bg_color=beautiful.icon_grad })
--- Create the laucher dock
-local endArrow_alt           = blind.common.drawing.get_beg_arrow_wdg2({bg_color=beautiful.bg_alternate})
-local endArrow_alt2i         = cairo.ImageSurface(cairo.Format.ARGB32, beautiful.default_height/2+2, beautiful.default_height)
-local cr = cairo.Context(endArrow_alt2i)
-cr:set_source_surface(blind.common.drawing.get_beg_arrow2({bg_color=beautiful.bg_alternate}))
-cr:paint()
-cr:set_source(color(beautiful.icon_grad or beautiful.fg_normal))
-cr:set_line_width(1.5)
-cr:move_to(0,-2)
-cr:line_to(beautiful.default_height/2,beautiful.default_height/2)
-cr:line_to(0,beautiful.default_height+2)
-cr:stroke()
-local endArrow_alt2 = wibox.widget.imagebox()
-endArrow_alt2:set_image(endArrow_alt2i)
+-- Create some separators
+local endArrow               = chopped.get_separator {
+    weight      = chopped.weight.FULL                       ,
+    direction   = chopped.direction.RIGHT                   ,
+    sep_color   = nil                                       ,
+    left_color  = beautiful.icon_grad                       ,
+    right_color = nil                                       ,
+}
+
+local endArrow_alt           = chopped.get_separator {
+    weight      = chopped.weight.FULL                       ,
+    direction   = chopped.direction.RIGHT                   ,
+    sep_color   = nil                                       ,
+    left_color  = beautiful.bg_alternate                    ,
+    right_color = nil                                       ,
+}
+
+local endArrow_alt2          = chopped.get_separator {
+    weight      = chopped.weight.THIN                       ,
+    direction   = chopped.direction.RIGHT                   ,
+    sep_color   = beautiful.icon_grad or beautiful.fg_normal,
+    left_color  = beautiful.bg_alternate                    ,
+    right_color = nil                                       ,
+}
+
+local endArrowR             = chopped.get_separator {
+    weight      = chopped.weight.THIN                       ,
+    direction   = chopped.direction.LEFT                    ,
+    sep_color   = beautiful.icon_grad or beautiful.fg_normal,
+    left_color  = nil                                       ,
+    right_color = beautiful.bg_alternate                    ,
+}
+
+local endArrowR2           = chopped.get_separator {
+    weight      = chopped.weight.FULL                       ,
+    direction   = chopped.direction.LEFT                    ,
+    sep_color   = nil                                       ,
+    left_color  = nil                                       ,
+    right_color = beautiful.bg_alternate                    ,
+}
+
+local arr_last_tag_w       = chopped.get_separator {
+    weight      = chopped.weight.THIN                       ,
+    direction   = chopped.direction.RIGHT                   ,
+    sep_color   = beautiful.icon_grad or beautiful.fg_normal,
+    left_color  = nil                                       ,
+    right_color = beautiful.bg_alternate                    ,
+    margin      = -beautiful.default_height/2
+}
+
+local endArrow2           = chopped.get_separator {
+    weight      = chopped.weight.FULL                       ,
+    direction   = chopped.direction.LEFT                    ,
+    sep_color   = nil                                       ,
+    left_color  = nil                                       ,
+    right_color = beautiful.icon_grad or beautiful.fg_normal,
+}
+
+local spacer_img          = chopped.get_separator {
+    weight      = chopped.weight.THIN                       ,
+    direction   = chopped.direction.LEFT                    ,
+    sep_color   = beautiful.icon_grad or beautiful.fg_normal,
+    left_color  = nil                                       ,
+    right_color = nil                                       ,
+}
+
+local spacer5 = widgets.spacer({text = " ",width=5})
 
 -- Create battery
 local bat = widgets.battery()
@@ -211,9 +263,8 @@ local bar_menu,bar_menu_w = radical.bar{item_style=radical.item.style.arrow_pref
 local app_menu = nil
 bar_menu:add_item {text="Apps",icon=gears.color.apply_mask(beautiful.awesome_icon,beautiful.button_bg_normal or beautiful.bg_normal),tooltip="Application menu",sub_menu = function()
     if not app_menu then
-        app_menu = customMenu.appmenu({filter = true, showfilter = true, y = screen[1].geometry.height - 18, x = offset, 
-            autodiscard = true,has_decoration=false,x=0,filtersubmenu=true,maxvisible=20,style=radical.style.classic,item_style=radical.item.style.classic,
-            show_filter=true},{maxvisible=20,style=radical.style.classic,item_style=radical.item.style.classic})
+        app_menu = customMenu.appmenu({filter = true, show_filter = true, max_items=20,style=radical.style.classic,item_style=radical.item.style.classic}
+            ,{max_items=20,style=radical.style.classic,item_style=radical.item.style.classic})
         end
     return app_menu
 end}
@@ -233,23 +284,6 @@ bar_menu_w.draw = function(self,w, cr, w2, height)
     cr:paint()
 end
 
--- End arrow
-local endArrowR = wibox.widget.imagebox()
-
-local endArrowR2i         = cairo.ImageSurface(cairo.Format.ARGB32, beautiful.default_height/2+2, beautiful.default_height)
-local cr = cairo.Context(endArrowR2i)
-cr:set_source_surface(blind.common.drawing.get_beg_arrow2({bg_color=beautiful.bg_alternate ,direction="left"}),2,0)
-cr:paint()
-cr:set_source(color(beautiful.icon_grad or beautiful.fg_normal))
-cr:set_line_width(1.5)
-cr:move_to(beautiful.default_height/2+2,-2)
-cr:line_to(2,beautiful.default_height/2)
-cr:line_to(beautiful.default_height/2+2,beautiful.default_height+2)
-cr:stroke()
-
-endArrowR:set_image(endArrowR2i)
-local endArrowR2 = wibox.widget.imagebox()
-endArrowR2:set_image(blind.common.drawing.get_beg_arrow2({bg_color=beautiful.bg_alternate ,direction="left"}),2,0)
 
 rad_taglist.taglist_watch_name_changes = true
 
@@ -259,44 +293,14 @@ local addTag                 = customButton.addTag                      ( nil )
 -- Create the addTag icon (depend on shifty rule)
 local lockTag                 = {}
 
--- Create the keyboard layout switcher, feel free to add your contry and push it to master
--- local keyboardSwitcherWidget = widgets.keyboardSwitcher ( nil                                )
-
 -- Load the desktop "conky" widget
 -- widgets.desktopMonitor(screen.count() == 1 and 1 or 2)
 
---Some spacers with dirrent text
-spacer5 = widgets.spacer({text = " ",width=5})
-local spacer_img = blind.common.drawing.separator_widget()
-
-local arr_last_tag = blind.common.drawing.get_end_arrow2({ bg_color=beautiful.bg_alternate })
-local cr = cairo.Context(arr_last_tag)
-cr:set_source(color(beautiful.icon_grad or beautiful.fg_normal))
-cr:set_line_width(1.5)
-cr:move_to(0,-2)
-cr:line_to(beautiful.default_height/2,beautiful.default_height/2)
-cr:line_to(0,beautiful.default_height+2)
-cr:stroke()
-local arr_last_tag_w = wibox.widget.base.make_widget()
-arr_last_tag_w.fit=function(s,w,h)
-    return 0,h
-end
--- Use negative offset
-arr_last_tag_w.draw = function(self, w, cr, width, height)
-    cr:save()
-    cr:reset_clip()
-    cr:set_source_surface(arr_last_tag,-beautiful.default_height/2-1,0)
-    cr:paint()
-    cr:restore()
-end
 
 -- Menubar configuration
 menubar.utils.terminal = terminal -- Set the terminal for applications that require it
 -- }}}
 
-local prev_menu,prev_item = nil
-
-beautiful.on_tag_hover = customMenu.taghover
 
 alttab.default_icon   = config.iconPath .. "tags/other.png"
 alttab.titlebar_path  = config.themePath.. "Icon/titlebar/"
@@ -328,9 +332,6 @@ for s = 1, screen.count() do
     -- Create the wibox
     wibox_top[s] = awful.wibox({ position = "top"   , ontop=false,screen = s,height=beautiful.default_height , bg = beautiful.bg_wibar or beautiful.bg_normal })
     wibox_bot[s] = awful.wibox({ position = "bottom", ontop=false,screen = s,height=beautiful.default_height , bg = beautiful.bg_wibar or beautiful.bg_normal })
-
-    local endArrow2 = wibox.widget.imagebox()
-    endArrow2:set_image(blind.common.drawing.get_beg_arrow2({bg_color=beautiful.icon_grad,direction="left"}))
 
     -- Top Wibox
     wibox_top[s]:set_widgets {
@@ -934,15 +935,15 @@ local function resize_naughty(w)
     local height,width = w.height,w.width
     local shape = cairo.ImageSurface(cairo.Format.ARGB32, width, height)
     local cr = cairo.Context(shape)
-    cr:set_source_rgba(1,1,1,1)
+    w.x = screen[1].geometry.width/2-width/2
+    cr:set_source_rgb(1,1,1)
     cr:paint()
     cr:move_to(height/2,height)
     cr:arc(height/2,height/2,height/2,math.pi/2,3*(math.pi/2))
     cr:arc(width-height/2,height/2,height/2,3*(math.pi/2),math.pi/2)
     cr:close_path()
-    cr:set_source_rgba(0,0,0,1)
+    cr:set_source_rgb(0,0,0)
     cr:fill()
-    w.x = screen[1].geometry.width/2-width/2
     w.shape_bounding = shape._native
     w:set_bg(cairo.Pattern.create_for_surface(shape))
 end
@@ -963,3 +964,5 @@ naughty.notify = function(...)
     setmetatable(wibox,wmt)
     return ret
 end
+
+-- require("wirefu.demo.notification")
