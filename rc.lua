@@ -24,6 +24,8 @@ local beautiful = require( "beautiful" )
 local blind     = require( "blind"     )
 
 -- Widgets
+local chopped      = require( "chopped"                    )
+require( "chopped.arrow" )
 local menubar      = require( "menubar"                    )
 local customButton = require( "customButton"               )
 local customMenu   = require( "customMenu"                 )
@@ -36,8 +38,6 @@ local collision    = require( "collision"                  )
 local alttab       = require( "radical.impl.alttab"        )
 local rad_client   = require( "radical.impl.common.client" )
 local rad_tag      = require( "radical.impl.common.tag"    )
-local chopped      = require( "chopped"                    )
-require( "chopped.arrow" )
 
 -- Data sources
 local naughty       = require( "naughty"                  )
@@ -101,54 +101,45 @@ config.themePath = awful.util.getdir("config") .. "/blind/" .. config.themeName 
 config.iconPath  = config.themePath       .. "Icon/"
 beautiful.init(config.themePath                .. "/themeSciFi.lua")
 
-local titlebars_enabled = beautiful.titlebar_enabled == nil and true or beautiful.titlebar_enabled
-
--- {{{ Variable definitions
--- Themes define colours, icons, and wallpapers
--- beautiful.init(awful.util.getdir("config").."/blind/arrow/themeSciFi.lua")
 
 -- This is used later as the default terminal and editor to run.
-terminal = "urxvtc"
-editor = os.getenv("EDITOR") or "nano"
-editor_cmd = terminal .. " -e " .. editor
+local titlebars_enabled = beautiful.titlebar_enabled == nil and true or beautiful.titlebar_enabled
+terminal                = "urxvtc"
+editor                  = os.getenv("EDITOR") or "nano"
+editor_cmd              = terminal .. " -e " .. editor
 
 -- Default modkey.
--- Usually, Mod4 is the key with a logo between Control and Alt.
--- If you do not like this or do not have such a key,
--- I suggest you to remap Mod4 to another key using xmodmap or other tools.
--- However, you can use another modifier like Mod1, but it may interact with others.
 modkey = "Mod4"
--- Table of layouts to cover with awful.layout.inc, order matters.
 
 local layouts =
 {
-    awful.layout.suit.floating,
-    awful.layout.suit.tile,
-    awful.layout.suit.tile.left,
-    awful.layout.suit.tile.bottom,
-    awful.layout.suit.tile.top,
-    awful.layout.suit.fair,
-    awful.layout.suit.fair.horizontal,
-    awful.layout.suit.spiral,
+    awful.layout.suit.floating        ,
+    awful.layout.suit.tile            ,
+    awful.layout.suit.tile.left       ,
+    awful.layout.suit.tile.bottom     ,
+    awful.layout.suit.tile.top        ,
+    awful.layout.suit.fair            ,
+    awful.layout.suit.fair.horizontal ,
+    awful.layout.suit.spiral          ,
 --     awful.layout.suit.spiral.dwindle,
-    awful.layout.suit.max,
-    awful.layout.suit.max.fullscreen,
-    awful.layout.suit.magnifier
+    awful.layout.suit.max             ,
+    awful.layout.suit.max.fullscreen  ,
+    awful.layout.suit.magnifier       ,
 }
 local layouts_all =
 {
-    awful.layout.suit.floating,
-    awful.layout.suit.tile,
-    awful.layout.suit.tile.left,
-    awful.layout.suit.tile.bottom,
-    awful.layout.suit.tile.top,
-    awful.layout.suit.fair,
-    awful.layout.suit.fair.horizontal,
-    awful.layout.suit.spiral,
+    awful.layout.suit.floating        ,
+    awful.layout.suit.tile            ,
+    awful.layout.suit.tile.left       ,
+    awful.layout.suit.tile.bottom     ,
+    awful.layout.suit.tile.top        ,
+    awful.layout.suit.fair            ,
+    awful.layout.suit.fair.horizontal ,
+    awful.layout.suit.spiral          ,
 --     awful.layout.suit.spiral.dwindle,
-    awful.layout.suit.max,
-    awful.layout.suit.max.fullscreen,
-    awful.layout.suit.magnifier
+    awful.layout.suit.max             ,
+    awful.layout.suit.max.fullscreen  ,
+    awful.layout.suit.magnifier       ,
 }
 
 -- Add Collision shortcuts
@@ -180,20 +171,25 @@ local cpuinfo                = drawer.cpuInfo           ( 300                   
 -- Create the laucher dock
 local lauchDock              = widgets.dock             ( nil , {position="left",default_cats={"Tools","Development","Network","Player"}})
 
+-- Create battery
+local bat                    = widgets.battery()
+
+-- Create notifications history
+local notif                  = notifications()
+
+-- Create keyboard layout manager
+local keyboard               = widgets.keyboard()
+
+-- Create the addTag icon (depend on shifty rule)
+local addTag                 = customButton.addTag                      ( nil )
+
+
 -- Create some separators
 local endArrow               = chopped.get_separator {
     weight      = chopped.weight.FULL                       ,
     direction   = chopped.direction.RIGHT                   ,
     sep_color   = nil                                       ,
     left_color  = beautiful.icon_grad                       ,
-    right_color = nil                                       ,
-}
-
-local endArrow_alt           = chopped.get_separator {
-    weight      = chopped.weight.FULL                       ,
-    direction   = chopped.direction.RIGHT                   ,
-    sep_color   = nil                                       ,
-    left_color  = beautiful.bg_alternate                    ,
     right_color = nil                                       ,
 }
 
@@ -209,14 +205,6 @@ local endArrowR             = chopped.get_separator {
     weight      = chopped.weight.THIN                       ,
     direction   = chopped.direction.LEFT                    ,
     sep_color   = beautiful.icon_grad or beautiful.fg_normal,
-    left_color  = nil                                       ,
-    right_color = beautiful.bg_alternate                    ,
-}
-
-local endArrowR2           = chopped.get_separator {
-    weight      = chopped.weight.FULL                       ,
-    direction   = chopped.direction.LEFT                    ,
-    sep_color   = nil                                       ,
     left_color  = nil                                       ,
     right_color = beautiful.bg_alternate                    ,
 }
@@ -248,32 +236,43 @@ local spacer_img          = chopped.get_separator {
 
 local spacer5 = widgets.spacer({text = " ",width=5})
 
--- Create battery
-local bat = widgets.battery()
-
--- Create notifications history
-local notif = notifications()
-
--- Create keyboard layout manager
-local keyboard = widgets.keyboard()
-
 -- Imitate the Gnome 2 menubar
 local bar_menu,bar_menu_w = radical.bar{item_style=radical.item.style.arrow_prefix,fg=beautiful.fg_normal,fg_focus=beautiful.menu_fg_normal,disable_submenu_icon=true}
-
 local app_menu = nil
-bar_menu:add_item {text="Apps",icon=gears.color.apply_mask(beautiful.awesome_icon,beautiful.button_bg_normal or beautiful.bg_normal),tooltip="Application menu",sub_menu = function()
-    if not app_menu then
-        app_menu = customMenu.appmenu({filter = true, show_filter = true, max_items=20,style=radical.style.classic,item_style=radical.item.style.classic}
-            ,{max_items=20,style=radical.style.classic,item_style=radical.item.style.classic})
+bar_menu:add_item {
+    text     = "Apps",
+    icon     = gears.color.apply_mask(beautiful.awesome_icon,beautiful.button_bg_normal or beautiful.bg_normal),
+    tooltip  = "Application menu",
+    sub_menu = function()
+        if not app_menu then
+            app_menu = customMenu.appmenu (
+            { -- Main menu
+                filter      = true,
+                show_filter = true,
+                max_items   = 20,
+                style       = radical.style.classic,
+                item_style  = radical.item.style.classic
+            }
+           ,{ -- Sub menus
+                max_items   = 20,
+                style       = radical.style.classic,
+                item_style  = radical.item.style.classic
+            })
         end
-    return app_menu
-end}
-bar_menu:add_item {text="Places",
-    icon=gears.color.apply_mask(config.iconPath .. "tags/home.png",
-    beautiful.button_bg_normal or beautiful.bg_normal),tooltip="Folder shortcuts",sub_menu = customMenu.places.get_menu}
+        return app_menu
+    end
+}
+bar_menu:add_item {
+    text     = "Places",
+    icon     = gears.color.apply_mask(config.iconPath .. "tags/home.png",beautiful.button_bg_normal or beautiful.bg_normal),
+    tooltip  = "Folder shortcuts",
+    sub_menu = customMenu.places.get_menu
+}
 bar_menu:add_item {text="Launch",
-    icon=gears.color.apply_mask(config.iconPath .. "gearA.png", beautiful.button_bg_normal or beautiful.bg_normal),
-    tooltip="Execute a command", sub_menu = customMenu.launcher.get_menu}
+    icon     = gears.color.apply_mask(config.iconPath .. "gearA.png", beautiful.button_bg_normal or beautiful.bg_normal),
+    tooltip  = "Execute a command",
+    sub_menu = customMenu.launcher.get_menu
+}
 
 bar_menu_w.__draw = bar_menu_w.draw
 
@@ -286,12 +285,6 @@ end
 
 
 rad_taglist.taglist_watch_name_changes = true
-
--- Create the addTag icon (depend on shifty rule)
-local addTag                 = customButton.addTag                      ( nil )
-
--- Create the addTag icon (depend on shifty rule)
-local lockTag                 = {}
 
 -- Load the desktop "conky" widget
 -- widgets.desktopMonitor(screen.count() == 1 and 1 or 2)
@@ -306,17 +299,17 @@ alttab.default_icon   = config.iconPath .. "tags/other.png"
 alttab.titlebar_path  = config.themePath.. "Icon/titlebar/"
 
 -- Create a wibox for each screen and add it
-wibox_top   = {}
-wibox_bot   = {}
-mypromptbox = {}
-mytaglist   = {}
-layoutmenu  = {}
-delTag      = {}
+      mypromptbox = {}
+local wibox_top   = {}
+local wibox_bot   = {}
+local mytaglist   = {}
+local layoutmenu  = {}
+local delTag      = {}
+local lockTag     = {}
 
 for s = 1, screen.count() do
     -- Create a promptbox for each screen
     mypromptbox[s] = awful.widget.prompt()
-    -- Create a taglist widget
 
     -- Create the delTag button
     delTag[s]     = customButton.delTag   ( s                                               )
@@ -383,7 +376,10 @@ for s = 1, screen.count() do
     wibox_bot[s]:set_widgets {
         { --Left
             bar_menu_w     ,
-            mypromptbox[s] ,
+            {
+                mypromptbox[s] ,
+                layout = wibox.widget.background(nil,beautiful.icon_grad)
+            },
             desktopPix     ,
             runbg          ,
             endArrow       ,
@@ -406,17 +402,16 @@ for s = 1, screen.count() do
     }
 
 end
--- }}}
 
 -- Add the drives list on the desktop
-if config.deviceOnDesk == true then
+-- if config.deviceOnDesk == true then
 --   widgets.devices()
-end
-if config.desktopIcon == true then
+-- end
+-- if config.desktopIcon == true then
 --     for i=1,20 do
 --         widgets.desktopIcon()
 --     end
-end
+-- end
 
 -- {{{ Mouse bindings
 root.buttons(awful.util.table.join(
@@ -428,7 +423,6 @@ root.buttons(awful.util.table.join(
 
 -- {{{ Key bindings
 globalkeys = awful.util.table.join(
-    awful.key({ "Mod1"            }, "space",  widgets.keyboard.quickswitchmenu),
 
     awful.key({ modkey,           }, "j",
         function ()
@@ -440,39 +434,52 @@ globalkeys = awful.util.table.join(
             awful.client.focus.byidx(-1)
             if client.focus then client.focus:raise() end
         end),
-    awful.key({ modkey,           }, "w", function() wacky.select_rect(10) end),
-    awful.key({ modkey, "Shift"   }, "w", function() wacky.focussed_client(10) end),
+    awful.key({ "Mod1"            }, "space" , widgets.keyboard.quickswitchmenu                                 ),
+    awful.key({ modkey,           }, "w"     , function() wacky.select_rect(10)                              end),
+    awful.key({ modkey, "Shift"   }, "w"     , function() wacky.focussed_client(10)                          end),
 
     -- Layout manipulation
-    awful.key({ modkey, "Shift"   }, "j", function () awful.client.swap.byidx(  1)    end),
-    awful.key({ modkey, "Shift"   }, "k", function () awful.client.swap.byidx( -1)    end),
-    awful.key({ modkey, "Control" }, "j", function () awful.screen.focus_relative( 1) end),
-    awful.key({ modkey, "Control" }, "k", function () awful.screen.focus_relative(-1) end),
-    awful.key({ modkey,           }, "u", awful.client.urgent.jumpto),
-    awful.key({ modkey,           }, "Tab"   , function () alttab.altTab()          end ),
-    awful.key({ modkey, "Shift"   }, "Tab"   , function () alttab.altTabBack()      end ),
-    awful.key({ "Mod1",           }, "Tab"   , function () alttab.altTab({auto_release=true})          end ),
-    awful.key({ "Mod1", "Shift"   }, "Tab"   , function () alttab.altTabBack({auto_release=true})      end ),
-    awful.key({ modkey, "Control" }, "Tab"   , function () customButton.lockTag.show_menu()      end ),
+    awful.key({ modkey, "Shift"   }, "j"     , function () awful.client.swap.byidx(  1)                      end),
+    awful.key({ modkey, "Shift"   }, "k"     , function () awful.client.swap.byidx( -1)                      end),
+    awful.key({ modkey, "Control" }, "j"     , function () awful.screen.focus_relative( 1)                   end),
+    awful.key({ modkey, "Control" }, "k"     , function () awful.screen.focus_relative(-1)                   end),
+    awful.key({ modkey,           }, "u"     , awful.client.urgent.jumpto                                       ),
+    awful.key({ modkey,           }, "Tab"   , function () alttab.altTab()                                   end),
+    awful.key({ modkey, "Shift"   }, "Tab"   , function () alttab.altTabBack()                               end),
+    awful.key({ "Mod1",           }, "Tab"   , function () alttab.altTab({auto_release=true})                end),
+    awful.key({ "Mod1", "Shift"   }, "Tab"   , function () alttab.altTabBack({auto_release=true})            end),
+    awful.key({ modkey, "Control" }, "Tab"   , function () customButton.lockTag.show_menu()                  end),
 
     -- Standard program
-    awful.key({         "Control" }, "Escape", function () awful.util.spawn("xkill")    end ),
-    awful.key({ modkey,           }, "Return", function () awful.util.spawn(terminal)   end ),
-    awful.key({ modkey, "Control" }, "r", awesome.restart),
-    awful.key({ modkey, "Shift"   }, "q", awesome.quit),
-    awful.key({ modkey,           }, "l",     function () awful.tag.incmwfact( 0.05)    end),
-    awful.key({ modkey,           }, "h",     function () awful.tag.incmwfact(-0.05)    end),
-    awful.key({ modkey, "Shift"   }, "h",     function () awful.tag.incnmaster( 1)      end),
-    awful.key({ modkey, "Shift"   }, "l",     function () awful.tag.incnmaster(-1)      end),
-    awful.key({ modkey, "Control" }, "h",     function () awful.tag.incncol( 1)         end),
-    awful.key({ modkey, "Control" }, "l",     function () awful.tag.incncol(-1)         end),
-    awful.key({ modkey,           }, "space", function () customMenu.layoutmenu.centered_menu(layouts) end),
-    awful.key({ modkey, "Shift"   }, "space", function () customMenu.layoutmenu.centered_menu(layouts,true) end),
+    awful.key({         "Control" }, "Escape", function () awful.util.spawn("xkill")                         end),
+    awful.key({ modkey,           }, "Return", function () awful.util.spawn(terminal)                        end),
+    awful.key({ modkey, "Control" }, "r"     , awesome.restart),
+    awful.key({ modkey, "Shift"   }, "q"     , awesome.quit),
+    awful.key({ modkey,           }, "l"     , function () awful.tag.incmwfact( 0.05)                        end),
+    awful.key({ modkey,           }, "h"     , function () awful.tag.incmwfact(-0.05)                        end),
+    awful.key({ modkey, "Shift"   }, "h"     , function () awful.tag.incnmaster( 1)                          end),
+    awful.key({ modkey, "Shift"   }, "l"     , function () awful.tag.incnmaster(-1)                          end),
+    awful.key({ modkey, "Control" }, "h"     , function () awful.tag.incncol( 1)                             end),
+    awful.key({ modkey, "Control" }, "l"     , function () awful.tag.incncol(-1)                             end),
+    awful.key({ modkey,           }, "space" , function () customMenu.layoutmenu.centered_menu(layouts)      end),
+    awful.key({ modkey, "Shift"   }, "space" , function () customMenu.layoutmenu.centered_menu(layouts,true) end),
 
-    awful.key({ modkey, "Control" }, "n", awful.client.restore),
-    awful.key({ "Control", "Mod1" }, "#143",  awful.tag.viewnext),
-    awful.key({ "Control", "Mod1" }, "#136",  awful.tag.viewprev),
-    --220 143 209
+    awful.key({ modkey, "Control" }, "n"     , awful.client.restore                                             ),
+    awful.key({ "Control", "Mod1" }, "#143"  , awful.tag.viewnext                                               ),
+    awful.key({ "Control", "Mod1" }, "#136"  , awful.tag.viewprev                                               ),
+
+    -- Menubar
+    awful.key({ modkey }, "p", function() menubar.show()                                                     end),
+
+    --Custom
+    awful.key({ modkey,"Control" }, "p", function()
+        utils.profile.start()
+        debug.sethook(utils.profile.trace, "crl", 1)
+    end),
+    awful.key({ modkey,"Control","Shift" }, "p", function()
+        debug.sethook()
+        utils.profile.stop(_G)
+    end),
 
     --Switch screen
     --              MODIFIERS         KEY                        ACTION                               
@@ -513,41 +520,22 @@ globalkeys = awful.util.table.join(
                   awful.util.getdir("cache") .. "/history")
               end),
 
-    awful.key({ modkey }, "x",
-              function ()
-                  awful.prompt.run({ prompt = "Run Lua code: " },
-                  mypromptbox[mouse.screen].widget,
-                  awful.util.eval, nil,
-                  awful.util.getdir("cache") .. "/history_eval")
-              end),
-    -- Menubar
-    awful.key({ modkey }, "p", function() menubar.show() end),
-
-    --Custom
-    awful.key({ modkey,"Control" }, "p", function() 
-        utils.profile.start()
-        debug.sethook(utils.profile.trace, "crl", 1)
-    end),
-    awful.key({ modkey,"Control","Shift" }, "p", function() 
-        debug.sethook()
-        utils.profile.stop(_G)
+    awful.key({ modkey }, "x", function ()
+        awful.prompt.run({ prompt = "Run Lua code: " },
+        mypromptbox[mouse.screen].widget,
+        awful.util.eval, nil,
+        awful.util.getdir("cache") .. "/history_eval")
     end)
 )
 
 clientkeys = awful.util.table.join(
-    awful.key({ modkey,           }, "f",      function (c) c.fullscreen = not c.fullscreen  end),
-    awful.key({ modkey, "Shift"   }, "c",      function (c) c:kill()                         end),
-    awful.key({ modkey, "Control" }, "space",  awful.client.floating.toggle                     ),
---     awful.key({ modkey, "Control" }, "Return", function (c) c:swap(awful.client.getmaster()) end),
-    awful.key({ modkey,           }, "o",      awful.client.movetoscreen                        ),
-    awful.key({ modkey,           }, "t",      function (c) c.ontop = not c.ontop            end),
-    awful.key({ modkey,           }, "y",      function (c) collision.resize.display(c,true) end),
-    awful.key({ modkey,           }, "m",
-        function (c)
-            -- The client currently has the input focus, so it cannot be
-            -- minimized, since minimized clients can't have the focus.
-            c.minimized = true
-        end)
+    awful.key({ modkey,           }, "f"     , function (c) c.fullscreen = not c.fullscreen     end),
+    awful.key({ modkey, "Shift"   }, "c"     , function (c) c:kill()                            end),
+    awful.key({ modkey, "Control" }, "space" , awful.client.floating.toggle                        ),
+    awful.key({ modkey,           }, "o"     , awful.client.movetoscreen                           ),
+    awful.key({ modkey,           }, "t"     , function (c) c.ontop = not c.ontop               end),
+    awful.key({ modkey,           }, "y"     , function (c) collision.resize.display(c,true)    end),
+    awful.key({ modkey,           }, "m"     , function (c) c.minimized = true                  end)
 )
 
 -- Bind all key numbers to tags.
@@ -611,6 +599,7 @@ awful.rules.rules = {
 }
 -- }}}
 
+
 -- {{{ Signals
 -- Signal function to execute when a new client appears.
 client.connect_signal("manage", function (c, startup)
@@ -635,117 +624,7 @@ client.connect_signal("manage", function (c, startup)
     end
 
     if titlebars_enabled and (c.type == "normal" or c.type == "dialog") then
-
-        -- Create a resize handle
-        local resize_handle = wibox.widget.imagebox()
-        resize_handle:set_image(beautiful.titlebar_resize)
-        resize_handle:buttons( awful.util.table.join(
-            awful.button({ }, 1, function(geometry)
-                collision._resize.mouse_resize(c)
-            end))
-        )
-
-        local tag_selector = wibox.widget.imagebox()
-        tag_selector:set_image(beautiful.titlebar_tag)
-        tag_selector:buttons( awful.util.table.join(
-
-            awful.button({ }, 1, function(geometry)
-
-                local m,tag_item = rad_tag({checkable=true,
-                button1 = function(i,m)
-                    awful.client.toggletag(i._tag,c)
-                    i.checked = not i.checked
-                end})
-                for k,t in ipairs(c:tags()) do
-                    if tag_item[t] then
-                        tag_item[t].checked = true
-                    end
-                end
-                m.parent_geometry = geometry
-                m.visible = true
-            end))
-        )
-
-        -- Widgets that are aligned to the right
-        local right_layout = wibox.layout.fixed.horizontal()
-        local labels = {"Floating","Maximize","Sticky","On Top","Close"}
-        for k,v in ipairs({awful.titlebar.widget.floatingbutton(c) , awful.titlebar.widget.maximizedbutton(c), awful.titlebar.widget.stickybutton(c),
-            awful.titlebar.widget.ontopbutton(c), awful.titlebar.widget.closebutton(c)}) do
-            right_layout:add(v)
-            radical.tooltip(v,labels[k],{})
-        end
-
-        -- The title goes in the middle
-        local buttons = awful.util.table.join(
-            awful.button({ }, 1, function()
-                client.focus = c
-                c:raise()
-                awful.mouse.client.move(c)
-            end),
-            awful.button({ }, 3, function()
-                client.focus = c
-                c:raise()
-                awful.mouse.client.resize(c)
-            end)
-        )
-
-        local title = awful.titlebar.widget.titlewidget(c)
-
-        title.draw = function(self,w, cr, width, height)
-            local i = rad_task.item(c)
-            if i and i.widget then
-                local w2,h2 = i.widget:fit(width,height)
-                cr:save()
-                cr:reset_clip()
-                cr:translate((width-w2)/2, 0)
-                i.widget.draw(i.widget,w, cr, w2, height)
-                cr:restore()
-            end
-        end
-
-
-        -- Now bring it all together
-        local layout = wibox.layout.align.horizontal()
-        if layout.set_expand then
-            layout:set_expand("inside")
-        else
-            title.fit = function(self,w,h)
-                return w,h
-            end
-        end
-
-        local tb = awful.titlebar(c,{size=beautiful.titlebar_height or 16})
-
-        -- Setup titlebar widgets
-        tb:set_widgets {
-            { --Left
-                {
-                    {
-                        resize_handle,
-                        tag_selector ,
-                    },
-                    layout = wibox.widget.background(nil,beautiful.bg_alternate)
-                },
-                endArrow_alt,
-            },
-            title, -- Center
-            { --Right
-                endArrowR2,
-                {
-                    right_layout,
-                    layout = wibox.widget.background(nil,beautiful.bg_alternate)
-                }
-            },
-            layout = layout
-        }
-
-        tb.title_wdg = title
-        title:buttons(buttons)
-        local underlays = {}
-        for k,v in ipairs(c:tags()) do
-            underlays[#underlays+1] = v.name
-        end
-        title:set_underlay(underlays,{style=radical.widgets.underlay.draw_arrow,alpha=1,color="#0C2853"})
+        widgets.titlebar(c)
     end
 end)
 
@@ -763,7 +642,7 @@ client.connect_signal("tagged",function(c)
     end
 end)
 
-client.connect_signal("focus", function(c) 
+client.connect_signal("focus", function(c)
     local tb = c:titlebar_top()
     if tb and tb.title_wdg then
         tb.title_wdg.data.image = beautiful.taglist_bg_image_selected
@@ -795,28 +674,6 @@ function awful.client.setslave(c)
         awful.client._setslave(c)
     end
 end
-
--- }}}
--- debug.sethook()
--- utils.profile.stop(_G)
--- widgets.radialSelect.radial_client_select()
---print("start")
---utils.fd_async.exec_command_async("/tmp/test.sh"):connect_signal("request::completed",function(content)
---    print("content",content)
---end)
-
--- utils.fd_async.download_text_async("http://www.google.com"):connect_signal("request::completed",function(content)
---     print("c2",content)
--- end)
--- print("HONORING",awesome.honor_ewmh_desktop,awesome.font_height,awesome.font)
--- awesome.honor_ewmh_desktop = false
--- client.add_signal("property::shape_bounding")
--- drawable.add_signal("property::shape_bounding")
-
-
--- print("test")
--- glib.idle_add(glib.PRIORITY_DEFAULT_IDLE, function() print("foo") end)
--- print("test2")
 
 
 require("radical.impl.tasklist.extensions").add("Running time",function(client)
@@ -854,75 +711,6 @@ require("radical.impl.taglist.extensions").add("Count",function(client)
     return w
 end)
 
-
--- client.connect_signal("request::urgent", function(c,urgent)
---     if c ~= client.focus then
---         c.urgent = urgent
---     end
--- end)
-
-
-print("START",awful.tag.selected(1))
-
--- local function gen_cls(c,results)
---     local ret = setmetatable({},{__index = function(t,i)
--- --         print ("REQ"..i)
---         local ret = c[i]
---         if type(ret) == "function" then
---             if i == "geometry" then
---                 return function(self,...)
---                  if #{...} > 0 then
---                     results[c] = ({...})[1]
---                  end
---                  return c:geometry()
---                 end
---             else
---                 return function(self,...) return ret(c,...) end
---             end
---         end
---         return ret
---     end})
---     
---     return ret
--- end
--- 
--- glib.idle_add(glib.PRIORITY_DEFAULT_IDLE, function()
---     local cls,results = {},setmetatable({},{__mode="k"})
---     for k,v in ipairs (awful.tag.selected(1):clients()) do
---         cls[#cls+1] = gen_cls(v,results)
---     end
--- 
---     local param =  {
---         tag = awful.tag.selected(1),
---         screen = 1,
---         clients = cls,
---         workarea = screen[1].workarea
---     }
---     awful.layout.suit.tile.left.arrange(param)
---     
---     print("DONE")
---     for c,geom in pairs(results) do
---         print(geom.x,geom.y,geom.width,geom.height)
---     end
--- end)
-
--- print("monitor")
--- utils.fd_async.file.watch("/home/lepagee/foobar"):connect_signal("file::changed",function(path1,path2)
---     print("file changed",path1,path2)
--- end):connect_signal("file::created",function(path1,path2)
---     print("file created",path1,path2)
--- end):connect_signal("file::deleted",function(path1,path2)
---     print("file deleted",path1,path2)
--- end)
-
--- utils.fd_async.network.load("http://www.gnu.org/licenses/old-licenses/gpl-2.0.html"):connect_signal("request::completed",function(content)
---     print("ICI",content)
--- end)
-
--- utils.fd_async.file.copy("/tmp/foo","/tmp/bar")
-
--- local m = require("lgi").Gtk.MessageDialog(nil,nil,nil,nil,"foobar")
--- m:run()
 
 -- Hack to have rounded naughty popups
 local wmt = getmetatable(wibox)
