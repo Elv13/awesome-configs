@@ -5,6 +5,7 @@ local beautiful = require( "beautiful"               )
 local radical   = require( "radical"                 )
 local rad_task  = require( "radical.impl.tasklist"   )
 local chopped   = require( "chopped"                 )
+local collision = require( "collision"               )
 
 local endArrowR2,endArrow_alt
 
@@ -15,14 +16,14 @@ local function new(c)
             direction   = chopped.direction.LEFT                    ,
             sep_color   = nil                                       ,
             left_color  = nil                                       ,
-            right_color = beautiful.bg_alternate                    ,
+            right_color = beautiful.bar_bg_alternate or beautiful.bg_alternate                    ,
         }
 
         endArrow_alt    = chopped.get_separator {
             weight      = chopped.weight.FULL                       ,
             direction   = chopped.direction.RIGHT                   ,
             sep_color   = nil                                       ,
-            left_color  = beautiful.bg_alternate                    ,
+            left_color  = beautiful.bar_bg_alternate or beautiful.bg_alternate                    ,
             right_color = nil                                       ,
         }
     end
@@ -115,7 +116,7 @@ local function new(c)
                     resize_handle,
                     tag_selector ,
                 },
-                layout = wibox.widget.background(nil,beautiful.bg_alternate)
+                layout = wibox.widget.background(nil,beautiful.bar_bg_alternate or beautiful.bg_alternate)
             },
             endArrow_alt,
         },
@@ -124,7 +125,7 @@ local function new(c)
             endArrowR2,
             {
                 right_layout,
-                layout = wibox.widget.background(nil,beautiful.bg_alternate)
+                layout = wibox.widget.background(nil,beautiful.bar_bg_alternate or beautiful.bg_alternate)
             }
         },
         layout = layout

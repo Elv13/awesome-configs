@@ -20,7 +20,9 @@ local tag_menu  = require( "radical.impl.taglist.tag_menu" )
 
 local CLONED      = 100
 local HIGHLIGHTED = -2
-local EMPTY       = 101
+local EMPTY       = 412345
+
+local last_idx = EMPTY
 
 theme.register_color(CLONED , "cloned" , "cloned" , true )
 theme.register_color(HIGHLIGHTED , "highlight" , "highlight" , true )
@@ -68,7 +70,7 @@ local function create_item(t,s)
   w:add(ib)
   local tw = wibox.widget.textbox()
   tw.draw = index_draw
-  local index = tag.getidx(t)
+  local index = tag.getproperty(t,"index") or tag.getidx(t)
   tw:set_markup(" <b>"..(index).."</b> ")
   w:add(tw)
   local suf_w = wibox.layout.fixed.horizontal()
@@ -241,6 +243,8 @@ local function new(s)
     bg         = beautiful.taglist_bg or beautiful.bg_normal,
     bg_focus   = beautiful.taglist_bg_selected,
     fg_focus   = beautiful.taglist_fg_selected,
+    bg_empty   = beautiful.taglist_bg_empty,
+    fg_empty   = beautiful.taglist_fg_empty,
     spacing    = beautiful.taglist_spacing,
     default_item_margins = beautiful.taglist_default_item_margins,
     default_margins      = beautiful.taglist_default_margins     ,
@@ -287,6 +291,15 @@ end)
 
 function module.item(t)
   return cache[t]
+end
+
+function module.register_color(col)
+  last_idx = last_idx - 1
+  theme.register_color(last_idx , "color_"..last_idx , "color_"..last_idx , true )
+  for k,v in pairs(instances) do
+    v["bg_color_"..last_idx] = col
+  end
+  return last_idx,"color_"..last_idx
 end
 
 

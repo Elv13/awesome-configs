@@ -9,13 +9,11 @@ local client     = require( "awful.client"   )
 local themeutils = require( "blind.common.drawing"    )
 local wibox_w    = require( "wibox.widget"   )
 local radical    = require( "radical"        )
-local arrow = require("blind.arrow")
 local debug      = debug
 
 local path = debug.getinfo(1,"S").source:gsub("theme.*",""):gsub("@","")
 
 local theme = {}
-arrow.task.theme,arrow.tag.theme = theme,theme
 
 ------------------------------------------------------------------------------------------------------
 --                                                                                                  --

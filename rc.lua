@@ -99,7 +99,7 @@ config.scr           = {
 config.load()
 config.themePath = awful.util.getdir("config") .. "/blind/" .. config.themeName .. "/"
 config.iconPath  = config.themePath       .. "Icon/"
-beautiful.init(config.themePath                .. "/themeSciFi.lua")
+beautiful.init(config.themePath                .. "/themeSciFiGrad.lua")
 
 
 -- This is used later as the default terminal and editor to run.
@@ -154,7 +154,7 @@ local desktopPix             = customButton.showDesktop ( nil                   
 
 -- Create the clock
 local clock                  = drawer.dateInfo          ( nil                                )
-clock.bg                     = beautiful.bg_alternate
+-- clock.bg                     = beautiful.bar_bg_alternate or beautiful.bg_alternate
 
 -- Create the volume box
 local soundWidget            = drawer.soundInfo         ( 300                                )
@@ -197,7 +197,7 @@ local endArrow_alt2          = chopped.get_separator {
     weight      = chopped.weight.THIN                       ,
     direction   = chopped.direction.RIGHT                   ,
     sep_color   = beautiful.icon_grad or beautiful.fg_normal,
-    left_color  = beautiful.bg_alternate                    ,
+    left_color  = beautiful.bar_bg_alternate or beautiful.bg_alternate                    ,
     right_color = nil                                       ,
 }
 
@@ -206,7 +206,7 @@ local endArrowR             = chopped.get_separator {
     direction   = chopped.direction.LEFT                    ,
     sep_color   = beautiful.icon_grad or beautiful.fg_normal,
     left_color  = nil                                       ,
-    right_color = beautiful.bg_alternate                    ,
+    right_color = beautiful.bar_bg_alternate or beautiful.bg_alternate                    ,
 }
 
 local arr_last_tag_w       = chopped.get_separator {
@@ -214,7 +214,7 @@ local arr_last_tag_w       = chopped.get_separator {
     direction   = chopped.direction.RIGHT                   ,
     sep_color   = beautiful.icon_grad or beautiful.fg_normal,
     left_color  = nil                                       ,
-    right_color = beautiful.bg_alternate                    ,
+    right_color = beautiful.bar_bg_alternate or beautiful.bg_alternate                    ,
     margin      = -beautiful.default_height/2
 }
 
@@ -234,15 +234,25 @@ local spacer_img          = chopped.get_separator {
     right_color = nil                                       ,
 }
 
+local sep_end_menu        = chopped.get_separator {
+    weight      = chopped.weight.FULL                       ,
+    direction   = chopped.direction.RIGHT                   ,
+    sep_color   = nil                                       ,
+    left_color  = nil                                       ,
+    right_color = beautiful.icon_grad or beautiful.fg_normal,
+    margin      = -beautiful.default_height/2
+}
+
 local spacer5 = widgets.spacer({text = " ",width=5})
 
 -- Imitate the Gnome 2 menubar
 local bar_menu,bar_menu_w = radical.bar{item_style=radical.item.style.arrow_prefix,fg=beautiful.fg_normal,fg_focus=beautiful.menu_fg_normal,disable_submenu_icon=true}
 local app_menu = nil
-bar_menu:add_item {
+local it = bar_menu:add_item {
     text     = "Apps",
     icon     = gears.color.apply_mask(beautiful.awesome_icon,beautiful.button_bg_normal or beautiful.bg_normal),
     tooltip  = "Application menu",
+    bg_used  = beautiful.bar_bg_buttons or beautiful.menu_bg_normal,
     sub_menu = function()
         if not app_menu then
             app_menu = customMenu.appmenu (
@@ -262,27 +272,22 @@ bar_menu:add_item {
         return app_menu
     end
 }
-bar_menu:add_item {
+it.state[radical.base.item_flags.USED] = true
+it = bar_menu:add_item {
     text     = "Places",
     icon     = gears.color.apply_mask(config.iconPath .. "tags/home.png",beautiful.button_bg_normal or beautiful.bg_normal),
     tooltip  = "Folder shortcuts",
-    sub_menu = customMenu.places.get_menu
+    sub_menu = customMenu.places.get_menu,
+    bg_used  = beautiful.bar_bg_buttons or beautiful.menu_bg_normal,
 }
-bar_menu:add_item {text="Launch",
+it.state[radical.base.item_flags.USED] = true
+it = bar_menu:add_item {text="Launch",
     icon     = gears.color.apply_mask(config.iconPath .. "gearA.png", beautiful.button_bg_normal or beautiful.bg_normal),
     tooltip  = "Execute a command",
-    sub_menu = customMenu.launcher.get_menu
+    sub_menu = customMenu.launcher.get_menu,
+    bg_used  = beautiful.bar_bg_buttons or beautiful.menu_bg_normal,
 }
-
-bar_menu_w.__draw = bar_menu_w.draw
-
-local arr = blind.common.drawing.get_end_arrow2({bg_color= beautiful.icon_grad or beautiful.fg_normal})
-bar_menu_w.draw = function(self,w, cr, w2, height)
-    bar_menu_w.__draw(self,w, cr, w2, height)
-    cr:set_source_surface(arr,w2-height/2,0)
-    cr:paint()
-end
-
+it.state[radical.base.item_flags.USED] = true
 
 rad_taglist.taglist_watch_name_changes = true
 
@@ -323,8 +328,8 @@ for s = 1, screen.count() do
     layoutmenu[s] = customMenu.layoutmenu ( s,layouts_all                                   )
 
     -- Create the wibox
-    wibox_top[s] = awful.wibox({ position = "top"   , ontop=false,screen = s,height=beautiful.default_height , bg = beautiful.bg_wibar or beautiful.bg_normal })
-    wibox_bot[s] = awful.wibox({ position = "bottom", ontop=false,screen = s,height=beautiful.default_height , bg = beautiful.bg_wibar or beautiful.bg_normal })
+    wibox_top[s] = awful.wibox({ position = "top"   , ontop=false,screen = s,height=beautiful.default_height , bg = beautiful.bar_bg_normal or beautiful.bg_normal })
+    wibox_bot[s] = awful.wibox({ position = "bottom", ontop=false,screen = s,height=beautiful.default_height , bg = beautiful.bar_bg_normal or beautiful.bg_normal })
 
     -- Top Wibox
     wibox_top[s]:set_widgets {
@@ -344,7 +349,7 @@ for s = 1, screen.count() do
                     },
                     layout = wibox.layout.margin(nil,1,4,0,0)
                 },
-                layout = wibox.widget.background(nil,beautiful.bg_alternate)
+                layout = wibox.widget.background(nil,beautiful.bar_bg_alternate or beautiful.bg_alternate)
             }, --Buttons
             endArrow_alt2           , --Separator
             layout = wibox.layout.fixed.horizontal
@@ -365,7 +370,7 @@ for s = 1, screen.count() do
                     spacer_img ,
                     clock      ,
                 },
-                layout = wibox.widget.background(nil,beautiful.bg_alternate)
+                layout = wibox.widget.background(nil,beautiful.bar_bg_alternate or beautiful.bg_alternate)
             },
             layout = wibox.layout.fixed.horizontal
         } or nil,
@@ -380,6 +385,7 @@ for s = 1, screen.count() do
                 mypromptbox[s] ,
                 layout = wibox.widget.background(nil,beautiful.icon_grad)
             },
+            sep_end_menu   ,
             desktopPix     ,
             runbg          ,
             endArrow       ,
