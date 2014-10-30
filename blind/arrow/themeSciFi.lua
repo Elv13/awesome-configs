@@ -9,6 +9,7 @@ local client     = require( "awful.client"   )
 local themeutils = require( "blind.common.drawing"    )
 local wibox_w    = require( "wibox.widget"   )
 local radical    = require( "radical"        )
+local blind_pat  = require( "blind.common.pattern" )
 local debug      = debug
 
 local path = debug.getinfo(1,"S").source:gsub("theme.*",""):gsub("@","")
@@ -21,7 +22,14 @@ local theme = {}
 --                                                                                                  --
 ------------------------------------------------------------------------------------------------------
 
-theme.default_height = 16
+local default_height = 16
+
+theme.default_height = default_height
+
+local function d_mask(img,cr)
+    return blind_pat.to_pattern(img,cr)
+end
+
 -- theme.font           = "ohsnap 8"
 theme.path           = path
 
@@ -33,12 +41,18 @@ theme.bg_highlight   = "#0E2051"
 theme.bg_alternate   = "#081B37"
 theme.bg_allinone    = { type = "linear", from = { 0, 0 }, to = { 0, 20 }, stops = { { 0, "#1D4164" }, { 1, "#0D2144" }}}
 
+theme.bar_bg_alternate =  d_mask(blind_pat.sur.plain("#081B37",default_height))
+theme.bar_bg_normal    =  d_mask(blind_pat.sur.flat_grad("#2A2A32",nil,default_height))
+theme.bar_bg_buttons   =  d_mask(blind_pat.sur.flat_grad("#00091A","#04204F",default_height))
+
 theme.fg_normal      = "#6DA1D4"
 theme.fg_focus       = "#ABCCEA"
 theme.fg_urgent      = "#FF7777"
 theme.fg_minimize    = "#1577D3"
 
 theme.bg_systray     = theme.fg_normal
+
+theme.systray_icon_spacing = 4
 
 
 theme.button_bg_normal            = color.create_png_pattern(path .."Icon/bg/menu_bg_scifi.png"       )
@@ -83,7 +97,7 @@ theme.alttab_icon_transformation = function(image,data,item)
     return surface.tint(surface(image),color(theme.fg_normal),theme.default_height,theme.default_height)
 end
 
-theme.icon_grad        = { type = "linear", from = { 0, 0 }, to = { 0, 20 }, stops = { { 0, "#8AC2D5" }, { 1, "#3D619C" }}}
+theme.icon_grad        = d_mask(blind_pat.mask.ThreeD(blind_pat.sur.plain("#507289",default_height)))
 theme.icon_mask        = { type = "linear", from = { 0, 0 }, to = { 0, 20 }, stops = { { 0, "#8AC2D5" }, { 1, "#3D619C" }}}
 theme.icon_grad_invert = { type = "linear", from = { 0, 0 }, to = { 0, 20 }, stops = { { 0, "#000000" }, { 1, "#112543" }}}
 
@@ -112,42 +126,38 @@ theme.icon_grad_invert = { type = "linear", from = { 0, 0 }, to = { 0, 20 }, sto
 -- Display the taglist squares
 -- theme.taglist_underline                = "#094CA5"
 
-theme.taglist_bg_hover           = color.create_png_pattern(path .."Icon/bg/menu_bg_focus_scifi.png" )
-theme.taglist_bg_selected        = color.create_png_pattern(path .."Icon/bg/menu_bg_selected_scifi.png")
+theme.taglist_custom_color = function (...) d_mask(blind_pat.sur.flat_grad(...)) end
+
+theme.taglist_bg                 = d_mask(blind_pat.sur.plain("#070A0C",default_height))
+-- theme.taglist_bg_empty           = "#ffff00"
+theme.taglist_bg_hover           = d_mask(blind_pat.sur.thick_stripe("#19324E","#132946",14,default_height,true))
+theme.taglist_bg_selected        = d_mask(blind_pat.sur.thick_stripe("#0D3685","#05297F",4 ,default_height,true))
 theme.taglist_fg_selected        = "#ffffff"
-theme.taglist_bg_cloned          = color.create_png_pattern(path .."Icon/bg/used_bg_green2.png")
-theme.taglist_fg_cloned          = "#00bb00"
-theme.taglist_bg_used            = color.create_png_pattern(path .."Icon/bg/selected_bg_scifi_focus.png")
+-- theme.taglist_bg_cloned          = grag(path .."Icon/bg/used_bg_green2.png")
+-- theme.taglist_fg_cloned          = "#00bb00"
+theme.taglist_bg_used            = d_mask(blind_pat.sur.flat_grad("#00143B","#052F77",default_height))
 theme.taglist_fg_used            = "#7EA5E3"
-theme.taglist_bg_urgent          = color.create_png_pattern(path .."Icon/bg/urgent_bg.png")
+theme.taglist_bg_urgent          = d_mask(blind_pat.sur.flat_grad("#5B0000","#300000",default_height))
 theme.taglist_fg_urgent          = "#FF7777"
-theme.taglist_bg_changed         = color.create_png_pattern(path .."Icon/bg/selected_bg_scifi_changed.png")
+theme.taglist_bg_changed         = d_mask(blind_pat.sur.flat_grad("#4D004D","#210021",default_height))
 theme.taglist_fg_changed         = "#B78FEE"
 theme.taglist_bg_highlight       = "#bbbb00"
 theme.taglist_fg_highlight       = "#000000"
+-- theme.taglist_bg_empty           = d_mask(blind_pat.sur.flat_grad("#090B10","#181E39",default_height))
+-- theme.taglist_fg_empty           = "#000000"
 theme.taglist_fg_prefix          = theme.bg_normal
 theme.taglist_default_icon       = path .."Icon/tags/other.png"
--- theme.taglist_theme = radical.item.style.rounded
--- theme.taglist_squares_unsel            = function(wdg,m,t,objects,idx) return arrow.tag.gen_tag_bg(wdg,m,t,objects,idx,themeutils.status_ellipse) end
--- theme.taglist_squares_sel              = function(wdg,m,t,objects,idx) return arrow.tag.gen_tag_bg(wdg,m,t,objects,idx,theme.taglist_bg_image_selected) end
--- theme.taglist_squares_sel_empty        = function(wdg,m,t,objects,idx) return arrow.tag.gen_tag_bg(wdg,m,t,objects,idx,theme.taglist_bg_image_selected) end
--- theme.taglist_squares_unsel_empty      = function(wdg,m,t,objects,idx) return arrow.tag.gen_tag_bg(wdg,m,t,objects,idx,nil)     end
--- theme.taglist_disable_icon             = true
 theme.tasklist_underlay_bg_urgent      = "#ff0000"
 theme.tasklist_underlay_bg_minimized   = "#4F269C"
 theme.tasklist_underlay_bg_focus       = "#0746B2"
-theme.tasklist_bg_image_selected       = path .."Icon/bg/selected_bg_scifi.png"
+theme.tasklist_bg_image_selected       = d_mask(blind_pat.sur.flat_grad("#00091A","#04204F",default_height))
 theme.tasklist_bg_minimized            = "#10002C"
 theme.tasklist_fg_minimized            = "#985FEE"
-theme.tasklist_bg_urgent               = color.create_png_pattern(path .."Icon/bg/urgent_bg.png")
-theme.tasklist_bg_hover                = color.create_png_pattern(path .."Icon/bg/menu_bg_focus_scifi.png" )
-theme.tasklist_bg_focus                = color.create_png_pattern(path .."Icon/bg/selected_bg_scifi_focus.png")
+theme.tasklist_bg_urgent               = d_mask(blind_pat.sur.flat_grad("#5B0000","#300000",default_height))
+theme.tasklist_bg_hover                = d_mask(blind_pat.sur.thick_stripe("#19324E","#132946",14,default_height,true)) 
+theme.tasklist_bg_focus                = d_mask(blind_pat.sur.flat_grad("#00143B","#052F77",default_height))
 theme.tasklist_default_icon            = path .."Icon/tags/other.png"
-theme.bg_image_normal                  = function(wdg,m,t,objects) return arrow.task.gen_task_bg(wdg,m,t,objects,nil)     end
-theme.bg_image_focus                   = function(wdg,m,t,objects) return arrow.task.gen_task_bg(wdg,m,t,objects,theme.taglist_bg_image_selected)     end
-theme.bg_image_urgent                  = function(wdg,m,t,objects) return arrow.task.gen_task_bg(wdg,m,t,objects,theme.taglist_bg_image_urgent)     end
-theme.bg_image_minimize                = function(wdg,m,t,objects) return arrow.task.gen_task_bg(wdg,m,t,objects,nil)     end
-theme.tasklist_disable_icon            = true
+theme.tasklist_bg                      = d_mask(blind_pat.sur.flat_grad("#22222A",nil,default_height))
 theme.monochrome_icons                 = true
 
 
@@ -194,6 +204,9 @@ theme.draw_underlay = themeutils.draw_underlay
 -- you wish and access them by using
 -- beautiful.variable in your rc.lua
 --bg_widget    = #cc0000
+
+theme.titlebar_bg_normal = d_mask(blind_pat.sur.plain("#070A0C",default_height))
+theme.titlebar_bg_focus  = d_mask(blind_pat.sur.plain("#0E2051",default_height))
 
 -- Define the image to load
 theme.titlebar_close_button_normal = path .."Icon/titlebar/close_normal_inactive.png"

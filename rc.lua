@@ -396,9 +396,11 @@ for s = 1, screen.count() do
             endArrow2                                ,
             { -- Right
                 {
+                    spacer5                          ,
                     keyboard                         ,
                     notif                            ,
                     bat                              ,
+                    spacer5                          ,
                     s == 1 and wibox.widget.systray(),
                 },
                 layout = wibox.widget.background(nil,beautiful.icon_grad or beautiful.fg_normal),
