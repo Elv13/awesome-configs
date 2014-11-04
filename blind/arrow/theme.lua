@@ -204,6 +204,7 @@ theme.layout_tiletop_s       = path .."Icon/layouts_small/tiletop.png"
 theme.layout_spiral_s        = path .."Icon/layouts_small/spiral.png"
 theme.layout_spiraldwindle_s = path .."Icon/layouts_small/spiral_d.png"
 
+require( "chopped.arrow" )
 
 return theme
 -- vim: filetype=lua:expandtab:shiftwidth=4:tabstop=8:softtabstop=4:encoding=utf-8:textwidth=80

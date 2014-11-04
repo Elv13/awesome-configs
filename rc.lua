@@ -25,7 +25,6 @@ local blind     = require( "blind"     )
 
 -- Widgets
 local chopped      = require( "chopped"                    )
-require( "chopped.arrow" )
 local menubar      = require( "menubar"                    )
 local customButton = require( "customButton"               )
 local customMenu   = require( "customMenu"                 )
@@ -99,7 +98,7 @@ config.scr           = {
 config.load()
 config.themePath = awful.util.getdir("config") .. "/blind/" .. config.themeName .. "/"
 config.iconPath  = config.themePath       .. "Icon/"
-beautiful.init(config.themePath                .. "/themeSciFiGrad.lua")
+beautiful.init(config.themePath                .. "/themeHolo.lua")
 
 
 -- This is used later as the default terminal and editor to run.
@@ -246,7 +245,13 @@ local sep_end_menu        = chopped.get_separator {
 local spacer5 = widgets.spacer({text = " ",width=5})
 
 -- Imitate the Gnome 2 menubar
-local bar_menu,bar_menu_w = radical.bar{item_style=radical.item.style.arrow_prefix,fg=beautiful.fg_normal,fg_focus=beautiful.menu_fg_normal,disable_submenu_icon=true}
+local bar_menu,bar_menu_w = radical.bar{
+    item_style           = beautiful.bottom_menu_item_style or radical.item.style.arrow_prefix,
+    fg                   = beautiful.fg_normal,
+    fg_focus             = beautiful.menu_fg_normal,
+    disable_submenu_icon = true
+}
+
 local app_menu = nil
 local it = bar_menu:add_item {
     text     = "Apps",
@@ -683,7 +688,6 @@ function awful.client.setslave(c)
     end
 end
 
-
 require("radical.impl.tasklist.extensions").add("Running time",function(client)
     local w = wibox.widget.base.make_widget()
     w.fit = function(_,w,h)
@@ -718,47 +722,5 @@ require("radical.impl.taglist.extensions").add("Count",function(client)
     end
     return w
 end)
-
-
--- Hack to have rounded naughty popups
-local wmt = getmetatable(wibox)
-local wibox_constructor = wmt.__call
--- setmetatable(wibox,{__call = function()
---     print("foobar")
--- end})
-
-local function resize_naughty(w)
-    local height,width = w.height,w.width
-    local shape = cairo.ImageSurface(cairo.Format.ARGB32, width, height)
-    local cr = cairo.Context(shape)
-    w.x = screen[1].geometry.width/2-width/2
-    cr:set_source_rgb(1,1,1)
-    cr:paint()
-    cr:move_to(height/2,height)
-    cr:arc(height/2,height/2,height/2,math.pi/2,3*(math.pi/2))
-    cr:arc(width-height/2,height/2,height/2,3*(math.pi/2),math.pi/2)
-    cr:close_path()
-    cr:set_source_rgb(0,0,0)
-    cr:fill()
-    w.shape_bounding = shape._native
-    w:set_bg(cairo.Pattern.create_for_surface(shape))
-end
-
--- The trick here is to replace the wibox metatable to hijack the constructor
--- ... so evil!
-local fake_naughty_box = {__call=function(...)
-    local w = wibox_constructor(...)
-    w:connect_signal("property::width",resize_naughty)
-    w:connect_signal("property::height",resize_naughty)
-    return w
-end}
-naughty._notify = naughty.notify
-naughty.notify = function(...)
-    setmetatable(wibox,fake_naughty_box)
-    local ret = naughty._notify(...)
-    print("LA",ret.box)
-    setmetatable(wibox,wmt)
-    return ret
-end
 
 -- require("wirefu.demo.notification")

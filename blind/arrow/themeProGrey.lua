@@ -30,11 +30,12 @@ local function d_mask(img,cr)
     return blind_pat.to_pattern(blind_pat.mask.ThreeD(img,cr))
 end
 
--- theme.font           = "ohsnap 8"
--- theme.font           = "Radio Space 10"
+-- theme.font           = "Arial 10"
+-- theme.font           = "Nimbus Sans L 10"
+theme.font           = "Roboto Medium 10"
 theme.path           = path
 
-theme.bg_normal      = "#000000"
+theme.bg_normal      = "#343434"
 theme.bg_focus       = "#496477"
 theme.bg_urgent      = "#5B0000"
 theme.bg_minimize    = "#040A1A"
@@ -42,12 +43,12 @@ theme.bg_highlight   = "#0E2051"
 theme.bg_alternate   = "#081B37"
 theme.bg_allinone    = { type = "linear", from = { 0, 0 }, to = { 0, 20 }, stops = { { 0, "#1D4164" }, { 1, "#0D2144" }}}
 
-local bargrad = { type = "linear", from = { 0, 0 }, to = { 0, 16 }, stops = { { 0, "#000000" }, { 1, "#040405" }}}
-theme.bar_bg_alternate =  d_mask(blind_pat.mask.noise(0.04,"#AAAACC", blind_pat.sur.plain("#081B37",default_height)))
-theme.bar_bg_normal    =  d_mask(blind_pat.sur.flat_grad(bargrad,"#1C1C22",default_height))
+local bargrad = { type = "linear", from = { 0, 0 }, to = { 0, 16 }, stops = { { 0, "#252528" }, { 1, "#282830" }}}
+theme.bar_bg_alternate =  d_mask(blind_pat.mask.noise(0.04,"#AAAACC", blind_pat.sur.plain("#1F1F1F",default_height)))
+theme.bar_bg_normal    =  d_mask(blind_pat.sur.flat_grad(bargrad,"#44444966",default_height))
 theme.bar_bg_buttons   =  d_mask(blind_pat.sur.flat_grad("#00091A","#04204F",default_height))
 
-theme.fg_normal      = "#6DA1D4"
+theme.fg_normal      = "#C8DAE7"
 theme.fg_focus       = "#ABCCEA"
 theme.fg_urgent      = "#FF7777"
 theme.fg_minimize    = "#1577D3"
@@ -70,7 +71,7 @@ theme.border_normal  = "#1F1F1F"
 theme.border_focus   = "#535d6c"
 theme.border_marked  = "#91231c"
 theme.enable_glow    = true
-theme.glow_color     = "#105A8B"
+theme.glow_color     = "#171717"
 
 theme.tasklist_floating_icon       = path .."Icon/titlebar/floating.png"
 theme.tasklist_ontop_icon          = path .."Icon/titlebar/ontop.png"
@@ -99,7 +100,7 @@ theme.alttab_icon_transformation = function(image,data,item)
     return surface.tint(surface(image),color(theme.fg_normal),theme.default_height,theme.default_height)
 end
 
-theme.icon_grad        = d_mask(blind_pat.mask.noise(0.4,"#777788", blind_pat.sur.plain("#507289",default_height)))
+theme.icon_grad        = d_mask(blind_pat.mask.noise(0.1,"#777788", blind_pat.sur.plain("#4A5157",default_height)))
 theme.icon_mask        = { type = "linear", from = { 0, 0 }, to = { 0, 20 }, stops = { { 0, "#8AC2D5" }, { 1, "#3D619C" }}}
 theme.icon_grad_invert = { type = "linear", from = { 0, 0 }, to = { 0, 20 }, stops = { { 0, "#000000" }, { 1, "#112543" }}}
 
@@ -137,15 +138,15 @@ theme.taglist_bg_selected        = d_mask(blind_pat.sur.thick_stripe("#0D3685","
 theme.taglist_fg_selected        = "#ffffff"
 -- theme.taglist_bg_cloned          = grag(path .."Icon/bg/used_bg_green2.png")
 -- theme.taglist_fg_cloned          = "#00bb00"
-theme.taglist_bg_used            = d_mask(blind_pat.sur.flat_grad("#00143B","#052F77",default_height))
-theme.taglist_fg_used            = "#7EA5E3"
+theme.taglist_bg_used            = d_mask(blind_pat.sur.flat_grad("#37413B","#285B2A",default_height))
+theme.taglist_fg_used            = "#D2EED9"
 theme.taglist_bg_urgent          = d_mask(blind_pat.sur.flat_grad("#5B0000","#300000",default_height))
 theme.taglist_fg_urgent          = "#FF7777"
-theme.taglist_bg_changed         = d_mask(blind_pat.sur.flat_grad("#4D004D","#210021",default_height))
-theme.taglist_fg_changed         = "#B78FEE"
+theme.taglist_bg_changed         = d_mask(blind_pat.sur.flat_grad("#4C444D","#673263",default_height))
+theme.taglist_fg_changed         = "#D9D3EE"
 theme.taglist_bg_highlight       = "#bbbb00"
 theme.taglist_fg_highlight       = "#000000"
-theme.taglist_bg_empty           = d_mask(blind_pat.sur.flat_grad("#090B10","#181E39",default_height))
+theme.taglist_bg_empty           = theme.bar_bg_normal --d_mask(blind_pat.sur.flat_grad("#090B10","#181E39",default_height))
 -- theme.taglist_fg_empty           = "#000000"
 theme.taglist_fg_prefix          = theme.bg_normal
 theme.taglist_default_icon       = path .."Icon/tags/other.png"
@@ -162,8 +163,6 @@ theme.tasklist_default_icon            = path .."Icon/tags/other.png"
 theme.tasklist_bg                      = d_mask(blind_pat.sur.flat_grad("#22222A",nil,default_height))
 theme.monochrome_icons                 = true
 
-theme.naughty_bg                       = theme.bg_alternate
-theme.naughty_border_color             = theme.fg_normal
 
 ------------------------------------------------------------------------------------------------------
 --                                                                                                  --
@@ -278,6 +277,11 @@ theme.layout_tiletop_s       = path .."Icon/layouts_small/tiletop.png"
 theme.layout_spiral_s        = path .."Icon/layouts_small/spiral.png"
 theme.layout_spiraldwindle_s = path .."Icon/layouts_small/spiral_d.png"
 
+wibox_w.textbox._fit = wibox_w.textbox.fit
+wibox_w.textbox.fit = function(...)
+    local w,h = wibox_w.textbox._fit(...)
+    return w+3,h
+end
 wibox_w.textbox._draw = wibox_w.textbox.draw
 wibox_w.textbox.draw = function(self,w, cr, width, height,args)
     --Create the cache
@@ -308,12 +312,10 @@ wibox_w.textbox.draw = function(self,w, cr, width, height,args)
     --Draw in the cache
     local img  = cairo.ImageSurface.create(cairo.Format.ARGB32, width, height)--target:create_similar(target:get_content(),width,height) 
     local cr2 = cairo.Context(img)
---     cr2:set_operator(cairo.Operator.CLEAR)
---     cr2:paint()
---     cr2:set_operator(cairo.Operator.OVER)
     cr2:set_source(cr:get_source())
     cr2:update_layout(self._layout)
-    themeutils.draw_text(cr2,self._layout,x_offset,(height-logical.height)/2 - ink.y/4,theme.enable_glow or false,theme.glow_color)
+    local y = (height-logical.height)/2 - ink.y/4
+    themeutils.draw_text(cr2,self._layout,0,y,theme.enable_glow or false,theme.glow_color,1,y+1)
     self.cache[width+(10000*height)..self._layout.text] = img
 
     --Use the cache

@@ -317,5 +317,7 @@ wibox_w.textbox.draw = function(self,w, cr, width, height,args)
     cr:paint()
 end
 
+require( "chopped.arrow" )
+
 return theme
 -- vim: filetype=lua:expandtab:shiftwidth=4:tabstop=8:softtabstop=4:encoding=utf-8:textwidth=80

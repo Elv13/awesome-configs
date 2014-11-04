@@ -116,7 +116,7 @@ theme.icon_grad_invert = { type = "linear", from = { 0, 0 }, to = { 0, 20 }, sto
 -- theme.taglist_underline                = "#094CA5"
 
 theme.taglist_bg_unused          = "#ffffff"
-theme.taglist_bg_empty           = "#ffff00"
+theme.taglist_bg_empty           = "#111111"
 theme.taglist_bg_hover           = color.create_png_pattern(path .."Icon/bg/menu_bg_focus_scifi.png" )
 theme.taglist_bg_selected        = color.create_png_pattern(path .."Icon/bg/menu_bg_selected_scifi.png")
 theme.taglist_fg_selected        = "#ffffff"
@@ -300,6 +300,9 @@ theme.layout_tile_s          = path .."Icon/layouts_small/tile.png"
 theme.layout_tiletop_s       = path .."Icon/layouts_small/tiletop.png"
 theme.layout_spiral_s        = path .."Icon/layouts_small/spiral.png"
 theme.layout_spiraldwindle_s = path .."Icon/layouts_small/spiral_d.png"
+
+
+require( "chopped.arrow" )
 
 return theme
 -- vim: filetype=lua:expandtab:shiftwidth=4:tabstop=8:softtabstop=4:encoding=utf-8:textwidth=80
