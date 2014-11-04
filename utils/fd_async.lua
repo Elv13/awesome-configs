@@ -489,7 +489,7 @@ function module.ini.load_dir(path,load_icon,icon_path)
 
     -- Split categories
     local cats = {}
-    for category in (ini.Categories or {}):gmatch('[^;]+') do
+    for category in (ini.Categories or ""):gmatch('[^;]+') do
       cats[#cats+1] = category
     end
     ini.Categories = cats
