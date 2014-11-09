@@ -30,6 +30,24 @@ local function increment_cat(category)
     end
 end
 
+-- Remove the file argument from the exec line
+local function exec(ini,args)
+    local previous,ret = "",""
+    for arg in string.gmatch(ini.Exec,"%S+") do
+        if arg ~= "%c" then
+            ret = ret.." "..previous
+            previous = arg
+        else
+            previous = ""
+        end
+    end
+    if previous ~= "%U" and ret ~= "%u" then
+        ret = ret.." "..previous
+    end
+
+    util.spawn(ret,args)
+end
+
 local function add_category(menu,main_category)
     local offset = 1
 
@@ -50,7 +68,7 @@ local function set_category(cat_item,dock)
     fd_async.ini.write(ini,path)
 end
 
-local function gen_menu(dock,name,command,item)
+local function gen_menu(dock,name,ini,item)
     if menu then return menu end
 
     menu = menu4({parent_geo=geometry})
@@ -69,22 +87,22 @@ local function gen_menu(dock,name,command,item)
     menu:add_item({text="Launch in new tag",button1=function()
         local item = dock._current_item
         if not item then return end
-        local exec = item._internal.ini.Exec
+        local exec = item._internal.ini
         if not exec then return end
-        util.spawn(exec,{new_tag=true,volatile=true})
+        exec(exec,{new_tag=true,volatile=true})
         menu.visible = false
     end})
     menu:add_item({text="Launch in current tag",button1=function()
         local item = dock._current_item
         if not item then return end
-        local exec = item._internal.ini.Exec
+        local exec = item._internal.ini
         if not exec then return end
-        util.spawn(exec,{intrusive=true})
+        exec(exec,{intrusive=true})
         menu.visible = false
     end})
     menu:add_item({text="Launch In tag", sub_menu = function() return listTags({button1= function(i,m)
         print("\n\n\nICI!!!!",i._tag)
-        util.spawn(command,{tag=i._tag})
+        exec(ini,{tag=i._tag})
     end}) end})
     menu:add_widget(radical.widgets.separator())
     menu:add_item({text="Dock position",sub_menu = function()
@@ -139,14 +157,14 @@ local function load_item(menu,content,path)
         print("middle")
     end,
     button3= function(_i,_m,mods,geo)
-        local m = gen_menu(menu,name,content.Exec,_i)
+        local m = gen_menu(menu,name,content,_i)
         menu._tmp_menu = m
         _i._tmp_menu = m
         m.parent_geometry = geo
         m.visible = true
     end,
     button1 = function(i)
-        util.spawn(content.Exec,{callback = function(c)
+        exec(content,{callback = function(c)
             local real_class,known_class = c.class:lower(),(i._internal.ini.Class or ""):lower()
             --Some .desktop don't have proper 'Class'. Set it
             if real_class ~= known_class then
