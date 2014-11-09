@@ -20,8 +20,8 @@ local module = {}
 
 local function update(w, screen)
     local layout = layout.getname(layout.get(screen))
-    if layout and beautiful["layout_" ..layout.."_s"] then
-        w:set_image(color.apply_mask(beautiful["layout_" ..layout.."_s"]))
+    if layout and beautiful["layout_small_" ..layout] then
+        w:set_image(color.apply_mask(beautiful["layout_small_" ..layout]))
     else
         w:set_image()
     end

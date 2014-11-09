@@ -304,11 +304,11 @@ function module.draw_underlay(text,args)
 end
 
 local line_width,alpha = {1,2,3,5},{"77","55","33","10"}
-function module.draw_text(cr,layout,x,y,enable_shadow,shadow_color)
+function module.draw_text(cr,layout,x,y,enable_shadow,shadow_color,glow_x,glow_y)
     if enable_shadow and shadow_color then
         cr:save()
         for i=1,4 do
-            cr:move_to(x, y)
+            cr:move_to(glow_x or x, glow_y or y)
             cr:set_source(color(shadow_color..alpha[i]))
             cr:set_line_width(line_width[i])
             cr:layout_path(layout)

@@ -10,11 +10,12 @@ local themeutils = require( "blind.common.drawing"    )
 local wibox_w    = require( "wibox.widget"   )
 local radical    = require( "radical"        )
 local blind_pat  = require( "blind.common.pattern" )
+local blind      = require( "blind"          )
 local debug      = debug
 
 local path = debug.getinfo(1,"S").source:gsub("theme.*",""):gsub("@","")
 
-local theme = {}
+local theme = blind.theme
 
 ------------------------------------------------------------------------------------------------------
 --                                                                                                  --
@@ -73,12 +74,6 @@ theme.border_marked  = "#91231c"
 theme.enable_glow    = true
 theme.glow_color     = "#171717"
 
-theme.tasklist_floating_icon       = path .."Icon/titlebar/floating.png"
-theme.tasklist_ontop_icon          = path .."Icon/titlebar/ontop.png"
-theme.tasklist_sticky_icon         = path .."Icon/titlebar/sticky.png"
-theme.tasklist_floating_focus_icon = path .."Icon/titlebar/floating_focus.png"
-theme.tasklist_ontop_focus_icon    = path .."Icon/titlebar/ontop_focus.png"
-theme.tasklist_sticky_focus_icon   = path .."Icon/titlebar/sticky_focus.png"
 theme.tasklist_plain_task_name     = true
 theme.tasklist_icon_transformation = function(image,data,item)
     if not item._state_transform_init then
@@ -197,85 +192,11 @@ theme.wallpaper = "/home/lepagee/bg/final/bin_ascii_ds.png"
 theme.draw_underlay = themeutils.draw_underlay
 
 
-------------------------------------------------------------------------------------------------------
---                                                                                                  --
---                                             TITLEBAR                                             --
---                                                                                                  --
-------------------------------------------------------------------------------------------------------
+-- Titlebar
+loadfile(theme.path .."bits/titlebar.lua")(theme,path)
 
--- You can add as many variables as
--- you wish and access them by using
--- beautiful.variable in your rc.lua
---bg_widget    = #cc0000
-
-theme.titlebar_bg_normal = d_mask(blind_pat.mask.noise(0.02,"#AAAACC", blind_pat.sur.plain("#070A0C",default_height)))
-theme.titlebar_bg_focus  = d_mask(blind_pat.sur.flat_grad("#2A2A32",nil,default_height))
-
--- Define the image to load
-theme.titlebar_close_button_normal = path .."Icon/titlebar/close_normal_inactive.png"
-theme.titlebar_close_button_focus = path .."Icon/titlebar/close_focus_inactive.png"
-
-theme.titlebar_ontop_button_normal_inactive = path .."Icon/titlebar/ontop_normal_inactive.png"
-theme.titlebar_ontop_button_focus_inactive = path .."Icon/titlebar/ontop_focus_inactive.png"
-theme.titlebar_ontop_button_normal_active = path .."Icon/titlebar/ontop_normal_active.png"
-theme.titlebar_ontop_button_focus_active = path .."Icon/titlebar/ontop_focus_active.png"
-
-theme.titlebar_sticky_button_normal_inactive = path .."Icon/titlebar/sticky_normal_inactive.png"
-theme.titlebar_sticky_button_focus_inactive = path .."Icon/titlebar/sticky_focus_inactive.png"
-theme.titlebar_sticky_button_normal_active = path .."Icon/titlebar/sticky_normal_active.png"
-theme.titlebar_sticky_button_focus_active = path .."Icon/titlebar/sticky_focus_active.png"
-
-theme.titlebar_floating_button_normal_inactive = path .."Icon/titlebar/floating_normal_inactive.png"
-theme.titlebar_floating_button_focus_inactive = path .."Icon/titlebar/floating_focus_inactive.png"
-theme.titlebar_floating_button_normal_active = path .."Icon/titlebar/floating_normal_active.png"
-theme.titlebar_floating_button_focus_active = path .."Icon/titlebar/floating_focus_active.png"
-
-theme.titlebar_maximized_button_normal_inactive = path .."Icon/titlebar/maximized_normal_inactive.png"
-theme.titlebar_maximized_button_focus_inactive = path .."Icon/titlebar/maximized_focus_inactive.png"
-theme.titlebar_maximized_button_normal_active = path .."Icon/titlebar/maximized_normal_active.png"
-theme.titlebar_maximized_button_focus_active = path .."Icon/titlebar/maximized_focus_active.png"
-
-theme.titlebar_resize = path .."Icon/titlebar/resize.png"
-theme.titlebar_tag    = path .."Icon/titlebar/tag.png"
-
--- theme.titlebar_bg_focus = theme.bg_normal
-
-theme.titlebar_title_align = "left"
-theme.titlebar_height = 14
-
-
-------------------------------------------------------------------------------------------------------
---                                                                                                  --
---                                             LAYOUTS                                              --
---                                                                                                  --
-------------------------------------------------------------------------------------------------------
-
--- You can use your own layout icons like this:
-theme.layout_fairh           = path .."Icon/layouts/fairh.png"
-theme.layout_fairv           = path .."Icon/layouts/fairv.png"
-theme.layout_floating        = path .."Icon/layouts/floating.png"
-theme.layout_magnifier       = path .."Icon/layouts/magnifier.png"
-theme.layout_max             = path .."Icon/layouts/max.png"
-theme.layout_fullscreen      = path .."Icon/layouts/fullscreen.png"
-theme.layout_tilebottom      = path .."Icon/layouts/tilebottom.png"
-theme.layout_tileleft        = path .."Icon/layouts/tileleft.png"
-theme.layout_tile            = path .."Icon/layouts/tile.png"
-theme.layout_tiletop         = path .."Icon/layouts/tiletop.png"
-theme.layout_spiral          = path .."Icon/layouts/spiral.png"
-theme.layout_spiraldwindle   = path .."Icon/layouts/spiral_d.png"
-
-theme.layout_fairh_s         = path .."Icon/layouts_small/fairh.png"
-theme.layout_fairv_s         = path .."Icon/layouts_small/fairv.png"
-theme.layout_floating_s      = path .."Icon/layouts_small/floating.png"
-theme.layout_magnifier_s     = path .."Icon/layouts_small/magnifier.png"
-theme.layout_max_s           = path .."Icon/layouts_small/max.png"
-theme.layout_fullscreen_s    = path .."Icon/layouts_small/fullscreen.png"
-theme.layout_tilebottom_s    = path .."Icon/layouts_small/tilebottom.png"
-theme.layout_tileleft_s      = path .."Icon/layouts_small/tileleft.png"
-theme.layout_tile_s          = path .."Icon/layouts_small/tile.png"
-theme.layout_tiletop_s       = path .."Icon/layouts_small/tiletop.png"
-theme.layout_spiral_s        = path .."Icon/layouts_small/spiral.png"
-theme.layout_spiraldwindle_s = path .."Icon/layouts_small/spiral_d.png"
+-- Layouts
+loadfile(theme.path .."bits/layout.lua")(theme,path)
 
 wibox_w.textbox._fit = wibox_w.textbox.fit
 wibox_w.textbox.fit = function(...)
@@ -283,45 +204,9 @@ wibox_w.textbox.fit = function(...)
     return w+3,h
 end
 wibox_w.textbox._draw = wibox_w.textbox.draw
-wibox_w.textbox.draw = function(self,w, cr, width, height,args)
-    --Create the cache
-    if not self.cache then
-        self.cache = {}
-        self.cached_text = self._layout.text
-        self:connect_signal("widget::updated",function()
-            if self._layout.text ~= self.cached_text then
-                self.cache = {}
-                self.cached_text = self._layout.text
-            end
-        end)
-    end
 
-    local cached = self.cache[(width+(10000*height))..self._layout.text]
-    if cached then
-        -- Use the cache
-        cr:set_source_surface(cached)
-        cr:paint()
-        return
-    end
-
-    --Init the textbox layout
-    self._layout.width = pango.units_from_double(width)
-    self._layout.height = pango.units_from_double(height)
-    local ink, logical = self._layout:get_pixel_extents()
-
-    --Draw in the cache
-    local img  = cairo.ImageSurface.create(cairo.Format.ARGB32, width, height)--target:create_similar(target:get_content(),width,height) 
-    local cr2 = cairo.Context(img)
-    cr2:set_source(cr:get_source())
-    cr2:update_layout(self._layout)
-    local y = (height-logical.height)/2 - ink.y/4
-    themeutils.draw_text(cr2,self._layout,0,y,theme.enable_glow or false,theme.glow_color,1,y+1)
-    self.cache[width+(10000*height)..self._layout.text] = img
-
-    --Use the cache
-    cr:set_source_surface(img)
-    cr:paint()
-end
+-- Textbox shadow
+loadfile(theme.path .."bits/textbox/shadow.lua")(theme,path)
 
 require( "chopped.arrow" )
 

@@ -84,20 +84,123 @@ function blind_pat.sur.thick_stripe(col1,col2,width,height,rtl)
     return img,cr
 end
 
-function blind_pat.mask.triangle()
-    --TODO
-    --/\/\/\/\/\
-    --\/\/\/\/\/
-    --/\/\/\/\/\
+local function resize(img,w,h)
+    local img2 = cairo.ImageSurface.create(cairo.Format.ARGB32, w, h)
+    local cr   = cairo.Context(img2)
+    cr:set_source(blind_pat.to_pattern(img))
+    cr:paint()
+    return img2, cr
 end
 
-function blind_pat.mask.honeycomb()
-    --TODO draw random sized triangles
+--- Draw triangles on to of img
+-- @arg size The size of the triangles
+-- @arg border The border size
+-- @arg cols an array of colors for the triangles
+-- @arg border_col The triangle border color
+-- @arg img A surface
+-- @arg cr A cairo context
+function blind_pat.mask.triangle(size, border, cols, border_col, img,cr)
+    local w,h = img:get_width(),img:get_height()
+
+    -- The width need to be a multiple of the size or repetition will be wrong
+    if w < size or math.floor(w%size) > 0 then
+        w,h = math.ceil(w/size)*size,h
+        img,cr = resize(img,w,h)
+    end
+
+    local multiple_w,muliple_h = math.ceil(w/size),math.ceil(h/size)
+
+    for i=0, multiple_w do
+        for j=0, muliple_h do
+            -- First triangle
+            cr:move_to(i*size, j*size)
+            cr:line_to(i*size + size,j*size)
+            cr:line_to(i*size + math.ceil(size/2), j*size + size)
+            cr:close_path()
+            if border > 0 then
+                cr:set_source(color(border_col))
+                cr[#cols > 0 and "stroke_preserve" or "stroke"](cr)
+            end
+            local c = cols[1]
+            if c then
+                cr:set_source(c)
+                cr:fill()
+            end
+
+            -- Second triangle
+            c = cols[2]
+            if c then
+                cr:set_source(c)
+                cr:move_to(i*size + size, j*size)
+                cr:line_to(i*size + size             , j*size + size)
+                cr:line_to(i*size + math.ceil(size/2), j*size + size)
+                cr:fill()
+                cr:move_to(i*size, j*size)
+                cr:line_to(i*size + math.ceil(size/2), j*size + size)
+                cr:line_to(i*size, j*size + size)
+                cr:fill()
+            end
+        end
+    end
+
+    return img,cr
+end
+
+function blind_pat.mask.honeycomb(size, border, cols, border_col, img,cr)
+    local w,h = img:get_width(),img:get_height()
+    local dx = size/3
+    local dy = size/2
+    local wi = (2*dx)
+
+    -- The surface size has to be a multiple of size
+    if w < size or math.floor(w%(4*dx)) > 0 then
+        w,h = math.ceil(w/size)*size,h
+        img,cr = resize(img,w,h)
+    end
+
+    cr:set_source(color(border_col or cols[1]))
+    local multiple_w,muliple_h = math.ceil(w/wi),math.ceil(h/size)
+    for j=0, muliple_h do
+        local m = false
+        for i=0, multiple_w do
+            local dy_ = m and (-dy) or 0
+            cr:move_to(i*wi + 2*dx, j*size+dy_)
+            cr:line_to(i*wi + dx, j*size+dy_)
+            cr:line_to(i*wi, j*size+dy+dy_)
+            cr:line_to(i*wi + dx, j*size+size+dy_)
+            cr:stroke()
+            m = not m
+        end
+    end
+    return img,cr
 end
 
 function blind_pat.mask.circles()
     --TODO draw random sized cicles based on the img size
     -- make sure corner cases (literally!) do as expected
+end
+
+function blind_pat.mask.noise(strength,base_color,img,cr)
+    local w,h = img:get_width(),img:get_height()
+
+    -- It need at least 11x11 to look non-repetitive
+    if w < 11 or h < 11 then
+        w,h = w < 11 and 11 or w, h < 11 or h
+        img,cr = resize(img,w,h)
+    end
+
+    local s,r,g,b,a = color(base_color):get_rgba()
+    cr:set_antialias(cairo.ANTIALIAS_NONE)
+    for i=0, w do
+        for j=0, h do
+            local alpha = math.random()*strength
+            cr:set_source_rgba(r,g,b,alpha)
+            cr:rectangle(i,j,1,1)
+            cr:fill()
+        end
+    end
+
+    return img,cr
 end
 
 return blind_pat
