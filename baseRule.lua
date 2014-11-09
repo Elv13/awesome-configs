@@ -364,7 +364,7 @@ tyrannical.properties.floating = {
     "xine"         , "feh"             , "kmix"       , "kcalc"        , "xcalc"          ,
     "yakuake"      , "Select Color$"   , "kruler"     , "kcolorchooser", "Paste Special"  ,
     "New Form"     , "Insert Picture"  , "kcharselect", "mythfrontend" , "plasmoidviewer" ,
-    "sflphone-client-kde", "sflphone-client-gnome", "xev",
+    "sflphone-client-kde", "sflphone-client-gnome", "xev","Pavucontrol",
     amarok = false , "yakuake", "Conky"
 }
 
