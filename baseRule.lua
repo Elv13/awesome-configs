@@ -16,7 +16,7 @@ local function five_layout(c,tag)
     elseif count == 5 then
         awful.tag.setproperty(tag,"nmaster",2)
         awful.tag.setproperty(tag,"mwfact",0.63) -- 100 columns at 1080p 11px fonts
-        awful.client.setwfact(0.66, awful.client.getmaster(awful.tag.getscreen(tag)))
+--         awful.client.setwfact(0.66, awful.client.getmaster(awful.tag.getscreen(tag)))
     end
     return 5
 end

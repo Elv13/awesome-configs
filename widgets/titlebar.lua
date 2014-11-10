@@ -6,6 +6,7 @@ local radical   = require( "radical"                 )
 local rad_task  = require( "radical.impl.tasklist"   )
 local chopped   = require( "chopped"                 )
 local collision = require( "collision"               )
+local color     = require( "gears.color"             )
 
 local endArrowR2,endArrow_alt
 
@@ -138,6 +139,59 @@ local function new(c)
         underlays[#underlays+1] = v.name
     end
     title:set_underlay(underlays,{style=radical.widgets.underlay.draw_arrow,alpha=1,color="#0C2853"})
+
+
+    -- Now, the bottom one (floating clients only)
+    if awful.client.floating.get(c) then
+        local left  = wibox.widget.base.make_widget()
+        left.draw = function(self, w, cr, width, height) cr:set_source(color(beautiful.bg_resize_handler or "#00000000")); cr:paint() end
+        left.fit = function(self,w,h)
+            return 20,h
+        end
+        left:buttons( awful.util.table.join(
+            awful.button({ }, 1, function(geometry)
+                collision._resize.mouse_resize(c,"bl")
+            end))
+        )
+
+        local middle  = wibox.widget.base.make_widget()
+        middle.draw = function(self, w, cr, width, height)
+            cr:set_source(color(beautiful.bg_resize_handler or "#00000000"))
+            cr:arc(3+width/2,3,2,0,2*math.pi)
+            cr:fill()
+            cr:arc(3+width/2+7,3,2,0,2*math.pi)
+            cr:fill()
+            cr:arc(3+width/2-7,3,2,0,2*math.pi)
+            cr:fill()
+        end
+        middle.fit = function(self,w,h)
+            return w,h
+        end
+        middle:buttons( awful.util.table.join(
+            awful.button({ }, 1, function(geometry)
+                collision._resize.mouse_resize(c,"bl")
+            end))
+        )
+
+        local right = wibox.widget.base.make_widget()
+        right.draw = function(self, w, cr, width, height) cr:set_source(color(beautiful.bg_resize_handler or "#00000000")); cr:paint() end
+        right.fit = function(self,w,h)
+            return 20,h
+        end
+        right:buttons( awful.util.table.join(
+            awful.button({ }, 1, function(geometry)
+                collision._resize.mouse_resize(c,"br")
+            end))
+        )
+
+        local tb = awful.titlebar(c,{size=5,position="bottom"})
+        tb:set_widgets {
+            left,
+            middle,
+            right,
+            layout = wibox.layout.align.horizontal,
+        }
+    end
 end
 
 return setmetatable({}, { __call = function(_, ...) return new(...) end })

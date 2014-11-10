@@ -39,7 +39,6 @@ theme.bg = blind {
     highlight   = "#0E2051",
     alternate   = "#081B37",
     allinone    = { type = "linear", from = { 0, 0 }, to = { 0, 20 }, stops = { { 0, "#1D4164" }, { 1, "#0D2144" }}},
-    systray     = theme.fg_normal
 }
 
 -- Wibar background
@@ -52,10 +51,10 @@ theme.bar_bg = blind {
 
 -- Forground
 theme.fg = blind {
-    normal      = "#6DA1D4",
-    focus       = "#ABCCEA",
-    urgent      = "#FF7777",
-    minimize    = "#1577D3",
+    normal   = "#6DA1D4",
+    focus    = "#ABCCEA",
+    urgent   = "#FF7777",
+    minimize = "#1577D3",
 }
 
 -- Other
@@ -69,13 +68,15 @@ theme.naughty_border_color = theme.fg_normal
 theme.bg_dock              = color.create_png_pattern(path .."Icon/bg/bg_dock.png"             )
 theme.fg_dock_1            = "#1889F2"
 theme.fg_dock_2            = "#0A3E6E"
+theme.bg_systray           = theme.fg_normal
+theme.bg_resize_handler    = "#aaaaff55"
 
 -- Border
 theme.border = blind {
-    width  = 1              ,
-    normal = theme.fg_normal,
-    focus  = "#535d6c"      ,
-    marked = "#91231c"      ,
+    width  = 1         ,
+    normal = "#1F1F1F" ,
+    focus  = "#535d6c" ,
+    marked = "#91231c" ,
 }
 
 theme.alttab_icon_transformation = function(image,data,item)
@@ -141,6 +142,7 @@ theme.menu = blind {
     bg_header    = color.create_png_pattern(path .."Icon/bg/menu_bg_header_scifi.png"),
     bg_normal    = color.create_png_pattern(path .."Icon/bg/menu_bg_scifi.png"       ),
     bg_highlight = color.create_png_pattern(path .."Icon/bg/menu_bg_highlight.png"   ),
+    border_color = theme.fg_normal,
 }
 
 -- theme.draw_underlay = themeutils.draw_underlay
@@ -148,6 +150,10 @@ theme.menu = blind {
 
 -- Titlebar
 loadfile(theme.path .."bits/titlebar.lua")(theme,path)
+theme.titlebar = blind {
+    bg_normal = d_mask(blind_pat.mask.noise(0.02,"#AAAACC", blind_pat.sur.plain("#070A0C",default_height))),
+    bg_focus  = d_mask(blind_pat.sur.flat_grad("#2A2A32",nil,default_height))
+}
 
 -- Layouts
 loadfile(theme.path .."bits/layout.lua")(theme,path)
@@ -157,5 +163,8 @@ loadfile(theme.path .."bits/textbox/glow.lua")(theme,path)
 
 -- The separator theme
 require( "chopped.arrow" )
+
+-- Add round corner to floating clients
+require("blind.arrow.bits.client_shape")
 
 return theme
