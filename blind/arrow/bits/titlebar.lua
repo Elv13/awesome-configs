@@ -9,30 +9,30 @@ theme.titlebar = blind {
 
     ontop_button = blind {
         normal_inactive = path .."Icon/titlebar/ontop_normal_inactive.png",
-        focus_inactive = path .."Icon/titlebar/ontop_focus_inactive.png",
-        normal_active = path .."Icon/titlebar/ontop_normal_active.png",
-        focus_active = path .."Icon/titlebar/ontop_focus_active.png",
+        focus_inactive  = path .."Icon/titlebar/ontop_focus_inactive.png",
+        normal_active   = path .."Icon/titlebar/ontop_normal_active.png",
+        focus_active    = path .."Icon/titlebar/ontop_focus_active.png",
     },
 
     sticky_button = blind {
         normal_inactive = path .."Icon/titlebar/sticky_normal_inactive.png",
-        focus_inactive = path .."Icon/titlebar/sticky_focus_inactive.png",
-        normal_active = path .."Icon/titlebar/sticky_normal_active.png",
-        focus_active = path .."Icon/titlebar/sticky_focus_active.png",
+        focus_inactive  = path .."Icon/titlebar/sticky_focus_inactive.png",
+        normal_active   = path .."Icon/titlebar/sticky_normal_active.png",
+        focus_active    = path .."Icon/titlebar/sticky_focus_active.png",
     },
 
     floating_button = blind {
         normal_inactive = path .."Icon/titlebar/floating_normal_inactive.png",
-        focus_inactive = path .."Icon/titlebar/floating_focus_inactive.png",
-        normal_active = path .."Icon/titlebar/floating_normal_active.png",
-        focus_active = path .."Icon/titlebar/floating_focus_active.png",
+        focus_inactive  = path .."Icon/titlebar/floating_focus_inactive.png",
+        normal_active   = path .."Icon/titlebar/floating_normal_active.png",
+        focus_active    = path .."Icon/titlebar/floating_focus_active.png",
     },
 
     maximized_button = blind {
         normal_inactive = path .."Icon/titlebar/maximized_normal_inactive.png",
-        focus_inactive = path .."Icon/titlebar/maximized_focus_inactive.png",
-        normal_active = path .."Icon/titlebar/maximized_normal_active.png",
-        focus_active = path .."Icon/titlebar/maximized_focus_active.png",
+        focus_inactive  = path .."Icon/titlebar/maximized_focus_inactive.png",
+        normal_active   = path .."Icon/titlebar/maximized_normal_active.png",
+        focus_active    = path .."Icon/titlebar/maximized_focus_active.png",
     },
 
     resize      = path .."Icon/titlebar/resize.png",

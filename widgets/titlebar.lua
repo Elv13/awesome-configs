@@ -82,19 +82,22 @@ local function new(c)
         end)
     )
 
+    local align = beautiful.titlebar_text_align
     local title = awful.titlebar.widget.titlewidget(c)
+    title:set_align(align or "center")
 
-    title.draw = function(self,w, cr, width, height)
-        local i = rad_task.item(c)
-        if i and i.widget then
-            local w2,h2 = i.widget:fit(width,height)
-            cr:save()
-            cr:reset_clip()
-            cr:translate((width-w2)/2, 0)
-            i.widget.draw(i.widget,w, cr, w2, height)
-            cr:restore()
-        end
-    end
+    -- TODO this is cheap, there is better ways
+--     title.draw = function(self,w, cr, width, height)
+--         local i = rad_task.item(c)
+--         if i and i.widget then
+--             local w2,h2 = i.widget:fit(width,height)
+--             cr:save()
+--             cr:reset_clip()
+--             cr:translate((width-w2)/2, 0)
+--             i.widget.draw(i.widget,w, cr, w2, height)
+--             cr:restore()
+--         end
+--     end
 
 
     -- Now bring it all together
@@ -121,7 +124,7 @@ local function new(c)
             },
             endArrow_alt,
         },
-        title, -- Center
+        title,
         { --Right
             endArrowR2,
             {
@@ -129,7 +132,7 @@ local function new(c)
                 layout = wibox.widget.background(nil,beautiful.bar_bg_alternate or beautiful.bg_alternate)
             }
         },
-        layout = layout
+        layout = wibox.layout.align.horizontal
     }
 
     tb.title_wdg = title

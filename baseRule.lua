@@ -57,8 +57,10 @@ tags = {} --TODO remove
 
 tyrannical.settings.block_children_focus_stealing = true
 tyrannical.settings.group_children = true
-tyrannical.settings.default_layout =  awful.layout.suit.tile
-tyrannical.settings.mwfact = 0.66
+
+tyrannical.settings.tag.layout = awful.layout.suit.tile
+tyrannical.settings.tag.mwfact = 0.66
+
 
 tyrannical.tags = {
     {

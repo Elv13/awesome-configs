@@ -58,21 +58,25 @@ local function index_draw(self,w, cr, width, height)
 end
 
 local function create_item(t,s)
-  local menu = instances[s]
+  local menu,ib = instances[s],nil
   if not menu or not t then return end
   local w = wibox.layout.fixed.horizontal()
-  local icon =  tag.geticon(t)
-  if icon and beautiful.taglist_icon_transformation then
-    icon = beautiful.taglist_icon_transformation(icon,menu,nil)
+  if beautiful.taglist_disable_icon ~= true then
+    local icon = tag.geticon(t)
+    if icon and beautiful.taglist_icon_transformation then
+      icon = beautiful.taglist_icon_transformation(icon,menu,nil)
+    end
+    ib = wibox.widget.imagebox()
+    ib:set_image(icon)
+    w:add(ib)
   end
-  local ib = wibox.widget.imagebox()
-  ib:set_image(icon)
-  w:add(ib)
-  local tw = wibox.widget.textbox()
-  tw.draw = index_draw
-  local index = tag.getproperty(t,"index") or tag.getidx(t)
-  tw:set_markup(" <b>"..(index).."</b> ")
-  w:add(tw)
+  if beautiful.taglist_disable_index ~= true then
+    local tw = wibox.widget.textbox()
+    tw.draw = index_draw
+    local index = tag.getproperty(t,"index") or tag.getidx(t)
+    tw:set_markup(" <b>"..(index).."</b> ")
+    w:add(tw)
+  end
   local suf_w = wibox.layout.fixed.horizontal()
   local item = menu:add_item { text = t.name, prefix_widget = w,suffix_widget=suf_w,bg_normal="#ff0000"--[[beautiful.taglist_bg_unused]]}
   item.state[EMPTY] = true
@@ -279,7 +283,7 @@ end
 
 capi.tag.connect_signal("property::selected" , select)
 capi.tag.connect_signal("property::index2",function(t,i)
-  if t then
+  if t and not beautiful.taglist_disable_index then
     local s = tag.getscreen(t)
     local item = cache[t]
     if item then

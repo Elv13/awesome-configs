@@ -19,9 +19,8 @@ local state_cache = {}
 local function gen(width,height,bg_color,border_color)
   local img = cairo.ImageSurface(cairo.Format.ARGB32, width,height)
   local cr = cairo.Context(img)
-  local rad = corner_radius or 3
   cr:set_source(color(bg_color))
-  cr:rectangle(0,height -4, width , 4)
+  cr:rectangle(0,height -3, width , 3)
   cr:fill()
   return cairo.Pattern.create_for_surface(img)
 end
