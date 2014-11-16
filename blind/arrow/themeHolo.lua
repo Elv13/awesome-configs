@@ -181,6 +181,7 @@ theme.awesome_icon              = path .."Icon/awesome2.png"
 theme.bg_dock                   = color.create_png_pattern(path .."Icon/bg/bg_dock.png"             )
 theme.fg_dock_1                 = "#1889F2"
 theme.fg_dock_2                 = "#0A3E6E"
+theme.dock_corner_radius        = 4
 
 theme.draw_underlay = themeutils.draw_underlay
 
@@ -191,12 +192,17 @@ theme.menu = blind {
     border_width         = 2,
     opacity              = 0.9,
     fg_normal            = "#ffffff",
+    corner_radius        = 5,
+    border_color         = "#252525",
+    outline_color        = "#B7B7B7",
+    table_bg_header      = "#999999",
+    checkbox_style       = "holo",
 
     bg = blind {
-        focus     = color.create_png_pattern(path .."Icon/bg/menu_bg_focus_scifi.png" ),
-        header    = color.create_png_pattern(path .."Icon/bg/menu_bg_header_scifi.png"),
-        normal    = color.create_png_pattern(path .."Icon/bg/menu_bg_scifi.png"       ),
-        highlight = color.create_png_pattern(path .."Icon/bg/menu_bg_highlight.png"   ),
+        focus     = "#14617A",
+        header    = "#1A1A1A",
+        normal    = "#1A1A1A",
+        highlight = "#252525",
     }
 }
 

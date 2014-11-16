@@ -10,6 +10,16 @@ local color     = require( "gears.color"             )
 
 local endArrowR2,endArrow_alt
 
+local function set_underlay(c,title,underlays)
+    local underlays = underlays or {}
+    if #underlays == 0 then
+        for k,v in ipairs(c:tags()) do
+            underlays[#underlays+1] = v.name
+        end
+    end
+    title:set_underlay(underlays,{style=radical.widgets.underlay.draw_arrow,alpha=1,color="#0C2853"})
+end
+
 local function new(c)
     if not endArrowR2 then
         endArrowR2      = chopped.get_separator {
@@ -29,6 +39,8 @@ local function new(c)
         }
     end
 
+    local title = awful.titlebar.widget.titlewidget(c)
+
     -- Create a resize handle
     local resize_handle = wibox.widget.imagebox()
     resize_handle:set_image(beautiful.titlebar_resize)
@@ -37,6 +49,12 @@ local function new(c)
             collision._resize.mouse_resize(c)
         end))
     )
+    resize_handle:connect_signal("mouse::enter",function()
+        set_underlay(c,title,{"Resize"})
+    end)
+    resize_handle:connect_signal("mouse::leave",function()
+        set_underlay(c,title)
+    end)
 
     local tag_selector = wibox.widget.imagebox()
     tag_selector:set_image(beautiful.titlebar_tag)
@@ -58,6 +76,12 @@ local function new(c)
             m.visible = true
         end))
     )
+    tag_selector:connect_signal("mouse::enter",function()
+        set_underlay(c,title,{"Tag"})
+    end)
+    tag_selector:connect_signal("mouse::leave",function()
+        set_underlay(c,title)
+    end)
 
     -- Widgets that are aligned to the right
     local right_layout = wibox.layout.fixed.horizontal()
@@ -65,7 +89,12 @@ local function new(c)
     for k,v in ipairs({awful.titlebar.widget.floatingbutton(c) , awful.titlebar.widget.maximizedbutton(c), awful.titlebar.widget.stickybutton(c),
         awful.titlebar.widget.ontopbutton(c), awful.titlebar.widget.closebutton(c)}) do
         right_layout:add(v)
-        radical.tooltip(v,labels[k],{})
+        v:connect_signal("mouse::enter",function()
+            set_underlay(c,title,{labels[k]})
+        end)
+        v:connect_signal("mouse::leave",function()
+            set_underlay(c,title)
+        end)
     end
 
     -- The title goes in the middle
@@ -83,7 +112,6 @@ local function new(c)
     )
 
     local align = beautiful.titlebar_text_align
-    local title = awful.titlebar.widget.titlewidget(c)
     title:set_align(align or "center")
 
     -- TODO this is cheap, there is better ways
@@ -137,11 +165,7 @@ local function new(c)
 
     tb.title_wdg = title
     title:buttons(buttons)
-    local underlays = {}
-    for k,v in ipairs(c:tags()) do
-        underlays[#underlays+1] = v.name
-    end
-    title:set_underlay(underlays,{style=radical.widgets.underlay.draw_arrow,alpha=1,color="#0C2853"})
+    set_underlay(c,title)
 
 
     -- Now, the bottom one (floating clients only)

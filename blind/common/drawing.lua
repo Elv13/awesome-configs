@@ -84,11 +84,24 @@ if not color.apply_mask then
 
         -- Apply the tint
         cr:set_operator(cairo.Operator.HSL_COLOR)
-        if not color then
-            color = require("gears.color")
-        end
+--         if not color then
+--             color = require("gears.color")
+--         end
         cr:set_source(color(col))
         cr:mask(cairo.Pattern.create_for_surface(mask))
+        return img
+    end
+
+    function surface.tint2(sur,col)
+        local w,h = sur:get_width(),sur:get_height()
+        local img = cairo.ImageSurface.create(cairo.Format.ARGB32, w, h)
+        local cr = cairo.Context(img)
+        cr:set_operator(cairo.Operator.HSL_COLOR)
+--         if not color then
+--             color = require("gears.color")
+--         end
+        cr:set_source(color(col))
+        cr:mask(cairo.Pattern.create_for_surface(sur))
         return img
     end
 
