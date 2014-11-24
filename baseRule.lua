@@ -217,7 +217,7 @@ tyrannical.tags = {
         exclusive   = true                                           ,
         icon        = utils.tools.invertedIconPath("download.png")   ,
         layout      = awful.layout.suit.max                          ,
-        class       = {"Transmission"  , "KGet"}
+        class       = {"Transmission-qt"  , "KGet"}
     } ,
     {
         name        = "Office",
@@ -397,6 +397,10 @@ tyrannical.properties.maximize = {
 
 tyrannical.properties.border_color = {
     URxvt = "#0A1535"
+}
+
+tyrannical.properties.intrusive_popup = {
+    "transmission-qt"
 }
 
 tyrannical.properties.centered = { "kcalc" }

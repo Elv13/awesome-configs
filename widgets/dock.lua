@@ -231,8 +231,18 @@ local function draw_item(data,item,cr,width,height)
         cr:arc(0,height/2,3,0,2*math.pi)
         cr:fill()
     end
-    
+
 --     data.icon:set_image(img4)
+end
+
+local function default_icon_transformation(image,data,item)
+    local s = surface(image)
+    local w,h = surface.get_size(s)
+    local fg_col = beautiful.fg_dock
+    if (not fg_col) and beautiful.fg_dock_1 and beautiful.fg_dock_2 then
+        fg_col = { type = "linear", from = { 0, 0 }, to = { 0, s:get_height() }, stops = { { 0, beautiful.fg_dock_1 }, { 1, beautiful.fg_dock_2 }}}
+    end
+    return color.apply_mask(s,color(fg_col or beautiful.fg_normal))
 end
 
 local function create(screen, args)
@@ -243,15 +253,8 @@ local function create(screen, args)
     local dockW = nil
     dockW = radical.dock{position=args.position or "left",screen=screen,
         icon_transformation = function(image,data,item)
-            local s = surface(image)
-            local w,h = surface.get_size(s)
-            local fg_col = beautiful.fg_dock
-            if (not fg_col) and beautiful.fg_dock_1 and beautiful.fg_dock_2 then
-                fg_col = { type = "linear", from = { 0, 0 }, to = { 0, s:get_height() }, stops = { { 0, beautiful.fg_dock_1 }, { 1, beautiful.fg_dock_2 }}}
-            end
-            local img = color.apply_mask(s,color(fg_col or beautiful.fg_normal))
---             draw_item(data,item,img)
-            return img
+            local f = beautiful.dock_icon_transformation or default_icon_transformation
+            return f(image,data,item)
         end,
         overlay = function(w,item,cr,width,height)
             draw_item(dockW,item,cr,width,height)

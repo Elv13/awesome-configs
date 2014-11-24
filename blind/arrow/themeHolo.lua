@@ -178,7 +178,7 @@ theme.tasklist = blind {
 theme.border_width              = 1
 theme.border_color              = theme.fg_normal
 theme.awesome_icon              = path .."Icon/awesome2.png"
-theme.bg_dock                   = color.create_png_pattern(path .."Icon/bg/bg_dock.png"             )
+theme.bg_dock                   = "#000000"
 theme.fg_dock_1                 = "#1889F2"
 theme.fg_dock_2                 = "#0A3E6E"
 theme.dock_corner_radius        = 4
@@ -223,6 +223,17 @@ theme.titlebar = blind {
 
 -- Layouts
 loadfile(theme.path .."bits/layout.lua")(theme,path)
+
+
+
+------------------------------------------------------------------------------------------------------
+--                                                                                                  --
+--                                               DOCK                                               --
+--                                                                                                  --
+------------------------------------------------------------------------------------------------------
+
+theme.dock_icon_transformation = function(image,data,item) return surface.outline( surface(image), theme.icon_grad) end
+
 
 require( "chopped.slice" )
 

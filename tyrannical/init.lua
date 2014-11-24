@@ -140,9 +140,9 @@ local function match_client(c, startup)
     local rules = c_rules.instance[low_i] or c_rules.class[low_c]
     local forced_tags,props = apply_properties(c,props,rules and rules.properties)
 
-    if #tags == 0 and c.transient_for and settings.group_children == true then
+    if #tags == 0 and c.transient_for and (settings.group_children or (rules and rules.properties.intrusive_popup)) then
         c.sticky = c.transient_for.sticky or false
-        c:tags(c.transient_for:tags())
+        c:tags(awful.util.table.join(c.transient_for:tags(),(rules and rules.properties.intrusive_popup) and awful.tag.selectedlist(c.screen)))
         return module.focus_client(c,props)
     elseif forced_tags then
         return module.focus_client(c,props)

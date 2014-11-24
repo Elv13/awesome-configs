@@ -124,6 +124,22 @@ if not color.apply_mask then
         return img
     end
 
+    function surface.outline(sur,c)
+        local img,cr,mask= create_transformation_mask(sur,height,width,padding)
+        local w,h = surface.get_size(img)
+        local img2 = cairo.ImageSurface.create(cairo.Format.ARGB32, w, h)
+        local cr2 = cairo.Context(img2)
+        cr2:set_source(color(c))
+        cr2:translate(-3,-3)
+        cr2:scale(1.1,1.1)
+        cr2:mask(cairo.Pattern.create_for_surface(mask))
+        cr2:set_operator(cairo.Operator.CLEAR)
+        cr2:translate(3,3)
+        cr2:scale(0.85,0.85)
+        cr2:mask(cairo.Pattern.create_for_surface(mask))
+        return img2
+    end
+
 end
 
 --- Compose multiple surfaces as one
@@ -204,45 +220,45 @@ end
 
 -- Old stuff [DEPRECATED]
 
-local end_cache = {}
-module.get_end_arrow2 = function(args)--bg_color,fg_color,padding,direction
-    local args = args or {}
-    local default_height = beautiful.default_height or 16
-    local bgt = type(args.bg_color)
-    local hash = (args.width or default_height+1)..(args.padding or 0)..(args.height or default_height)..(not args.bg_color and beautiful.fg_normal or (bgt == "string" and args.bg_color or args.bg_color.stops[1][2])  or "")..(args.direction or "")
-    if end_cache[hash] then
-        return end_cache[hash]
-    end
-    local width,height = (args.width or default_height/2+1),args.height or default_height
-    local img = cairo.ImageSurface(cairo.Format.ARGB32, width+(args.padding or 0), height)
-    local cr = cairo.Context(img)
-    cr:set_source(color(args.bg_color or beautiful.bg_normal))
-    cr:new_path()
-    if (args.direction == "left") then
-        cr:move_to(0,width+(args.padding or 0))
-        cr:line_to(0,height/2)
-        cr:line_to(width+(args.padding or 0),height)
-        cr:line_to(0,height)
-        cr:line_to(0,0)
-        cr:line_to(width+(args.padding or 0),0)
-    else
-        cr:line_to(width+(args.padding or 0),0)
-        cr:line_to(width+(args.padding or 0),height)
-        cr:line_to(0,height)
-        cr:line_to(width-1,height/2)
-        cr:line_to(0,0)
-    end
-    cr:close_path()
---     cr:set_antialias(cairo.ANTIALIAS_NONE)
-    cr:fill()
-    return img
-end
+-- local end_cache = {}
+-- module.get_end_arrow2 = function(args)--bg_color,fg_color,padding,direction
+--     local args = args or {}
+--     local default_height = beautiful.default_height or 16
+--     local bgt = type(args.bg_color)
+--     local hash = (args.width or default_height+1)..(args.padding or 0)..(args.height or default_height)..(not args.bg_color and beautiful.fg_normal or (bgt == "string" and args.bg_color or args.bg_color.stops[1][2])  or "")..(args.direction or "")
+--     if end_cache[hash] then
+--         return end_cache[hash]
+--     end
+--     local width,height = (args.width or default_height/2+1),args.height or default_height
+--     local img = cairo.ImageSurface(cairo.Format.ARGB32, width+(args.padding or 0), height)
+--     local cr = cairo.Context(img)
+--     cr:set_source(color(args.bg_color or beautiful.bg_normal))
+--     cr:new_path()
+--     if (args.direction == "left") then
+--         cr:move_to(0,width+(args.padding or 0))
+--         cr:line_to(0,height/2)
+--         cr:line_to(width+(args.padding or 0),height)
+--         cr:line_to(0,height)
+--         cr:line_to(0,0)
+--         cr:line_to(width+(args.padding or 0),0)
+--     else
+--         cr:line_to(width+(args.padding or 0),0)
+--         cr:line_to(width+(args.padding or 0),height)
+--         cr:line_to(0,height)
+--         cr:line_to(width-1,height/2)
+--         cr:line_to(0,0)
+--     end
+--     cr:close_path()
+-- --     cr:set_antialias(cairo.ANTIALIAS_NONE)
+--     cr:fill()
+--     return img
+-- end
 
-module.get_end_arrow_wdg2 = function(args)
-    local ib = wibox.widget.imagebox()
-    ib:set_image(get_end_arrow2(args))
-    return ib
-end
+-- module.get_end_arrow_wdg2 = function(args)
+--     local ib = wibox.widget.imagebox()
+--     ib:set_image(get_end_arrow2(args))
+--     return ib
+-- end
 
 local beg_cache = {}
 module.get_beg_arrow2 = function(args)--bg_color,fg_color,padding,direction
@@ -275,11 +291,11 @@ module.get_beg_arrow2 = function(args)--bg_color,fg_color,padding,direction
     return img
 end
 
-module.get_beg_arrow_wdg2 = function(args)
-    local ib = wibox.widget.imagebox()
-    ib:set_image(module.get_beg_arrow2(args))
-    return ib
-end
+-- module.get_beg_arrow_wdg2 = function(args)
+--     local ib = wibox.widget.imagebox()
+--     ib:set_image(module.get_beg_arrow2(args))
+--     return ib
+-- end
 
 --Take multiple layers or path_to_png and add them on top of each other
 module.compose = surface.compose
