@@ -18,6 +18,7 @@ require("awful.autofocus")
 -- Shortcuts
 require( "tyrannical.shortcut" )
 require( "repetitive"          )
+local shorter = require( "shorter" )
 
 -- Theme handling library
 local beautiful = require( "beautiful" )
@@ -555,5 +556,12 @@ require("radical.impl.taglist.extensions").add("Count",function(client)
     end
     return w
 end)
+
+shorter.register_section("TYRANNICAL",{
+    foo = "bar",
+    bar = "foo"
+})
+
+shorter.register_section_text("REPETITIVE","gdfgdfgdfg dsfhg jsdghjsdf gdsfhj gdhj gjgj gjdf ghdjfh gjgdjgdjhg d dhjfg dhfjg dhfj gdhfgj sdhj fg")
 
 -- require("wirefu.demo.notification")
