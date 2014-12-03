@@ -2,6 +2,7 @@ local awful        = require( "awful"       )
 local shorter      = require( "shorter" )
 local widgets      = require( "widgets"                    )
 local alttab       = require( "radical.impl.alttab"        )
+local alttag       = require( "radical.impl.alttag"        )
 local customButton = require( "customButton"               )
 local customMenu   = require( "customMenu"                 )
 
@@ -45,6 +46,12 @@ shorter.Navigation = {
 
     {desc = "Select the next client",
     key={{  "Mod1", "Shift"   }, "Tab"  }, fct = function () alttab.altTabBack({auto_release=true})            end},
+
+    {desc = "Display the tag search box",
+    key={{  modkey,           }, "#49"  }, fct = function () alttag()                                   end},
+
+    {desc = "Display the tag switcher",
+    key={{  "Mod1",           }, "#49"  }, fct = function () alttag()                                   end},
 }
 
 shorter.Client = {

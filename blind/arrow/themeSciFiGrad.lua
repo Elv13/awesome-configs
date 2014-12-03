@@ -119,13 +119,13 @@ theme.tasklist = blind {
     underlay_bg_minimized   = "#4F269C",
     underlay_bg_focus       = "#0746B2",
     bg_image_selected       = d_mask(blind_pat.sur.flat_grad("#00091A","#04204F",default_height)),
-    bg_minimized            = "#10002C",
+    bg_minimized            = d_mask(blind_pat.sur.flat_grad("#0E0027","#04000E",default_height)),
     fg_minimized            = "#985FEE",
-    bg_urgent               = d_mask(blind_pat.sur.flat_grad("#5B0000","#300000",default_height)),
+    bg_urgent               = d_mask(blind_pat.sur.flat_grad("#5B0000","#070016",default_height)),
     bg_hover                = d_mask(blind_pat.sur.thick_stripe("#19324E","#132946",14,default_height,true)),
     bg_focus                = d_mask(blind_pat.sur.flat_grad("#00143B","#052F77",default_height)),
     default_icon            = path .."Icon/tags/other.png",
-    bg                      = d_mask(blind_pat.sur.flat_grad("#22222A",nil,default_height)),
+    bg                      = "#00000088",
     icon_transformation     = loadfile(theme.path .."bits/icon_transformation/state.lua")(theme,path)
 }
 
@@ -143,6 +143,12 @@ theme.menu = blind {
     bg_normal    = color.create_png_pattern(path .."Icon/bg/menu_bg_scifi.png"       ),
     bg_highlight = color.create_png_pattern(path .."Icon/bg/menu_bg_highlight.png"   ),
     border_color = theme.fg_normal,
+}
+
+-- Shorter
+theme.shorter = blind {
+--     bg = blind_pat.to_pattern(blind_pat.mask.noise(0.14,"#AAAACC", blind_pat.mask.triangle(80,3,{color("#0D1E37"),color("#122848")},"#25324A",blind_pat.sur.plain("#081B37",80))))
+    bg = blind_pat.to_pattern(blind_pat.mask.noise(0.14,"#AAAACC", blind_pat.mask.triangle(80,3,{color("#091629"),color("#0E2039")},"#25324A",blind_pat.sur.plain("#081B37",80))))
 }
 
 -- theme.draw_underlay = themeutils.draw_underlay
