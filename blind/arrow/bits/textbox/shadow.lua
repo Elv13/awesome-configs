@@ -45,3 +45,9 @@ wibox_w.textbox.draw = function(self,w, cr, width, height,args)
     cr:set_source_surface(img)
     cr:paint()
 end
+
+wibox_w.textbox.__fit = wibox_w.textbox.fit
+wibox_w.textbox.fit = function(self,w,h)
+    local w,h = wibox_w.textbox.__fit(self,w,h)
+    return w+3,h
+end

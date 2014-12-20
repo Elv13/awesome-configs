@@ -16,12 +16,12 @@ local capi = { image  = image  ,
 local module = {}
 
 
-local function new(screen, args) 
+local function new(screen, args)
   local desktopPix       = wibox.widget.imagebox()
   tooltip2(desktopPix,"Show Desktop",{down=true})
-  desktopPix:set_image(color.apply_mask(config.iconPath .. "tags/desk2.png"))
+  desktopPix:set_image(color.apply_mask(config.iconPath .. "tags/desk2.png",beautiful.icon_grad))
   desktopPix:buttons( util.table.join( button({ }, 1, function() tag.viewnone() end) ))
-  return desktopPix
+  return wibox.widget.background(desktopPix,beautiful.button_bg_normal or beautiful.icon_mask)
 end
 
 return setmetatable(module, { __call = function(_, ...) return new(...) end })

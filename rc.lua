@@ -99,7 +99,7 @@ config.scr           = {
 config.load()
 config.themePath = awful.util.getdir("config") .. "/blind/" .. config.themeName .. "/"
 config.iconPath  = config.themePath       .. "Icon/"
-beautiful.init(config.themePath                .. "/themeSciFiGrad.lua")
+beautiful.init(config.themePath                .. "/themeIndustry.lua")
 
 
 -- This is used later as the default terminal and editor to run.

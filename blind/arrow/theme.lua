@@ -9,6 +9,7 @@ local themeutils = require( "blind.common.drawing"    )
 local wibox_w    = require( "wibox.widget"   )
 local radical    = require( "radical"        )
 local blind      = require( "blind"          )
+local blind_pat  = require( "blind.common.pattern" )
 local debug      = debug
 
 local path = debug.getinfo(1,"S").source:gsub("theme.lua",""):gsub("@","")
@@ -16,14 +17,18 @@ local path = debug.getinfo(1,"S").source:gsub("theme.lua",""):gsub("@","")
 local theme = blind.theme
 -- arrow.task.theme,arrow.tag.theme = theme,theme
 
+local function d_mask(img,cr)
+    return blind_pat.to_pattern(img,cr)
+end
+
 ------------------------------------------------------------------------------------------------------
 --                                                                                                  --
 --                                    DEFAULT COLORS, FONT AND SIZE                                 --
 --                                                                                                  --
 ------------------------------------------------------------------------------------------------------
 
-theme.default_height = 24
-theme.font           = "terminus mono 13"
+theme.default_height = 14
+-- theme.font           = "terminus mono 13"
 theme.path           = path
 
 theme.bg_normal      = "#0A1535"
@@ -76,12 +81,14 @@ theme.tasklist_plain_task_name     = true
 ------------------------------------------------------------------------------------------------------
 
 -- Display the taglist squares
-theme.taglist_bg_image_empty           = nil
-theme.taglist_bg_image_selected        = path .."Icon/bg/selected_bg.png"
-theme.taglist_bg_image_used            = path .."Icon/bg/used_bg.png"
-theme.taglist_bg_image_urgent          = path .."Icon/bg/urgent_bg.png"
-theme.taglist_bg_image_remote_selected = path .."Icon/bg/selected_bg_green.png"
-theme.taglist_bg_image_remote_used     = path .."Icon/bg/used_bg_green.png"
+theme.taglist_bg_empty           = nil
+theme.taglist_bg_selected        = cairo.Pattern.create_for_surface(cairo.ImageSurface.create_from_png(path .."Icon/bg/selected_bg.png"))
+theme.taglist_bg_used            = cairo.Pattern.create_for_surface(cairo.ImageSurface.create_from_png(path .."Icon/bg/used_bg.png"))
+theme.taglist_bg_urgent          = cairo.Pattern.create_for_surface(cairo.ImageSurface.create_from_png(path .."Icon/bg/urgent_bg.png"))
+theme.taglist_bg_remote_selected = cairo.Pattern.create_for_surface(cairo.ImageSurface.create_from_png(path .."Icon/bg/selected_bg_green.png"))
+theme.taglist_bg_remote_used     = cairo.Pattern.create_for_surface(cairo.ImageSurface.create_from_png(path .."Icon/bg/used_bg_green.png"))
+theme.taglist_bg_hover           = d_mask(blind_pat.sur.flat_grad("#321DBA","#201379",theme.default_height))
+theme.taglist_fg_prefix                = theme.bg_normal
 -- theme.taglist_squares_unsel            = function(wdg,m,t,objects,idx) return arrow.tag.gen_tag_bg(wdg,m,t,objects,idx,theme.taglist_bg_image_used)     end
 -- theme.taglist_squares_sel              = function(wdg,m,t,objects,idx) return arrow.tag.gen_tag_bg(wdg,m,t,objects,idx,theme.taglist_bg_image_selected) end
 -- theme.taglist_squares_sel_empty        = function(wdg,m,t,objects,idx) return arrow.tag.gen_tag_bg(wdg,m,t,objects,idx,theme.taglist_bg_image_selected) end
@@ -110,7 +117,7 @@ theme.menu_submenu_icon         = path .."Icon/tags/arrow.png"
 theme.menu_scrollmenu_down_icon = path .."Icon/tags/arrow_down.png"
 theme.menu_scrollmenu_up_icon   = path .."Icon/tags/arrow_up.png"
 theme.awesome_icon              = path .."Icon/awesome2.png"
-theme.menu_height               = 30
+theme.menu_height               = 20
 theme.menu_width                = 130
 theme.menu_border_width         = 2
 theme.border_width              = 1

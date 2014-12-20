@@ -92,6 +92,14 @@ local function resize(img,w,h)
     return img2, cr
 end
 
+function blind_pat.mask.resize(w,h,img,cr)
+    local img2 = cairo.ImageSurface.create(cairo.Format.ARGB32, w, h)
+    local cr   = cairo.Context(img2)
+    cr:set_source(blind_pat.to_pattern(img))
+    cr:paint()
+    return img2, cr
+end
+
 --- Draw triangles on to of img
 -- @arg size The size of the triangles
 -- @arg border The border size
@@ -172,6 +180,23 @@ function blind_pat.mask.honeycomb(size, border, cols, border_col, img,cr)
             m = not m
         end
     end
+    return img,cr
+end
+
+function blind_pat.sur.carbon(size, col1, col2, img, cr)
+    local img = cairo.ImageSurface.create(cairo.Format.ARGB32, size*2, size*2)
+    local cr  = cairo.Context(img)
+    cr:set_antialias(cairo.ANTIALIAS_NONE)
+    cr:set_source(color(col1))
+    cr:paint()
+    cr:set_source(color(col2))
+--     cr:rectangle(0,0,2*size,size)
+--     cr:rectangle(0,2*size,size,2*size)
+--     cr:rectangle(2*size,0,size,2*size)
+--     cr:rectangle(2*size,2*size,size,2*size)
+    cr:rectangle(0,0,size,size)
+    cr:rectangle(size,size,size,size)
+    cr:fill()
     return img,cr
 end
 

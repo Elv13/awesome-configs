@@ -148,7 +148,7 @@ theme.menu = blind {
 -- Shorter
 theme.shorter = blind {
 --     bg = blind_pat.to_pattern(blind_pat.mask.noise(0.14,"#AAAACC", blind_pat.mask.triangle(80,3,{color("#0D1E37"),color("#122848")},"#25324A",blind_pat.sur.plain("#081B37",80))))
-    bg = blind_pat.to_pattern(blind_pat.mask.noise(0.14,"#AAAACC", blind_pat.mask.triangle(80,3,{color("#091629"),color("#0E2039")},"#25324A",blind_pat.sur.plain("#081B37",80))))
+    bg = blind_pat.to_pattern(blind_pat.mask.noise(0.14,"#AAAACC", blind_pat.mask.triangle(80,3,{color("#091629"),color("#0E2039")},"#25324A",blind_pat.sur.plain("#081B37",79))))
 }
 
 -- theme.draw_underlay = themeutils.draw_underlay
@@ -171,6 +171,6 @@ loadfile(theme.path .."bits/textbox/glow.lua")(theme,path)
 require( "chopped.arrow" )
 
 -- Add round corner to floating clients
-require("blind.arrow.bits.client_shape")
+loadfile(theme.path .."bits/client_shape.lua")(3)
 
 return theme

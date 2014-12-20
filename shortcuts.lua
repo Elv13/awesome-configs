@@ -5,6 +5,7 @@ local alttab       = require( "radical.impl.alttab"        )
 local alttag       = require( "radical.impl.alttag"        )
 local customButton = require( "customButton"               )
 local customMenu   = require( "customMenu"                 )
+local collision    = require( "collision.util"             )
 
 
 shorter.Navigation = {
@@ -249,8 +250,11 @@ for i = 1, 10 do
 end
 shorter.Navigation = tagSelect
 
+local copts_sec,copts_usec = 0,0
+
 clientbuttons = awful.util.table.join(
     awful.button({ }, 1, function (c) client.focus = c; c:raise() end),
     awful.button({ modkey }, 1, awful.mouse.client.move),
-    awful.button({ modkey }, 3, awful.mouse.client.resize)
+    awful.button({ modkey }, 3, awful.mouse.client.resize),
+    awful.button({  }, 6, collision.double_click(function() customMenu.client_opts() end))
 )

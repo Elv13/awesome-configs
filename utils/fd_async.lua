@@ -518,7 +518,9 @@ function module.ini.write(ini,path)
       v = ini[k.."_orig"]
       ini[k.."_orig"] = nil
     end
-    ret = ret..k.."="..v.."\n"
+    if v then
+      ret = ret..k.."="..v.."\n"
+    end
   end
 
   return module.file.write(path,ret)

@@ -1,3 +1,4 @@
+local radius    = ...
 local capi      = {client=client}
 local shape     = require("blind.common.shape" )
 local beautiful = require("beautiful"          )
@@ -7,6 +8,9 @@ local cshape    = require( "awful.client.shape")
 local surface   = require("gears.surface")
 
 local active = setmetatable({},{__mode="k"})
+
+radius = radius or 5
+print("RAD",radius)
 
 local function create(c)
     local geo = c:geometry()
@@ -23,7 +27,7 @@ local function create(c)
 
     cr:set_operator(cairo.Operator.SOURCE)
     cr:set_source_rgba(1,1,1,1)
-    shape.draw_round_rect2(cr,0,0,width+2*border,height+2*border,10,10,5,5)
+    shape.draw_round_rect2(cr,0,0,width+2*border,height+2*border,2*radius,2*radius,radius,radius)
     cr:fill()
 
     c.shape_bounding = img._native
@@ -38,7 +42,7 @@ local function create(c)
     cr:set_operator(cairo.Operator.SOURCE)
     cr:set_source_rgba(1,1,1,1)
 
-    shape.draw_round_rect2(cr,0,0,width,height,10,10,5,5)
+    shape.draw_round_rect2(cr,0,0,width,height,2*radius,2*radius,radius,radius)
     cr:fill()
     c.shape_clip = img._native
     img:finish()

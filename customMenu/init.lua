@@ -11,4 +11,5 @@ return {
     taghover    = require( "customMenu.taghover"    ),
 --     tagstate    = require( "customMenu.tagstate"    )
 --     notifications = require("customMenu.notifications")
+    client_opts = require( "customMenu.client_opts" ),
 }

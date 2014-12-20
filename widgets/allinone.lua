@@ -75,7 +75,7 @@ local function draw_progres2(self,cr,percent,wi,he)
       cr2:translate(-wi,0)
     end
 
-    cr2:set_source(color(beautiful.icon_grad or beautiful.fg_normal))
+    cr2:set_source(color(beautiful.fg_allinone or beautiful.icon_grad or beautiful.fg_normal))
     cr2:set_line_width(line_width)
 
     -- Bottom line
