@@ -99,7 +99,7 @@ config.scr           = {
 config.load()
 config.themePath = awful.util.getdir("config") .. "/blind/" .. config.themeName .. "/"
 config.iconPath  = config.themePath       .. "Icon/"
-beautiful.init(config.themePath                .. "/themeIndustry.lua")
+beautiful.init(config.themePath                .. "/themeZilla.lua")
 
 
 -- This is used later as the default terminal and editor to run.
@@ -244,13 +244,16 @@ local sep_end_menu        = chopped.get_separator {
 }
 
 local spacer5 = widgets.spacer({text = " ",width=5})
-
 -- Imitate the Gnome 2 menubar
 local bar_menu,bar_menu_w = radical.bar{
     item_style           = beautiful.bottom_menu_item_style or radical.item.style.arrow_prefix,
     fg                   = beautiful.fg_normal,
     fg_focus             = beautiful.menu_fg_normal,
-    disable_submenu_icon = true
+    disable_submenu_icon = true,
+    style                = beautiful.bottom_menu_style,
+    spacing              = beautiful.bottom_menu_spacing,
+    default_item_margins = beautiful.bottom_menu_default_item_margins,
+    default_margins      = beautiful.bottom_menu_default_margins
 }
 
 local app_menu = nil

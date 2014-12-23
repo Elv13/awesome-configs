@@ -84,9 +84,6 @@ if not color.apply_mask then
 
         -- Apply the tint
         cr:set_operator(cairo.Operator.HSL_COLOR)
---         if not color then
---             color = require("gears.color")
---         end
         cr:set_source(color(col))
         cr:mask(cairo.Pattern.create_for_surface(mask))
         return img
