@@ -4,13 +4,15 @@ local shape     = require("blind.common.shape" )
 local beautiful = require("beautiful"          )
 local cairo     = require( "lgi"               ).cairo
 local client    = require( "awful.client"      )
-local cshape    = require( "awful.client.shape")
+local ret,cshape    = pcall(require, "awful.client.shape")
 local surface   = require("gears.surface")
+
+-- Cshape is not available in 3.5.*
+if not cshape or ret == false then return end
 
 local active = setmetatable({},{__mode="k"})
 
 radius = radius or 5
-print("RAD",radius)
 
 local function create(c)
     local geo = c:geometry()
