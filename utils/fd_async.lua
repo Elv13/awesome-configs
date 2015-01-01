@@ -442,9 +442,9 @@ function module.icon.load(names,size)
   -- Parse the names
   local icon_theme,icon_info,bar = gtk.IconTheme,default_theme:choose_icon(names,size,{})
 
-  if not icon_info then return req end --TODO error
+  if not icon_info or not icon_info.load_icon_async then return req end --TODO error
 
-  gtk.IconInfo.load_icon_async(icon_info,nil,function(file,task)
+  icon_info:load_icon_async(nil,function(file,task)
       local pix = file:load_icon_finish(task)
       if not pix then return end
 
