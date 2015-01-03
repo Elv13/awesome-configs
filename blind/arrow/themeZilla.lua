@@ -45,14 +45,14 @@ theme.bg = blind {
 -- Wibar background
 local bargrad = { type = "linear", from = { 0, 0 }, to = { 0, 16 }, stops = { { 0, "#000000" }, { 1, "#040405" }}}
 theme.bar_bg = blind {
-    alternate = d_mask(blind_pat.mask.noise(0.04,"#AAAACC", blind_pat.sur.plain("#081B37",default_height))),
     normal    = { type = "linear", from = { 0, 0 }, to = { 0, default_height }, stops = { { 0, "#4f5962" }, { 1, "#282d32" }}},
-    buttons   = d_mask(blind_pat.sur.flat_grad("#00091A","#04204F",default_height)),
+    buttons   = { type = "linear", from = { 0, 0 }, to = { 0, default_height }, stops = { { 0, "#3F474E" }, { 1, "#181B1E" }}},
 }
+theme.bar_bg_alternate = theme.bar_bg_normal
 
 -- Forground
 theme.fg = blind {
-    normal   = "#6DA1D4",
+    normal   = "#DDDDDD",
     focus    = "#ABCCEA",
     urgent   = "#FF7777",
     minimize = "#1577D3",
@@ -91,6 +91,18 @@ theme.icon_grad_invert = { type = "linear", from = { 0, 0 }, to = { 0, 20 }, sto
 
 local taglist_height = (default_height-4)
 local taglist_grad_px = 1/taglist_height
+
+local function taglist_transform(img,data,item)
+    local col = nil
+    if item then
+        local current_state = item.state._current_key or nil
+        local state_name = radical.base.colors_by_id[current_state] or "normal"
+        col = theme["taglist_icon_color_"..state_name] or item["fg_"..state_name]
+    else
+        col = "#b8c7d1ff" --HACK
+    end
+    return pixmap(img):colorize(col):resize_center(2,taglist_height,taglist_height):shadow():to_img()
+end
 
 -- Taglist
 theme.taglist = blind {
@@ -170,17 +182,7 @@ theme.taglist = blind {
     custom_color = function (...) d_mask(blind_pat.sur.flat_grad(...)) end,
     default_icon       = path .."Icon/tags/other.png",
     index_per_state = true,
-    icon_transformation     = function(img,data,item)
-        local col = nil
-        if item then
-            local current_state = item.state._current_key or nil
-            local state_name = radical.base.colors_by_id[current_state] or "normal"
-            col = theme["taglist_icon_color_"..state_name] or item["fg_"..state_name]
-        else
-            col = "#b8c7d1ff" --HACK
-        end
-        return pixmap(img):colorize(col):resize_center(2,taglist_height,taglist_height):shadow():to_img()
-    end
+    icon_transformation     = taglist_transform,
 }
 theme.taglist_item_style     = radical.item.style.arrow_3d
 theme.taglist_bg                 = d_mask(blind_pat.sur.plain("#070A0C",default_height))
@@ -198,6 +200,35 @@ theme.taglist_default_margins = {
     BOTTOM = 2,
 }
 
+-- Toolbox
+
+local function toolbox_transform(img,data,item)
+    return pixmap(img):colorize("#a0aab5ff"):resize_center(2,taglist_height,taglist_height):shadow():to_img()
+end
+
+theme.toolbox = blind {
+    icon_transformation = toolbox_transform,
+    item_style          = radical.item.style.line_3d,
+    bg={ type = "linear", from = { 0, 0 }, to = { 0, default_height }, stops = { { 0, "#3F474E" }, { 1, "#181B1E" }}},
+    bg_focus={ type = "linear", from = { 0, 0 }, to = { 0, default_height }, stops = { { 0, "#282d32" }, { 1, "#4f5962" }}},
+    style = radical.style.grouped_3d,
+    fg_hover = "#ffffff",
+    border_color = color{ type = "linear", from = { 0, 0 }, to = { 0, default_height }, stops = { { 0, "#282d32" }, { 1, "#4f5962" }}},
+    item_border_color = "#666666",
+    default_item_margins = {
+        LEFT   = 3,
+        RIGHT  = 3,
+        TOP    = 0,
+        BOTTOM = 0,
+    },
+    default_margins = {
+        TOP    = 2,
+        BOTTOM = 1,
+        RIGHT  = 5,
+        LEFT   = 5,
+    }
+}
+
 -- Tasklist
 theme.tasklist = blind {
     underlay_bg_urgent      = "#ff0000",
@@ -210,17 +241,23 @@ theme.tasklist = blind {
     bg_hover                = d_mask(blind_pat.sur.thick_stripe("#19324E","#132946",14,default_height,true)),
     bg_focus                = theme.taglist_bg_selected,
     default_icon            = path .."Icon/tags/other.png",
-    bg                      = "#00000088",
+    bg                      = "#00000000",
     icon_transformation     = loadfile(theme.path .."bits/icon_transformation/state.lua")(theme,path),
     item_style              = radical.item.style.rounded,
     spacing                 = 6,
 }
 
 theme.tasklist_default_item_margins = {
-    LEFT   = 2,
-    RIGHT  = 17,
-    TOP    = 2,
-    BOTTOM = 2,
+    LEFT   = 4,
+    RIGHT  = 4,
+    TOP    = 1,
+    BOTTOM = 1,
+}
+theme.tasklist_default_margins = {
+    LEFT   = 5,
+    RIGHT  = 5,
+    TOP    = 3,
+    BOTTOM = 3,
 }
 
 
@@ -239,9 +276,12 @@ theme.menu = blind {
     border_color = theme.fg_normal,
 }
 
-theme.bottom_menu_style      = radical.style.grouped_3d
+-- theme.bottom_menu_style      = radical.style.grouped_3d
 theme.bottom_menu_item_style = radical.item.style.rounded
 theme.bottom_menu_spacing    = 6
+theme.bottom_menu_bg = "#00000000"
+theme.botton_menu_item_border_color = "#0000ff"
+
 -- theme.bottom_menu_default_item_margins = {
 --     LEFT   = 2,
 --     RIGHT  = 17,
@@ -251,8 +291,8 @@ theme.bottom_menu_spacing    = 6
 theme.bottom_menu_default_margins = {
     LEFT   = 6,
     RIGHT  = 17,
-    TOP    = 4,
-    BOTTOM = 4,
+    TOP    = 3,
+    BOTTOM = 3,
 }
 
 -- Shorter

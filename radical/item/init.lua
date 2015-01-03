@@ -108,6 +108,7 @@ local function new_item(data,args)
       bg          = args.bg          or nil                                                                 ,
       fg          = args.fg          or data.fg                                                             , --TODO don't do this
       border_color= args.border_color or data.border_color                                                  ,
+      border_width= args.border_width or data.border_width                                                  ,
       bg_prefix   = args.bg_prefix   or data.bg_prefix                                                      ,
       sub_menu_m  = (args.sub_menu   and type(args.sub_menu) == "table" and args.sub_menu.is_menu) and args.sub_menu or nil,
       sub_menu_f  = (args.sub_menu   and type(args.sub_menu) == "function") and args.sub_menu or nil        ,
@@ -118,6 +119,7 @@ local function new_item(data,args)
       style       = args.style       or data.item_style                                                     ,
       layout      = args.layout      or args.item_layout or nil                                             ,
       overlay     = args.overlay     or data.overlay or nil                                                 ,
+      item_border_color = args.item_border_color or data.item_border_color or nil                           ,
     },
     force_private = {
       visible = true,
@@ -143,7 +145,20 @@ local function new_item(data,args)
   item.get_fg = function()
     return data.fg
   end
+
+  item.set_underlay = function(item,underlay)
+    if not item._internal.underlay_init then
+      data:add_colors_group("underlay")
+      item._internal.underlay_init = true
+    end
+
+    item._internal.underlay_content = underlay
+  end
+  item.get_underlay =  function(item)
+    return item._internal.underlay_content
+  end
   item.state         = theme.init_state(item)
+  item.underlay = args.underlay
 
   for i=1,10 do
     item["button"..i] = args["button"..i]

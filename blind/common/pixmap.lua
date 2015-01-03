@@ -1,6 +1,7 @@
 local surface    = require( "gears.surface"  )
 local cairo      = require( "lgi"            ).cairo
 local color      = require( "gears.color"    )
+local beautiful  = require( "beautiful"      )
 
 local module = {}
 
