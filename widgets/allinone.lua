@@ -12,7 +12,7 @@ local themeutils   = require( "blind.common.drawing"       )
 local pangocairo = require("lgi").PangoCairo
 
 local line_width = 2.25
-local margins = 2
+local fallback_margins = 2
 
 local outline_cache = {}
 local progress_cache = {}
@@ -24,6 +24,7 @@ local function draw_outine(self,cr,wi,he)
     local cr2 = cairo.Context(img)
     local xoff  = self._hide_left and 0 or he/2
     local xoffi = self._hide_left and he/2 or 0
+    local margins = beautiful.allinone_margins or fallback_margins
 
     --Mirror
     if self._mirror then
@@ -41,11 +42,11 @@ local function draw_outine(self,cr,wi,he)
     end
 
     -- Right arc
-    cr2:arc(wi-he/2 -2.4, he/2, he/2-margins,3*(math.pi/2),math.pi/2)
+    cr2:arc(wi-he/2 - margins, he/2, he/2-margins,3*(math.pi/2),math.pi/2)
     cr2:stroke()
 
     -- Top line
-    cr2:move_to(xoff+2,margins)
+    cr2:move_to(xoff+margins,margins)
     cr2:line_to((xoff+margins) + (wi-he-2*margins)+xoffi,margins)
     cr2:stroke()
 
@@ -61,6 +62,7 @@ end
 
 local function draw_progres2(self,cr,percent,wi,he)
   local hash = wi+1234.5*he*percent+(self._hide_left and 1 or 2)+(self._mirror and 13.3 or 7.4)
+  local margins = beautiful.allinone_margins or fallback_margins
   if not progress_cache[hash] then
     local img = cairo.ImageSurface.create(cairo.Format.ARGB32, wi, he)
     local cr2 = cairo.Context(img)
@@ -111,7 +113,7 @@ local function draw_progres2(self,cr,percent,wi,he)
       cr2:stroke()
     elseif percent > bar_percent+arc_percent and percent < 2*bar_percent+arc_percent then
       cr2:move_to((he/2+margins) + (wi-he-2*margins),margins)
-      cr2:line_to(((he/2+margins) + (wi-he-2*margins))-total_length*(percent-bar_percent-arc_percent),2)
+      cr2:line_to(((he/2+margins) + (wi-he-2*margins))-total_length*(percent-bar_percent-arc_percent),margins)
       cr2:stroke()
     end
 
@@ -156,6 +158,7 @@ local full_width = 0
 local pango_l,pango_crx = nil,nil
 local line_width,alpha = {1,2,3,5},{"77","55","33","10"}
 local function show_text(self,cr,height,parent_width)
+  local margins = beautiful.allinone_margins or fallback_margins
   if not pango_l then
     pango_crx = pangocairo.font_map_get_default():create_context()
     pango_l = pango.Layout.new(pango_crx)
@@ -166,10 +169,10 @@ local function show_text(self,cr,height,parent_width)
   local text = self._text and self._text or ((self.percent or 0)*(self._use_percent ~= false and 100 or 1))
   pango_l.text = text
   local width = pango_l:get_pixel_extents().width
-  local icon = get_icon(self,height-4)
+  local icon = get_icon(self,height-2*margins)
   local x = self._left_item and (height/2 ) or (parent_width - beautiful.default_height - full_width)/2
   if icon then
-    cr:set_source_surface(icon,x,2)
+    cr:set_source_surface(icon,x,margins)
     cr:paint()
   end
   local w_pos = self._left_item and (height/2 + (icon and icon:get_width())) or (x + beautiful.default_height)
@@ -178,17 +181,17 @@ local function show_text(self,cr,height,parent_width)
     for i=1,4 do
         cr:set_source(color((beautiful.glow_color or beautiful.fg_normal)..alpha[i]))
         cr:set_line_width(line_width[i])
-        cr:move_to(w_pos,3)
+        cr:move_to(w_pos,margins)
         cr:layout_path(pango_l)
         cr:stroke()
     end
     cr:restore()
   end
   cr:set_source(color(beautiful.fg_normal))
-  cr:move_to(w_pos,3)
+  cr:move_to(w_pos,margins)
   cr:show_layout(pango_l)
 
-  cr:move_to(w_pos+full_width,3)
+  cr:move_to(w_pos+full_width,margins)
   pango_l.text = self._suffix
 
   if beautiful.enable_glow then
