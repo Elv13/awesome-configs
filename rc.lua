@@ -189,14 +189,14 @@ local endArrow               = chopped.get_separator {
     weight      = chopped.weight.FULL                       ,
     direction   = chopped.direction.RIGHT                   ,
     sep_color   = nil                                       ,
-    left_color  = beautiful.icon_grad                       ,
+    left_color  = beautiful.separator_color or beautiful.icon_grad                       ,
     right_color = nil                                       ,
 }
 
 local endArrow_alt2          = chopped.get_separator {
     weight      = chopped.weight.THIN                       ,
     direction   = chopped.direction.RIGHT                   ,
-    sep_color   = beautiful.icon_grad or beautiful.fg_normal,
+    sep_color   = beautiful.separator_color or beautiful.icon_grad or beautiful.fg_normal,
     left_color  = beautiful.bar_bg_alternate or beautiful.bg_alternate                    ,
     right_color = nil                                       ,
 }
@@ -204,7 +204,7 @@ local endArrow_alt2          = chopped.get_separator {
 local endArrowR             = chopped.get_separator {
     weight      = chopped.weight.THIN                       ,
     direction   = chopped.direction.LEFT                    ,
-    sep_color   = beautiful.icon_grad or beautiful.fg_normal,
+    sep_color   = beautiful.separator_color or beautiful.icon_grad or beautiful.fg_normal,
     left_color  = nil                                       ,
     right_color = beautiful.bar_bg_alternate or beautiful.bg_alternate                    ,
 }
@@ -212,7 +212,7 @@ local endArrowR             = chopped.get_separator {
 local arr_last_tag_w       = chopped.get_separator {
     weight      = chopped.weight.THIN                       ,
     direction   = chopped.direction.RIGHT                   ,
-    sep_color   = beautiful.icon_grad or beautiful.fg_normal,
+    sep_color   = beautiful.separator_color or beautiful.icon_grad or beautiful.fg_normal,
     left_color  = nil                                       ,
     right_color = beautiful.bar_bg_alternate or beautiful.bg_alternate                    ,
     margin      = -beautiful.default_height/2
@@ -223,13 +223,13 @@ local endArrow2           = chopped.get_separator {
     direction   = chopped.direction.LEFT                    ,
     sep_color   = nil                                       ,
     left_color  = nil                                       ,
-    right_color = beautiful.icon_grad or beautiful.fg_normal,
+    right_color = beautiful.separator_color or beautiful.icon_grad or beautiful.fg_normal,
 }
 
 local spacer_img          = chopped.get_separator {
     weight      = chopped.weight.THIN                       ,
     direction   = chopped.direction.LEFT                    ,
-    sep_color   = beautiful.icon_grad or beautiful.fg_normal,
+    sep_color   = beautiful.separator_color or beautiful.icon_grad or beautiful.fg_normal,
     left_color  = nil                                       ,
     right_color = nil                                       ,
 }
@@ -239,7 +239,7 @@ local sep_end_menu        = chopped.get_separator {
     direction   = chopped.direction.RIGHT                   ,
     sep_color   = nil                                       ,
     left_color  = nil                                       ,
-    right_color = beautiful.icon_grad or beautiful.fg_normal,
+    right_color = beautiful.separator_color or beautiful.icon_grad or beautiful.fg_normal,
     margin      = -beautiful.default_height/2
 }
 
@@ -249,19 +249,27 @@ local bar_menu,bar_menu_w = radical.bar{
     item_style           = beautiful.bottom_menu_item_style or radical.item.style.arrow_prefix,
     fg                   = beautiful.fg_normal,
     fg_focus             = beautiful.menu_fg_normal,
+    bg                   = beautiful.bottom_menu_bg,
     disable_submenu_icon = true,
     style                = beautiful.bottom_menu_style,
     spacing              = beautiful.bottom_menu_spacing,
     default_item_margins = beautiful.bottom_menu_default_item_margins,
-    default_margins      = beautiful.bottom_menu_default_margins
+    default_margins      = beautiful.bottom_menu_default_margins,
+--     item_border_color    = "#ff0000",
+    border_width         = 2,
+    icon_transformation  = beautiful.bottom_menu_icon_transformation or function(icon,data,item)
+        return gears.color.apply_mask(icon,beautiful.button_bg_normal or beautiful.bg_normal)
+    end,
 }
+bar_menu:add_colors_namespace("bottom_menu")
 
 local app_menu = nil
 local it = bar_menu:add_item {
     text     = "Apps",
-    icon     = gears.color.apply_mask(beautiful.awesome_icon,beautiful.button_bg_normal or beautiful.bg_normal),
+    icon     = beautiful.awesome_icon,
     tooltip  = "Application menu",
     bg_used  = beautiful.bar_bg_buttons or beautiful.menu_bg_normal,
+    spacing  = 8,
     sub_menu = function()
         if not app_menu then
             app_menu = customMenu.appmenu (
@@ -284,14 +292,14 @@ local it = bar_menu:add_item {
 it.state[radical.base.item_flags.USED] = true
 it = bar_menu:add_item {
     text     = "Places",
-    icon     = gears.color.apply_mask(config.iconPath .. "tags/home.png",beautiful.button_bg_normal or beautiful.bg_normal),
+    icon     = config.iconPath .. "tags/home.png",
     tooltip  = "Folder shortcuts",
     sub_menu = customMenu.places.get_menu,
     bg_used  = beautiful.bar_bg_buttons or beautiful.menu_bg_normal,
 }
 it.state[radical.base.item_flags.USED] = true
 it = bar_menu:add_item {text="Launch",
-    icon     = gears.color.apply_mask(config.iconPath .. "gearA.png", beautiful.button_bg_normal or beautiful.bg_normal),
+    icon     = config.iconPath .. "gearA.png",
     tooltip  = "Execute a command",
     sub_menu = customMenu.launcher.get_menu,
     bg_used  = beautiful.bar_bg_buttons or beautiful.menu_bg_normal,
@@ -340,6 +348,50 @@ for s = 1, screen.count() do
     wibox_top[s] = awful.wibox({ position = "top"   , ontop=false,screen = s,height=beautiful.default_height , bg = beautiful.bar_bg_normal or beautiful.bg_normal })
     wibox_bot[s] = awful.wibox({ position = "bottom", ontop=false,screen = s,height=beautiful.default_height , bg = beautiful.bar_bg_normal or beautiful.bg_normal })
 
+    -- Create the tag control menu
+    local tag_control,tag_control_w = radical.bar{
+        item_style           = beautiful.toolbox_item_style or radical.item.style.rounded,
+        item_layout          = radical.item.layout.icon,
+        icon_transformation  = beautiful.toolbox_icon_transformation,
+        icon_per_state       = beautiful.toolbox_icon_per_state,
+        style                = beautiful.toolbox_style,
+        default_item_margins = beautiful.toolbox_default_item_margins or {
+            LEFT   = 0,
+            RIGHT  = 0,
+            TOP    = 0,
+            BOTTOM = 0,
+        },
+        default_margins      = beautiful.toolbox_default_margins or {
+            TOP    = 0,
+            BOTTOM = 0,
+            RIGHT  = 5,
+            LEFT   = 5,
+        }
+    }
+    tag_control:add_colors_namespace("toolbox")
+--     tag_control:add_widgets {
+--         addTag        ,
+--         delTag     [s],
+--         lockTag    [s],
+--         movetagL   [s],
+--         movetagR   [s],
+--         layoutmenu [s],
+--     }
+    
+    
+    tag_control:add_items {
+        {icon = config.iconPath .. "tags/screen_left.png"            , tooltip = "Move tag to the previous screen" },
+        {icon = config.iconPath .. "tags/screen_right.png"           , tooltip = "Move tag to the next screen"},
+        {icon = config.iconPath .. "tags/cross2.png"                 , tooltip = "Add a new tag", button1=function()
+            awful.tag.viewonly(awful.tag.add("NewTag",{screen= (client.focus and client.focus.screen or mouse.screen) }))
+        end},
+        {icon = config.iconPath .. "tags/minus2.png"                 , tooltip = "Delete the current tag", button1=function()
+            awful.tag.delete(client.focus and awful.tag.selected(client.focus.screen) or awful.tag.selected(mouse.screen) )
+        end},
+--         {icon = config.iconPath .. "layouts_small/spiral_d.png"      , },
+    }
+    rad_tag.layout_item(tag_control,{screen=s,tooltip="Change layout"})
+    
     -- Top Wibox
     wibox_top[s]:set_widgets {
         { --Left
@@ -348,12 +400,7 @@ for s = 1, screen.count() do
                 {
                     {
                         arr_last_tag_w,
-                        addTag        ,
-                        delTag     [s],
-                        lockTag    [s],
-                        movetagL   [s],
-                        movetagR   [s],
-                        layoutmenu [s],
+                        tag_control_w,
                         layout = wibox.layout.fixed.horizontal
                     },
                     layout = wibox.layout.margin(nil,1,4,0,0)

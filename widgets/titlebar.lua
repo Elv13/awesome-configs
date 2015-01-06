@@ -21,20 +21,21 @@ local function set_underlay(c,title,underlays)
 end
 
 local function new(c)
+    local alt_color = beautiful.titlebar_bg_alternate or beautiful.bar_bg_alternate or beautiful.bg_alternate
     if not endArrowR2 then
         endArrowR2      = chopped.get_separator {
             weight      = chopped.weight.FULL                       ,
             direction   = chopped.direction.LEFT                    ,
             sep_color   = nil                                       ,
             left_color  = nil                                       ,
-            right_color = beautiful.bar_bg_alternate or beautiful.bg_alternate                    ,
+            right_color = alt_color                                 ,
         }
 
         endArrow_alt    = chopped.get_separator {
             weight      = chopped.weight.FULL                       ,
             direction   = chopped.direction.RIGHT                   ,
             sep_color   = nil                                       ,
-            left_color  = beautiful.bar_bg_alternate or beautiful.bg_alternate                    ,
+            left_color  = alt_color                                 ,
             right_color = nil                                       ,
         }
     end
@@ -148,7 +149,7 @@ local function new(c)
                     resize_handle,
                     tag_selector ,
                 },
-                layout = wibox.widget.background(nil,beautiful.bar_bg_alternate or beautiful.bg_alternate)
+                layout = wibox.widget.background(nil,alt_color)
             },
             endArrow_alt,
         },
@@ -157,7 +158,7 @@ local function new(c)
             endArrowR2,
             {
                 right_layout,
-                layout = wibox.widget.background(nil,beautiful.bar_bg_alternate or beautiful.bg_alternate)
+                layout = wibox.widget.background(nil,alt_color)
             }
         },
         layout = wibox.layout.align.horizontal

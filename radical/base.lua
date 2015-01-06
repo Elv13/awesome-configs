@@ -200,6 +200,14 @@ local function add_item(data,args)
   return item
 end
 
+local function add_items(data,items)
+  local ret = {}
+  for k,item in ipairs(items) do
+    ret[k] = data:add_item(item)
+  end
+  return ret
+end
+
 
 local function add_widget(data,widget,args)
   args = args or {}
@@ -237,6 +245,12 @@ local function add_widget(data,widget,args)
   end
 end
 
+local function add_widgets(data,widgets)
+  for k,item in ipairs(widgets) do
+    data:add_widget(item)
+  end
+end
+
 local function add_prefix_widget(data,widget,args)
   data:emit_signal("prefix_widget::added",widget,args)
 end
@@ -269,9 +283,12 @@ local function add_embeded_menu(data,menu)
   menu._embeded_parent = data
 end
 
+local function add_colors_namespace(data,namespace)
+  theme.add_colors_from_namespace(data,namespace)
+end
+
 local function add_key_binding(data,mod,key,func)
   capi.root.keys(util.table.join(capi.root.keys(),aw_key(mod or {}, key, func and func() or function ()
-      print("bob")
       data.visible = not data.visible
   end)))
 end
@@ -341,6 +358,7 @@ local function new(args)
       filter_underlay_color = args.filter_underlay_color,
       filter_placeholder    = args.filter_placeholder or "",
       disable_submenu_icon  = args.disable_submenu_icon or false,
+      item_border_color     = args.item_border_color or nil,
     },
     force_private = {
       parent  = true,
@@ -355,8 +373,13 @@ local function new(args)
     autogen_signals = true,
   })
   internal.private_data = private_data
+  
+  -- Methods
   data.add_item,data.add_widget,data.add_embeded_menu,data._internal,data.add_key_binding = add_item,add_widget,add_embeded_menu,internal,add_key_binding
-  data.add_prefix_widget,data.add_suffix_widget=add_prefix_widget,add_suffix_widget
+  data.add_prefix_widget,data.add_suffix_widget,data.add_items,data.add_widgets=add_prefix_widget,add_suffix_widget,add_items,add_widgets
+  data.add_colors_namespace = add_colors_namespace
+  
+  -- Load colors
   theme.setup_colors(data,args)
 
   -- Getters
@@ -406,6 +429,10 @@ local function new(args)
     elseif data.parent_geometry and not data.parent_geometry.is_menu and data.enable_keyboard then
       capi.keygrabber.stop()
     end
+  end
+
+  data.add_colors_group = function(data,section)
+    theme.add_section(data,section,args)
   end
 
   data.set_layout = function(_,value)
