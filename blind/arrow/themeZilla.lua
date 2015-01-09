@@ -39,7 +39,8 @@ theme.bg = blind {
     minimize    = "#040A1A",
     highlight   = "#0E2051",
     alternate   = "#081B37",
-    allinone    = { type = "linear", from = { 0, 0 }, to = { 0, 20 }, stops = { { 0, "#1D4164" }, { 1, "#0D2144" }}},
+    underlay    = "#191A1E",
+    allinone    = { type = "linear", from = { 0, 0 }, to = { 0, 20 }, stops = { { 0, "#888888" }, { 1, "#4f4f4f" }}},
 }
 
 theme.allinone_margins = 4
@@ -58,6 +59,7 @@ theme.fg = blind {
     focus    = "#ABCCEA",
     urgent   = "#FF7777",
     minimize = "#1577D3",
+    allinone = "#ADADAD",
 }
 
 -- Other
@@ -68,11 +70,13 @@ theme.enable_glow          = true
 theme.glow_color           = "#00000011"
 theme.naughty_bg           = theme.bg_alternate
 theme.naughty_border_color = theme.fg_normal
-theme.bg_dock              = color.create_png_pattern(path .."Icon/bg/bg_dock.png"             )
-theme.fg_dock_1            = "#1889F2"
-theme.fg_dock_2            = "#0A3E6E"
+theme.bg_dock              = blind_pat.to_pattern(blind_pat.mask.noise(0.06,"#AAAACC", blind_pat.sur.plain("#2F363B",default_height)))
+theme.fg_dock_1            = "#DDDDDD"
+theme.fg_dock_2            = "#DDDDDD"
+theme.dock_spacing         = 2
 theme.bg_systray           = theme.fg_normal
 theme.bg_resize_handler    = "#aaaaff55"
+theme.allinone_icon        = "#ADADAD99"
 
 -- Border
 theme.border = blind {
@@ -280,9 +284,11 @@ theme.menu = blind {
     fg_focus     = "#148bf5ff",
     bg_focus     = selected_bg,
     bg_header    = color.create_png_pattern(path .."Icon/bg/menu_bg_header_scifi.png"),
-    bg_normal    = color.create_png_pattern(path .."Icon/bg/menu_bg_scifi.png"       ),
+    bg_normal    = blind_pat.to_pattern(blind_pat.mask.noise(0.06,"#AAAACC", blind_pat.sur.plain("#2F363B",default_height))),
     bg_highlight = color.create_png_pattern(path .."Icon/bg/menu_bg_highlight.png"   ),
-    border_color = theme.fg_normal,
+    item_style   = radical.item.style.classic,
+    border_color = "#828282",
+    item_border_color = "#21262A",
 }
 
 -- theme.bottom_menu_style      = radical.style.grouped_3d
@@ -318,7 +324,6 @@ theme.shorter = blind {
 
 -- Titlebar
 theme.titlebar = blind {
-    bg_normal = d_mask(blind_pat.mask.noise(0.02,"#AAAACC", blind_pat.sur.plain("#070A0C",default_height))),
     bg_focus  = theme.bar_bg_normal,
     height    = 18,
     bg = blind {
@@ -332,7 +337,8 @@ theme.titlebar = blind {
         active   = "#ff00ff",
         hover    = "#ff00ff",
         pressed  = "#ffffff",
-    }
+    },
+    bg_underlay = { type = "linear", from = { 0, 0 }, to = { 0, default_height }, stops = { { 0, "#3F474E" }, { 1, "#181B1E" }}},
 }
 
 theme.separator_color = "#49535B"

@@ -252,6 +252,7 @@ local function create(screen, args)
 
     local dockW = nil
     dockW = radical.dock{position=args.position or "left",screen=screen,
+        spacing = beautiful.dock_spacing,
         icon_transformation = function(image,data,item)
             local f = beautiful.dock_icon_transformation or default_icon_transformation
             return f(image,data,item)

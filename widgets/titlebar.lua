@@ -17,7 +17,7 @@ local function set_underlay(c,title,underlays)
             underlays[#underlays+1] = v.name
         end
     end
-    title:set_underlay(underlays,{style=radical.widgets.underlay.draw_arrow,alpha=1,color="#0C2853"})
+    title:set_underlay(underlays,{style=radical.widgets.underlay.draw_arrow,alpha=1,color=beautiful.titlebar_bg_underlay or beautiful.bg_underlay or "#0C2853"})
 end
 
 local function new(c)
@@ -139,6 +139,11 @@ local function new(c)
         end
     end
 
+    local ibl,ibr = wibox.widget.imagebox(), wibox.widget.imagebox()
+    ibl:set_image( beautiful.titlebar_side_left  )
+    ibr:set_image( beautiful.titlebar_side_right )
+    right_layout:add(ibr)
+
     local tb = awful.titlebar(c,{size=beautiful.titlebar_height or 16})
 
     -- Setup titlebar widgets
@@ -146,6 +151,7 @@ local function new(c)
         { --Left
             {
                 {
+                    ibl          ,
                     resize_handle,
                     tag_selector ,
                 },

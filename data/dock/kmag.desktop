@@ -1,10 +1,9 @@
-# KDE Config File
-[Desktop Entry]
+GenericName=Screen Magnifier
 Type=Application
-Exec=kmag -caption "%c" %i
-Icon=AWECFG/mag.png
-X-DocPath=kmag/index.html
 Terminal=false
 Name=KMag
-GenericName=Screen Magnifier
-Categories=Tools
+DocPath=kmag/index.html
+Icon=/home/lepagee/.config/awesome/blind/arrow/Icon//mag.png
+Categories=Tools;
+Exec=kmag -caption "%c" %i
+Class=dolphin

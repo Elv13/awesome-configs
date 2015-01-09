@@ -146,7 +146,7 @@ local function get_icon(self,height,icon)
     cr2:scale(aspect_h,aspect_h)
     cr2:set_source_surface(base)
     cr2:paint()
-    color.apply_mask(img)
+    color.apply_mask(img,beautiful.allinone_icon)
 --   self._icn = img
     self._icn_cache = img
   end
