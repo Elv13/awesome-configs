@@ -10,6 +10,9 @@ local active = theme.titlebar_icon_active or theme.titlebar_icon_fg or theme.fg_
 local height = theme.titlebar_height or 18
 local base_square = {}
 
+local color_normal = theme.titlebar_icon_inactive or theme.fg_normal
+local color_active = theme.titlebar_icon_active or theme.fg_focus
+
 local square = nil
 
 local function get_cols(state)
@@ -33,7 +36,6 @@ local function gen_squares()
         cr:set_line_width(2)
         cr:stroke()
         base_square[v] = img
-        print(v)
     end
 end
 gen_squares()
@@ -43,7 +45,9 @@ local function add_icon(state,type,icon_path)
     local cr  = cairo.Context(img)
     cr:set_source_surface(base_square[state])
     cr:paint()
-    cr:set_source_surface(surface(icon_path or (path .."Icon/titlebar/".. type .."_normal_inactive.png")))
+    local scale,off = (15-6)/(height-4),(height-(15-6))/2
+    cr:scale(scale,scale)
+    cr:set_source_surface(pixmap(icon_path or (path .."Icon/titlebar_classic/".. type ..".png")) : colorize(state == "active" and color_active or color_normal) :to_img() ,off,off+1)
     cr:paint()
     return pixmap(img) : shadow(nil,"#000000BB") : to_img()
 end
@@ -56,8 +60,8 @@ local maximized = base_square.active
 
 theme.titlebar = blind {
     close_button = blind {
-        normal = add_icon("active","close",path .."Icon/titlebar/close_focus_inactive.png"),
-        focus  = add_icon("hover","close",path .."Icon/titlebar/close_focus_inactive.png"),
+        normal = add_icon("active","close"),
+        focus  = add_icon("hover","close"),
     },
 
     ontop_button = blind {
@@ -88,8 +92,8 @@ theme.titlebar = blind {
         focus_active    = add_icon("active","maximized"),
     },
 
-    resize      = add_icon("active","maximized",path .."Icon/titlebar/resize.png"),
-    tag         = add_icon("active","maximized",path .."Icon/titlebar/tag.png"),
+    resize      = add_icon("active","maximized",path .."Icon/titlebar_classic/resize.png"),
+    tag         = add_icon("active","maximized",path .."Icon/titlebar_classic/tag.png"),
     title_align = "left",
     bg_alternate= "#00000000"
 }

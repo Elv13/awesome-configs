@@ -439,11 +439,10 @@ for s = 1, screen.count() do
             bar_menu_w     ,
             {
                 mypromptbox[s] ,
-                layout = wibox.widget.background(nil,beautiful.icon_grad)
+                layout = wibox.widget.background(nil,beautiful.systray_icon_fg or beautiful.icon_grad)
             },
             sep_end_menu   ,
             desktopPix     ,
-            runbg          ,
             endArrow       ,
             layout = wibox.layout.fixed.horizontal,
         },
@@ -459,7 +458,7 @@ for s = 1, screen.count() do
                     spacer5                          ,
                     s == 1 and wibox.widget.systray(),
                 },
-                layout = wibox.widget.background(nil,beautiful.icon_grad or beautiful.fg_normal),
+                layout = wibox.widget.background(nil,beautiful.systray_bg_alt or beautiful.icon_grad or beautiful.fg_normal),
             },
         },
         layout = wibox.layout.align.horizontal

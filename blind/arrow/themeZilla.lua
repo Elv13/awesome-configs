@@ -43,7 +43,7 @@ theme.bg = blind {
     allinone    = { type = "linear", from = { 0, 0 }, to = { 0, 20 }, stops = { { 0, "#888888" }, { 1, "#4f4f4f" }}},
 }
 
-theme.allinone_margins = 4
+theme.allinone_margins = 6
 
 -- Wibar background
 local bargrad = { type = "linear", from = { 0, 0 }, to = { 0, 16 }, stops = { { 0, "#000000" }, { 1, "#040405" }}}
@@ -52,6 +52,7 @@ theme.bar_bg = blind {
     buttons   = { type = "linear", from = { 0, 0 }, to = { 0, default_height }, stops = { { 0, "#3F474E" }, { 1, "#181B1E" }}},
 }
 theme.bar_bg_alternate = theme.bar_bg_normal
+local normal_underlay = { type = "linear", from = { 0, 0 }, to = { 0, default_height }, stops = { { 0, "#3F474E" }, { 1, "#181B1E" }}}
 
 -- Forground
 theme.fg = blind {
@@ -65,16 +66,21 @@ theme.fg = blind {
 -- Other
 theme.awesome_icon         = path .."Icon/awesome2.png"
 theme.systray_icon_spacing = 4
-theme.button_bg_normal     = color.create_png_pattern(path .."Icon/bg/menu_bg_scifi.png"       )
+theme.button_bg_normal     = theme.fg_normal
 theme.enable_glow          = true
 theme.glow_color           = "#00000011"
 theme.naughty_bg           = theme.bg_alternate
 theme.naughty_border_color = theme.fg_normal
-theme.bg_dock              = blind_pat.to_pattern(blind_pat.mask.noise(0.06,"#AAAACC", blind_pat.sur.plain("#2F363B",default_height)))
+theme.bg_dock              = blind_pat.to_pattern(blind_pat.mask.noise(0.11,"#AAAACC", blind_pat.sur.plain("#2F363B",default_height)))
 theme.fg_dock_1            = "#DDDDDD"
 theme.fg_dock_2            = "#DDDDDD"
 theme.dock_spacing         = 2
+theme.dock_icon_transformation = function(image,data,item)
+    return pixmap(image) : resize_center(2,30,30) : colorize("#DDDDDD") : shadow() : to_img()
+end
 theme.bg_systray           = theme.fg_normal
+theme.systray_bg_alt       = "#00000000"
+theme.systray_icon_fg      = theme.bar_bg_normal
 theme.bg_resize_handler    = "#aaaaff55"
 theme.allinone_icon        = "#ADADAD99"
 
@@ -244,7 +250,7 @@ theme.toolbox = blind {
 theme.tasklist = blind {
     underlay_bg_urgent      = "#ff0000",
     underlay_bg_minimized   = "#4F269C",
-    underlay_bg_focus       = "#0746B2",
+    underlay_bg_            = normal_underlay,
 --     bg_image_selected       = d_mask(blind_pat.sur.flat_grad("#00091A","#04204F",default_height)),
     bg_minimized            = d_mask(blind_pat.sur.flat_grad("#0E0027","#04000E",default_height)),
     fg_minimized            = "#985FEE",
@@ -255,8 +261,10 @@ theme.tasklist = blind {
     default_icon            = path .."Icon/tags/other.png",
     bg                      = "#00000000",
     icon_transformation     = loadfile(theme.path .."bits/icon_transformation/state.lua")(theme,path),
-    item_style              = radical.item.style.rounded,
+    item_style              = radical.item.style.rounded_shadow,
     spacing                 = 6,
+    fg                      = "#ff0000",
+    item_border_color       = "#ff0000"
 }
 
 theme.tasklist_default_item_margins = {
@@ -292,20 +300,22 @@ theme.menu = blind {
 }
 
 -- theme.bottom_menu_style      = radical.style.grouped_3d
-theme.bottom_menu_item_style = radical.item.style.rounded
-theme.bottom_menu_spacing    = 6
+theme.bottom_menu_item_style = radical.item.style.rounded_shadow
+theme.bottom_menu_spacing    = 4
 theme.bottom_menu_bg = "#00000000"
 theme.bottom_menu_item_border_color = color{ type = "linear", from = { 0, 0 }, to = { 0, default_height }, stops = { { 0, "#5F6B76" }, { 1, "#30363C" }}}
 theme.bottom_menu_icon_transformation = function(img,data,item)
     local col = color(theme.taglist_fg_empty)
     return pixmap(img) : colorize(col) : resize_center(2,taglist_height-6,taglist_height-6) : shadow() : to_img()
 end
--- theme.bottom_menu_default_item_margins = {
---     LEFT   = 2,
---     RIGHT  = 17,
---     TOP    = 4,
---     BOTTOM = 4,
--- }
+
+theme.bottom_menu_default_item_margins = {
+    LEFT   = 5,
+    RIGHT  = 5,
+    TOP    = 2,
+    BOTTOM = 2,
+}
+
 theme.bottom_menu_default_margins = {
     LEFT   = 7,
     RIGHT  = 17,
@@ -325,20 +335,22 @@ theme.shorter = blind {
 -- Titlebar
 theme.titlebar = blind {
     bg_focus  = theme.bar_bg_normal,
+    bg_normal  = { type = "linear", from = { 0, 0 }, to = { 0, default_height }, stops = { { 0, "#373E44" }, { 1, "#101214" }}},
     height    = 18,
     bg = blind {
         inactive = color{ type = "linear", from = { 0, 0 }, to = { 0, 12 }, stops = { { 0, "#5F6A76" }, { 1, "#3C444B" }}},
-        active   = "#ff0000",
-        hover    = "#0000ff",
+        active   = color{ type = "linear", from = { 0, 0 }, to = { 0, 12 }, stops = { { 0, "#5F6A76" }, { 1, "#3C444B" }}},
+        hover    = color{ type = "linear", from = { 0, 0 }, to = { 0, 12 }, stops = { { 0, "#5F6A76" }, { 1, "#3C444B" }}},
         pressed  = "#ffff00",
     },
     border_color = blind {
         inactive = color{ type = "linear", from = { 0, 0 }, to = { 0, default_height }, stops = { { 0, "#3B434A" }, { 1, "#282d32" }}},
-        active   = "#ff00ff",
-        hover    = "#ff00ff",
+        active   = color{ type = "linear", from = { 0, 0 }, to = { 0, default_height }, stops = { { 0, "#3B434A" }, { 1, "#282d32" }}},
+        hover    = color{ type = "linear", from = { 0, 0 }, to = { 0, default_height }, stops = { { 0, "#3B434A" }, { 1, "#282d32" }}},
         pressed  = "#ffffff",
     },
-    bg_underlay = { type = "linear", from = { 0, 0 }, to = { 0, default_height }, stops = { { 0, "#3F474E" }, { 1, "#181B1E" }}},
+    bg_underlay = normal_underlay,
+    icon_active = theme.taglist_icon_color_focus
 }
 
 theme.separator_color = "#49535B"

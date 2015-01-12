@@ -6,4 +6,4 @@ DocPath=kmag/index.html
 Icon=/home/lepagee/.config/awesome/blind/arrow/Icon//mag.png
 Categories=Tools;
 Exec=kmag -caption "%c" %i
-Class=dolphin
+Class=kmag
