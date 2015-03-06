@@ -6,7 +6,7 @@ local alttag       = require( "radical.impl.alttag"        )
 local customButton = require( "customButton"               )
 local customMenu   = require( "customMenu"                 )
 local collision    = require( "collision.util"             )
-
+local menubar      = require( "menubar"                    )
 
 shorter.Navigation = {
     desc = "Navigate between clients",
