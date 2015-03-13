@@ -5,8 +5,8 @@ local alttab       = require( "radical.impl.alttab"        )
 local alttag       = require( "radical.impl.alttag"        )
 local customButton = require( "customButton"               )
 local customMenu   = require( "customMenu"                 )
-local collision    = require( "collision.util"             )
 local menubar      = require( "menubar"                    )
+local collision    = require( "collision"                  )
 
 shorter.Navigation = {
     desc = "Navigate between clients",
@@ -61,20 +61,24 @@ shorter.Client = {
 }
 
 shorter.Screen = {
+    {desc = "Select screen 2",
+    key={ {                   }, "#179" }, fct = function () collision.select_screen(2)       end },
+
     {desc = "Select screen 3",
-    key={ {                   }, "#179" }, fct = function () utils.mouseManager.switchTo(3)       end },
+    key={ {                   }, "#175" }, fct = function () collision.select_screen(3)       end },
 
     {desc = "Select screen 4",
-    key={ {                   }, "#175" }, fct = function () utils.mouseManager.switchTo(4)       end },
-
-    {desc = "Select screen 5",
-    key={ {                   }, "#176" }, fct = function () utils.mouseManager.switchTo(5)       end },
+    key={ {                   }, "#176" }, fct = function () collision.select_screen(4)       end },
 
     {desc = "Select screen 1",
-    key={ {                   }, "#178" }, fct = function () utils.mouseManager.switchTo(1)       end },
+    key={ {                   }, "#178" }, fct = function () collision.select_screen(1)       end },
 
-    {desc = "Select screen 2",
-    key={ {                   }, "#177" }, fct = function () utils.mouseManager.switchTo(2)       end },
+    {desc = "Select screen 5",
+    key={ {                   }, "#177" }, fct = function () collision.select_screen(5)       end },
+      
+      
+    {desc = "Select screen 5",
+    key={ {                   }, "#180" }, fct = function () collision.swap_screens(5)       end },
 }
 
 shorter.Launch = {
@@ -182,6 +186,13 @@ shorter.Hardware = {
 --     end),
 }
 
+shorter.Selection = {
+  {desc = "Change keyboard layout",
+    key={{ modkey            }, "v" }, fct = function()
+    print(selection())
+  end},
+}
+
 -- {{{ Mouse bindings
 root.buttons(awful.util.table.join(
     awful.button({ }, 3, function () end),
@@ -256,5 +267,5 @@ clientbuttons = awful.util.table.join(
     awful.button({ }, 1, function (c) client.focus = c; c:raise() end),
     awful.button({ modkey }, 1, awful.mouse.client.move),
     awful.button({ modkey }, 3, awful.mouse.client.resize),
-    awful.button({  }, 6, collision.double_click(function() customMenu.client_opts() end))
+    awful.button({  }, 6, collision.util.double_click(function() customMenu.client_opts() end))
 )

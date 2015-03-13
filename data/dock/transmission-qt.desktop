@@ -1,12 +1,11 @@
-[Desktop Entry]
-Name=Transmission Bittorrent Client
-GenericName=BitTorrent Client
-Comment=Download and share files over BitTorrent
-Exec=transmission-qt %F
-Icon=AWECFG/transmission.png
-Terminal=false
+Categories=Network;
 Type=Application
+Comment=Download and share files over BitTorrent
+Keywords=torrent
+Class=konversation
+GenericName=BitTorrent Client
 MimeType=application/x-bittorrent;x-scheme-handler/magnet;
-Categories=Network
-X-AppInstall-Keywords=torrent
-
+Name=Transmission Bittorrent Client
+Exec=transmission-qt %F
+Icon=/home/lepagee/.config/awesome/blind/arrow/Icon//transmission.png
+Terminal=false

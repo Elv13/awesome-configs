@@ -237,7 +237,7 @@ end,awful.tag.setscreen,awful.tag.viewonly
 
 awful.tag.viewonly = function(t)
     if not t then return end
-    if not awful.tag.getscreen(t) then awful.tag.setscreen(capi.mouse.screen) end
+    if not awful.tag.getscreen(t) then awful.tag.setscreen(t,capi.mouse.screen) end
     awful.tag._viewonly(t)
 end
 
