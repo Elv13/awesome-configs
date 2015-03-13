@@ -1,4 +1,7 @@
-
+-- Use capi.timer on 3.5.* and gears.timer on git master
+if not timer then
+  timer = require("gears.timer")
+end
 -- Gears
 local gears  = require( "gears"       )
 local cairo  = require( "lgi"         ).cairo
@@ -10,6 +13,9 @@ require("retrograde")
 
 -- Awful
 local awful      = require( "awful"       )
+if type(timer) == "function" then
+  timer = require("gears.timer")
+end
 awful.rules      = require( "awful.rules" )
 local wibox      = require( "wibox"       )
 local tyrannical = require( "tyrannical"  )
@@ -383,7 +389,7 @@ for s = 1, screen.count() do
         {icon = config.iconPath .. "tags/screen_left.png"            , tooltip = "Move tag to the previous screen" },
         {icon = config.iconPath .. "tags/screen_right.png"           , tooltip = "Move tag to the next screen"},
         {icon = config.iconPath .. "tags/cross2.png"                 , tooltip = "Add a new tag", button1=function()
-            awful.tag.viewonly(awful.tag.add("NewTag",{screen= (client.focus and client.focus.screen or mouse.screen) }))
+            awful.tag.viewonly(awful.tag.add("NewTag",{screen= (mouse.screen) }))
         end},
         {icon = config.iconPath .. "tags/minus2.png"                 , tooltip = "Delete the current tag", button1=function()
             awful.tag.delete(client.focus and awful.tag.selected(client.focus.screen) or awful.tag.selected(mouse.screen) )
