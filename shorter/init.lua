@@ -44,6 +44,7 @@ local function create_wibox()
     local geo = capi.screen[1].geometry
     local w = wibox {x=geo.x + 50,y=geo.y+50,width=geo.width-100,height=geo.height-100}
     local left = geo.width-150
+    local opacity = beautiful.shorter_opacity or 0.5
     w.visible = true
     w:set_fg(color(beautiful.shorter_fg or beautiful.fg_normal))
 
@@ -59,10 +60,17 @@ local function create_wibox()
     local bg = cairo.ImageSurface.create(cairo.Format.ARGB32, geo.width, geo.height)
     local cr  = cairo.Context(bg)
     cr:set_source(color(beautiful.shorter_border_color or beautiful.border_color or beautiful.fg_normal))
-    cr:paint()
+    cr:paint_with_alpha(beautiful.shorter_border_opacity or opacity)
     draw_rounded(cr,3,3,geo.width-100-6,geo.height-100-6,14)
+    cr:clip_preserve ()
+    cr:set_operator(cairo.Operator.CLEAR)
+    cr:fill_preserve()
+    cr:set_operator(cairo.Operator.SOURCE)
+    cr:set_source_rgba(1,1,1,opacity)
+    cr:fill_preserve()
+    cr:set_operator(cairo.Operator.IN)
     cr:set_source(color(beautiful.shorter_bg or beautiful.bg_normal))
-    cr:fill()
+    cr:fill_preserve()
 
     w:set_bg(cairo.Pattern.create_for_surface(bg))
 

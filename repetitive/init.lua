@@ -1,11 +1,12 @@
 local unpack = unpack
-local aw_button = require( "awful.button"    )
-local aw_util   = require( "awful.util"      )
-local aw_key    = require( "awful.key"       )
-local tag       = require( "awful.tag"       )
-local macro     = require( "repetitive.macro")
+local aw_button = require( "awful.button"       )
+local aw_util   = require( "awful.util"         )
+local aw_key    = require( "awful.key"          )
+local tag       = require( "awful.tag"          )
+local macro     = require( "repetitive.macro"   )
 local shortcut  = require( "repetitive.shortcut")
-local common    = require( "repetitive.common")
+local common    = require( "repetitive.common"  )
+local glib      = require( "lgi"                ).GLib
 
 local capi = {timer = timer,root=root,client=client,mouse=mouse}
 
@@ -104,11 +105,8 @@ end
 
 
 -- This will ensure this code is executed after rc.lua is fully parsed
-local t = capi.timer({timeout=0})
-t:connect_signal("timeout",function()
+glib.idle_add(glib.PRIORITY_DEFAULT_IDLE,function()
     capi.root.keys(aw_util.table.join(capi.root.keys(),unpack(generate_key_binding())))
-    t:stop()
 end)
-t:start()
 
 return module

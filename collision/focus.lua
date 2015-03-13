@@ -17,44 +17,13 @@ local module = {}
 local wiboxes,delta = nil,100
 
 ---------------- Visual -----------------------
-local function gen(item_height)
-  local img = cairo.ImageSurface(cairo.Format.ARGB32, item_height,item_height)
-  local cr = cairo.Context(img)
-  local rad = 10
-  cr:set_source_rgba(0,0,0,0)
-  cr:paint()
-  cr:set_source_rgba(1,1,1,1)
-  cr:arc(rad,rad,rad,0,2*math.pi)
-  cr:arc(item_height-rad,rad,rad,0,2*math.pi)
-  cr:arc(rad,item_height-rad,rad,0,2*math.pi)
-  cr:arc(item_height-rad,item_height-rad,rad,0,2*math.pi)
-  cr:fill()
-  cr:rectangle(0,rad, item_height, item_height-2*rad)
-  cr:rectangle(rad,0, item_height-2*rad, item_height)
-  cr:fill()
-  return img._native
-end
-
-local function constructor(width)
-  local img = cairo.ImageSurface(cairo.Format.ARGB32, width, width)
-  local cr = cairo.Context(img)
-  cr:move_to(0,0)
-  cr:set_source(color(beautiful.fg_normal))
-  cr:paint()
-  cr:set_source(color(beautiful.bg_normal))
-  cr:set_antialias(1)
-  cr:rectangle(0, (width/2), 10, (width/2))
-  cr:rectangle(width-10, (width/2), 10, (width/2))
-  for i=0,(width/2) do
-    cr:rectangle(i, 0, 1, (width/2)-i)
-    cr:rectangle(width-i, 0, 1, (width/2)-i)
-  end
-  cr:fill()
-  return cairo.Pattern.create_for_surface(img)
-end
-
 local function init()
-  local bounding,arrow = gen(75),constructor(55)
+  local img = cairo.ImageSurface(cairo.Format.ARGB32, 75, 75)
+  local cr = cairo.Context(img)
+  col_utils.draw_round_rect(cr,0,0,75,75,10)
+  cr:fill()
+
+  local bounding,arrow = img._native,col_utils.arrow(55,10,0,beautiful.bg_normal,beautiful.fg_normal)
   wiboxes = {}
   for k,v in ipairs({"up","right","down","left","center"}) do
     wiboxes[v] = wibox({})
@@ -80,10 +49,7 @@ local function init()
   wiboxes["center"]:set_bg(beautiful.bg_urgent)
   local img = cairo.ImageSurface(cairo.Format.ARGB32, 75,75)
   local cr = cairo.Context(img)
-  cr:set_source_rgba(0,0,0,0)
-  cr:paint()
-  cr:set_source_rgba(1,1,1,1)
-  cr:arc( 75/2,75/2,75/2,0,2*math.pi  )
+  col_utils.draw_round_rect(cr,0,0,75,75,75/2)
   cr:fill()
   wiboxes["center"].shape_bounding = img._native
 end
@@ -93,7 +59,7 @@ local function display_wiboxes(cltbl,geomtbl,float,swap,c)
     init()
   end
   for k,v in ipairs({"left","right","up","down","center"}) do
-    local next_clients = (not (float and swap)) and cltbl[util.get_rectangle_in_direction(v , geomtbl, capi.client.focus:geometry())] or c
+    local next_clients = (float and swap) and c or cltbl[util.get_rectangle_in_direction(v , geomtbl, capi.client.focus:geometry())]
     if next_clients or k==5 then
       local same, center = capi.client.focus == next_clients,k==5
       local geo = center and capi.client.focus:geometry() or next_clients:geometry()
@@ -133,17 +99,36 @@ local function bydirection(dir, c, swap,max)
       display_wiboxes(nil,nil,float,swap,c)
     else
       -- Get all clients rectangle
-      local cltbl,geomtbl = max and floating_clients() or client.tiled(),{}
+      local cltbl,geomtbl,scrs = max and floating_clients() or client.tiled(),{},{}
       for i,cl in ipairs(cltbl) do
         geomtbl[i] = cl:geometry()
+        scrs[cl.screen or 1] = true
       end
+      
+      -- Add rectangles for empty screens too
+      for i = 1, capi.screen.count() do
+        if not scrs[i] then
+          geomtbl[#geomtbl+1] = capi.screen[i].workarea
+          cltbl[#geomtbl] = {is_screen = true, screen=i, geometry=function() return capi.screen[i].workarea end}
+        end
+      end
+      
       local target = util.get_rectangle_in_direction(dir, geomtbl, c:geometry())
-      -- If we found a client to focus, then do it.
-      if target then
-        if swap ~= true then
-          capi.client.focus = cltbl[((not cltbl[target] and #cltbl == 1) and 1 or target)]
-          capi.client.focus:raise()
-        else
+      if swap ~= true then
+        -- If we found a client to focus, then do it.
+        if target then
+          local cl = cltbl[target]
+          if cl and cl.is_screen then
+            --capi.client.focus = nil --TODO Fix upstream fix
+            capi.mouse.screen = capi.screen[cl.screen]
+          else
+            capi.client.focus = cltbl[((not cl and #cltbl == 1) and 1 or target)]
+            capi.client.focus:raise()
+          end
+        end
+      else
+        if target then
+          -- We found a client to swap
           local other = cltbl[((not cltbl[target] and #cltbl == 1) and 1 or target)]
           if other.screen == c.screen or col_utils.settings.swap_across_screen then
             --BUG swap doesn't work if the screen is not the same
@@ -153,9 +138,29 @@ local function bydirection(dir, c, swap,max)
             c.screen = other.screen
             c:tags({t})
           end
+        else
+          -- No client to swap, try to find a screen.
+          local screen_geom = {}
+          for i = 1, capi.screen.count() do
+            screen_geom[i] = capi.screen[i].workarea
+          end
+          target = util.get_rectangle_in_direction(dir, screen_geom, c:geometry())
+          if target and target ~= c.screen then
+            local t = tag.selected(target)
+            c.screen = target
+            c:tags({t})
+            c:raise()
+          end
         end
-        display_wiboxes(cltbl,geomtbl,float,swap,c)
+        if target then
+          -- Geometries have changed by swapping, so refresh.
+          cltbl,geomtbl = max and floating_clients() or client.tiled(),{}
+          for i,cl in ipairs(cltbl) do
+            geomtbl[i] = cl:geometry()
+          end
+        end
       end
+      display_wiboxes(cltbl,geomtbl,float,swap,c)
     end
   end
 end

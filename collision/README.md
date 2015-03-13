@@ -95,3 +95,11 @@ be removed from rc.lua.
 -- Swap clients across screen instead of adding them to the other tag
 collision.settings.swap_across_screen = true
 ```
+
+# Other
+
+The `collision.select_screen(idx)` function allow to select a screen and can be
+assigned to shortcuts.
+
+The `collision.highlight_cursor(timeout)` method will highlight the current mouse
+cursor position.

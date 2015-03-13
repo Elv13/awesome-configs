@@ -3,25 +3,11 @@ local ipairs,print    = ipairs,print
 local wibox,color     = require( "wibox" )    , require( "gears.color" )
 local cairo,beautiful = require( "lgi").cairo , require( "beautiful"   )
 local awful           = require("awful")
+local col_utils       = require( "collision.util" )
 local module,indicators,cur_c,auto_hide = {},nil,nil
 
 local values = {"top"     , "top_right"  , "right" ,  "bottom_right" ,
                 "bottom"  , "bottom_left", "left"  ,  "top_left"     }
-
-local function create_arrow(width, height,margin,bg_color,fg_color)
-    local img = cairo.ImageSurface(cairo.Format.ARGB32, width+2*margin, height+2*margin)
-    local cr = cairo.Context(img)
-    cr:set_source(color(bg_color))
-    cr:paint()
-    cr:set_source(color(fg_color))
-    cr:set_antialias(1)
-    cr:rectangle((margin*2+width)/2-(width/8), (width/2)+margin, width/4, height-margin)
-    for i=0,(width/2) do
-        cr:rectangle(margin+i, (width/2)+margin-i, width-i*2, 1)
-    end
-    cr:fill()
-    return cairo.Pattern.create_for_surface(img)
-end
 
 local function gen_shape_bounding(radius)
   local img  = cairo.ImageSurface(cairo.Format.ARGB32, radius,radius)
@@ -36,8 +22,8 @@ end
 
 local function create_indicators()
   indicators           = {}
-  local arr            = create_arrow( 20, 20, 10, beautiful.bg_alternate,beautiful.fg_normal )
-  local arr_focus      = create_arrow( 20, 20, 10, beautiful.fg_normal,beautiful.bg_normal    )
+  local arr            = col_utils.arrow(20, 7, 10, beautiful.bg_alternate, beautiful.fg_normal )
+  local arr_focus      = col_utils.arrow(20, 7, 10, beautiful.fg_normal, beautiful.bg_normal )
   local angle          = 0
   local shape_bounding = gen_shape_bounding(40)
   for k,v in ipairs(values) do
@@ -168,19 +154,31 @@ function module.mouse_resize(c,corner)
       module.hide()
       return false
     elseif mouse.x ~= curX and mouse.y ~= curY then
-      c:geometry(corners[corner or "tl"](geom,mouse,curX,curY))
+
+      -- Apply the changes
+      local new = corners[corner or "tl"](geom,mouse,curX,curY)
+
+      -- Check for critically low values
+      if new.width < 5 then
+        new.width = 5
+      end
+
+      if new.height < 5 then
+        new.height = 5
+      end
+
+      --Newer awesome version support checking size hints
+      if c.apply_size_hints then
+        local w,h = c:apply_size_hints(new.width,new.height)
+        new.x,new.y,new.width,new.height = new.x - (w-new.width),new.y - (h-new.height),w,h
+      end
+
+      c:geometry(new)
     end
     return true
   end,"fleur")
 end
 
--- awful.mouse.client._resize = awful.mouse.client.resize
--- awful.mouse.client.resize = function(c,...)
---   module.display(c)
---   auto_hide = true
---   awful.mouse.client._resize(c,...)
---   module.hide()
--- end
 
 return module
 -- kate: space-indent on; indent-width 2; replace-tabs on;

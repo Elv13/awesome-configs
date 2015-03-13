@@ -1,4 +1,4 @@
-local capi = {root=root,client=client,mouse=mouse,
+local capi = {root=root,client=client,mouse=mouse, timer=timer,
                screen = screen, keygrabber = keygrabber}
 local util         = require( "awful.util"     )
 local awful        = require( "awful"          )
@@ -9,7 +9,9 @@ local module = {
   _resize = require( "collision.resize"),
   _max    = require( "collision.max"   ),
   _screen = require( "collision.screen"),
+  _mouse  = require( "collision.mouse" ),
   settings= col_utils.settings          ,
+  util    = col_utils                   ,
 }
 
 local current_mode = "focus"
@@ -123,6 +125,24 @@ function module.screen(direction, move)
   current_mode = "screen"
   module._screen.display(nil,direction,move)
   start_loop(false,max)
+end
+
+function module.select_screen(idx)
+  if idx and idx > 0 and idx <= capi.screen.count() then
+    module._screen.select_screen(idx)
+  end
+end
+
+function module.highlight_cursor(timeout)
+  module._mouse.highlight()
+  if timer then
+    local timer = capi.timer({ timeout = timeout }) -- 30 mins
+    timer:connect_signal("timeout", function()
+      module._mouse.hide()
+      timer:stop()
+    end)
+    timer:start()
+  end
 end
 
 local function new(k)
