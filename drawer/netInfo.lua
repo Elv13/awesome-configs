@@ -10,128 +10,125 @@ local beautiful    = require( "beautiful"                )
 local widget2      = require( "awful.widget"             )
 local wibox        = require( "wibox"                    )
 local button       = require( "awful.button"             )
-local vicious      = require( "extern.vicious"           )
+local vicious      = require("extern.vicious")
 local util         = require( "awful.util"               )
 local config       = require( "forgotten"                )
 local menu         = require( "radical.context"          )
 local themeutils   = require( "blind.common.drawing"     )
-local radtab       = require( "radical.widgets.table"    )
 local embed        = require( "radical.embed"            )
 local radical      = require( "radical"                  )
 local color        = require( "gears.color"              )
 local cairo        = require( "lgi"                      ).cairo
 local allinone     = require( "widgets.allinone"         )
+local fd_async = require("utils.fd_async")
 
-local capi = { widget = widget , client = client ,
-               mouse  = mouse  , timer  = timer  }
+local capi = { widget = widget , client = client}
 
 local module = {}
 
 --DATA
-local data, connectionInfo, protocolStat, appStat = {},{},{},{}
+local protocolStat, appStat = {},{}
+local data={connectionInfo={},ip={}}
+local connLookup={ ["site"]=1,["pid"]=2,["application"]=3,["protocol"]=4}
 
 --WIDGET
-local ip4Info          , ip6Info          , localInfo        , netUsageUp
+local ip4Info          , ipExtInfo          , localInfo        , netUsageUp
 local netUsageDown     , appHeader        , netUpGraph       , netDownGraph
 local ip4lbl           , ip6lbl           , mainMenu
 
+--MENUS
+local connMenu,protMenu,appMenu
+local connNum = -1
+
 local function update()
-    local connectionInfo
-    local f = io.open('/tmp/connectedHost.lua','r')
-    if f ~= nil then
-        local text3 = f:read("*all") .. " return connectionInfo"
-        f:close()
-        afunction   = loadstring(text3)
-        if afunction == nil then
-            return { count = o, widgets = widgetTable2}
-        end
-        connectionInfo = afunction()
-    end
+    --Load connectionInfo data (ASYNC)
+    fd_async.exec.command(util.getdir("config")..'/drawer/Scripts/connectedHost3.sh'):connect_signal("new::line",function(content)
+            --Check if first line
+            if connNum == -1 then
+                --Get connections number (First line)
+                connNum=tonumber(content) or 0
+                --print("INFO@netInfo: ",connNum," connection(s) found")
+            elseif connNum == 0 then
+                --All line read, Repaint all!
+                connMenu:clear()
+                for i=0 , #(data.connectionInfo or {}) do
+                    if data.connectionInfo[i] then
+                        -- Reset application connection count
+                        if data.connectionInfo[i][connLookup['application']] ~= nil then
+                            appStat[data.connectionInfo[i][connLookup['application']] ] = 0
+                        end
 
-    if connectionInfo ~= nil then
-        data.connectionInfo = connectionInfo
-    end
+                        local application          = wibox.widget.textbox()
+                        application.fit = function()
+                            return 48,connMenu.item_height
+                        end
+                        application.draw = function(self,w, cr, width, height)
+                            cr:save()
+                            cr:set_source(color(connMenu.bg_alternate))
+                            cr:rectangle(height/2,0,width-height/2,height)
+                            cr:fill()
+                            cr:set_source_surface(themeutils.get_beg_arrow2({bg_color=connMenu.bg_alternate,direction="left"}),0,0)
+                            cr:paint()
+                            cr:restore()
+                            wibox.widget.textbox.draw(self,w, cr, width, height)
+                        end
+                        application:set_markup("<b>"..data.connectionInfo[i][connLookup['protocol']].." </b>")
+                        application:set_align("right")
 
-    f = io.popen('/bin/ifconfig | grep -e "inet[a-z: ]*[0-9.]*" -o |  grep -e "[0-9.]*" -o')
-    local ip4Value = "<i>"..(f:read("*line") or "") .. "</i>"
-    f:close()
-    f = io.popen('/bin/ifconfig | grep -e "inet6[a-z: ]*[0-9.A-Fa-f;:]*" -o | awk \'{print $(NF)}\'')
-    local ip6Value = "<i>"..(f:read("*line") or "") .. "</i>"
-    f:close()
+                        local icon = nil
+                        for k2,v2 in ipairs(capi.client.get()) do
+                            if v2.class:lower() == data.connectionInfo[i][connLookup['application']]:lower() or v2.name:lower():find(data.connectionInfo[i][connLookup['application']]:lower()) ~= nil then
+                                icon  = v2.icon
+                                break
+                            end
+                        end
+                        appStat[data.connectionInfo[i][connLookup['application'  ]] ] = (appStat[data.connectionInfo[i][connLookup['application' ] ] ]or 0) + 1
+                        protocolStat[data.connectionInfo[i][connLookup['protocol']] ] = (protocolStat[data.connectionInfo[i][connLookup['protocol' ]  ] ] or 0) + 1
+                        connMenu:add_item({text=(data.connectionInfo[i][connLookup['site']] or ""),icon=icon,suffix_widget=application})
+                    end
+                end
 
-    ip4Info:set_markup(ip4Value)
-    ip6Info:set_markup(ip6Value)
+                --Repaint protocol stat graph
+                protMenu:set_data(protocolStat)
 
-    local localValue = ""
-    f = io.open('/tmp/localNetLookup','r')
-    if f ~= nil then
-        localValue = f:read("*all")
-        f:close()
-    end
-
-    localInfo:set_text(localValue)
-end
-
-local function reload_conn(connMenu,data)
-    connMenu:clear()
-    for i=0 , #(data.connectionInfo or {}) do
-        if data.connectionInfo[i] then
-            local application          = wibox.widget.textbox()
-            application.fit = function()
-                return 48,connMenu.item_height
-            end
-            application.draw = function(self,w, cr, width, height)
-                cr:save()
-                cr:set_source(color(connMenu.bg_alternate))
-                cr:rectangle(height/2,0,width-height/2,height)
-                cr:fill()
-                cr:set_source_surface(themeutils.get_beg_arrow2({bg_color=connMenu.bg_alternate,direction="left"}),0,0)
-                cr:paint()
-                cr:restore()
-                wibox.widget.textbox.draw(self,w, cr, width, height)
-            end
-            application:set_markup("<b>"..data.connectionInfo[i]['protocol'].." </b>")
-            application:set_align("right")
-
-            local icon = nil
-            for k2,v2 in ipairs(capi.client.get()) do
-                if v2.class:lower() == data.connectionInfo[i]['application']:lower() or v2.name:lower():find(data.connectionInfo[i]['application']:lower()) ~= nil then
-                    icon  = v2.icon
-                    break
+                --Repaint application stat
+                appMenu:clear()
+                for v, i in next, appStat do
+                    testImage2             = wibox.widget.imagebox()
+                    testImage2:set_image(config.iconPath .. "kill.png"       )
+                    local icon =nil
+                    for k2,v2 in ipairs(capi.client.get()) do
+                        if v2.class:lower() == v:lower() or v2.name:lower():find(v:lower()) ~= nil then
+                            icon  = v2.icon
+                            break
+                        end
+                    end
+                    appMenu:add_item({text=v,suffix_widget=testImage2,icon=icon,underlay = i})
+                end
+            else
+                -- Load line into data
+                if content == nil then print ("This shouldn't happen...")
+                else      data.connectionInfo[connNum]=content:split(",")
                 end
             end
---             print("adding",data.connectionInfo[i]['application'  ],appStat[data.connectionInfo[i]['application'  ] ] )
-            appStat[data.connectionInfo[i]['application'  ] ] = (appStat[data.connectionInfo[i]['application'  ] ]or 0) + 1
-            protocolStat[data.connectionInfo[i]['protocol'] ] = (protocolStat[data.connectionInfo[i]['protocol'   ] ] or 0) + 1
---             print("now",appStat[data.connectionInfo[i]['application'  ] ])
-            connMenu:add_item({text=(data.connectionInfo[i]['site'] or ""),icon=icon,suffix_widget=application})
-        end
-    end
-end
 
-local function reload_appstat(appMenu,data)
-    appMenu:clear()
-    for v, i in next, appStat do
-        testImage2             = wibox.widget.imagebox()
-        testImage2:set_image(config.iconPath .. "kill.png"       )
-        local icon =nil
-        for k2,v2 in ipairs(capi.client.get()) do
-            if v2.class:lower() == v:lower() or v2.name:lower():find(v:lower()) ~= nil then
-                icon  = v2.icon
-                break
-            end
-        end
---         print("this",i)
-        appMenu:add_item({text=v,suffix_widget=testImage2,icon=icon,underlay = i})
-    end
-end
+            -- Decrease connection left number
+            connNum=connNum-1
+        end)
 
-local connMenu,protMenu,appMenu
 
-local function update2()
-    reload_conn(connMenu,data)
-    protMenu:set_data(protocolStat)
-    reload_appstat(appMenu,data)
+    --Get local ipv4
+    local f = io.popen("ip addr | grep 'state UP' -A2 | tail -n1 | awk '{print $2}' | cut -f1  -d'/'")
+    data.ip['local4'] = f:read("*line") or "N/A"
+    f:close()
+    ip4Info:set_markup("<i>"..data.ip['local4'] .. "</i>")
+
+    --Get wan ip from OpenDns
+    fd_async.exec.command("dig +short myip.opendns.com @resolver1.opendns.com") : connect_signal("request::completed", function(content)
+            data.ip['net'] =content or "N/A"
+            ipExtInfo:set_markup("<i>"..data.ip['net'] .. "</i>")
+        end)
+
 end
 
 local function repaint(margin)
@@ -142,10 +139,10 @@ local function repaint(margin)
     ipInfoH1l:add(ip4Info)
     local ipInfoH2l = wibox.layout.fixed.horizontal()
     ipInfoH2l:add(ip6lbl)
-    ipInfoH2l:add(ip6Info)
+    ipInfoH2l:add(ipExtInfo)
     ipInfoVl:add(ipInfoH1l)
     ipInfoVl:add(ipInfoH2l)
-    
+
     local ipm = wibox.layout.margin()
     ipm:set_widget(ipInfoVl)
     ipm:set_top(5)
@@ -160,9 +157,9 @@ local function repaint(margin)
         g:set_color             (beautiful.menu_bg_header or beautiful.fg_normal)
     end
     setup_graph(netUpGraph)
-    vicious.register                 (netUpGraph, vicious.widgets.net  , '${eth0 up_kb}'  ,1)
+    --vicious.register(netUpGraph, vicious.widgets.net,  ,1)
     setup_graph(netDownGraph)
-    vicious.register                 (netDownGraph, vicious.widgets.net, '${eth0 down_kb}',1)
+    --vicious.register(netDownGraph, vicious.widgets.net, ,1)
 
     local mar = wibox.layout.margin()
     local lay = wibox.layout.fixed.vertical()
@@ -180,19 +177,20 @@ local function repaint(margin)
 
     local imb = wibox.widget.imagebox()
     imb:set_image(beautiful.path .. "Icon/reload.png")
+    imb:buttons(button({ }, 1, function (geo) update() end))
     mainMenu:add_widget(radical.widgets.header(mainMenu,"CONNECTIONS",{suffix_widget=imb}),{height = 20 , width = 200})
 
     if data.connectionInfo ~= nil then
         connMenu = embed({width=198,max_items=5,has_decoration=false,has_side_deco=true})
         mainMenu:add_embeded_menu(connMenu)
     end
-    mainMenu:add_widget(radical.widgets.header(mainMenu,"PROTOCOLS",{suffix_widget=imb}),{height = 20 , width = 200})
+    mainMenu:add_widget(radical.widgets.header(mainMenu,"PROTOCOLS"),{height = 20 , width = 200})
 
     protMenu = radical.widgets.piechart()
     mainMenu:add_widget(protMenu,{height = 100 , width = 100})
     protMenu:set_data(protocolStat)
 
-    mainMenu:add_widget(radical.widgets.header(mainMenu,"APPLICATIONS",{suffix_widget=imb}),{height = 20 , width = 200})
+    mainMenu:add_widget(radical.widgets.header(mainMenu,"APPLICATIONS"),{height = 20 , width = 200})
 
     appMenu = embed({width=198,max_items=3,has_decoration=false,has_side_deco=true})
     mainMenu:add_embeded_menu(appMenu)
@@ -249,14 +247,14 @@ local function ip_label_draw(self,w, cr, width, height)
         cr:set_source_surface(themeutils.get_beg_arrow2({bg_color=beautiful.bg_alternate}),width-height/2,2)
         cr:paint()
         cr:restore()
-    --     cr:set_source(color(beautiful.fg_normal))
+        --     cr:set_source(color(beautiful.fg_normal))
         wibox.widget.textbox.draw(self,w, cr, width, height)
     end
 end
 
 local function ip_label_fit(...)
---     local w,h = wibox.widget.textbox(...)
-    return 42,20
+    --     local w,h = wibox.widget.textbox(...)
+    return 60,20
 end
 
 -- This code will create a pseudo/fake average over the last 15 samples and output a value
@@ -273,7 +271,7 @@ end
 
 local function new(margin, args)
     ip4Info          = wibox.widget.textbox()
-    ip6Info          = wibox.widget.textbox()
+    ipExtInfo          = wibox.widget.textbox()
     ip4lbl           = wibox.widget.textbox()
     ip6lbl           = wibox.widget.textbox()
     localInfo        = wibox.widget.textbox()
@@ -289,19 +287,18 @@ local function new(margin, args)
 
     netDownGraph.draw = down_graph_draw
     netUpGraph.draw   = up_graph_draw
-    ip4lbl:set_markup("<b>IPv4</b>")
-    ip6lbl:set_markup("<b>IPv6</b>")
+    ip4lbl:set_markup("<b>IP LAN:</b>")
+    ip6lbl:set_markup("<b>IP WAN:</b>")
     ip4lbl.fit        = ip_label_fit
     ip4lbl.draw       = ip_label_draw
     ip6lbl.fit        = ip_label_fit
     ip6lbl.draw       = ip_label_draw
     local function show()
         if not data.menu or data.menu.visible ~= true then
-            update()
             if not data.menu then
                 data.menu = repaint(margin)
             end
-            update2()
+            update()
             data.menu.visible = true
         else
             data.menu.visible = false
@@ -314,8 +311,8 @@ local function new(margin, args)
     volumewidget2:hide_left(true)
     volumewidget2:set_mirror(true)
     volumewidget2:set_icon(config.iconPath .. "arrowUp.png")
-    volumewidget2:set_suffix("")
-    volumewidget2:set_suffix_icon(config.iconPath .. "kbs.png")
+    --volumewidget2:set_suffix("kBps")
+    --volumewidget2:set_suffix_icon(config.iconPath .. "kbs.png")
     volumewidget2:set_value(1)
     volumewidget2:icon_align("left")
 
@@ -324,12 +321,43 @@ local function new(margin, args)
     volumewidget3.set_value = set_value
     volumewidget3:hide_left(true)
     volumewidget3:set_icon(config.iconPath .. "arrowDown.png")
-    volumewidget3:set_suffix("")
-    volumewidget3:set_suffix_icon(config.iconPath .. "kbs.png")
+    --volumewidget3:set_suffix("")
+    --volumewidget3:set_suffix_icon(config.iconPath .. "kbs.png")
     volumewidget3:set_value(1)
     volumewidget3:icon_align("left")
-    vicious.register(volumewidget2  , vicious.widgets.net   ,  '${eth0 up_kb}'   ,3 )
-    vicious.register(volumewidget3, vicious.widgets.net   ,  '${eth0 down_kb}' ,3 )
+    vicious.register(volumewidget2  , vicious.widgets.net   ,  function(widgets,args)
+            local upSum,downSum=0,0
+            --Sum all interface upload and download rate
+            for i,v in pairs(args) do
+                if i:match("up_kb") then
+                    upSum=upSum+tonumber(v)
+                elseif i:match("down_kb") then
+                    downSum=downSum+tonumber(v)
+                end
+            end
+            --Update graph
+            netUpGraph:add_value(upSum)
+            netDownGraph:add_value(downSum)
+
+            --Update widgets
+            if upSum > 1024 then
+                upSum=string.format("%.2f",upSum/1024)
+                volumewidget2:set_suffix("MBps")
+            else
+                volumewidget2:set_suffix("kBps")
+            end
+            
+            if downSum > 1024 then
+                downSum=string.format("%.2f",downSum/1024)
+                volumewidget3:set_suffix("MBps")
+            else
+                volumewidget3:set_suffix("kBps")
+            end
+
+            volumewidget3:set_text(downSum)
+            return upSum
+        end   ,1 )
+    --vicious.register(volumewidget3, vicious.widgets.net   ,  ,1 )
 
     local l = wibox.layout.fixed.horizontal()
     l:add(volumewidget2)
@@ -346,6 +374,11 @@ local function new(margin, args)
         cr:fill()
         cr:restore()
     end
+
+
+    --Initial menu loading quick fix
+    show()
+    show()
 
     return l
 end

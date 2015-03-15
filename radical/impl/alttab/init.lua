@@ -168,7 +168,9 @@ local function new(args)
     local item = currentMenu._current_item
     item.checked = not item.checked
     local c = item.client
-    if c.screen ~= scr then return end
+    if c.screen ~= scr then
+      c.screen = scr
+    end
     client2.movetotag(t, c)
     reload_underlay(c,item)
     if not auto_release then

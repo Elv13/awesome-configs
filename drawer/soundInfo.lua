@@ -14,7 +14,7 @@ local radical      = require( "radical"                  )
 local allinone = require("widgets.allinone")
 local capi = { screen = screen, mouse = mouse}
 
-local module = {}
+local moduleSound = {}
 
 local mainMenu = nil
 
@@ -22,103 +22,255 @@ local errcount = 0
 
 local volumewidget2 = nil
 
-function amixer_volume_int(format)
-   local f = io.popen('amixer sget Master 2> /dev/null | tail -n1 |cut -f 6 -d " " | grep -o -e "[0-9]*"')
-   if f then
-      local l = f:read()
-      f:close()
-      local toReturn
-      if (not l) or l == "" then
-         toReturn = 0
-         errcount = errcount + 1
-         if errcount > 10 then
-            print("Too many amixer failure, stopping listener")
-            vicious.unregister(volumewidget2)
-         end
-      else
-         toReturn = tonumber(l)
-      end
-      return {toReturn}
-   else
-      print("Calling amixer failed")
-   end
-   return {}
-end
+--Pulseaudio pid
+local pavuId = -1
+local pavuSinkN=0
 
-function soundInfo()
-  local f = io.popen('amixer 2> /dev/null | grep "Simple mixer control" | cut -f 2 -d "\'" | sort -u')
 
-  local soundHeader = wibox.widget.textbox()
-  soundHeader:set_markup(" <span color='".. beautiful.bg_normal .."'><b><tt>CHANALS</tt></b></span> ")
+-- Adds a line for a device
+-- mainMenu:    menu in wich add item
+-- name:        dev name
+-- aVolume:     dev volume
+-- isMute
+-- commArgs:    arguments to be passed to function itemScrollUp and itemScrollDown
+function addVolumeDevice(mainMenu,name,aVolume,isMute,commArgs)
 
-  local counter = 0
-  while true do
-    local aChannal = f:read("*line")
-    if aChannal == nil then break end
-
-    local f2= io.popen('amixer sget 2> /dev/null'.. aChannal ..' | tail -n1 |cut -f 6 -d " " | grep -o -e "[0-9]*" 2> /dev/null')
-    local aVolume = (tonumber(f2:read("*line")) or 0) / 100
-    f2:close()
-
-    local mute = wibox.widget.imagebox()
-    mute:set_image(config.iconPath .. "volm.png")
-
-    local plus = wibox.widget.imagebox()
-    plus:set_image(config.iconPath .. "tags/cross2.png")
+    local icon = wibox.widget.imagebox()
+    if isMute then icon:set_image(config.iconPath .. "volm.png")
+    else icon:set_image(config.iconPath .. "vol3.png") end
 
     local volume = widget2.progressbar()
-    volume:set_width(40)
+    volume:set_width(80)
     volume:set_height(20)
     volume:set_background_color(beautiful.bg_normal)
     volume:set_border_color(beautiful.fg_normal)
     volume:set_color(beautiful.fg_normal)
     volume:set_value(aVolume or 0)
     if (widget2.progressbar.set_offset ~= nil) then
-      volume:set_offset(1)
+        volume:set_offset(1)
     end
 
-    local minus = wibox.widget.imagebox()
-    minus:set_image(config.iconPath .. "tags/minus2.png")
-    counter = counter +1
-    local l2 = wibox.layout.fixed.horizontal()
-    l2:add(plus)
-    l2:add(volume)
-    l2:add(minus)
-    mainMenu:add_item({text=aChannal,prefix_widget=mute,suffix_widget=l2})
-  end
-  f:close()
+    --Add line and set scroll volume control
+    mainMenu:add_item({text=name,prefix_widget=icon,suffix_widget=volume,
+            button3=function(geo,parent)
+                --Toggle mute
+                isMute = not isMute
+                if isMute then icon:set_image(config.iconPath .. "volm.png")
+                else icon:set_image(config.iconPath .. "vol3.png") end
+                moduleSound.itemToggleMute(commArgs)
+                --AXTODO: toggle mute
+            end,
+            button4=function(geo,parent) 
+                aVolume=aVolume+0.02
+                if aVolume>1 then aVolume=1 end
+                volume:set_value(aVolume)
+                volume:emit_signal("widget::updated")
+                moduleSound.itemScrollUp(commArgs)
+            end,
+            button5=function(geo,parent)
+                aVolume=aVolume-0.02
+                if aVolume<0 then aVolume=0 end
+                volume:set_value(aVolume)
+                volume:emit_signal("widget::updated")
+                moduleSound.itemScrollDown(commArgs)
+            end})
 end
 
-local function new(mywibox3,left_margin)
-  if volumewidget2 then return volumewidget2 end
-  volumewidget2 = allinone()
-  volumewidget2:set_icon(config.iconPath .. "vol.png")
 
-  local btn = util.table.join(
-     button({ }, 1, function(geo)
-        if not mainMenu then
-            mainMenu = radical.context({width=200,arrow_type=radical.base.arrow_type.CENTERED})
-            soundInfo()
+--args {
+--      pavuSink    =   Default sink number
+--      mode        =   "pulse" : Pulseaudio mode (Require pactl)
+--                      "alsa"  : Alsa mode
+--                      nil     : Search for pactl if not found use alsa
+local function new(mywibox3,args)
+    --Variables---------------------------------------------------------
+    local pavuSink, mode = nil,nil
+    local volumes = {}
+
+    --Select mode-------------------------------------------------------
+    --Parse args
+    if args ~= nil then
+        pavuSink    =  args.pavuSink
+        mode        =  args.mode
+    end
+
+    --Auto working mode selection
+    if not mode then
+        --Check if pulseaudio is running
+        local f = io.popen('whereis pactl | cut -d":" -f2| wc -c')
+        local temp = (tonumber(f:read("*all")) or 0)
+        if temp > 2 then
+            mode    =   "pulse"
+            pavuSink=   pavuSink or 0
+        else mode="alsa" end
+        --
+        print("INFO@SoundInfo: Auto mode detected:",mode)
+        f:close()
+    end
+
+
+    --Functions------------------------------------------------------------------------
+    if mode == "alsa" then 
+        -- Alsa mode functions-----------------------------------
+        moduleSound.itemScrollUp=function(devId)
+            util.spawn_with_shell("amixer sset "..devId.." 2%+ >/dev/null")
         end
-        mainMenu.visible = not mainMenu.visible
-        mainMenu.parent_geometry = geo
+        moduleSound.itemScrollDown=function(devId)
+            util.spawn_with_shell("amixer sset "..devId.." 2%- >/dev/null")
+        end
+        moduleSound.itemToggleMute=function(devId)
+            util.spawn_with_shell("amixer set "..devId.." 1+ toggle")
+            --print("pactl set-"..dev.type.."-mute "..dev.id.." toggle")
+        end
+        moduleSound.drawMenu=function()
+            local mainMenu=  radical.context({width=200,arrow_type=radical.base.arrow_type.CENTERED})
+            --Add menu header
+            mainMenu:add_widget(radical.widgets.header(mainMenu,"OUT")  , {height = 20  , width = 200})
+
+            --Parse Devices names
+            local pipe = io.popen("amixer | awk -f "..util.getdir("config").."/drawer/Scripts/parseAlsa.awk")
+            for line in pipe:lines() do
+                local data=string.split(line,";")
+                local aChannal = data[1]
+                local aVolume = (tonumber(data[2]:match("%d+")) or 0) / 100
+                local isMute = false
+                if #data >= 3 and data[3]:match("off") then isMute=true end
+                --Add device
+                addVolumeDevice(mainMenu,aChannal,aVolume,isMute,aChannal)
+            end
+            pipe:close()
+            return mainMenu
+        end
+
+
+    elseif mode == "pulse" then
+        ---------------------------------------------------------------------------------------------------------------
+        --Pulseaudio mode functions------------------------------------------------------------------------------------
+        moduleSound.itemScrollUp= function(dev)
+            util.spawn_with_shell("pactl set-"..dev.type.."-volume "..dev.id.." -- +2%")
+            --print("pactl set-"..dev.type.."-volume "..dev.id.." -- +2%")
+        end
+        moduleSound.itemScrollDown=function(dev)
+            util.spawn_with_shell("pactl set-"..dev.type.."-volume "..dev.id.." -- -2%")
+            --print("pactl set-"..dev.type.."-volume "..dev.id.." -- -2%")
+        end
+        moduleSound.itemToggleMute=function(dev)
+            util.spawn_with_shell("pactl set-"..dev.type.."-mute "..dev.id.." toggle")
+            --print("pactl set-"..dev.type.."-mute "..dev.id.." toggle")
+        end
+        -- Menu drawer for pulseaudio
+        moduleSound.drawMenu=function()
+            local mainMenu,aVolume,data,isMute
+            mainMenu=  radical.context({width=300,arrow_type=radical.base.arrow_type.CENTERED})
+            --Add header
+            mainMenu:add_widget(radical.widgets.header(mainMenu,"OUT")  , {height = 20  , width = 200})
+            --Parse pactl stuff
+            local pipe=io.popen("pactl list sinks| awk -f "..util.getdir("config").."/drawer/Scripts/parsePactl.awk")
+            for line in pipe:lines() do
+                local data=string.split(line,";")
+                if #data>=5 then
+                    aVolume=tonumber(data[3]:match("%d+") or 0)/100
+                    isMute = false
+                    if data[4]:match("yes") then isMute=true end
+                    --Add item to menu
+                    addVolumeDevice(mainMenu,data[5],aVolume,isMute,{type=data[1],id=data[2]})
+                end
+            end
+            pipe:close()
+
+            return mainMenu
+        end
+
+
+    end
+
+    --Master Volume parser for widget
+    function amixer_volume_int(format)
+        local f= io.popen("amixer sget Master | awk '/Front.*Playback/{print $5; exit}'| grep -o -e '[0-9]*'")
+
+        if f then
+            return tonumber(f:read("*a")) or 0
+        else
+            print("Calling amixer failed")
+        end
+        return 0
+    end
+
+    function toggle()
+        if not mainMenu then
+            mainMenu = moduleSound.drawMenu()
+            mainMenu.parent_geometry = geo
+            mainMenu.visible = true
+        else
+            --Close and destroy main menu
+            mainMenu.visible = false
+            mainMenu = nil
+        end
+
 
         if mywibox3 and type(mywibox3) == "wibox" then
             mywibox3.visible = not mywibox3.visible
         end
         musicBarVisibility = true
-      end),
-      button({ }, 4, function()
-          util.spawn("amixer -c0 sset Master 2dB+ >/dev/null")
-      end),
-      button({ }, 5, function()
-          util.spawn("amixer -c0 sset Master 2dB- >/dev/null")
-      end)
-  )
+    end
+    --Constructor ------------------------------------------------------
+    if volumewidget2 then return volumewidget2 end
+    volumewidget2 = allinone()
+    volumewidget2:set_icon(config.iconPath .. "vol.png")
 
-  vicious.register(volumewidget2, amixer_volume_int, '$1')
-  volumewidget2:buttons(btn)
-  return volumewidget2
+
+    local btn
+    if mode=="alsa" then
+        --Alsa mode (Classic)
+
+        btn = util.table.join(
+            button({ }, 1, function(geo)
+                    toggle()
+                end),
+            button({ }, 3, function()
+                    util.spawn_with_shell("amixer set Master 1+ toggle")
+                end),
+            button({ }, 4, function()
+                    volumeUp('Master')
+                    if volumewidget2.percent > 0.98 then volumewidget2.percent=1
+                    else volumewidget2.percent=volumewidget2.percent+0.02 end
+                end),
+            button({ }, 5, function()
+                    volumeDown('Master')
+                    if volumewidget2.percent < 0.02 then volumewidget2.percent=0
+                    else volumewidget2.percent=volumewidget2.percent-0.02 end
+                end)
+        )
+    else
+        --Pulseaudio mode
+        btn = util.table.join(
+            button({ }, 1, function(geo)
+                    toggle()
+                end),
+            button({ }, 3, function()
+                    util.spawn_with_shell("pactl set-sink-mute "..pavuSinkN.." toggle")
+                end),
+            button({ }, 4, function()
+                    if volumewidget2.percent > 1.48 then
+                        volumewidget2.percent=1.5
+                        util.spawn_with_shell("pactl set-sink-volume "..pavuSinkN.." -- 150%")
+                    else
+                        volumewidget2.percent=volumewidget2.percent+0.02
+                        util.spawn_with_shell("pactl set-sink-volume "..pavuSinkN.." -- +2%")
+                    end
+
+                end),
+            button({ }, 5, function()
+                    util.spawn_with_shell("pactl set-sink-volume "..pavuSinkN.." -- -2%")
+                    if volumewidget2.percent < 0.02 then volumewidget2.percent=0
+                    else volumewidget2.percent=volumewidget2.percent-0.02 end
+                end)
+        )
+    end
+
+    vicious.register(volumewidget2, amixer_volume_int,1)
+    volumewidget2:buttons(btn)
+    return volumewidget2
 end
 
-return setmetatable(module, { __call = function(_, ...) return new(...) end })
+return setmetatable(moduleSound, { __call = function(_, ...) return new(...) end })
