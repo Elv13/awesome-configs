@@ -16,9 +16,9 @@ local function five_layout(c,tag)
     elseif count == 5 then
         awful.tag.setproperty(tag,"nmaster",2)
         awful.tag.setproperty(tag,"mwfact",0.63) -- 100 columns at 1080p 11px fonts
---         awful.client.setwfact(0.66, awful.client.getmaster(awful.tag.getscreen(tag)))
+        awful.client.setwfact(0.66, awful.client.getmaster(awful.tag.getscreen(tag)))
     end
-    return 5
+    return 6
 end
 
 local function fair_split_or_tile(c,tag)
@@ -31,7 +31,7 @@ local function fair_split_or_tile(c,tag)
         awful.tag.setproperty(tag,"nmaster",1)
         awful.tag.setproperty(tag,"mwfact",0.6)
     end
-    return 5
+    return 6
 end
 
 -- }}}
@@ -388,7 +388,11 @@ tyrannical.properties.below = {
 }
 
 tyrannical.properties.maximize = {
-    amarok = false,
+    amarok = false, kodi=false,
+}
+
+tyrannical.properties.fullscreen = {
+    kodi = false,
 }
 
 -- tyrannical.properties.border_width = {
@@ -410,4 +414,4 @@ tyrannical.properties.hidden = {"yakuake"}
 
 -- tyrannical.properties.no_autofocus = {"umbrello"}
 
-tyrannical.properties.size_hints_honor = { xterm = false, URxvt = false, aterm = false, sauer_client = false, mythfrontend  = false}
+tyrannical.properties.size_hints_honor = { xterm = false, URxvt = false, aterm = false, sauer_client = false, mythfrontend  = false, kodi = false}

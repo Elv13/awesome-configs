@@ -105,7 +105,7 @@ config.scr           = {
 config.load()
 config.themePath = awful.util.getdir("config") .. "/blind/" .. config.themeName .. "/"
 config.iconPath  = config.themePath       .. "Icon/"
-beautiful.init(config.themePath                .. "/themeZilla.lua")
+beautiful.init(config.themePath                .. "/themeSciFiGrad.lua")
 
 
 -- This is used later as the default terminal and editor to run.
@@ -156,7 +156,7 @@ movetagL,movetagR = {}, {}
 dofile(awful.util.getdir("config") .. "/baseRule.lua")
 
 -- Create the "Show Desktop" icon
-local desktopPix             = customButton.showDesktop ( nil                                )
+local desktopPix             = nil --customButton.showDesktop ( nil                                )
 
 -- Create the clock
 local clock                  = drawer.dateInfo          ( nil                                )
@@ -448,7 +448,7 @@ for s = 1, screen.count() do
                 layout = wibox.widget.background(nil,beautiful.systray_icon_fg or beautiful.icon_grad)
             },
             sep_end_menu   ,
-            desktopPix     ,
+            --desktopPix     ,
             endArrow       ,
             layout = wibox.layout.fixed.horizontal,
         },

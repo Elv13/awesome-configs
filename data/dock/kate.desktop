@@ -1,5 +1,5 @@
-Categories=Development;
-Class=dolphin
+HasTempFileOption=true
+Class=kate
 orig=kate
 StartupNotify=true
 GenericName=Advanced Text Editor
@@ -10,7 +10,7 @@ ServiceName=org.kde.kate
 InitialPreference=9
 StartupType=Multi
 Name=Kate
-HasTempFileOption=true
+Categories=Development;
 Exec=kate -b %U
-Terminal=false
 MimeType=text/plain;
+Terminal=false

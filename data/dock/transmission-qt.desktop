@@ -1,11 +1,11 @@
 Categories=Network;
 Type=Application
 Comment=Download and share files over BitTorrent
-Keywords=torrent
-Class=konversation
+Class=dolphin
+Terminal=false
 GenericName=BitTorrent Client
 MimeType=application/x-bittorrent;x-scheme-handler/magnet;
 Name=Transmission Bittorrent Client
 Exec=transmission-qt %F
 Icon=/home/lepagee/.config/awesome/blind/arrow/Icon//transmission.png
-Terminal=false
+Keywords=torrent

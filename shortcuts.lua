@@ -81,6 +81,38 @@ shorter.Screen = {
     key={ {                   }, "#180" }, fct = function () collision.swap_screens(5)       end },
 }
 
+local hooks = {
+    {{         },"Return",function(command)
+        local result = awful.util.spawn(command)
+        mypromptbox[mouse.screen].widget:set_text(type(result) == "string" and result or "")
+        return true
+    end},
+    {{"Mod1"   },"Return",function(command)
+        local result = awful.util.spawn(command,{intrusive=true})
+        mypromptbox[mouse.screen].widget:set_text(type(result) == "string" and result or "")
+        return true
+    end},
+    {{"Shift"  },"Return",function(command)
+        local result = awful.util.spawn(command,{intrusive=true,ontop=true,floating=true})
+        mypromptbox[mouse.screen].widget:set_text(type(result) == "string" and result or "")
+        return true
+    end}
+}
+
+--Open clients in screen "s"
+for s = 1, screen.count() do
+    table.insert(hooks, {{"Mod4"  },tostring(s),function(command)
+        local result = awful.util.spawn(command,{screen=s})
+        mypromptbox[mouse.screen].widget:set_text(type(result) == "string" and result or "")
+        return true
+    end})
+    table.insert(hooks, {{  },"F"..s,function(command)
+        local result = awful.util.spawn(command,{screen=s,intrusive=true,ontop=true,floating=true})
+        mypromptbox[mouse.screen].widget:set_text(type(result) == "string" and result or "")
+        return true
+    end})
+end
+
 shorter.Launch = {
     {desc = "Launch a terminal",
     key={{  modkey,           }, "Return" }, fct = function () awful.util.spawn(terminal)                        end},
@@ -91,23 +123,7 @@ shorter.Launch = {
     {desc = "Run a command",
     key={{  modkey },            "r"},
         fct = function ()
-            awful.prompt.run({ prompt = "Run: ", hooks = {
-                {{         },"Return",function(command)
-                    local result = awful.util.spawn(command)
-                    mypromptbox[mouse.screen].widget:set_text(type(result) == "string" and result or "")
-                    return true
-                end},
-                {{"Mod1"   },"Return",function(command)
-                    local result = awful.util.spawn(command,{intrusive=true})
-                    mypromptbox[mouse.screen].widget:set_text(type(result) == "string" and result or "")
-                    return true
-                end},
-                {{"Shift"  },"Return",function(command)
-                    local result = awful.util.spawn(command,{intrusive=true,ontop=true,floating=true})
-                    mypromptbox[mouse.screen].widget:set_text(type(result) == "string" and result or "")
-                    return true
-                end}
-            }},
+            awful.prompt.run({ prompt = "Run: ", hooks = hooks},
             mypromptbox[mouse.screen].widget,
             function (com)
                     local result = awful.util.spawn(com)
