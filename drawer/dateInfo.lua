@@ -49,24 +49,25 @@ local function createDrawer()
   local weatherInfo2=wibox.widget.textbox()
 
   function updateWeater()
-    if dateModule.latitude ~= nil and dateModule.longitude ~= nil then
-      local f=io.popen("curl -S 'http://api.openweathermap.org/data/2.5/weather?lat="..dateModule.latitude.."&lon="..dateModule.longitude.."'")
-      local weatherInfo = nil
-      if f ~= nil then
-        local wData=json:decode(f:read("*all"))
-        f:close()
-        if wData ~= nil then
-          weatherInfo=" "..wData.name..", "..wData.sys.country.."\n"
-          weatherInfo=weatherInfo.."  <b>Temp:</b> "..(wData.main.temp-273.15).." °C\n"
-          weatherInfo=weatherInfo.."  <b>Wind:</b> "..(wData.wind.speed).." m/s\n"
-          weatherInfo=weatherInfo.."  <b>Humidity:</b> "..(wData.main.humidity).." hPa"
-
-          weatherInfo2:set_markup(weatherInfo or "N/A")
-        else
-          weatherInfo2:set_markup("N/A")
-        end
-      end
-    end
+    return --Has been reported broken in 3.5.9
+--    if dateModule.latitude ~= nil and dateModule.longitude ~= nil then
+--      local f=io.popen("curl -S 'http://api.openweathermap.org/data/2.5/weather?lat="..dateModule.latitude.."&lon="..dateModule.longitude.."'")
+--      local weatherInfo = nil
+--      if f ~= nil then
+--        local wData=json:decode(f:read("*all"))
+--        f:close()
+--        if wData ~= nil then
+--          weatherInfo=" "..wData.name..", "..wData.sys.country.."\n"
+--          weatherInfo=weatherInfo.."  <b>Temp:</b> "..(wData.main.temp-273.15).." °C\n"
+--          weatherInfo=weatherInfo.."  <b>Wind:</b> "..(wData.wind.speed).." m/s\n"
+--          weatherInfo=weatherInfo.."  <b>Humidity:</b> "..(wData.main.humidity).." hPa"
+--
+--          weatherInfo2:set_markup(weatherInfo or "N/A")
+--        else
+--          weatherInfo2:set_markup("N/A")
+--        end
+--      end
+ --   end
   end
 
   mytimer2 = capi.timer({ timeout = 1800 })
