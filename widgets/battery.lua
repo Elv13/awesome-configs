@@ -54,15 +54,31 @@ local function check_present(name)
 end
 
 local function timeout(wdg)
-  gio.File.new_for_path('/sys/class/power_supply/'..(bat_name)..'/energy_now'):load_contents_async(nil,function(file,task,c)
-      local content = file:load_contents_finish(task)
-      if content then
-        local now = tonumber(tostring(content))
-        local percent = now/full_energy
-        percent = math.floor(percent* 100)/100
-        wdg:set_value(percent)
-      end
-  end)
+  -- Works when energy_now is not present
+  local bat_file = '/sys/class/power_supply'..(bat_name)..'/energy_now'
+  local f=io.open(bat_file, 'r')
+  
+  if f~=nil then
+      gio.File.new_for_path('/sys/class/power_supply/'..(bat_name)..'/energy_now'):load_contents_async(nil,function(file,task,c)
+        local content = file:load_contents_finish(task)
+        if content then
+          local now = tonumber(tostring(content))
+          local percent = now/full_energy
+          percent = math.floor(percent*100)/100
+          wdg:set_value(percent)
+        end
+    end)
+else
+      gio.File.new_for_path('/sys/class/power_supply/'..(bat_name)..'/capacity'):load_contents_async(nil,function(file,task,c)
+        local content = file:load_contents_finish(task)
+        if content then
+          local now = tonumber(tostring(content))
+          local percent = now/100
+          wdg:set_value(percent)
+        end
+    end)
+end
+
   gio.File.new_for_path('/sys/class/power_supply/'..(bat_name)..'/status'):load_contents_async(nil,function(file,task,c)
       local content = file:load_contents_finish(task)
       if content then
