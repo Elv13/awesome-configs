@@ -3,7 +3,6 @@ Type=Application
 Terminal=false
 Name=Amarok
 Version=1.0
-Icon=/home/lepagee/.config/awesome/blind/arrow/Icon//amarok.png
 Class=amarok
 Exec=amarok %U
 Comment=Amarok - Rediscover Your Music!

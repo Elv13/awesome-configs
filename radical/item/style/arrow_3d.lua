@@ -1,8 +1,6 @@
 local setmetatable = setmetatable
-local print  = print
-local pairs  = pairs
 local color  = require( "gears.color"  )
-local base   = require( "radical.base" )
+local theme     = require( "radical.theme" )
 
 local module = {
   margins = {
@@ -10,7 +8,8 @@ local module = {
     BOTTOM = 2,
     RIGHT  = 2,
     LEFT   = 4
-  }
+  },
+  need_full_repaint = true
 }
 
 local function create_path(cr,x,height,padding)
@@ -25,14 +24,8 @@ local c1 = color("#474e56dd")
 local c2 = color("#5b646cdd")
 local c3 = color("#212429dd")
 local c4 = color("#3b4249dd")
-local padding = 1
-local p2 = 2
 
-local function widget_draw23(self, w, cr, width, height)
-  local overlay = self._item and self._item.overlay
-  if overlay then
-    overlay(self._item._menu,self._item,cr,width,height)
-  end
+local function widget_draw23(self, context, cr, width, height)
   cr:save()
   cr:reset_clip()
   cr:set_line_width(1)
@@ -62,16 +55,17 @@ local function widget_draw23(self, w, cr, width, height)
   create_path(cr,1,height,1)
   cr:stroke()
   cr:restore()
-  self.__drawbasic(self,w, cr, width, height)
+
+  if self.__drawbasic then
+    self.__drawbasic(self, context, cr, width, height)
+  end
 end
 
 local function new_set_bg(self,bg)
   self.radical_bg = color(bg)
 end
 
-local function draw(item,args)
-  local args = args or {}
-
+local function draw(item)
   if not item.widget._overlay_init and not item.widget._draw then
     item.widget.__drawbasic = item.widget.draw
     item.widget.draw = widget_draw23
@@ -80,20 +74,7 @@ local function draw(item,args)
     item.widget.background = nil
   end
 
-  local state = item.state or {}
-  local current_state = state._current_key or nil
-  local state_name = base.colors_by_id[current_state]
-
-  if current_state == base.item_flags.SELECTED or (item._tmp_menu) then
-    item.widget:set_bg(item.bg_focus)
-    item.widget:set_fg(item.fg_focus)
-  elseif state_name then
-    item.widget:set_bg(args.color or item["bg_"..state_name])
-    item.widget:set_fg(              item["fg_"..state_name])
-  else
-    item.widget:set_bg(args.color or nil)
-    item.widget:set_fg(item["fg"])
-  end
+  theme.update_colors(item)
 end
 
 return setmetatable(module, { __call = function(_, ...) return draw(...) end })

@@ -40,7 +40,7 @@ function module.start()
     call_indent = 0
 end
 
-local function trace(class)
+function module.trace(class)
     -- print("calling tracer: "..class)
     if class == "count" then
             instr_count = instr_count + 1
@@ -104,7 +104,7 @@ local function trace(class)
                             -- print("handling error()")
                             -- the error() is already removed
                             -- removed every thing up to pcall()
-                            while callstack[#callstack].func ~= f.func do
+                            while callstack[#callstack] and callstack[#callstack].func ~= f.func do
                                     table.remove(callstack)
 
                                     call_indent = call_indent - 1
@@ -130,12 +130,14 @@ local function trace(class)
 
                     -- in case the assert below fails, enable this print and the one in the "call" handling
                     -- print((" "):rep(call_indent).."<<"..tostring(ret.func).." "..tostring(f.func).. " =? " .. tostring(f.func == ret.func))
-                    assert(ret.func == f.func)
+                    assert(not ret or ret.func == f.func)
 
-                    lines[#lines + 1] = ("cfl=%s"):format(ret.short_src)
-                    lines[#lines + 1] = ("cfn=%s"):format(tostring(ret.func))
-                    lines[#lines + 1] = ("calls=1 %d"):format(ret.linedefined)
-                    lines[#lines + 1] = ("%d %d"):format(last_line and last_line or -1, instr_count - ret.instr_count)
+                    if ret then
+                        lines[#lines + 1] = ("cfl=%s"):format(ret.short_src)
+                        lines[#lines + 1] = ("cfn=%s"):format(tostring(ret.func))
+                        lines[#lines + 1] = ("calls=1 %d"):format(ret.linedefined)
+                        lines[#lines + 1] = ("%d %d"):format(last_line and last_line or -1, instr_count - ret.instr_count)
+                    end
             end
             -- tracefile:write("# --callstack: " .. #callstack .. "\n")
     else
@@ -177,6 +179,7 @@ end
 function module.stop(glob)
     -- resolve the function pointers
     func2name(methods, glob)
+    print("STOP")
 
     for key, func in pairs(functions) do
             local f = func.meta

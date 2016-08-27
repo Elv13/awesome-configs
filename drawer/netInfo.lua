@@ -7,7 +7,6 @@ local table        = table
 local print        = print
 local math         = math
 local beautiful    = require( "beautiful"                )
-local widget2      = require( "awful.widget"             )
 local wibox        = require( "wibox"                    )
 local button       = require( "awful.button"             )
 local vicious      = require("extern.vicious")
@@ -21,6 +20,7 @@ local color        = require( "gears.color"              )
 local cairo        = require( "lgi"                      ).cairo
 local allinone     = require( "widgets.allinone"         )
 local fd_async = require("utils.fd_async")
+local radialprog   = require("widgets.radialprogressbar")
 
 local capi = { widget = widget , client = client}
 
@@ -62,7 +62,7 @@ local function update()
                         application.fit = function()
                             return 48,connMenu.item_height
                         end
-                        application.draw = function(self,w, cr, width, height)
+                        application.draw = function(self,context, cr, width, height)
                             cr:save()
                             cr:set_source(color(connMenu.bg_alternate))
                             cr:rectangle(height/2,0,width-height/2,height)
@@ -70,7 +70,7 @@ local function update()
                             cr:set_source_surface(themeutils.get_beg_arrow2({bg_color=connMenu.bg_alternate,direction="left"}),0,0)
                             cr:paint()
                             cr:restore()
-                            wibox.widget.textbox.draw(self,w, cr, width, height)
+                            wibox.widget.textbox.draw(self,context, cr, width, height)
                         end
                         application:set_markup("<b>"..data.connectionInfo[i][connLookup['protocol']].." </b>")
                         application:set_align("right")
@@ -143,7 +143,7 @@ local function repaint(margin)
     ipInfoVl:add(ipInfoH1l)
     ipInfoVl:add(ipInfoH2l)
 
-    local ipm = wibox.layout.margin()
+    local ipm = wibox.container.margin()
     ipm:set_widget(ipInfoVl)
     ipm:set_top(5)
     ipm:set_bottom(5)
@@ -161,7 +161,7 @@ local function repaint(margin)
     setup_graph(netDownGraph)
     --vicious.register(netDownGraph, vicious.widgets.net, ,1)
 
-    local mar = wibox.layout.margin()
+    local mar = wibox.container.margin()
     local lay = wibox.layout.fixed.vertical()
     lay:add(netUpGraph)
     lay:add(netDownGraph)
@@ -170,15 +170,15 @@ local function repaint(margin)
     mar:set_widget(lay)
 
     mainMenu = menu({width=200,arrow_type=radical.base.arrow_type.CENTERED})
-    mainMenu:add_widget(radical.widgets.header(mainMenu,"GRAPH"),{height = 20 , width = 200})
+--     mainMenu:add_widget(radical.widgets.header(mainMenu,"GRAPH"),{height = 20 , width = 200})
     mainMenu:add_widget(mar ,{height = 73, width = 200})
-    mainMenu:add_widget(radical.widgets.header(mainMenu,"IP"),{height = 20 , width = 200})
-    mainMenu:add_widget(ipm       ,{height = 50, width = 200})
+--     mainMenu:add_widget(radical.widgets.header(mainMenu,"IP"),{height = 20 , width = 200})
+--     mainMenu:add_widget(ipm       ,{height = 50, width = 200})
 
     local imb = wibox.widget.imagebox()
     imb:set_image(beautiful.path .. "Icon/reload.png")
     imb:buttons(button({ }, 1, function (geo) update() end))
-    mainMenu:add_widget(radical.widgets.header(mainMenu,"CONNECTIONS",{suffix_widget=imb}),{height = 20 , width = 200})
+--     mainMenu:add_widget(radical.widgets.header(mainMenu,"CONNECTIONS",{suffix_widget=imb}),{height = 20 , width = 200})
 
     if data.connectionInfo ~= nil then
         connMenu = embed({width=198,max_items=5,has_decoration=false,has_side_deco=true})
@@ -191,14 +191,14 @@ local function repaint(margin)
     protMenu:set_data(protocolStat)
 
     mainMenu:add_widget(radical.widgets.header(mainMenu,"APPLICATIONS"),{height = 20 , width = 200})
-
+-- 
     appMenu = embed({width=198,max_items=3,has_decoration=false,has_side_deco=true})
     mainMenu:add_embeded_menu(appMenu)
     return mainMenu
 end
 
 local upsur,downsur
-local function down_graph_draw(self,w, cr, width, height)
+local function down_graph_draw(self, context, cr, width, height)
     if mainMenu and mainMenu.visible then
         if not downsur then
             downsur = color.apply_mask(config.iconPath .. "arrowDown.png"         )
@@ -206,7 +206,7 @@ local function down_graph_draw(self,w, cr, width, height)
         cr:save()
         cr:rotate(math.pi)
         cr:translate(-width,-height)
-        widget2.graph.draw(self,w, cr, width, height)
+        wibox.widget.graph.draw(self, context, cr, width, height)
         cr:restore()
         cr:move_to(18,height/2+3)
         cr:set_source(color(beautiful.fg_normal))
@@ -218,7 +218,7 @@ local function down_graph_draw(self,w, cr, width, height)
     end
 end
 
-local function up_graph_draw(self,w, cr, width, height)
+local function up_graph_draw(self,context, cr, width, height)
     if mainMenu and mainMenu.visible then
         if not upsur then
             upsur = color.apply_mask(config.iconPath .. "arrowUp.png"         )
@@ -226,7 +226,7 @@ local function up_graph_draw(self,w, cr, width, height)
         cr:save()
         cr:scale(-1,1)
         cr:translate(-width,0)
-        widget2.graph.draw(self,w, cr, width, height)
+        wibox.widget.graph.draw(self, context, cr, width, height)
         cr:restore()
         cr:move_to(18,height/2+3)
         cr:set_source(color(beautiful.fg_normal))
@@ -238,7 +238,7 @@ local function up_graph_draw(self,w, cr, width, height)
     end
 end
 
-local function ip_label_draw(self,w, cr, width, height)
+local function ip_label_draw(self,context, cr, width, height)
     if mainMenu and mainMenu.visible then
         cr:save()
         cr:set_source(color(beautiful.bg_alternate))
@@ -248,7 +248,7 @@ local function ip_label_draw(self,w, cr, width, height)
         cr:paint()
         cr:restore()
         --     cr:set_source(color(beautiful.fg_normal))
-        wibox.widget.textbox.draw(self,w, cr, width, height)
+        wibox.widget.textbox.draw(self, context, cr, width, height)
     end
 end
 
@@ -257,21 +257,9 @@ local function ip_label_fit(...)
     return 60,20
 end
 
--- This code will create a pseudo/fake average over the last 15 samples and output a value
-local function set_value(self,value)
-    local value = value or 0
-    self._time = (self._time*14 + (value or 0))/15
-    local percent = value/self._time
-    if percent > 1 then
-        percent = 1
-    end
-    self:set_text(value*1000)
-    self:set_percent(percent)
-end
-
-local function new(margin, args)
+local function init_menu()
     ip4Info          = wibox.widget.textbox()
-    ipExtInfo          = wibox.widget.textbox()
+    ipExtInfo        = wibox.widget.textbox()
     ip4lbl           = wibox.widget.textbox()
     ip6lbl           = wibox.widget.textbox()
     localInfo        = wibox.widget.textbox()
@@ -282,8 +270,8 @@ local function new(margin, args)
     uploadImg        = wibox.widget.imagebox()
     downlogo         = wibox.widget.imagebox()
     uplogo           = wibox.widget.imagebox()
-    netUpGraph       = widget2.graph(                  )
-    netDownGraph     = widget2.graph(                  )
+    netUpGraph       = wibox.widget.graph   ()
+    netDownGraph     = wibox.widget.graph   ()
 
     netDownGraph.draw = down_graph_draw
     netUpGraph.draw   = up_graph_draw
@@ -293,94 +281,110 @@ local function new(margin, args)
     ip4lbl.draw       = ip_label_draw
     ip6lbl.fit        = ip_label_fit
     ip6lbl.draw       = ip_label_draw
+end
+
+local function new(margin, args)
+
     local function show()
         if not data.menu or data.menu.visible ~= true then
             if not data.menu then
+                init_menu()
                 data.menu = repaint(margin)
             end
             update()
-            data.menu.visible = true
-        else
-            data.menu.visible = false
         end
+
+        return data.menu
     end
 
-    local volumewidget2 = allinone()
-    volumewidget2._time = 0
-    volumewidget2.set_value = set_value
-    volumewidget2:hide_left(true)
-    volumewidget2:set_mirror(true)
-    volumewidget2:set_icon(config.iconPath .. "arrowUp.png")
-    --volumewidget2:set_suffix("kBps")
-    --volumewidget2:set_suffix_icon(config.iconPath .. "kbs.png")
-    volumewidget2:set_value(1)
-    volumewidget2:icon_align("left")
+    local up_tb, up_pb, down_tb, down_pb = nil, nil, nil, nil
 
-    local volumewidget3 = allinone()
-    volumewidget3._time = 0
-    volumewidget3.set_value = set_value
-    volumewidget3:hide_left(true)
-    volumewidget3:set_icon(config.iconPath .. "arrowDown.png")
-    --volumewidget3:set_suffix("")
-    --volumewidget3:set_suffix_icon(config.iconPath .. "kbs.png")
-    volumewidget3:set_value(1)
-    volumewidget3:icon_align("left")
-    vicious.register(volumewidget2  , vicious.widgets.net   ,  function(widgets,args)
-            local upSum,downSum=0,0
-            --Sum all interface upload and download rate
-            for i,v in pairs(args) do
-                if i:match("up_kb") then
-                    upSum=upSum+tonumber(v)
-                elseif i:match("down_kb") then
-                    downSum=downSum+tonumber(v)
-                end
+    local function vicious_net_sum(widgets,args)
+        if not up_tb then return end
+
+        local upSum,downSum=0,0
+        --Sum all interface upload and download rate
+        for i,v in pairs(args) do
+            if i:match("up_kb") then
+                upSum=upSum+tonumber(v)
+            elseif i:match("down_kb") then
+                downSum=downSum+tonumber(v)
             end
-            --Update graph
+        end
+        --Update graph
+        if netUpGraph then
             netUpGraph:add_value(upSum)
             netDownGraph:add_value(downSum)
+        end
 
-            --Update widgets
-            if upSum > 1024 then
-                upSum=string.format("%.2f",upSum/1024)
-                volumewidget2:set_suffix("MBps")
-            else
-                volumewidget2:set_suffix("kBps")
-            end
-            
-            if downSum > 1024 then
-                downSum=string.format("%.2f",downSum/1024)
-                volumewidget3:set_suffix("MBps")
-            else
-                volumewidget3:set_suffix("kBps")
-            end
+        --Update widgets
+        up_pb:set_value(upSum)
+        if upSum > 1024 then
+            upSum=string.format("%.2f",upSum/1024)
+            up_tb:set_suffix("MBps")
+        else
+            up_tb:set_suffix("kBps")
+        end
 
-            volumewidget3:set_text(downSum)
-            return upSum
-        end   ,1 )
-    --vicious.register(volumewidget3, vicious.widgets.net   ,  ,1 )
 
-    local l = wibox.layout.fixed.horizontal()
-    l:add(volumewidget2)
-    l:add(volumewidget3)
-    l:buttons(util.table.join(button({ }, 1, function (geo) show();data.menu.parent_geometry=geo end)))
+        down_pb:set_value(downSum)
+        if downSum > 1024 then
+            downSum=string.format("%.2f",downSum/1024)
+            down_tb:set_suffix("MBps")
+        else
+            down_tb:set_suffix("kBps")
+        end
 
-    l.draw = function(self,w, cr, width, height)
-        wibox.layout.fixed.draw(self,w, cr, width, height)
-        cr:save()
-        cr:set_source(color(beautiful.bg_allinone or beautiful.fg_normal))
-        cr:rectangle(width/2-3,1,6,2)
-        cr:rectangle(width/2-3,height-3,6,2)
-        cr:arc(width/2, height/2,height/4,0,2*math.pi)
-        cr:fill()
-        cr:restore()
+        down_tb:set_text(downSum)
+
+        return upSum
     end
 
+    local l = wibox.widget.base.make_widget_declarative {
+        {
+            {
+                icon       = config.iconPath .. "arrowUp.png",
+                suffix     = "MBps"                          ,
+                icon_align = "left"                          ,
+                hide_left  = true                            ,
+                id         = "up_tb"                         ,
+                widget     = allinone                        ,
+                vicious    = { vicious.widgets.net,vicious_net_sum,1                           },
+            },
+            outline_color = beautiful.bg_allinone or beautiful.bg_highlight                    ,
+            color         = beautiful.fg_allinone or beautiful.icon_grad or beautiful.fg_normal,
+            id            = "up_pb"                                                            ,
+            widget        = radialprog
+        },
+        {
+            {
+                {
+                    icon       = config.iconPath .. "arrowDown.png",
+                    suffix     = "MBps"                            ,
+                    icon_align = "left"                            ,
+                    hide_left  = true                              ,
+                    id         = "down_tb"                         ,
+                    widget     = allinone                          ,
+                },
+                outline_color = beautiful.bg_allinone or beautiful.bg_highlight                    ,
+                color         = beautiful.fg_allinone or beautiful.icon_grad or beautiful.fg_normal,
+                id            = "down_pb"                                                          ,
+                widget        = radialprog                                                         ,
+            },
+--             reflection = {horizontal = true, vertical = false},
+            widget     = wibox.container.mirror,
+        },
+        menu   = show                         ,
+        layout = wibox.layout.fixed.horizontal,
+    }
 
-    --Initial menu loading quick fix
-    show()
-    show()
+    up_tb   = l : get_children_by_id  "up_tb"  [1]
+    up_pb   = l : get_children_by_id  "up_pb"  [1]
+    down_tb = l : get_children_by_id "down_tb" [1]
+    down_pb = l : get_children_by_id "down_pb" [1]
 
     return l
 end
 
 return setmetatable(module, { __call = function(_, ...) return new(...) end })
+-- kate: space-indent on; indent-width 4; replace-tabs on;

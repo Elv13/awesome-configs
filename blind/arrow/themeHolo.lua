@@ -3,16 +3,12 @@ local surface    = require( "gears.surface"  )
 local themeutils = require( "blind.common.drawing"    )
 local blind      = require( "blind"          )
 local radical    = require( "radical"        )
-local blind_pat  = require( "blind.common.pattern" )
 local debug      = debug
+local pixmap     = require( "blind.common.pixmap")
 
 local path = debug.getinfo(1,"S").source:gsub("theme.*",""):gsub("@","")
 
 local theme = blind.theme
-
-local function d_mask(img,cr)
-    return blind_pat.to_pattern(img,cr)
-end
 
 ------------------------------------------------------------------------------------------------------
 --                                                                                                  --
@@ -20,7 +16,7 @@ end
 --                                                                                                  --
 ------------------------------------------------------------------------------------------------------
 
-local default_height = 18
+local default_height = 20
 theme.default_height = default_height
 theme.font           = "Sans DemiBold 8"
 theme.path           = path
@@ -34,6 +30,8 @@ theme.bg = blind {
     alternate   = "#18191B",
     allinone    = "#0F2650"
 }
+
+theme.allinone_margins = 3
 
 theme.fg = blind {
     normal   = "#4197D4",
@@ -53,8 +51,8 @@ theme.button_bg_normal            = color.create_png_pattern(path .."Icon/bg/men
 --theme.border_marked = "#91231c"
 
 theme.border_width   = "0"
-theme.border_normal  = "#1F1F1F"
-theme.border_focus   = "#535d6c"
+theme.border_normal  = theme.fg_normal
+theme.border_focus   = theme.fg_normal
 theme.border_marked  = "#91231c"
 theme.enable_glow    = false
 theme.glow_color     = "#105A8B"
@@ -71,7 +69,9 @@ theme.icon_mask        = "#2A72A5"
 theme.icon_grad_invert = { type = "linear", from = { 0, 0 }, to = { 0, 20 }, stops = { { 0, "#000000" }, { 1, "#112543" }}}
 
 theme.bottom_menu_item_style = radical.item.style.slice_prefix
-
+theme.bottom_menu_icon_transformation = function(img,data,item)
+    return pixmap(img) : colorize(color(theme.bg_alternate)) : to_img()
+end
 
 ------------------------------------------------------------------------------------------------------
 --                                                                                                  --
@@ -90,7 +90,6 @@ theme.taglist = blind {
         used      = "#123995",
         urgent    = "#ff0000",
         changed   = "#95127D",
---         empty     = d_mask(blind_pat.sur.flat_grad("#090B10","#181E39",default_height)),
         highlight = "#bbbb00"
     },
 
@@ -118,7 +117,7 @@ theme.taglist = blind {
         },
     },
 
---     default_icon = path .."Icon/tags/other.png",
+--     default_icon = path .."Icon/tags_invert/other.png",
     disable_icon  = true,
     disable_index = true,
     spacing      = 2,
@@ -129,7 +128,7 @@ theme.taglist = blind {
 }
 
 theme.tasklist = blind {
-    item_style              = radical.item.style.holo_top,
+    item_style         = radical.item.style.holo_top,
 
     bg = blind {
         urgent         = "#D30000",
@@ -161,7 +160,7 @@ theme.tasklist = blind {
     },
 
     fg_minimized        = "#985FEE",
-    default_icon        = path .."Icon/tags/other.png",
+    default_icon        = path .."Icon/tags_invert/other.png",
     spacing             = 4,
     disable_icon        = true,
     plain_task_name     = true,
@@ -183,10 +182,8 @@ theme.fg_dock_1                 = "#1889F2"
 theme.fg_dock_2                 = "#0A3E6E"
 theme.dock_corner_radius        = 4
 
-theme.draw_underlay = themeutils.draw_underlay
-
 theme.menu = blind {
-    submenu_icon         = path .."Icon/tags/arrow.png",
+    submenu_icon         = path .."Icon/tags_invert/arrow.png",
     height               = 20,
     width                = 170,
     border_width         = 2,
@@ -197,6 +194,7 @@ theme.menu = blind {
     outline_color        = "#B7B7B7",
     table_bg_header      = "#999999",
     checkbox_style       = "holo",
+    item_style           = radical.item.style.classic,
 
     bg = blind {
         focus     = "#14617A",
@@ -206,6 +204,19 @@ theme.menu = blind {
     }
 }
 
+-- Toolbox
+theme.toolbox_default_item_margins = {
+    LEFT   = 2,
+    RIGHT  = 2,
+    TOP    = 2,
+    BOTTOM = 2,
+}
+theme.toolbox_default_margins = {
+    TOP    = 2,
+    BOTTOM = 2,
+    RIGHT  = 0,
+    LEFT   = 0,
+}
 
 ------------------------------------------------------------------------------------------------------
 --                                                                                                  --
@@ -214,7 +225,7 @@ theme.menu = blind {
 ------------------------------------------------------------------------------------------------------
 
 -- Titlebar
-loadfile(theme.path .."bits/titlebar_minde.lua")(theme,path)
+loadfile(theme.path .."bits/titlebar_round.lua")(theme,path)
 theme.titlebar = blind {
     bg_normal = "#000000",
     bg_focus  = "#184E99",
@@ -224,7 +235,7 @@ theme.titlebar = blind {
 -- Layouts
 loadfile(theme.path .."bits/layout.lua")(theme,path)
 
-
+theme.useless_gap = 15
 
 ------------------------------------------------------------------------------------------------------
 --                                                                                                  --
@@ -236,6 +247,9 @@ theme.dock_icon_transformation = function(image,data,item) return surface.outlin
 
 
 require( "chopped.slice" )
+
+-- Add round corner to floating clients
+loadfile(theme.path .."bits/client_shape.lua")(8,true,true)
 
 return theme
 -- vim: filetype=lua:expandtab:shiftwidth=4:tabstop=8:softtabstop=4:encoding=utf-8:textwidth=80

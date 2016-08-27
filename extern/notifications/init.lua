@@ -7,6 +7,7 @@ local cairo      = require("lgi").cairo
 local color      = require("gears.color")
 local pango      = require("lgi").Pango
 local pangocairo = require("lgi").PangoCairo
+local constrainedtext = require("radical.widgets.constrainedtext")
 local dump = require("gears.debug").dump
 
 local module = {}
@@ -65,6 +66,9 @@ local function update_notifications(data)
     if count == 1 then
         table.insert(module.items, { text = text, icon = icon, count = count, time = time, bg = bg, fg = fg })
         module.count = module.count+1
+        if module.tb then
+            module.tb:set_text(module.count)
+        end
     end
     
     -- Update widget
@@ -147,53 +151,45 @@ naughty.config.notify_callback = function(data)
     return data
 end
 
-local pl = nil
-local function init_pl(height)
-    if not pl and height > 0 then
-        local pango_crx = pangocairo.font_map_get_default():create_context()
-        pl = pango.Layout.new(pango_crx)
-        local desc = pango.FontDescription()
-        desc:set_family("Verdana")
-        desc:set_weight(pango.Weight.ULTRABOLD)
-        desc:set_size((height-2-module.padding*2) * pango.SCALE)
-        pl:set_font_description(desc)
+local function fit(self, context, w,height)
+    if module.count > 0 then
+        local tri_width = height
+        return tri_width + module.padding + 2, height
     end
-end
-local function fit(self,w,height)
-    init_pl(height)
-    if pl and module.count > 0 then
-        pl.markup = "<b>"..module.count.."</b>"
-        local text_ext = pl:get_pixel_extents()
-        return 3*(height/4)+3*module.padding+(text_ext.width or 0),height
-    end
+
+
+    -- By default, show nothing
     return 0,height
 end
-local function draw(self, w, cr, width, height)
-    local tri_width = 3*(height/4)
-    cr:set_source(color(module.conf.icon_bg))
-    cr:paint()
-    cr:set_source(color(module.conf.icon_fg))
-    cr:move_to(module.padding + tri_width/2,module.padding)
-    cr:line_to(module.padding+tri_width,height-module.padding)
-    cr:line_to(module.padding,height-module.padding)
-    cr:line_to(module.padding + tri_width/2,module.padding)
+local function draw(self, context, cr, width, height)
+    local tri_width = height-2 -- The border is 4 point, 2 in and 2 out
+
+    -- Draw a triangle
+    cr:set_source(color(self._color or module.conf.icon_fg))
+    cr:move_to(module.padding + tri_width/2 + 1, module.padding        )
+    cr:line_to(module.padding + tri_width      , height-module.padding )
+    cr:line_to(module.padding               + 1, height-module.padding )
+    cr:line_to(module.padding + tri_width/2 + 1, module.padding        )
     cr:close_path()
+
+    -- Fake a border radius using a borner
     cr:set_line_width(4)
     cr:set_line_join(1)
     cr:set_antialias(cairo.ANTIALIAS_SUBPIXEL)
     cr:stroke_preserve()
     cr:fill()
-    cr:set_source(color(module.conf.icon_color))
-    pl.text = "!"
-    local text_ext = pl:get_pixel_extents()
-    cr:move_to(4 + tri_width/2-text_ext.width/2 - height/10,module.padding-text_ext.height/4+1)
-    cr:show_layout(pl)
+    cr:set_source(color(self._color or module.conf.icon_color))
 
-    pl:set_font_description(beautiful.get_font(font))
-    pl.markup = "<b>"..module.count.."</b>"
-    cr:move_to(tri_width+2*module.padding,module.padding-text_ext.height/4+1)--,-text_ext.height/2)
-    cr:set_source(color(module.conf.count_fg))
-    cr:show_layout(pl)
+    cr:set_source(color(self._fg or module.conf.icon_fg or beautiful.fg_normal))
+
+    -- Draw the point -3 is is leave a pixel outside, one inside + antialiasing
+    cr:arc(tri_width - 1, height - 3, 1, 0, 2*math.pi)
+    cr:fill()
+
+    -- Draw the ! top bar
+    cr:set_line_width(2)
+    cr:rectangle(tri_width - 2, 3, 2, height - 8)
+    cr:fill()
 end
 
 -- Return widget
@@ -208,13 +204,18 @@ local function new(args)
     module.conf.count_fg = args.count_fg or beautiful.bg_alternate or beautiful.fg_normal
     module.padding = args.pading or 3
 
+    local layout = wibox.layout.fixed.horizontal()
     module.widget = wibox.widget.base.make_widget()
+    module.widget._color = args.fg or args.color
     module.widget.draw = draw
     module.widget.fit = fit
     module.widget:set_tooltip("Notifications")
     module.widget:buttons(awful.util.table.join(awful.button({ }, 1, module.main), awful.button({ }, 3, module.reset)))
 
-    return module.widget
+    module.tb = constrainedtext(nil, 1, 2)
+    layout:add(module.widget, module.tb)
+
+    return layout
 end
 
 --[[
@@ -273,7 +274,7 @@ local function resize_naughty(w)
     w:set_bg(cairo.Pattern.create_for_surface(shape))
 
     -- Move to center --TODO add option for all corners, use naughty if it support them
-    w.x = screen[1].geometry.width/2-width/2
+    w.x = math.floor(screen[1].geometry.width/2-width/2)
 end
 
 -- The trick here is to replace the wibox metatable to hijack the constructor
@@ -298,13 +299,13 @@ naughty.notify = function(args,...)
       local args = args or {}
 
       -- Prevent the mask from hinding text
-      local set_margins = wibox.layout.margin.set_margins
-      wibox.layout.margin.set_margins = force_margins
+      local set_margins = wibox.container.margin.set_margins
+      wibox.container.margin.set_margins = force_margins
 
       setmetatable(wibox, fake_naughty_box)
       local ret = naughty._notify(args,...)
       setmetatable(wibox, wmt)
-      wibox.layout.margin.set_margins = set_margins
+      wibox.container.margin.set_margins = set_margins
 --       module.skip = true
       return ret
    else

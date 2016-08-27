@@ -101,7 +101,6 @@ local function gen_menu(dock,name,ini,item)
         menu.visible = false
     end})
     menu:add_item({text="Launch In tag", sub_menu = function() return listTags({button1= function(i,m)
-        print("\n\n\nICI!!!!",i._tag)
         exec(ini,{tag=i._tag})
     end}) end})
     menu:add_widget(radical.widgets.separator())
@@ -134,7 +133,7 @@ local function gen_menu(dock,name,ini,item)
     menu:add_item({text="Remove from dock",suffix_widget = ib})
     local imb = wibox.widget.imagebox()
     menu:connect_signal("visible::changed",function(_,visible)
-        if not menu.visible then
+        if not menu.visible and not beautiful.dock_always_show then
             dock.visible = false
         end
     end)
@@ -154,7 +153,6 @@ local function load_item(menu,content,path)
             menu._tmp_menu = m
             _i._tmp_menu   = m
         end
-        print("middle")
     end,
     button3= function(_i,_m,mods,geo)
         local m = gen_menu(menu,name,content,_i)
@@ -172,7 +170,9 @@ local function load_item(menu,content,path)
                 fd_async.ini.write(i._internal.ini,i._internal.path)
             end
         end})
-        menu.visible = false
+        if not beautiful.dock_always_show then
+            menu.visible = false
+        end
     end}
     item.margins.left  = 1
     item.margins.right = 1
@@ -257,7 +257,7 @@ local function create(screen, args)
             local f = beautiful.dock_icon_transformation or default_icon_transformation
             return f(image,data,item)
         end,
-        overlay = function(w,item,cr,width,height)
+        overlay_draw = function(context,item,cr,width,height)
             draw_item(dockW,item,cr,width,height)
         end
     }
@@ -266,17 +266,17 @@ local function create(screen, args)
     dockW.margins.left = 2
     dockW.margins.right= 3 --border + 2
 
-    for k,v in ipairs(default_cats)do
-        add_category(dockW,v)
-    end
+    local init = false
 
-    --TODO use dock::request signal
---     local loaded = function()
-        load_from_dir(dockW)
---         print("LOAD")
---         dockW:disconnect_signal("visible::changed",loaded)
---     end
---     dockW:connect_signal("visible::changed",loaded)
+    dockW:connect_signal("visible::changed", function()
+        if not init then
+            for k,v in ipairs(default_cats)do
+                add_category(dockW,v)
+            end
+            load_from_dir(dockW)
+            init = true
+        end
+    end)
 
     return dockW
 end

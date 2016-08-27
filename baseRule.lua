@@ -4,19 +4,23 @@ local tyrannical = require("tyrannical")
 local config = require("forgotten")
 
 local function five_layout(c,tag)
+    if type(tag) == "client" then
+        c, tag = tag, c
+    end
+
     local count = #match:clients() + 1
     if count == 2 then
         awful.layout.set(awful.layout.suit.tile,tag)
-        awful.tag.setproperty(tag,"nmaster",1)
-        awful.tag.setproperty(tag,"mwfact",0.5)
+        tag.master_count = 1
+        tag.master_width_factor  = 0.5
     elseif count > 2 and count < 5 then
         awful.layout.set(awful.layout.suit.tile,tag)
-        awful.tag.setproperty(tag,"nmaster",1)
-        awful.tag.setproperty(tag,"mwfact",0.6)
+        tag.master_count = 1
+        tag.master_width_factor = 0.6
     elseif count == 5 then
-        awful.tag.setproperty(tag,"nmaster",2)
-        awful.tag.setproperty(tag,"mwfact",0.63) -- 100 columns at 1080p 11px fonts
-        awful.client.setwfact(0.66, awful.client.getmaster(awful.tag.getscreen(tag)))
+        tag.master_count = 2
+        tag.master_width_factor = 0.63 -- 100 columns at 1080p 11px fonts
+        --awful.client.setwfact(0.66, tag.screen.selected_tag.nmaster or 1)
     end
     return 6
 end
@@ -24,33 +28,17 @@ end
 local function fair_split_or_tile(c,tag)
     if count == 2 then
         awful.layout.set(awful.layout.suit.tile,tag)
-        awful.tag.setproperty(tag,"nmaster",1)
-        awful.tag.setproperty(tag,"mwfact",0.5)
+        tag.master_count = 1
+        tag.master_width_factor = 0.5
     else
         awful.layout.set(awful.layout.suit.tile,tag)
-        awful.tag.setproperty(tag,"nmaster",1)
-        awful.tag.setproperty(tag,"mwfact",0.6)
+        tag.master_count = 1
+        tag.master_width_factor = 0.6
     end
     return 6
 end
 
 -- }}}
-
-local layouts =
-{
-    awful.layout.suit.floating,
-    awful.layout.suit.tile,
-    awful.layout.suit.tile.left,
-    awful.layout.suit.tile.bottom,
-    awful.layout.suit.tile.top,
-    awful.layout.suit.fair,
-    awful.layout.suit.fair.horizontal,
-    awful.layout.suit.spiral,
-    awful.layout.suit.spiral.dwindle,
-    awful.layout.suit.max,
-    awful.layout.suit.max.fullscreen,
-    awful.layout.suit.magnifier
-}
 
 tags = {} --TODO remove
 
@@ -59,7 +47,7 @@ tyrannical.settings.block_children_focus_stealing = true
 tyrannical.settings.group_children = true
 
 tyrannical.settings.tag.layout = awful.layout.suit.tile
-tyrannical.settings.tag.mwfact = 0.66
+tyrannical.settings.tag.master_width_factor = 0.66
 
 
 tyrannical.tags = {
@@ -75,7 +63,7 @@ tyrannical.tags = {
 --         nmaster     = 2,
 --         mwfact      = 0.6,
         index       = 1,
-        max_clients = five_layout,
+--         max_clients = five_layout,
         class       = {
             "xterm" , "urxvt" , "aterm","URxvt","XTerm"
         },
@@ -107,7 +95,9 @@ tyrannical.tags = {
         rotate_shortcut = true,
         shortcut    = { {modkey} , "e" },
         class  = { 
-            "Thunar"        , "Konqueror"      , "Dolphin"   , "ark"          , "Nautilus",         }
+            "Thunar"        , "Konqueror"      , "Dolphin"   , "ark"          , "Nautilus",
+            "filelight"
+        }
     } ,
     {
         name = "Develop",
@@ -121,7 +111,7 @@ tyrannical.tags = {
     } ,
     {
         name = "Edit",
-        init        = true                                           ,
+        init        = false                                          ,
         exclusive   = false                                           ,
 --                     screen      = {config.scr.pri, config.scr.sec}     ,
         icon        = utils.tools.invertedIconPath("editor.png")     ,
@@ -131,7 +121,7 @@ tyrannical.tags = {
     } ,
     {
         name = "Media",
-        init        = true                                           ,
+        init        = false                                          ,
         exclusive   = true                                           ,
         icon        = utils.tools.invertedIconPath("media.png")      ,
         layout      = awful.layout.suit.max                          ,
@@ -141,7 +131,7 @@ tyrannical.tags = {
     } ,
     {
         name = "Doc",
-    --  init        = true                                           ,
+        init        = false                                          ,
         exclusive   = true                                           ,
         icon        = utils.tools.invertedIconPath("info.png")       ,
 --                     screen      = config.scr.music                          ,
@@ -414,4 +404,4 @@ tyrannical.properties.hidden = {"yakuake"}
 
 -- tyrannical.properties.no_autofocus = {"umbrello"}
 
-tyrannical.properties.size_hints_honor = { xterm = false, URxvt = false, aterm = false, sauer_client = false, mythfrontend  = false, kodi = false}
+tyrannical.properties.size_hints_honor = { URxvt = false, aterm = false, sauer_client = false, mythfrontend  = false, kodi = false}

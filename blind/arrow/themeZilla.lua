@@ -6,7 +6,7 @@ local radical    = require( "radical"        )
 local debug      = debug
 local cairo      = require( "lgi"            ).cairo
 local pango      = require( "lgi"            ).Pango
-local blind_pat  = require( "blind.common.pattern" )
+local blind_pat  = require( "blind.common.pattern2" )
 local wibox_w    = require( "wibox.widget"   )
 local pixmap     = require( "blind.common.pixmap")
 local debug      = debug
@@ -24,10 +24,6 @@ local theme = blind.theme
 local default_height = 24
 
 theme.default_height = default_height
-
-local function d_mask(img,cr)
-    return blind_pat.to_pattern(blind_pat.mask.ThreeD(img,cr))
-end
 
 theme.path = path
 
@@ -71,7 +67,7 @@ theme.enable_glow          = true
 theme.glow_color           = "#00000011"
 theme.naughty_bg           = theme.bg_alternate
 theme.naughty_border_color = theme.fg_normal
-theme.bg_dock              = blind_pat.to_pattern(blind_pat.mask.noise(0.11,"#AAAACC", blind_pat.sur.plain("#2F363B",default_height)))
+theme.bg_dock              = blind_pat("#2F363B") : grow(default_height, default_height) : noise("#AAAACC", 0.11) : to_pattern()
 theme.fg_dock_1            = "#DDDDDD"
 theme.fg_dock_2            = "#DDDDDD"
 theme.dock_spacing         = 2
@@ -97,7 +93,7 @@ theme.alttab_icon_transformation = function(image,data,item)
     return surface.tint(surface(image),color(theme.fg_normal),theme.default_height,theme.default_height)
 end
 
-theme.icon_grad        = d_mask(blind_pat.mask.noise(0.4,"#777788", blind_pat.sur.plain("#507289",default_height)))
+theme.icon_grad        = blind_pat("#507289") : grow(default_height, default_height) : noise("#777788", 0.4) : to_pattern()
 theme.icon_mask        = { type = "linear", from = { 0, 0 }, to = { 0, 20 }, stops = { { 0, "#8AC2D5" }, { 1, "#3D619C" }}}
 theme.icon_grad_invert = { type = "linear", from = { 0, 0 }, to = { 0, 20 }, stops = { { 0, "#000000" }, { 1, "#112543" }}}
 
@@ -122,7 +118,7 @@ local used_bg = { type = "linear", from = { 0, 0 }, to = { 0, taglist_height },
     { taglist_grad_px, "#252a2fff" },
     { taglist_grad_px,"#25282dff"},
     {0.35, "#3d444dff"},
-    {(taglist_height-1)*taglist_grad_px,"444c54ff"},
+    {(taglist_height-1)*taglist_grad_px,"#444c54ff"},
     {(taglist_height-1)*taglist_grad_px,"#202428ff"},
     {1,"#202428ff"},
 }}
@@ -181,8 +177,8 @@ theme.taglist = blind {
         prefix    = "#CECECE",
     },
 
-    index_prefix = "",
-    index_suffix = ":",
+    index_prefix = "<b>",
+    index_suffix = ":</b>",
 
     index_fg = blind {
         focus = "#148bf5ff",
@@ -195,8 +191,8 @@ theme.taglist = blind {
         focus = { type = "linear", from = { 0, 0 }, to = { 0, 20 }, stops = { { 0, "#48c2ffff" }, { 1, "#0375aeff" }}},
     },
     icon_per_state = true,
-    custom_color = function (...) d_mask(blind_pat.sur.flat_grad(...)) end,
-    default_icon       = path .."Icon/tags/other.png",
+    custom_color = function (...) blind_pat(...) : to_pattern() end,
+    default_icon       = path .."Icon/tags_invert/other.png",
     index_per_state = true,
     icon_transformation     = taglist_transform,
 }
@@ -232,11 +228,12 @@ theme.toolbox = blind {
     fg_hover = "#ffffff",
     border_color = color{ type = "linear", from = { 0, 0 }, to = { 0, default_height }, stops = { { 0, "#282d32" }, { 1, "#4f5962" }}},
     item_border_color = "#666666",
+    bg_used  = color.transparent,
     default_item_margins = {
         LEFT   = 3,
         RIGHT  = 3,
-        TOP    = 0,
-        BOTTOM = 0,
+        TOP    = 3,
+        BOTTOM = 3,
     },
     default_margins = {
         TOP    = 2,
@@ -245,6 +242,10 @@ theme.toolbox = blind {
         LEFT   = 5,
     }
 }
+theme.bg_systray_alt =color.transparent
+theme.systray_bg ={ type = "linear", from = { 0, 0 }, to = { 0, default_height }, stops = { { 0, "#3F474E" }, { 1, "#181B1E" }}}
+
+
 
 -- Tasklist
 theme.tasklist = blind {
@@ -252,19 +253,20 @@ theme.tasklist = blind {
     underlay_bg_minimized   = "#4F269C",
     underlay_bg_            = normal_underlay,
 --     bg_image_selected       = d_mask(blind_pat.sur.flat_grad("#00091A","#04204F",default_height)),
-    bg_minimized            = d_mask(blind_pat.sur.flat_grad("#0E0027","#04000E",default_height)),
+--     bg_minimized            = d_mask(blind_pat.sur.flat_grad("#0E0027","#04000E",default_height)),
     fg_minimized            = "#985FEE",
-    bg_urgent               = d_mask(blind_pat.sur.flat_grad("#5B0000","#070016",default_height)),
-    bg_hover                = d_mask(blind_pat.sur.thick_stripe("#19324E","#132946",14,default_height,true)),
+--     bg_urgent               = d_mask(blind_pat.sur.flat_grad("#5B0000","#070016",default_height)),
+    bg_hover                = theme.bar_bg_normal,
     bg_focus                = theme.taglist_bg_selected,
+    bg_used                 = "#00000011",
     fg_focus                = "#148bf5ff",
-    default_icon            = path .."Icon/tags/other.png",
-    bg                      = "#00000000",
+    default_icon            = path .."Icon/tags_invert/other.png",
+--     bg                      = "#ff0000",
     icon_transformation     = loadfile(theme.path .."bits/icon_transformation/state.lua")(theme,path),
     item_style              = radical.item.style.rounded_shadow,
     spacing                 = 6,
     fg                      = "#ff0000",
-    item_border_color       = "#ff0000"
+    item_border_color       = "#666666"
 }
 
 theme.tasklist_default_item_margins = {
@@ -283,7 +285,7 @@ theme.tasklist_default_margins = {
 
 -- Menu
 theme.menu = blind {
-    submenu_icon = path .."Icon/tags/arrow.png",
+    submenu_icon = path .."Icon/tags_invert/arrow.png",
     height       = 20,
     width        = 170,
     border_width = 2,
@@ -292,7 +294,7 @@ theme.menu = blind {
     fg_focus     = "#148bf5ff",
     bg_focus     = selected_bg,
     bg_header    = color.create_png_pattern(path .."Icon/bg/menu_bg_header_scifi.png"),
-    bg_normal    = blind_pat.to_pattern(blind_pat.mask.noise(0.06,"#AAAACC", blind_pat.sur.plain("#2F363B",default_height))),
+    bg_normal    = blind_pat("#2F363B") : grow(default_height, default_height) : noise("#AAAACC", 0.06) : to_pattern(),
     bg_highlight = color.create_png_pattern(path .."Icon/bg/menu_bg_highlight.png"   ),
     item_style   = radical.item.style.classic,
     border_color = "#828282",
@@ -326,11 +328,8 @@ theme.bottom_menu_default_margins = {
 -- Shorter
 theme.shorter = blind {
 --     bg = blind_pat.to_pattern(blind_pat.mask.noise(0.14,"#AAAACC", blind_pat.mask.triangle(80,3,{color("#0D1E37"),color("#122848")},"#25324A",blind_pat.sur.plain("#081B37",80))))
-    bg = blind_pat.to_pattern(blind_pat.mask.noise(0.14,"#AAAACC", blind_pat.mask.triangle(80,3,{color("#091629"),color("#0E2039")},"#25324A",blind_pat.sur.plain("#081B37",79))))
+    bg = blind_pat("#2F363B") : grow(default_height, default_height) : noise("#AAAACC", 0.11) : to_pattern()
 }
-
--- theme.draw_underlay = themeutils.draw_underlay
-
 
 -- Titlebar
 theme.titlebar = blind {
@@ -349,11 +348,14 @@ theme.titlebar = blind {
         hover    = color{ type = "linear", from = { 0, 0 }, to = { 0, default_height }, stops = { { 0, "#3B434A" }, { 1, "#282d32" }}},
         pressed  = "#ffffff",
     },
-    bg_underlay = normal_underlay,
+    underlay_bg = normal_underlay,
     icon_active = theme.taglist_icon_color_focus
 }
 
 theme.separator_color = "#49535B"
+
+theme.useless_gap = 3
+theme.titlebar_bottom = true
 
 loadfile(theme.path .."bits/titlebar_square.lua")(theme,path)
 
@@ -367,6 +369,6 @@ loadfile(theme.path .."bits/textbox/shadow.lua")(theme,path)
 require( "chopped.circle" )
 
 -- Add round corner to floating clients
-loadfile(theme.path .."bits/client_shape.lua")(3,true,true)
+loadfile(theme.path .."bits/client_shape.lua")(6,true,true)
 
 return theme

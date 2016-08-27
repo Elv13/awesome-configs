@@ -1,7 +1,7 @@
 Type=Application
 Terminal=false
 Name=Mozilla Firefox
-Icon=/home/lepagee/.config/awesome/blind/arrow/Icon//firefox.png
+Icon=/home/elv13/.config/awesome/blind/arrow/Icon//firefox.png
 Categories=Network;
 Class=dolphin
 Comment=Web Borwser

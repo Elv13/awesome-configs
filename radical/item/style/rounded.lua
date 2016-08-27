@@ -1,9 +1,7 @@
 local setmetatable = setmetatable
-local math = math
-local base = require( "radical.base" )
-local color     = require( "gears.color"      )
-local cairo     = require( "lgi"              ).cairo
-local print = print
+local theme = require( "radical.theme" )
+local shape = require( "gears.shape"   )
+local color = require( "gears.color"   )
 
 local module = {
   margins = {
@@ -14,130 +12,57 @@ local module = {
   }
 }
 
-local state_cache = {}
+local function widget_draw(self, context, cr, width, height)
 
-local function rect(cr,width,height,x,y)
-  local radius = 3
-  cr:move_to(x,y+radius)
-  cr:arc(x+radius,y+radius,radius,math.pi,3*(math.pi/2))
-  cr:arc(x+width-radius,y+radius,radius,3*(math.pi/2),math.pi*2)
-  cr:arc(x+width-radius,y+height-radius,radius,math.pi*2,math.pi/2)
-  cr:arc(x+radius,y+height-radius,radius,math.pi/2,math.pi)
-  cr:close_path()
-end
+  if not self._private.background then
+    cr:set_source_rgba(0,0,0,0)
+  else
+    cr:set_source(color(self._private.background))
+  end
 
-local function gen(width,height,bg_color,border_color,item,shadow)
-  local extra = shadow and 5 or 0
-  local img = cairo.ImageSurface(cairo.Format.ARGB32, width+extra,height+extra)
-  local cr = cairo.Context(img)
-  local bw = item.border_width or 1
+  shape.rounded_rect(cr ,width, height, 3)
 
-  print(bw)
-  rect(cr,width-bw,height-bw,bw/2,bw/2)
-
-  cr:set_source(color(bg_color))
-  if item.item_border_color and item.state._current_key ~=  nil then
+  if self._item.item_border_color then
     cr:fill_preserve()
-    cr:set_line_width(bw)
-    cr:set_source(color(item.item_border_color))
+    cr:set_line_width(self._item.border_width or 1)
+    cr:set_source(color(self._item.item_border_color))
     cr:stroke()
   else
     cr:fill()
   end
-  return cairo.Pattern.create_for_surface(img)
+
 end
 
-local function widget_draw(self, w, cr, width, height,shadow)
-  local item = self._item
-  local state = item.state or {}
-  local current_state = state._current_key or ""
-  if not state_cache[current_state] then
-    state_cache[current_state] = {}
-  end
-  local cache = state_cache[current_state]
-  local hash = width+1234*height
+local function draw_width_shadow(self, context, cr, width, height)
+  if not self._private.background then return end
 
-  local cached = cache[hash]
-
-  --Generate the pixmap
-  if not cached then
-    local state_name = current_state == "" and "bg" or "bg_"..(base.colors_by_id[current_state] or "")
-    cached = gen(width,height,item[state_name],bc,item,shadow)
-    cache[hash] = cached
+  cr:save()
+  cr:reset_clip()
+  cr:set_source_rgba(0,0,0,.1)
+  cr:set_line_width(1)
+  cr:translate(3,3)
+  for i=1,3 do
+    cr:translate(-1,-1)
+    shape.rounded_rect(cr, width, height, 3)
+    cr:fill()
   end
-
-  if current_state ~= self._last_state then
-    self:set_bg(cached)
-    self._last_state = current_state
-  end
-
-  self:_drawrounded(w, cr, width, height)
-  local overlay = item and item.overlay
-  if overlay then
-    overlay(item._menu,item,cr,width,height)
-  end
+  cr:restore()
 end
 
-local function draw_width_shadow(self, w, cr, width, height)
-
-  if self._item.state._current_key ~=  nil then
-    cr:save()
-    cr:reset_clip()
-    cr:set_source_rgba(0,0,0,.1)
-    cr:set_line_width(1)
-    cr:translate(3,3)
-    for i=1,3 do
-      cr:translate(-1,-1)
-      rect(cr,width,height,0,0)
-      cr:fill()
-    end
-    cr:restore()
-  end
-
-  widget_draw(self, w, cr, width, height,true)
-end
-
-local function common(item,args)
-  local state = item.state or {}
-  local current_state = state._current_key or nil
-  local state_name = base.colors_by_id[current_state]
-
-  if current_state == base.item_flags.SELECTED or (item._tmp_menu) then
-    item.widget:set_fg(item["fg_focus"])
-  elseif state_name then
-    item.widget:set_fg(item["fg_"..state_name])
-  else
-    item.widget:set_fg(item["fg_normal"])
-  end
-end
-
-local function draw(item,args)
-  local args = args or {}
-
-  if not item.widget._overlay_init then
-    item.widget._drawrounded = item.widget.draw
-    item.widget.draw = widget_draw
-    item.widget._overlay_init = true
-    item.widget._item = item
-  end
-
-  common(item,args)
+local function draw(item)
+  item.widget._item = item
+  item.widget.draw = widget_draw
+  theme.update_colors(item)
 end
 
 -- Same as the default, but also draw a shadow
-local function shadow(item,args)
-  local args = args or {}
-
-  if not item.widget._overlay_init then
-    item.widget._drawrounded = item.widget.draw
-    item.widget.draw = draw_width_shadow
-    item.widget._overlay_init = true
-    item.widget._item = item
-  end
-
-  common(item,args)
+local function shadow(item)
+  item.widget.draw = widget_draw
+  item.widget.before_draw_children = draw_width_shadow
+  theme.update_colors(item)
 end
-module.shadow = {}
+
+module.shadow = {need_full_repaint = true}
 setmetatable(module.shadow, { __call = function(_, ...) return shadow(...) end })
 
 return setmetatable(module, { __call = function(_, ...) return draw(...) end })

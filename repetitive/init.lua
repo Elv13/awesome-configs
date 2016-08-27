@@ -51,7 +51,7 @@ local function generate_key_binding()
                 -- Check if one of the tag is not already selected
                 local selected = false
                 for k,t in ipairs(tags) do
-                    for k2,t2 in ipairs(tag.selectedlist(c.screen)) do
+                    for k2,t2 in ipairs(c.screen.selected_tags) do
                         selected = t==t2
                         if selected then break end
                     end

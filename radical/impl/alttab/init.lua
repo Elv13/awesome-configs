@@ -1,4 +1,4 @@
-local setmetatable,type = setmetatable, type
+local setmetatable = setmetatable
 local ipairs, pairs     = ipairs, pairs
 local button    = require( "awful.button"         )
 local beautiful = require( "beautiful"            )
@@ -30,7 +30,7 @@ local function push_focus(c)
   if c and not pause_monitoring then
     focusTable[c] = focusIdx
     focusIdx = focusIdx + 1
-    focusTag[c] = tag.selected(c.screen)
+    focusTag[c] = c.screen.selected_tag
   end
 end
 capi.client.connect_signal("focus", push_focus)
@@ -81,15 +81,15 @@ local function is_in_tag(t,c)
   return false
 end
 
-local function reload_underlay(client,item)
-  local underlays = {}
+local function reload_infoshapes(client,item)
+  local infoshapes = {}
   for k,v in ipairs(client:tags()) do
-    underlays[#underlays+1] = v.name
+    infoshapes[#infoshapes+1] = {text = v.name}
   end
   if item then
-    item.underlay = underlays
+    item.infoshapes = infoshapes
   end
-  return underlays
+  return infoshapes
 end
 
 local function reload_highlight(i)
@@ -107,6 +107,28 @@ local function reload_highlight(i)
   end
 end
 
+--TODO save the settings somewhere
+local conf = {
+  tags      = true,
+  screens   = true,
+  minimized = true,
+}
+
+local function toggle_all_tags(item)
+  conf.tags = not conf.tags
+  item.checked = conf.tags
+end
+
+local function toggle_all_screens(item)
+  conf.screens = not conf.screens
+  item.checked = conf.screens
+end
+
+local function toggle_maximized(item)
+  conf.minimized = not conf.minimized
+  item.checked = conf.minimized
+end
+
 local function new(args)
   local histo = get_history(--[[screen]])
   if #histo == 0 then
@@ -114,35 +136,45 @@ local function new(args)
   end
 
   local scr = capi.client.focus and capi.client.focus.screen or capi.mouse.screen
-  local t,auto_release = tag.selected(scr),args.auto_release
-  local currentMenu = radical.box({filter = true, show_filter=not auto_release, autodiscard = true,
-    disable_markup=true,fkeys_prefix=not auto_release,width=(((capi.screen[scr]).geometry.width)/2),
-    icon_transformation = beautiful.alttab_icon_transformation,filter_underlay="Use [Shift] and [Control] to toggle clients",filter_underlay_color=beautiful.menu_bg_normal,
-    filter_placeholder="<span fgcolor='".. (beautiful.menu_fg_disabled or beautiful.fg_disabled or "#777777") .."'>Type to filter</span>"})
+  local t,auto_release = scr.selected_tag,args.auto_release
+  local currentMenu = radical.box {
+    screen                = scr,
+    filter                = true,
+    show_filter           = not auto_release,
+    autodiscard           = true,
+    disable_markup        = true,
+    fkeys_prefix          = not auto_release,
+    width                 = (((capi.screen[scr]).geometry.width)/2),
+    icon_transformation   =  beautiful.alttab_icon_transformation,
+    filter_underlay       = "Use [Shift] and [Control] to toggle clients",
+    filter_underlay_color = beautiful.menu_bg_normal,
+    filter_placeholder    = "<span fgcolor='".. (beautiful.menu_fg_disabled or beautiful.fg_disabled or "#777777") .."'>Type to filter</span>"
+  }
 
   currentMenu.margins.top = currentMenu.border_width
   currentMenu.margins.bottom = currentMenu.border_width
 
   if not auto_release then
-    local pref_bg = wibox.widget.background()
+    local pref_bg = wibox.container.background()
     local pref_l = wibox.layout.align.horizontal()
-    pref_bg.fit = function(s,w,h)
-      local w2,h2 = wibox.widget.background.fit(s,w,h)
+    pref_bg.fit = function(s,c,w,h)
+      local w2 = wibox.container.background.fit(s,c,w,h)
       return w2,currentMenu.item_height
     end
     pref_bg:set_bg(currentMenu.bg_alternate)
     local tb2= wibox.widget.textbox()
-    tb2:set_text("foo!!!!")
+    tb2:set_markup("  <b>"..#histo.."</b> clients")
     pref_l:set_first(tb2)
     pref_bg:set_widget(pref_l)
     local pref_menu,pref_menu_l = radical.bar{item_style=radical.item.style.basic}
+    pref_menu:add_widget(wibox.widget.textbox "<b>Display: </b>")
     pref_menu:add_widget(radical.widgets.separator(pref_menu,radical.widgets.separator.VERTICAL))
-    pref_menu:add_item{text="Exclusive"}
+    pref_menu:add_item{text="All tags  ", checkable = true, checked = true, button1 = toggle_all_tags}
     pref_menu:add_widget(radical.widgets.separator(pref_menu,radical.widgets.separator.VERTICAL))
-    pref_menu:add_item{text="12 clients"}
+    pref_menu:add_item{text="Minimized  ", checkable = true, checked = true, button1 = toggle_all_screens}
     pref_menu:add_widget(radical.widgets.separator(pref_menu,radical.widgets.separator.VERTICAL))
-    pref_menu:add_item{text="All Screens"}
-    pref_menu:add_widget(radical.widgets.separator(pref_menu,radical.widgets.separator.VERTICAL))
+    pref_menu:add_item{text="All Screens  ", checkable = true, checked = true, button1 = toggle_maximized}
+--     pref_menu:add_widget(radical.widgets.separator(pref_menu,radical.widgets.separator.VERTICAL))
     pref_l:set_third(pref_menu_l)
 
     currentMenu:add_prefix_widget(pref_bg)
@@ -155,7 +187,7 @@ local function new(args)
     local c = item.client
     if c.screen ~= scr then return end
     client2.toggletag (t, c)
-    reload_underlay(c,item)
+    reload_infoshapes(c,item)
     if not auto_release then
       reload_highlight(item)
     end
@@ -168,11 +200,9 @@ local function new(args)
     local item = currentMenu._current_item
     item.checked = not item.checked
     local c = item.client
-    if c.screen ~= scr then
-      c.screen = scr
-    end
+    if c.screen ~= scr then return end
     client2.movetotag(t, c)
-    reload_underlay(c,item)
+    reload_infoshapes(c,item)
     if not auto_release then
       reload_highlight(item)
     end
@@ -187,23 +217,22 @@ local function new(args)
       l:add( button_group({client = v, field = "maximized", focus = false, checked = function() return v.maximized end, onclick = function() v.maximized = not v.maximized end }))
       l:add( button_group({client = v, field = "sticky"   , focus = false, checked = function() return v.sticky    end, onclick = function() v.sticky    = not v.sticky    end }))
       l:add( button_group({client = v, field = "ontop"    , focus = false, checked = function() return v.ontop     end, onclick = function() v.ontop     = not v.ontop     end }))
-      l:add( button_group({client = v, field = "close"    , focus = false, checked = function() return false       end, onclick = function() v:kill()                      end }))
-      l.fit = function (s,w,h) return 5*h,h end
+      l:add( button_group({client = v, field = "close"    , focus = false, checked = function() return false       end, onclick = function() v:kill(); currentMenu.visible = false; end }))
+      l.fit = function (s,c,w,h) return 5*h,h end
     end
 
-    local underlays = reload_underlay(v)
+    local underlays = reload_infoshapes(v)
 
     local i = currentMenu:add_item({
       text          = v.name,
       icon          = v.icon or module.default_icon,
       suffix_widget = not auto_release and l or nil,
       selected      = capi.client.focus and capi.client.focus == v,
-      underlay      = underlays,
+      infoshapes    = underlays,
       checkable     = (not auto_release) and v.screen == scr,
       checked       = v.screen == scr and (not auto_release and is_in_tag(t,v)) or nil,
       button1       = function(a,b,c,d,no_hide)
-        local t = focusTag[v] or v:tags()[1]
-        if t and t.selected == false and not util.table.hasitem(v:tags(),tag.selected(v.screen)) then
+        if t and t.selected == false and not util.table.hasitem(v:tags(),capi.screen[v.screen].selected_tag) then
           lock_history = true
           tag.viewonly(t)
           lock_history = false

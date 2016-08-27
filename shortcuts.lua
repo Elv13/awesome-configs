@@ -7,6 +7,7 @@ local customButton = require( "customButton"               )
 local customMenu   = require( "customMenu"                 )
 local menubar      = require( "menubar"                    )
 local collision    = require( "collision"                  )
+local hotkeys_popup = require("awful.hotkeys_popup").widget
 
 shorter.Navigation = {
     desc = "Navigate between clients",
@@ -53,11 +54,14 @@ shorter.Navigation = {
 
     {desc = "Display the tag switcher",
     key={{  "Mod1",           }, "#49"  }, fct = function () alttag()                                   end},
+
+    {desc = "show help",
+    key={{  modkey, "Shift"   }, "s"  }, fct = hotkeys_popup.show_help},
 }
 
 shorter.Client = {
    {desc = "Launch xkill",
-   key={{          "Control" }, "Escape"}, fct = function () awful.util.spawn("xkill")                         end},
+   key={{          "Control" }, "Escape"}, fct = function () awful.spawn("xkill")                         end},
 }
 
 shorter.Screen = {
@@ -75,47 +79,54 @@ shorter.Screen = {
 
     {desc = "Select screen 5",
     key={ {                   }, "#177" }, fct = function () collision.select_screen(5)       end },
-      
-      
     {desc = "Select screen 5",
     key={ {                   }, "#180" }, fct = function () collision.swap_screens(5)       end },
 }
 
 local hooks = {
     {{         },"Return",function(command)
-        local result = awful.util.spawn(command)
+        print("LA1!!!!")
+        local result = awful.spawn(command)
         mypromptbox[mouse.screen].widget:set_text(type(result) == "string" and result or "")
-        return true
+        return
     end},
     {{"Mod1"   },"Return",function(command)
-        local result = awful.util.spawn(command,{intrusive=true})
+        print("LA2!!!!")
+        local result = awful.spawn(command,{intrusive=true})
         mypromptbox[mouse.screen].widget:set_text(type(result) == "string" and result or "")
-        return true
+        return
     end},
     {{"Shift"  },"Return",function(command)
-        local result = awful.util.spawn(command,{intrusive=true,ontop=true,floating=true})
+        print("LA3!!!!")
+        local result = awful.spawn(command,{intrusive=true,ontop=true,floating=true})
         mypromptbox[mouse.screen].widget:set_text(type(result) == "string" and result or "")
-        return true
+        return
+    end},
+    {{"Control"},"Return",function(command)
+        print("LA!!!!")
+        local result = awful.spawn(command,{new_tag=true})
+        mypromptbox[mouse.screen].widget:set_text(type(result) == "string" and result or "")
+        return
     end}
 }
 
 --Open clients in screen "s"
 for s = 1, screen.count() do
     table.insert(hooks, {{"Mod4"  },tostring(s),function(command)
-        local result = awful.util.spawn(command,{screen=s})
+        local result = awful.spawn(command,{screen=s})
         mypromptbox[mouse.screen].widget:set_text(type(result) == "string" and result or "")
-        return true
+        return
     end})
     table.insert(hooks, {{  },"F"..s,function(command)
-        local result = awful.util.spawn(command,{screen=s,intrusive=true,ontop=true,floating=true})
+        local result = awful.spawn(command,{screen=s,intrusive=true,ontop=true,floating=true})
         mypromptbox[mouse.screen].widget:set_text(type(result) == "string" and result or "")
-        return true
+        return
     end})
 end
 
 shorter.Launch = {
     {desc = "Launch a terminal",
-    key={{  modkey,           }, "Return" }, fct = function () awful.util.spawn(terminal)                        end},
+    key={{  modkey,           }, "Return" }, fct = function () awful.spawn(terminal)                        end},
 
     {desc = "Show the application menu",
     key={{  modkey }, "p"}, fct = function() print("meh");menubar.show()                                                     end},
@@ -126,7 +137,7 @@ shorter.Launch = {
             awful.prompt.run({ prompt = "Run: ", hooks = hooks},
             mypromptbox[mouse.screen].widget,
             function (com)
-                    local result = awful.util.spawn(com)
+                    local result = awful.spawn(com)
                     if type(result) == "string" then
                         mypromptbox[mouse.screen].widget:set_text(result)
                     end
@@ -158,10 +169,10 @@ shorter.Tag = {
     key={{  modkey, "Control" }, "Tab"   }, fct = function () customButton.lockTag.show_menu()                  end},
 
     {desc = "Switch to the next layout",
-    key={{  modkey,           }, "space" }, fct = function () customMenu.layoutmenu.centered_menu(layouts)      end},
+    key={{  modkey,           }, "space" }, fct = function () customMenu.layoutmenu.centered_menu()      end},
 
     {desc = "Switch to the previous layout",
-    key={{  modkey, "Shift"   }, "space" }, fct = function () customMenu.layoutmenu.centered_menu(layouts,true) end},
+    key={{  modkey, "Shift"   }, "space" }, fct = function () customMenu.layoutmenu.centered_menu(nil,true) end},
 
     {desc = "Increate the master width",
     key={{  modkey,           }, "l"     }, fct = function () awful.tag.incmwfact( 0.05)                        end},
@@ -180,17 +191,14 @@ shorter.Tag = {
 
     {desc = "Remove a column",
     key={{  modkey, "Control" }, "l"     }, fct = function () awful.tag.incncol(-1)                             end},
+
+    {desc = "Split",
+    key={{  modkey            }, "s"     }, fct = collision.split},
 }
 
 shorter.Hardware = {
     {desc = "Change keyboard layout",
-    key={{ "Mod1"            }, "space" }, fct = widgets.keyboard.quickswitchmenu                                 },
-
-    {desc = "Select wacom area",
-    key={{ modkey,           }, "w"     }, fct = function() wacky.select_rect(10)                              end},
-
-    {desc = "Set wacom area around focussed",
-    key={{ modkey, "Shift"   }, "w"     }, fct = function() wacky.focussed_client(10)                          end},
+    key={{ "Mod1"            }, "space" }, fct = widgets.keyboard.quickswitchmenu        },
 
 --     awful.key({ modkey,"Control" }, "p", function()
 --         utils.profile.start()
@@ -227,7 +235,11 @@ clientkeys = awful.util.table.join(
     awful.key({ modkey, "Control" }, "space" , awful.client.floating.toggle                        ),
     awful.key({ modkey,           }, "o"     , awful.client.movetoscreen                           ),
     awful.key({ modkey,           }, "t"     , function (c) c.ontop = not c.ontop               end),
-    awful.key({ modkey,           }, "y"     , function (c) collision.resize.display(c,true)    end),
+    awful.key({ modkey,           }, "y"     , function (c)
+--         awful.placement.closest_corner(mouse, {include_sides=true, parent=client.focus})
+        local f = awful.placement.resize_to_mouse
+        f(client.focus)
+    end),
     awful.key({ modkey,           }, "m"     , function (c) c.minimized = true                  end)
 )
 
@@ -240,8 +252,8 @@ for i = 1, 10 do
         desc= "Switch to tag "..i,
         fct = function ()
             local screen = mouse.screen
-            local tag = awful.tag.gettags(screen)[i]
-            if tag then
+            local tag = screen.tags[i]
+            if tag then     
                 awful.tag.viewonly(tag)
             end
         end
@@ -250,7 +262,7 @@ for i = 1, 10 do
         desc= "Toggle tag "..i,
         fct = function ()
             local screen = mouse.screen
-            local tag = awful.tag.gettags(screen)[i]
+            local tag = screen.tags[i]
             if tag then
                 awful.tag.viewtoggle(tag)
             end
@@ -259,7 +271,7 @@ for i = 1, 10 do
     tagSelect[#tagSelect+1] = {key={{ modkey, "Shift" }, "#" .. i + 9},
         desc= "Move cofussed to tag "..i,
         fct = function ()
-            local tag = awful.tag.gettags(client.focus.screen)[i]
+            local tag = client.focus.screen.tags[i]
             if client.focus and tag then
                 awful.client.movetotag(tag)
             end
@@ -268,7 +280,7 @@ for i = 1, 10 do
     tagSelect[#tagSelect+1] = {key={{ modkey, "Control", "Shift" }, "#" .. i + 9},
         desc= "Toggle tag "..i,
         fct = function ()
-            local tag = awful.tag.gettags(client.focus.screen)[i]
+            local tag = client.focus.screen.tags[i]
             if client.focus and tag then
                 awful.client.toggletag(tag)
             end
@@ -278,10 +290,12 @@ end
 shorter.Navigation = tagSelect
 
 local copts_sec,copts_usec = 0,0
+local radial = require("radical.radial")
 
 clientbuttons = awful.util.table.join(
-    awful.button({ }, 1, function (c) client.focus = c; c:raise() end),
+    awful.button({ }, 1, function (c) c:raise() end),
     awful.button({ modkey }, 1, awful.mouse.client.move),
-    awful.button({ modkey }, 3, awful.mouse.client.resize),
-    awful.button({  }, 6, collision.util.double_click(function() customMenu.client_opts() end))
+    awful.button({ modkey }, 3, awful.mouse.client.resize)--[[,
+    awful.button({  }, 5, collision.util.double_click(function() customMenu.client_opts() end))
+    awful.button({  }, 2, radial.radial_client_select)]]
 )

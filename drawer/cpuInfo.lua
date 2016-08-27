@@ -19,6 +19,7 @@ local radical      = require( "radical"               )
 local color        = require( "gears.color"           )
 local allinone     = require( "widgets.allinone"      )
 local fd_async     = require("utils.fd_async"         )
+local radialprog   = require("widgets.radialprogressbar")
 
 local data     = {}
 
@@ -52,7 +53,7 @@ local function refresh_process()
                     wdg.percent.fit = function()
                         return 42,procMenu.item_height
                     end
-                    wdg.percent.draw = function(self,w, cr, width, height)
+                    wdg.percent.draw = function(self, context, cr, width, height)
                         cr:save()
                         cr:set_source(color(procMenu.bg_alternate))
                         cr:rectangle(0,0,width-height/2,height)
@@ -60,7 +61,7 @@ local function refresh_process()
                         cr:set_source_surface(themeutils.get_beg_arrow2({bg_color=procMenu.bg_alternate}),width-height/2,0)
                         cr:paint()
                         cr:restore()
-                        wibox.widget.textbox.draw(self,w, cr, width, height)
+                        wibox.widget.textbox.draw(self, context, cr, width, height)
                     end
                     wdg.kill          = wibox.widget.imagebox()
                     wdg.kill:set_image(config.iconPath .. "kill.png")
@@ -73,16 +74,16 @@ local function refresh_process()
         end)
 end
 
+--TODO make them private again
+local cpuModel
+local spacer1
+local volUsage
 
-local function new(margin, args)
-    local cpuModel
-    local spacer1
-    local volUsage
+local modelWl
+local cpuWidgetArrayL
+local main_table
 
-    local modelWl
-    local cpuWidgetArrayL
-    local main_table
-    local volumewidget2
+local function init()
 
     --Load initial data
     print("Load initial data")
@@ -98,32 +99,6 @@ local function new(margin, args)
         print("Unable to load core number")    
     end
 
-    --Functions-----------------------
-    --"Public" (Accessible from outside)
-    --Toggle visibility if no argument given or set visibility. Return current visibility
-    cpuInfoModule.toggle=function(vibility)
-        if not data.menu then
-            local imb = wibox.widget.imagebox()
-            imb:set_image(beautiful.path .. "Icon/reload.png")
-            imb:buttons(button({ }, 1, function (geo) cpuInfoModule.refresh() end))
-
-            data.menu = menu({item_width=198,width=200,arrow_type=radical.base.arrow_type.CENTERED})
-            data.menu:add_widget(radical.widgets.header(data.menu,"INFO")  , {height = 20  , width = 200})
-            data.menu:add_widget(modelWl         , {height = 40  , width = 200})
-            data.menu:add_widget(radical.widgets.header(data.menu,"USAGE")   , {height = 20  , width = 200})
-            data.menu:add_widget(volUsage        , {height = 30  , width = 200})
-            data.menu:add_widget(cpuWidgetArrayL         , {width = 200})
-            data.menu:add_widget(radical.widgets.header(data.menu,"PROCESS",{suffix_widget=imb}) , {height = 20  , width = 200})
-            procMenu = embed({max_items=6})
-            data.menu:add_embeded_menu(procMenu)
-        end
-        if not data.menu.visible then
-            cpuInfoModule.refresh()
-        end
-        data.menu.visible = visibility or (not data.menu.visible)
-
-        return data.menu.visible
-    end
     --Refresh all cpu usage widgets (Bar widget,graph and table)
     --take vicious data
     local function refreshCoreUsage(widget,content)
@@ -209,7 +184,7 @@ local function new(margin, args)
     --Constructor
     cpuModel          = wibox.widget.textbox()
     spacer1           = wibox.widget.textbox()
-    volUsage          = widget2.graph()
+    volUsage          = wibox.widget.graph()
 
     topCpuW           = {}
     local emptyTable={};
@@ -240,7 +215,7 @@ local function new(margin, args)
 
     --loadData()
 
-    cpuWidgetArrayL = wibox.layout.margin()
+    cpuWidgetArrayL = wibox.container.margin()
     cpuWidgetArrayL:set_margins(3)
     cpuWidgetArrayL:set_bottom(10)
     cpuWidgetArrayL:set_widget(tab)
@@ -259,19 +234,53 @@ local function new(margin, args)
     volUsage:set_border_color ( beautiful.fg_normal                  )
     volUsage:set_color        ( beautiful.fg_normal                  )
     --vicious.register          ( volUsage, vicious.widgets.cpu,refreshCoreUsage,1 )
+end
 
-    volumewidget2 = allinone()
-    volumewidget2:set_icon(config.iconPath .. "brain.png")
-    --vicious.register(volumewidget2, vicious.widgets.cpu,'$1',1)
-    volumewidget2:buttons (util.table.join( button({ }, 1, function (geo) cpuInfoModule.toggle(); data.menu.parent_geometry = geo end),
-            button({ }, 3, function (geo) showGovernor(); govMenu.parent_geometry = geo end)))
-    vicious.register( volumewidget2, vicious.widgets.cpu,refreshCoreUsage,1 )
-    --Initial menu loading quick fix
-    cpuInfoModule.toggle()
-    cpuInfoModule.toggle()
+local function new(margin, args)
+    --Functions-----------------------
+    --"Public" (Accessible from outside)
+    --Toggle visibility if no argument given or set visibility. Return current visibility
+    cpuInfoModule.toggle=function(parent_widget)
+        if not data.menu then
+            procMenu = embed({max_items=6})
+            init()
 
-    return volumewidget2
+            local imb = wibox.widget.imagebox()
+            imb:set_image(beautiful.path .. "Icon/reload.png")
+            imb:buttons(button({ }, 1, function (geo) cpuInfoModule.refresh() end))
+
+            data.menu = menu({item_width=198,width=200,arrow_type=radical.base.arrow_type.CENTERED})
+            data.menu:add_widget(radical.widgets.header(data.menu,"INFO")  , {height = 20  , width = 200})
+            data.menu:add_widget(modelWl         , {height = 40  , width = 200})
+            data.menu:add_widget(radical.widgets.header(data.menu,"USAGE")   , {height = 20  , width = 200})
+            data.menu:add_widget(volUsage        , {height = 30  , width = 200})
+            data.menu:add_widget(cpuWidgetArrayL         , {width = 200})
+            data.menu:add_widget(radical.widgets.header(data.menu,"PROCESS",{suffix_widget=imb}) , {height = 20  , width = 200})
+            data.menu:add_embeded_menu(procMenu)
+        end
+        if not data.menu.visible then
+            cpuInfoModule.refresh()
+        end
+--         data.menu.visible = visibility or (not data.menu.visible)
+
+        return data.menu
+    end
+
+    local rpb = wibox.widget.base.make_widget_declarative {
+        {
+            icon    = config.iconPath .. "brain.png",
+            vicious = {vicious.widgets.cpu,'$1',1},
+            widget  = allinone,
+        },
+        menu          = cpuInfoModule.toggle,
+        vicious       = {vicious.widgets.cpu,'$1',1},
+        outline_color = beautiful.bg_allinone or beautiful.bg_highlight,
+        color         = beautiful.fg_allinone or beautiful.icon_grad or beautiful.fg_normal,
+        widget        = radialprog
+    }
+
+    return rpb
 end
 
 return setmetatable(cpuInfoModule, { __call = function(_, ...) return new(...) end })
--- kate: space-indent on; indent-width 2; replace-tabs on;
+-- kate: space-indent on; indent-width 4; replace-tabs on;

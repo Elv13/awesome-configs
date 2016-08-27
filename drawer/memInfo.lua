@@ -24,6 +24,7 @@ local color        = require( "gears.color"              )
 local cairo        = require( "lgi"                      ).cairo
 local allinone     = require( "widgets.allinone"         )
 local fd_async     = require("utils.fd_async"         )
+local radialprog   = require("widgets.radialprogressbar")
 
 local capi = { image  = image  ,
     screen = screen ,
@@ -91,7 +92,7 @@ local function refreshStat()
                                 end
                             end
 
-                            aMem.draw = function(self,w, cr, width, height)
+                            aMem.draw = function(self,context, cr, width, height)
                                 cr:save()
                                 cr:set_source(color(topMenu.bg_alternate))
                                 cr:rectangle(0,0,width-height/2,height)
@@ -99,7 +100,7 @@ local function refreshStat()
                                 cr:set_source_surface(themeutils.get_beg_arrow2({bg_color=topMenu.bg_alternate}),width-height/2,0)
                                 cr:paint()
                                 cr:restore()
-                                wibox.widget.textbox.draw(self,w, cr, width, height)
+                                wibox.widget.textbox.draw(self,context, cr, width, height)
                             end
 
                             testImage2       = wibox.widget.imagebox()
@@ -154,7 +155,7 @@ local function refreshStat()
 end
 
 local function parseViciousMemstat(widget,content)
-    if dataMenu.visible then
+    if dataMenu and dataMenu.visible then
         tabWdg[ tabWdgRow.RAM  ][ tabWdgCol.TOTAL ]:set_text( string.format("%.2f GB",content[3]/1024) or "N/A")
         tabWdg[ tabWdgRow.RAM  ][ tabWdgCol.FREE  ]:set_text( string.format("%.2f GB",content[4]/1024) or "N/A")
         tabWdg[ tabWdgRow.RAM  ][ tabWdgCol.USED  ]:set_text((string.format("%.1f",content[1]) or "N/A") .. " %" )
@@ -174,7 +175,7 @@ local function repaint()
     mainMenu = menu({arrow_x=90,nokeyboardnav=true,item_width=198,width=210,arrow_type=radical.base.arrow_type.CENTERED})
     mainMenu:add_widget(radical.widgets.header(mainMenu,"USAGE",{suffix_widget=imb}),{height = 20 , width = 200})
 
-    local m3 = wibox.layout.margin()
+    local m3 = wibox.container.margin()
     m3:set_margins(3)
     m3:set_bottom(10)
     local tab,wdgs = radtab({
@@ -206,34 +207,32 @@ local function repaint()
     return mainMenu
 end
 
-
 local function new(margin, args)
     local function toggle()
         if not dataMenu then
             dataMenu = repaint()
-        else
         end
         if not dataMenu.visible then
             refreshStat()
-        else
         end
-        dataMenu.visible = not dataMenu.visible
+
+        return dataMenu
     end
 
-    local buttonclick = util.table.join(button({ }, 1, function (geo) toggle();dataMenu.parent_geometry=geo end))
+    local rpb = wibox.widget.base.make_widget_declarative {
+        {
+            icon    = config.iconPath .. "cpu.png",
+            vicious = {vicious.widgets.mem, parseViciousMemstat, 1},
+            widget  = allinone,
+        },
+        menu          = toggle,
+        vicious       = {vicious.widgets.mem, parseViciousMemstat, 1},
+        outline_color = beautiful.bg_allinone or beautiful.bg_highlight,
+        color         = beautiful.fg_allinone or beautiful.icon_grad or beautiful.fg_normal,
+        widget        = radialprog
+    }
 
-    local volumewidget2 = allinone()
-    volumewidget2:set_icon(config.iconPath .. "cpu.png")
-    dataMenu = repaint()
-    vicious.register(volumewidget2, vicious.widgets.mem, parseViciousMemstat, 1)
-
-    volumewidget2:buttons (buttonclick)
-
-    --Same old trick to fix first load
-    --TODO: Fix first load problem with embed widgets
-    toggle()
-    toggle()
-    return volumewidget2
+    return rpb
 end
 
 

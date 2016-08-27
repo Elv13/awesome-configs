@@ -1,10 +1,7 @@
-local capi = {tag=tag,mouse=mouse}
+local capi = {tag=tag,mouse=mouse,screen=screen}
 local setmetatable = setmetatable
-local button     = require( "awful.button"        )
-local util       = require( "awful.util"          )
 local tag        = require( "awful.tag"           )
 local config     = require( "forgotten"           )
-local themeutils = require( "blind.common.drawing")
 local wibox      = require( "wibox"               )
 local color      = require( "gears.color"         )
 local radical    = require( "radical"             )
@@ -16,13 +13,13 @@ local items = {}
 
 local function get_icon(state)
   if state == "locked" then
-    return config.iconPath .. "tags/locked.png"
+    return config.iconPath .. "locked.png"
   elseif state == "exclusive" then
-    return config.iconPath .. "tags/exclusive.png"
+    return config.iconPath .. "exclusive.png"
   elseif state == "fallback" then
-    return config.iconPath .. "tags/fallback.png"
+    return config.iconPath .. "fallback.png"
   elseif state == "inclusive" then
-    return config.iconPath .. "tags/unlocked.png"
+    return config.iconPath .. "inclusive.png"
   end
 end
 
@@ -34,10 +31,10 @@ local function get_state(t)
 end
 
 local function toggleVisibility(t,state)
-  if not t or not t.selected or not data[tag.getscreen(t)] then return end
-  local w = data[tag.getscreen(t)]
+  if not t or not t.selected or not data[t.screen] then return end
+  local w = data[t.screen]
   if w and t.selected then
-    w:set_image(color.apply_mask(get_icon(state or get_state(t))))
+    w.icon = color.apply_mask(get_icon(state or get_state(t)))
   end
 end
 
@@ -64,7 +61,7 @@ local function next_state(t)
 end
 
 local function select_next()
-  local t = tag.selected(capi.mouse.screen)
+  local t = capi.mouse.screen.selected_tag
   next_state(t)
   local state = get_state(t)
   items[state].selected = true
@@ -77,9 +74,16 @@ local function hide(m)
 end
 
 local function show_menu(t)
-  local t = t or tag.selected(capi.mouse.screen)
+  local t = t or capi.screen[capi.mouse.screen].selected_tag
   if not aTagMenu then
-    aTagMenu = radical.box({layout=radical.layout.horizontal,item_width=140,item_height=140,icon_size=100,item_style=radical.item.style.rounded})
+    aTagMenu = radical.box {
+      layout=radical.layout.horizontal,
+      item_width=140,
+      item_height=140,
+      icon_size=100,
+      item_style=radical.item.style.rounded,
+      item_layout = radical.item.layout.icon,
+    }
     aTagMenu.margins.left  = 10
     aTagMenu.margins.right = 5
     items.locked    = aTagMenu:add_item({text = "<b>Locked</b>"   ,icon =config.iconPath .. "locked.png",button1=function() capi.client.focus = v end})
@@ -98,27 +102,30 @@ local function show_menu(t)
   return aTagMenu
 end
 
-local function new(screen)
+local function new(screen, parent_menu)
   local screen = screen or 1
-  if data[screen] then return data[screen] end
+  if data[capi.screen[screen]] then return data[capi.screen[screen]] end
 
-  local lockTag,t  = wibox.widget.imagebox(),tag.selected(screen)
-  toggleVisibility(t)
+  local t = capi.screen[screen].selected_tag
 
   local function btn()
-    local t = tag.selected(screen)
+    local t = capi.screen[screen].selected_tag
     next_state(t)
   end
 
-  lockTag:buttons( util.table.join(
-    button({ }, 1,btn),
-    button({ }, 4,btn),
-    button({ }, 5,btn)
-  ))
+  if not parent_menu then return end
 
-  lockTag:set_tooltip("Lock tag")
-  data[screen] = lockTag
-  return lockTag
+  local item = parent_menu:add_item {
+    tooltip = "Tag state",
+    button1 = btn,
+    button4 = btn,
+    button5 = btn,
+  }
+  data[capi.screen[screen]] = item
+  toggleVisibility(t)
+  item.state[radical.base.item_flags.USED] = true
+
+  return item
 end
 
 capi.tag.connect_signal("property::selected" , toggleVisibility)

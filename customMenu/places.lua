@@ -18,11 +18,12 @@ local function read_kde_bookmark(offset)
     local m = menu({filter = true, showfilter = true, y = capi.screen[1].geometry.height - 18, x = offset, 
     autodiscard = true,has_decoration=false,x=0,filtersubmenu=true,maxvisible=20,style=style,item_style=item_style,
     show_filter=true})
-    local f = io.open(os.getenv("HOME").. '/.kde/share/apps/kfileplaces/bookmarks.xml','r')
+    local f = io.open(os.getenv("HOME").. '/.local/share/user-places.xbel','r')
     local inBook=false
     local currentItem,toReturn = {},{}
     if f ~= nil then
         local line = f:read("*line")
+        print(line)
         while line do
             inBook = (inBook or string.match(line,"<bookmark ")) and not string.match(line,"</bookmark>")
             currentItem.path  = currentItem.path  or (inBook and string.match(line,'<bookmark href=\"file://(.*)">'))
@@ -32,7 +33,7 @@ local function read_kde_bookmark(offset)
             end
 
             if string.match(line,"</bookmark") and currentItem.title and currentItem.path then
-                local item = m:add_item({text =  currentItem.title, icon = currentItem.icon, onclick = function() util.spawn("dolphin " .. currentItem.path) end})
+                local item = m:add_item({text =  currentItem.title, icon = currentItem.icon, button1 = function() util.spawn("dolphin " .. currentItem.path) end})
                 fd_async.icon.load(currentItem.icon,32):connect_signal("request::completed",function(icon)
                   item.icon = icon
                 end)
@@ -45,6 +46,7 @@ local function read_kde_bookmark(offset)
     m:add_widget(separ())
     m:add_item {text="Root",sub_menu=function() return filetree.path("/",{max_items=20,style=style,item_style=item_style}) end}
     m:add_item {text="Home",sub_menu=function() return filetree.path(os.getenv("HOME"),{max_items=20,style=style,item_style=item_style}) end}
+    m:add_item {text="Recent",sub_menu=function() return filetree.path(os.getenv("HOME").."/.local/share/RecentDocuments/",{max_items=20,style=style,item_style=item_style}) end}
     return m
 end
 

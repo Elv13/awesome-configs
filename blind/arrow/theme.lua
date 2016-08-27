@@ -9,17 +9,12 @@ local themeutils = require( "blind.common.drawing"    )
 local wibox_w    = require( "wibox.widget"   )
 local radical    = require( "radical"        )
 local blind      = require( "blind"          )
-local blind_pat  = require( "blind.common.pattern" )
 local debug      = debug
 
 local path = debug.getinfo(1,"S").source:gsub("theme.lua",""):gsub("@","")
 
 local theme = blind.theme
 -- arrow.task.theme,arrow.tag.theme = theme,theme
-
-local function d_mask(img,cr)
-    return blind_pat.to_pattern(img,cr)
-end
 
 ------------------------------------------------------------------------------------------------------
 --                                                                                                  --
@@ -87,7 +82,7 @@ theme.taglist_bg_used            = cairo.Pattern.create_for_surface(cairo.ImageS
 theme.taglist_bg_urgent          = cairo.Pattern.create_for_surface(cairo.ImageSurface.create_from_png(path .."Icon/bg/urgent_bg.png"))
 theme.taglist_bg_remote_selected = cairo.Pattern.create_for_surface(cairo.ImageSurface.create_from_png(path .."Icon/bg/selected_bg_green.png"))
 theme.taglist_bg_remote_used     = cairo.Pattern.create_for_surface(cairo.ImageSurface.create_from_png(path .."Icon/bg/used_bg_green.png"))
-theme.taglist_bg_hover           = d_mask(blind_pat.sur.flat_grad("#321DBA","#201379",theme.default_height))
+theme.taglist_bg_hover           = cairo.Pattern.create_for_surface(cairo.ImageSurface.create_from_png(path .."Icon/bg/menu_bg_focus_scifi.png"))
 theme.taglist_fg_prefix                = theme.bg_normal
 -- theme.taglist_squares_unsel            = function(wdg,m,t,objects,idx) return arrow.tag.gen_tag_bg(wdg,m,t,objects,idx,theme.taglist_bg_image_used)     end
 -- theme.taglist_squares_sel              = function(wdg,m,t,objects,idx) return arrow.tag.gen_tag_bg(wdg,m,t,objects,idx,theme.taglist_bg_image_selected) end
@@ -113,9 +108,9 @@ theme.monochrome_icons                 = true
 -- Variables set for theming menu
 -- menu_[bg|fg]_[normal|focus]
 -- menu_[border_color|border_width]
-theme.menu_submenu_icon         = path .."Icon/tags/arrow.png"
-theme.menu_scrollmenu_down_icon = path .."Icon/tags/arrow_down.png"
-theme.menu_scrollmenu_up_icon   = path .."Icon/tags/arrow_up.png"
+theme.menu_submenu_icon         = path .."Icon/tags_invert/arrow.png"
+theme.menu_scrollmenu_down_icon = path .."Icon/tags_invert/arrow_down.png"
+theme.menu_scrollmenu_up_icon   = path .."Icon/tags_invert/arrow_up.png"
 theme.awesome_icon              = path .."Icon/awesome2.png"
 theme.menu_height               = 20
 theme.menu_width                = 130
@@ -125,9 +120,6 @@ theme.border_color              = theme.fg_normal
 theme.wallpaper = "/home/lepagee/bg/final/bin_ascii_ds.png"
 
 theme.dock_icon_color = { type = "linear", from = { 0, 0 }, to = { 0, 55 }, stops = { { 0, "#1889F2" }, { 1, "#083158" }}}
-
-theme.draw_underlay = themeutils.draw_underlay
-
 
 -- Titlebar
 loadfile(theme.path .."bits/titlebar.lua")(theme,path)

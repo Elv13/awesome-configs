@@ -54,7 +54,7 @@ function tag_to_screen(t, scr)
     if not ts then
         return
     end
-    tag.setscreen(t,src)
+    t.screen = src
     tag.history.restore(ts.screen,1)
 --     shifty.set(ts, { screen = scr or util.cycle(screen.count(), ts.screen + 1)})
     tag.viewonly(ts)
@@ -105,7 +105,7 @@ end
 
 
 function  module.invertedIconPath(tagName)
-    return config.iconPath .. (config.useListPrefix == true and "tags_invert/" or "tags/") .. tagName
+    return config.iconPath .. "tags_invert/" .. tagName
 end
 
 function stripHtml(str)

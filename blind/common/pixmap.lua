@@ -52,7 +52,7 @@ end
 -- @param width The width of the resulting surface
 -- @param padding a padding
 -- @return A new surface
-function tint(request,col,height,width,padding)
+local function tint(request,col,height,width,padding)
     local img,cr,mask= create_transformation_mask(request._img,height,width,padding)
 
     -- Apply the tint
@@ -62,34 +62,49 @@ function tint(request,col,height,width,padding)
     return request
 end
 
+local function clip(shape)
+    --TODO
+end
+
+local function reset_clip()
+    --TODO
+end
+
 local function resize_center(request,padding,h,w)
     local img = request._img
     local pat = cairo.Pattern.create_for_surface(img)
     local ow,oh = img:get_width(),img:get_height()
     w,h = w or ow, h or oh
-    local ratio = ow > oh and 2.0 or oh/(h-padding*2)
 
-    local matrix = cairo.Matrix()
-    cairo.Matrix.init_scale(matrix,ratio,ratio)
-
-    local matrix2 = cairo.Matrix()
-    cairo.Matrix.init_translate(matrix2,-padding,-padding)
-
-    local matrix3 = cairo.Matrix()
-    matrix3:multiply(matrix,matrix2)
-
-    pat:set_matrix(matrix3)
+    -- Compute the ratio to honor the padding
+    local ratio = w < h and ((h-2*padding) / oh) or ((w-2*padding) / ow)
 
     local img2 = cairo.ImageSurface.create(cairo.Format.ARGB32, w, h)
     local cr = cairo.Context(img2)
-    cr:set_source(pat)
-    cr:translate(40,10)
+    cr:scale(ratio, ratio)
+    cr:set_source_surface(img, padding, padding)
     cr:paint()
 
     -- Update the request
     request._img = img2
     request._cr   = cr
 
+    return request
+end
+
+local function resize_surface(request, padding_w, padding_h)
+    local img2 = cairo.ImageSurface.create(cairo.Format.ARGB32,
+        request._img:get_width() + padding_w,
+        request._img:get_height() + padding_h
+    )
+
+    local cr = cairo.Context(img2)
+    cr:set_source_surface(request._img, padding_w/2, padding_h/2)
+    cr:paint()
+
+    -- Update the request
+    request._img = img2
+    request._cr   = cr
     return request
 end
 
@@ -127,27 +142,38 @@ local function shadow(request,radius,col,intensity)
     return request
 end
 
-local function glow(request,radius,col,intensity)
---     local img = request._img
---     local col,radius,intensity = col or "#000000",radius or 3,intensity or 0.15
---     local img2 = cairo.ImageSurface.create(cairo.Format.ARGB32, request._img:get_width(), request._img:get_height())
---     local cr = cairo.Context(img2)
--- 
---     local img3 = request:copy():colorize(col):to_img()
--- 
---     cr:set_source(color(col))
---     for i=1, radius do
---         cr:set_source_surface(img3,radius-i+1,radius-i+1)
---         cr:paint_with_alpha(intensity)
---     end
---     cr:set_source_surface(img)
---     cr:paint()
--- 
---     -- Update the request
---     request._img = img2
---     request._cr   = cr
--- 
---     return request
+local function glow(request,radius,col,intensity, reset_clip)
+    local img = request._img
+    local col,radius,intensity = col or "#000000",radius or 3,intensity or 0.15
+    local w,h = request._img:get_width(), request._img:get_height()
+    local img2 = cairo.ImageSurface.create(cairo.Format.ARGB32, w,h)
+    local cr = cairo.Context(img2)
+
+    cr:save()
+
+    if reset_clip then
+        cr:reset_clip()
+    end
+
+    local img3 = request:copy():colorize(col):to_img()
+
+    local step_x, step_y = 1/w, 1/h
+    cr:set_source(color(col))
+    for i=1, radius do
+        cr:translate(-radius*0.15,-radius*0.1)
+        cr:scale(1+i*step_x, 1+i*step_y)
+        cr:set_source_surface(img3, -i/2, -i/2)
+        cr:paint_with_alpha(intensity)
+    end
+    cr:restore()
+    cr:set_source_surface(img)
+    cr:paint()
+
+    -- Update the request
+    request._img = img2
+    request._cr   = cr
+
+    return request
 end
 
 local function to_img(request)
@@ -169,6 +195,18 @@ local function copy(request)
     return init(img2,cr)
 end
 
+--- Append one or more request on top of self
+-- @param request2 One or more request
+local function compose(request, request2, padding_x, padding_h)
+    local img = request._img
+    local cr  = request._cr
+
+    cr:set_source_surface(request2._img, padding_x, padding_h)
+    cr:paint()
+
+    return request
+end
+
 init = function(img,cr)
     local request = {
         _img          = surface(img),
@@ -180,13 +218,34 @@ init = function(img,cr)
         shadow        = shadow,
         tint          = tint,
         glow          = glow,
+        resize_surface= resize_surface,
 
         -- Request handling
         to_img        = to_img,
         to_pattern    = to_pattern,
         copy          = copy,
+        compose       = compose,
     }
     return request
+end
+
+function module.from_size(width, height, pattern, shape, ...)
+    local img = cairo.ImageSurface.create(cairo.Format.ARGB32, width, height)
+    local cr = cairo.Context(img)
+
+    if shape then
+        shape(cr, width, height, ...)
+        cr:clip()
+    end
+
+    if pattern then
+        cr:set_source(pattern)
+        cr:paint()
+    end
+
+    cr:reset_clip()
+
+    return init(img, cr)
 end
 
 return setmetatable(module, { __call = function(_, ...) return init(...) end })

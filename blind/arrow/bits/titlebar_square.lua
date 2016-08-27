@@ -1,7 +1,7 @@
 local theme,path = ...
 local surface    = require( "gears.surface"      )
 local blind      = require( "blind"              )
-local shape      = require( "blind.common.shape" )
+local shape      = require( "gears.shape"        )
 local color      = require( "gears.color"        )
 local cairo      = require( "lgi"                ).cairo
 local pixmap     = require( "blind.common.pixmap")
@@ -19,6 +19,8 @@ local function get_cols(state)
     return color(theme["titlebar_bg_"..state]),color(theme["titlebar_border_color_"..state])
 end
 
+local _, side_color = get_cols("active")
+
 local function gen_squares()
     for _,v in ipairs {"inactive","active", "hover", "pressed"} do
         local bg,border = get_cols(v)
@@ -27,7 +29,8 @@ local function gen_squares()
         if square then
             cr:append_path(square)
         else
-            shape.draw_round_rect(cr,2,2,height-4,height-5,3)
+            local f = shape.transform(shape.rounded_rect) : translate(2,2)
+            f(cr,height-4,height-5,3)
             square = cr:copy_path()
         end
         cr:set_source(bg)
@@ -95,7 +98,15 @@ theme.titlebar = blind {
     resize      = add_icon("active","maximized",path .."Icon/titlebar_classic/resize.png"),
     tag         = add_icon("active","maximized",path .."Icon/titlebar_classic/tag.png"),
     title_align = "left",
-    bg_alternate= "#00000000"
+    show_icon   = true,
+    bg_alternate= "#00000000",
+
+    -- Left and right
+    left = true,
+    left_width = 2,
+    right = true,
+    right_width = 2,
+    bg_sides = side_color,
 }
 
 local img = cairo.ImageSurface.create(cairo.Format.ARGB32, 7, height)
@@ -106,7 +117,7 @@ cr:fill()
 cr:set_source(color({ type = "radial", from = { 6,6,2 }, to = { 6,6,6 }, stops = { { 0, "#66666600" }, { 1, "#666666ff" }}}))
 cr:arc(6,6,6,math.pi,2*math.pi)
 cr:fill()
-theme.titlebar_side_left  = img
+theme.titlebar_side_top_left  = img
 
 local img2 = cairo.ImageSurface.create(cairo.Format.ARGB32, 7, height)
 local cr2  = cairo.Context(img2)
@@ -121,4 +132,4 @@ cr2:line_to(6,6)
 cr2:arc(7,6,6,3*(math.pi/2),4*(math.pi/2))
 cr2:close_path()
 cr2:fill()
-theme.titlebar_side_right = img2
+theme.titlebar_side_top_right = img2

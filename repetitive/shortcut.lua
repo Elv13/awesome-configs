@@ -71,8 +71,6 @@ for _,sig in ipairs {
   "viewonly"          ,
 } do
   local prop_name = "property::"..sig
-  capi.tag.add_signal       (prop_name                 )
-  capi.client.add_signal    (prop_name                 )
   capi.tag.connect_signal   (prop_name, callbacks[sig] )
   capi.client.connect_signal(prop_name, callbacks[sig] )
 end

@@ -1,21 +1,44 @@
 local type = type
 local base      = require( "wibox.widget.base" )
 local tooltip   = require( "radical.tooltip"   )
-local underlay  = require( "radical.widgets.underlay")
 local aw_button = require( "awful.button"      )
 local beautiful = require( "beautiful"         )
 
 -- Define some wibox.widget extensions
-local function set_tooltip(self, text)
+local function set_tooltip(self, text, args)
   if not text then return end
-  self._tooltip = tooltip(self,text)
+  rawset(self, "_tooltip", tooltip(self,text, args))
 end
 
-local function set_menu(self,menu,button)
+--- Set a menu for widget "self".
+-- This function is available for all widgets.
+-- Any signals can be used as trigger, the common ones are:
+--
+-- * "button::press" (default) Left mouse button (normal click_
+-- * "mouse::enter" When the mouse enter the widget
+--
+-- @param self A widget (implicit parameter)
+-- @param menu A radical menu or a function returning one (for lazy-loading)
+-- @tparam[opt="button1::pressed"] string event The event trigger for showing
+--  the menu.
+-- @tparam[opt=1] button_id The mouse button 1 (1= left, 3=right)
+-- @tparam[opt=widget] The position mode (see `radical.placement`)
+local function set_menu(self,menu, event, button_id, mode)
   if not menu then return end
-  local b = button or 1
-  local current,bt = self:buttons(),aw_button({},b,function(geo)
+
+  event = event or "button::pressed"
+  button_id = button_id or 1
+  mode = mode or "widget"
+
+
+  local function trigger(_, geo)
+    geo = geo or _
     local m =  menu
+
+    if self._data and self._data.is_menu then
+      geo.parent_menu = self._data
+    end
+
     if type(menu) == "function" then
       if self._tmp_menu and self._tmp_menu.visible then
         self._tmp_menu.visible = false
@@ -25,47 +48,52 @@ local function set_menu(self,menu,button)
       m = menu(self)
     end
     if not m then return end
+
     m.parent_geometry = geo
+    m._internal.w:move_by_parent(geo, mode)
+
     m.visible = not m.visible
-  end)
-  for k, v in pairs(bt) do
-    current[type(k) == "number" and (#current+1) or k] = v
+  end
+
+  if event == "button::pressed" then
+    local current,bt = self:buttons(),aw_button({},button_id,trigger)
+    for k, v in pairs(bt) do
+      current[type(k) == "number" and (#current+1) or k] = v
+    end
+  else
+    self:connect_signal(event, trigger)
   end
   self._menu = menu
-  return bt
+  return button_id
 end
 
-local function _underlay_draw(self,w, cr, width, height)
-  cr:save()
-  local udl = underlay.draw(self._underlay,{height=height,style = self._underlay_style,bg=self._underlay_color})
-  cr:set_source_surface(udl,width-udl:get_width()-3)
-  cr:paint_with_alpha(self._underlay_alpha or beautiful.underlay_alpha or 0.7)
-  cr:restore()
-  self._draw_underlay(self,w, cr, width, height)
-end
+local function get_preferred_size(self, context, width, height)
+  context = context or 1
 
-local function set_underlay(self,udl,args)
-  local args = args or {}
-  if not self._draw_underlay then
-    self._draw_underlay = self.draw
-    self.draw = _underlay_draw
+  if type(context) == "number" then
+    context = {dpi=beautiful.xresources.get_dpi(context)}
+  elseif not context.dpi then
+    context.dpi = beautiful.xresources.get_dpi(1)
   end
-  self._underlay = udl
-  self._underlay_style = args.style
-  self._underlay_alpha = args.alpha
-  self._underlay_color = args.color
-  self:emit_signal("widget::updated")
+
+  return self:fit(context, width or 9999, height or 9999)
 end
 
 -- Do some monkey patching to extend all wibox.widget
 base._make_widget =base.make_widget
 base.make_widget = function(...)
   local ret = base._make_widget(...)
-  ret.set_tooltip  = set_tooltip
-  ret.set_menu     = set_menu
-  ret.set_underlay = set_underlay
+  rawset(ret, "set_tooltip" , set_tooltip)
+  rawset(ret, "set_menu"    , set_menu)
+
+  -- Textboxes already have it
+  if not rawget(ret, "get_preferred_size") then
+    rawset(ret, "get_preferred_size", get_preferred_size)
+  end
+
   return ret
 end
+
 
 local bar = require( "radical.bar"     )
 

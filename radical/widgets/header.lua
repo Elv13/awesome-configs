@@ -1,7 +1,4 @@
 local setmetatable = setmetatable
-local print = print
-local color = require("gears.color")
-local cairo     = require( "lgi"              ).cairo
 local wibox = require("wibox")
 
 local beautiful    = require( "beautiful"    )
@@ -9,8 +6,8 @@ local beautiful    = require( "beautiful"    )
 local module = {}
 
 local function new(data,text,args)
-  local args = args or {}
-  local bg = wibox.widget.background()
+  args = args or {}
+  local bg = wibox.container.background()
   local infoHeader     = wibox.widget.textbox()
   infoHeader:set_font("")
   infoHeader:set_markup( " <span color='".. beautiful.bg_normal .."' font='DejaVu Sans Mono' size='small' font_weight='bold'>".. text .."</span> " )

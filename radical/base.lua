@@ -1,21 +1,19 @@
 local setmetatable = setmetatable
 local pairs,ipairs = pairs, ipairs
-local type,string  = type,string
-local print,unpack = print, unpack
 local table        = table
 local beautiful    = require( "beautiful"               )
 local util         = require( "awful.util"              )
 local aw_key       = require( "awful.key"               )
 local object       = require( "radical.object"          )
-local vertical     = require( "radical.layout.vertical" )
 local theme        = require( "radical.theme"           )
 local item_mod     = require( "radical.item"            )
+local common       = require( "radical.common"          )
 
 local capi = { mouse = mouse, screen = screen , keygrabber = keygrabber, root=root, }
 
 local module = {
   arrow_type = {
-    NONE     = 0,
+    NONE     = 0, --TODO move to theme.state or something
     PRETTY   = 1,
     CENTERED = 2,
   },
@@ -57,6 +55,7 @@ local module = {
   colors_by_id = theme.colors_by_id
 }
 
+--TODO move to theme/init.lua
 theme.register_color(module.item_flags.DISABLED  , "disabled"  , "disabled"  , true )
 theme.register_color(module.item_flags.URGENT    , "urgent"    , "urgent"    , true )
 theme.register_color(module.item_flags.SELECTED  , "focus"     , "focus"     , true )
@@ -67,78 +66,81 @@ theme.register_color(module.item_flags.USED      , "used"      , "used"      , t
 theme.register_color(module.item_flags.CHECKED   , "checked"   , "checked"   , true )
 theme.register_color(module.item_flags.ALTERNATE , "alternate" , "alternate" , true )
 theme.register_color(module.item_flags.HIGHLIGHT , "highlight" , "highlight" , true )
---     register_color(item_flags.HEADER    , ""
---     register_color(item_flags.USR1      , ""
---     register_color(item_flags.USR2      , ""
---     register_color(item_flags.USR3      , ""
---     register_color(item_flags.USR4      , ""
---     register_color(item_flags.USR5      , ""
---     register_color(item_flags.USR6      , ""
---     register_color(item_flags.USR7      , ""
---     register_color(item_flags.USR8      , ""
---     register_color(item_flags.USR9      , ""
---     register_color(item_flags.USR10     , ""
 
 
 local function filter(data)
-  if not data.filter == false then
-    local fs,visible_counter = data.filter_string:lower(),0
-    data._internal.visible_item_count = 0
-    for k,v in pairs(data.items) do
-      local tmp = v._filter_out
-      v._filter_out = (v.text:lower():find(fs) == nil)-- or (fs ~= "")
-      if tmp ~= v._filter_out then
-        v.widget:emit_signal("widget::updated")
-      end
-      if (not v._filter_out) and (not v._hidden) then
-        visible_counter = visible_counter + v.height
-        data._internal.visible_item_count = data._internal.visible_item_count +1
-        v.f_key = data._internal.visible_item_count
+    local max_items = data.max_items or 9999999
+
+    local fs = data.filter_string ~= "" and data.filter_string:lower() or nil
+
+    local start_at, visible_counter = data._start_at or -1, 0
+
+    local exit_soon = false
+
+    -- There is 2 factors to consider to display the item:
+    --
+    -- * Is the item within range
+    -- * Is the item matching the filter
+    --
+    for k,v in ipairs(data.items) do
+      -- Do not count widgets as item
+      if not v._private_data.is_widget then
+        v.widget.visible =  (not fs or v.text and v.text:lower():find(fs) ~= nil)
+          and k >= start_at and visible_counter < max_items
+
+        if v.widget.visible then
+          visible_counter = visible_counter + 1
+          v.f_key         = visible_counter
+        end
+
+        -- Don't waste CPU
+        if visible_counter >= max_items then
+          if exit_soon then break end
+
+          exit_soon = true
+        end
+
       end
     end
-    data._total_item_height = visible_counter
-    local w,h = data._internal.layout:fit()
+
+    local changed = data._internal.visible_item_count ~= visible_counter
+
+    data._internal.visible_item_count = visible_counter
+
     -- Make sure to select an item
-    if data._current_item and data._current_item._filter_out then
+    if data._current_item and not data._current_item.widget.visible then
       local n = data.next_item
       if n then
         n.selected = true
       end
     end
-    data.height = h
-  end
+
+    if changed then
+      data:emit_signal("visible_item_count::changed", visible_counter)
+    end
 end
 
 -- Get the number of visible rows
 local function get_visible_row_count(data)
-  local visblerow = data.filter_string == "" and data.rowcount or data._internal.visible_item_count
-  if data.max_items and data.max_items < data.rowcount then
-    visblerow = data.max_items
-    if data.filter_string ~= "" then
-      local cur,vis = (data._start_at or 1),0
-      while (data._internal.items[cur] and data._internal.items[cur]) and cur < data.max_items + (data._start_at or 1) do
-        vis = vis + (data._internal.items[cur]._filter_out and 0 or 1)
-        cur = cur +1
-      end
-      visblerow = vis
-    end
+  if not data._internal.visible_item_count then
+    filter(data)
   end
-  return visblerow
+
+  return data._internal.visible_item_count
 end
 
 ------------------------------------KEYBOARD HANDLING-----------------------------------
 local function activateKeyboard(data)
   if not data then return end
-  if not data or grabKeyboard == true then return end
+
   if (not (data._internal.private_data.enable_keyboard == false)) and data.visible == true then
     capi.keygrabber.run(function(mod, key, event)
       for k,v in pairs(data._internal.filter_hooks or {}) do --TODO modkeys
         if (k.key == "Mod4" or k.key == "Mod1") and (key == "End" or key == "Super_L" or key == "Alt_L") then
-          local found = false
-          for k3,v3 in ipairs(mod) do
-            for k4,v4 in ipairs({"Mod4","Mod1"})do
+          for _,v3 in ipairs(mod) do
+            for _,v4 in ipairs({"Mod4","Mod1"})do
               if v3 == v4 and event == k.event then
-                local retval,self = v(data,mod)
+                local _,self = v(data,mod)
                 if self and type(self) == "table" then
                   data = self
                 end
@@ -163,21 +165,17 @@ local function activateKeyboard(data)
       end
 
       if (key == 'Return') and data._current_item and data._current_item.button1 then
-        if data.sub_menu_on == module.event.BUTTON1 then
-          item_mod.execute_sub_menu(data,data._current_item)
-        else
           data._current_item.button1(data,data._current_item)
-          data.visible = false
-        end
+          if data.sub_menu_on ~= module.event.BUTTON1 then
+            data.visible = false
+          end
       elseif key == 'Escape' or (key == 'Tab' and data.filter_string == "") then
         data.visible = false
         capi.keygrabber.stop()
       elseif (key == 'BackSpace') and data.filter_string ~= "" and data.filter == true then
         data.filter_string = data.filter_string:sub(1,-2)
-        filter(data)
       elseif data.filter == true and key:len() == 1 then
         data.filter_string = data.filter_string .. key:lower()
-        filter(data)
       else
         data.visible = false
         capi.keygrabber.stop()
@@ -187,7 +185,6 @@ local function activateKeyboard(data)
   end
 end
 
-
 ---------------------------------ITEM HANDLING----------------------------------
 local function add_item(data,args)
   local item = item_mod(data,args)
@@ -195,8 +192,41 @@ local function add_item(data,args)
   if args.selected == true then
     item.selected = true
   end
+
+  -- Show sub-menu
+  if item._private_data.sub_menu_f  or item._private_data.sub_menu_m then
+    if data.sub_menu_on == module.event.SELECTED then
+      item.widget:set_menu(
+        function()
+          local sub_menu = item._private_data.sub_menu_m
+
+          if not sub_menu and item._private_data.sub_menu_f then
+            sub_menu = item._private_data.sub_menu_f(item.widget)
+          end
+
+          if sub_menu and (item._private_data.sub_menu_f or sub_menu.rowcount > 0) then
+            sub_menu.arrow_type = module.arrow_type.NONE
+            sub_menu.parent_item = item
+            item._tmp_menu = sub_menu
+            data._tmp_menu = sub_menu
+          end
+
+          return sub_menu
+        end,
+        "mouse::enter"
+      )
+    end
+  end
+
   item.index = data.rowcount
   data:emit_signal("item::added",item)
+
+  -- Keep the filter up-to-date
+  if data.max_items and data.rowcount - (data._start_at or 0) > data.max_items then
+--FIXME    and data._internal.visible_item_count < data.max_items then
+    filter(data)
+  end
+
   return item
 end
 
@@ -213,14 +243,15 @@ local function add_widget(data,widget,args)
   args = args or {}
   data._internal.has_widget = true
   widget._fit = widget.fit
-  widget.fit = function(self,width,height)
-    local w,h = widget._fit(self,width or 1, height or 1)
+  widget.fit = function(self,context,width,height)
+    local w,h = widget._fit(self, context, width or 1, height or 1)
     return args.width or w,args.height or h
   end
 
   local item,private_data = object({
     private_data = {
       widget = widget,
+      is_widget = true,
       selected = false,
     },
     force_private = {
@@ -233,20 +264,14 @@ local function add_widget(data,widget,args)
   })
   item._private_data = private_data
   item._internal = {}
-  item.get_y = function() return (args.y and args.y >= 0) and args.y or data.height - (data.margins.top or data.border_width) - data.item_height end --Hack around missing :fit call for last item
 
   data._internal.widgets[#data._internal.widgets+1] = item
   data._internal.items[#data._internal.items+1] = item
   data:emit_signal("widget::added",item,widget)
-  if data.visible then
-    local fit_w,fit_h = data._internal.layout:fit(9999,9999)
-    data.width = data._internal.width or fit_w
-    data.height = fit_h
-  end
 end
 
 local function add_widgets(data,widgets)
-  for k,item in ipairs(widgets) do
+  for _,item in ipairs(widgets) do
     data:add_widget(item)
   end
 end
@@ -262,19 +287,17 @@ end
 -- Sum all widgets height and width
 local function get_widget_fit_sum(data)
   local h,w = 0,0
-  for k,v in ipairs(data._internal.widgets) do
-    local fw,fh = v.widget:fit(9999,9999)
+  -- TODO query this from the layout itself
+  for _,v in ipairs(data._internal.widgets) do
+    local fw,fh = v.widget:get_preferred_size()
     w,h = w + fw,h + fh
   end
   return w,h
 end
 
-local function get_widget_fit_width_sum(data)
-  return get_widget_fit_sum(data)
-end
-
 local function get_widget_fit_height_sum(data)
-  local w,h = get_widget_fit_sum(data)
+  -- TODO query this from the layout itself
+  local _,h = get_widget_fit_sum(data)
   return h
 end
 
@@ -296,11 +319,11 @@ end
 
 ---------------------------------MENU HANDLING----------------------------------
 local function new(args)
-  local args = args or {}
+  args = args or {}
   local internal = args.internal or {}
   if not internal.items then internal.items = {} end
   if not internal.widgets then internal.widgets = {} end
-print(beautiful.menu_border_color)
+
   -- All the magic in the universe
   local data,private_data = object({
     private_data = {
@@ -328,7 +351,7 @@ print(beautiful.menu_border_color)
       layout          = args.layout or nil,
       screen          = args.screen or nil,
       style           = args.style  or nil,
-      item_style      = args.item_style or beautiful.menu_item_style or require("radical.item.style.basic"),
+      item_style      = args.item_style or beautiful.menu_default_item_style or require("radical.item.style.basic"),
       item_layout     = args.item_layout or nil,
       filter          = args.filter ~= false,
       show_filter     = args.show_filter or false,
@@ -336,8 +359,7 @@ print(beautiful.menu_border_color)
       suffix_widget   = args.suffix_widget or nil,
       prefix_widget   = args.prefix_widget or nil,
       fkeys_prefix    = args.fkeys_prefix or false,
-      underlay_alpha  = args.underlay_alpha or beautiful.underlay_alpha  or 0.7,
-      underlay_style  = args.underlay_style or nil,
+      overlay_draw    = args.overlay_draw or nil,
       filter_underlay = args.filter_underlay or nil,
       filter_prefix   = args.filter_prefix or "Filter:",
       enable_keyboard = (args.enable_keyboard ~= false),
@@ -345,12 +367,13 @@ print(beautiful.menu_border_color)
       disable_markup  = args.disable_markup or false,
       x               = args.x or 0,
       y               = args.y or 0,
+      shape           = args.shape or nil,
+      item_shape      = args.item_shape,
       sub_menu_on     = args.sub_menu_on or module.event.SELECTED,
       select_on       = args.select_on or module.event.HOVER,
-      overlay         = args.overlay or nil,
       opacity         = args.opacity or beautiful.menu_opacity or 1,
-      spacing         = args.spacing or nil, --TODO add to README once merged upstream
-      default_margins = args.default_margins or {},
+      spacing         = args.spacing or nil,
+      default_margins = args.default_margins or beautiful.menu_default_margins or {},
       icon_per_state  = args.icon_per_state or false,
       default_item_margins  = args.default_item_margins or {},
       icon_transformation   = args.icon_transformation or nil,
@@ -358,7 +381,9 @@ print(beautiful.menu_border_color)
       filter_underlay_color = args.filter_underlay_color,
       filter_placeholder    = args.filter_placeholder or "",
       disable_submenu_icon  = args.disable_submenu_icon or false,
-      item_border_color     = args.item_border_color or beautiful.menu_item_border_color or nil,
+      item_border_color     = args.item_border_color or beautiful.menu_item_border_color
+        or args.border_color or beautiful.menu_border_color or beautiful.border_color or nil,
+      item_border_width     = args.item_border_width or beautiful.menu_item_border_width or nil,
     },
     force_private = {
       parent  = true,
@@ -373,54 +398,41 @@ print(beautiful.menu_border_color)
     autogen_signals = true,
   })
   internal.private_data = private_data
-  
+
   -- Methods
   data.add_item,data.add_widget,data.add_embeded_menu,data._internal,data.add_key_binding = add_item,add_widget,add_embeded_menu,internal,add_key_binding
   data.add_prefix_widget,data.add_suffix_widget,data.add_items,data.add_widgets=add_prefix_widget,add_suffix_widget,add_items,add_widgets
   data.add_colors_namespace = add_colors_namespace
-  
+
   -- Load colors
   theme.setup_colors(data,args)
 
   -- Getters
   data.get_is_menu               = function(_) return true end
-  data.get_margin                = function(_) return {left=0,bottom=0,right=0,left=0} end
+  data.get_margin                = function(_) return {top=0,bottom=0,right=0,left=0} end
   data.get_items                 = function(_) return internal.items end
   data.get_rowcount              = function(_) return #internal.items end
   data.get_visible_row_count     = get_visible_row_count
-  data.get_widget_fit_height_sum = get_widget_fit_height_sum
-  data.get_widget_fit_width_sum  = get_widget_fit_width_sum
+  data.get_widget_fit_height_sum = get_widget_fit_height_sum --TODO remove
 
   -- Setters
   data.set_auto_resize  = function(_,val) private_data[""] = val end
   data.set_parent_geometry = function(_,value)
-    private_data.parent_geometry = value
-    if data._internal.get_direction then
-      data.direction = data._internal.get_direction(data)
-    end
-    if data._internal.set_position then
-      data._internal.set_position(data)
-    end
+    private_data.parent_geometry = value --TODO delete
   end
 
   data.set_visible = function(_,value)
     private_data.visible = value
-    if value then
-      local fit_w,fit_h = data._internal.layout:fit(9999,9999)
-      data.width = internal.width or fit_w
-      data.height = fit_h
-    elseif data._tmp_menu and data._current_item then
---       data._tmp_menu = nil
+    if data._tmp_menu and data._current_item then
       data._current_item._tmp_menu = nil
---       data._current_item.selected = false
       data.item_style(data._current_item,{})
     end
     if internal.has_changed and data.style then
-      data.style(data,{arrow_x=20,margin=internal.margin})
+      data.style(data)
     end
---     if not internal.parent_geometry and data._internal.set_position then
+    if internal.set_position then
       internal.set_position(data)
---     end
+    end
     if internal.set_visible then
       internal:set_visible(value)
     end
@@ -429,15 +441,21 @@ print(beautiful.menu_border_color)
     elseif data.parent_geometry and not data.parent_geometry.is_menu and data.enable_keyboard then
       capi.keygrabber.stop()
     end
+
+    -- Hide the sub menus when hiding
+    if data._tmp_menu and not value then
+      data._tmp_menu.visible = false
+    end
   end
 
-  data.add_colors_group = function(data,section)
+  data.add_colors_group = function(_,section)
     theme.add_section(data,section,args)
   end
 
   data.set_layout = function(_,value)
     if value then
-      value:setup_key_hooks(data)
+      local f = value.setup_key_hooks or common.setup_key_hooks
+      f(value, data)
     end
     private_data.layout = value
   end
@@ -460,29 +478,31 @@ print(beautiful.menu_border_color)
 
   data.get_previous_item = function(_)
     local candidate,idx = internal.items[(data.current_index or 0)-1],(data.current_index or 0)-1
-    while candidate and (candidate._hidden or candidate._filter_out) and idx > 0 do
+    while candidate and (candidate.widget.visible == false) and idx > 0 do
       candidate,idx = internal.items[idx - 1],idx-1
     end
     return (candidate or internal.items[data.rowcount])
   end
   data.get_next_item     = function(_)
     local candidate,idx = internal.items[(data.current_index or 0)+1],(data.current_index or 0)+1
-    while candidate and (candidate._hidden or candidate._filter_out) and idx <= data.rowcount do
+    while candidate and (candidate.widget.visible == false) and idx <= data.rowcount do
       candidate,idx = internal.items[idx + 1],idx+1
     end
     return (candidate or internal.items[1])
   end
 
   --Repaint when appearance properties change
-  for k,v in ipairs({"bg","fg","border_color","border_width","item_height","width","arrow_type"}) do
+  for _,v in ipairs({"bg","fg","border_color","border_width","item_height","width","arrow_type"}) do
     data:connect_signal(v.."::changed",function()
-      if data.visible and data.style then
---         data.style(data,{arrow_x=20,margin=internal.margin})
-      else
+      if not (data.visible and data.style) then
         data.has_changed = true
       end
     end)
   end
+
+  -- Make sure the filter doesn't get outdated
+  data:connect_signal("max_items::changed"    , filter)
+  data:connect_signal("filter_string::changed", filter)
 
   function data:add_key_hook(mod, key, event, func)
     if key and event and func then
@@ -505,19 +525,19 @@ print(beautiful.menu_border_color)
     data:emit_signal("clear::menu")
   end
 
-  function data:swap(item1,item2)
+  function data:swap(item1,item2) --TODO can item.index be used?
     if not item1 or not item2 then return end
     if not item1 or not item2 and item1 ~= item2 then return end
     local idx1,idx2
     for k,v in ipairs(internal.items) do --rows
-      for k2,v2 in ipairs(v) do --columns
-        if item2 == v2 then
-          idx2 = k
-        end
-        if item1 == v2 then
-          idx1 = k
-        end
+      if item2 == v then
+        idx2 = k
       end
+
+      if item1 == v then
+        idx1 = k
+      end
+
       if idx1 and idx2 then
         break
       end
@@ -538,21 +558,15 @@ print(beautiful.menu_border_color)
         break
       end
     end
-    if idx1 then
---       if idx < idx1 then
---         idx = idx + 1
---       end
-      if idx1 > #internal.items + 1 then
-        idx1 = #internal.items + 1
+    if idx1 and idx ~= idx1 then
+      table.remove(internal.items,idx1)
+      table.insert(internal.items,idx, item)
+
+      for i=math.min(idx,idx1), idx1 > idx and idx1 or #internal.items do
+        internal.items[i].index = i
       end
-      if idx ~= idx1 then
-        table.insert(internal.items,idx1,table.remove(internal.items,idx))
-        item.index = idx
-        data:emit_signal("item::moved",item,idx,idx1)
-        for i=idx,idx1 do
-          internal.items[i].index = i
-        end
-      end
+
+      data:emit_signal("item::moved",item,idx,idx1)
     end
   end
 
@@ -587,11 +601,9 @@ print(beautiful.menu_border_color)
         current_item:set_selected(false,true)
       end
       data._start_at  = (data._start_at or 1) - 1
-      internal.items[data._start_at]._hidden = false
-      data:emit_signal("_hidden::changed",internal.items[data._start_at])
-      internal.items[data._start_at+data.max_items]._hidden = true
-      data:emit_signal("_hidden::changed",internal.items[data._start_at+data.max_items])
+
       filter(data)
+
     end
   end
 
@@ -602,30 +614,23 @@ print(beautiful.menu_border_color)
         current_item:set_selected(false,true)
       end
       data._start_at  = (data._start_at or 1) + 1
-      internal.items[data._start_at-1]._hidden = true
-      data:emit_signal("_hidden::changed",internal.items[data._start_at-1])
-      internal.items[data._start_at-1+data.max_items]._hidden = false
-      data:emit_signal("_hidden::changed",internal.items[data._start_at-1+data.max_items])
+
       filter(data)
+
     end
   end
 
   function data:hide()
     data.visible = false
-    if data.parent_geometry and data.parent_geometry.is_menu then
-      local parent = data.parent_geometry
+
+    if data.parent_geometry and data.parent_geometry.parent_menu then
+      local parent = data.parent_geometry.parent_menu
       while parent do
         parent.visible = false
         parent = parent.parent_geometry and parent.parent_geometry.is_menu and parent.parent_geometry
       end
     end
   end
-
-  if private_data.layout then
-    private_data.layout:setup_key_hooks(data)
-  end
-
-  data._internal.setup_drawable(data)
 
   return data
 end

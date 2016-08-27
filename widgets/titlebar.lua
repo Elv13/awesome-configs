@@ -7,22 +7,64 @@ local rad_task  = require( "radical.impl.tasklist"   )
 local chopped   = require( "chopped"                 )
 local collision = require( "collision"               )
 local color     = require( "gears.color"             )
+local infobg    = require( "radical.widgets.infoshapes" )
+local shape     = require( "gears.shape")
+
+local capi = {client = client}
 
 local endArrowR2,endArrow_alt
 
-local function set_underlay(c,title,underlays)
+local function draw_3_dots(self, context, cr, width, height)
+    cr:set_source(color(beautiful.bg_resize_handler or "#00000000"))
+    cr:arc(3+width/2,3,2,0,2*math.pi)
+    cr:fill()
+    cr:arc(3+width/2+7,3,2,0,2*math.pi)
+    cr:fill()
+    cr:arc(3+width/2-7,3,2,0,2*math.pi)
+    cr:fill()
+end
+
+local function draw_bottom_left(self, context, cr, width, height)
+    if beautiful.titlebar_side_bottom_left then
+        cr:set_source_surface(beautiful.titlebar_side_bottom_left)
+    else
+        cr:set_source(color(beautiful.bg_resize_handler or "#00000000"))
+    end
+    cr:paint()
+end
+
+local function draw_bottom_right(self, context, cr, width, height)
+    if beautiful.titlebar_side_bottom_right then
+        cr:set_source_surface(beautiful.titlebar_side_bottom_right)
+    else
+        cr:set_source(color(beautiful.bg_resize_handler or "#00000000"))
+    end
+    cr:paint()
+end
+
+local function bottom_corner_fit(self, context, w,h)
+    return 20,h
+end
+
+local function set_underlay(c,infoshapes,underlays)
+    if not infoshapes then return end
+
     local underlays = underlays or {}
     if #underlays == 0 then
         for k,v in ipairs(c:tags()) do
-            underlays[#underlays+1] = v.name
+            underlays[#underlays+1] = {
+                text  = v.name,
+                bg    = beautiful.titlebar_underlay_bg or beautiful.underlay_bg or "#0C2853"
+            }
         end
     end
-    title:set_underlay(underlays,{style=radical.widgets.underlay.draw_arrow,alpha=1,color=beautiful.titlebar_bg_underlay or beautiful.bg_underlay or "#0C2853"})
+    infoshapes:set_infoshapes(underlays)
 end
 
 local function new(c)
     local alt_color = beautiful.titlebar_bg_alternate or beautiful.bar_bg_alternate or beautiful.bg_alternate
-    if not endArrowR2 then
+    local alt_image = beautiful.titlebar_bgimage_alternate or beautiful.bar_bgimage_alternate or beautiful.bgimafe_alternate
+    if (not endArrowR2) and beautiful.titlebar_show_separator ~= false then
         endArrowR2      = chopped.get_separator {
             weight      = chopped.weight.FULL                       ,
             direction   = chopped.direction.LEFT                    ,
@@ -40,22 +82,22 @@ local function new(c)
         }
     end
 
+    -- Use underlays instead of tooltips
+    local infoshapes = nil
     local title = awful.titlebar.widget.titlewidget(c)
+
+    if beautiful.titlebar_to_upper then
+        title._private.layout.text = title._private.layout.text:upper()
+    end
 
     -- Create a resize handle
     local resize_handle = wibox.widget.imagebox()
     resize_handle:set_image(beautiful.titlebar_resize)
     resize_handle:buttons( awful.util.table.join(
         awful.button({ }, 1, function(geometry)
-            collision._resize.mouse_resize(c)
+            awful.mouse.client.resize(c)
         end))
     )
-    resize_handle:connect_signal("mouse::enter",function()
-        set_underlay(c,title,{"Resize"})
-    end)
-    resize_handle:connect_signal("mouse::leave",function()
-        set_underlay(c,title)
-    end)
 
     local tag_selector = wibox.widget.imagebox()
     tag_selector:set_image(beautiful.titlebar_tag)
@@ -77,12 +119,6 @@ local function new(c)
             m.visible = true
         end))
     )
-    tag_selector:connect_signal("mouse::enter",function()
-        set_underlay(c,title,{"Tag"})
-    end)
-    tag_selector:connect_signal("mouse::leave",function()
-        set_underlay(c,title)
-    end)
 
     -- Widgets that are aligned to the right
     local right_layout = wibox.layout.fixed.horizontal()
@@ -91,10 +127,15 @@ local function new(c)
         awful.titlebar.widget.ontopbutton(c), awful.titlebar.widget.closebutton(c)}) do
         right_layout:add(v)
         v:connect_signal("mouse::enter",function()
-            set_underlay(c,title,{labels[k]})
+            if not c.valid then return end
+            set_underlay(c,infoshapes,{{
+                text = labels[k],
+                bg    = beautiful.titlebar_underlay_bg or beautiful.underlay_bg or "#0C2853"
+            }})
         end)
         v:connect_signal("mouse::leave",function()
-            set_underlay(c,title)
+            if not c.valid then return end
+            set_underlay(c,infoshapes)
         end)
     end
 
@@ -112,120 +153,220 @@ local function new(c)
         end)
     )
 
-    local align = beautiful.titlebar_text_align
-    title:set_align(align or "center")
+    local align = beautiful.titlebar_title_align
 
-    -- TODO this is cheap, there is better ways
---     title.draw = function(self,w, cr, width, height)
---         local i = rad_task.item(c)
---         if i and i.widget then
---             local w2,h2 = i.widget:fit(width,height)
---             cr:save()
---             cr:reset_clip()
---             cr:translate((width-w2)/2, 0)
---             i.widget.draw(i.widget,w, cr, w2, height)
---             cr:restore()
---         end
---     end
+    local tb = awful.titlebar(c,{size=beautiful.titlebar_height or 16, bg = beautiful.titlebar_bg_normal})
 
+    --------------------------------------------------
+    --                 Top titlebar                 --
+    --------------------------------------------------
 
-    -- Now bring it all together
-    local layout = wibox.layout.align.horizontal()
-    if layout.set_expand then
-        layout:set_expand("inside")
-    else
-        title.fit = function(self,w,h)
-            return w,h
-        end
-    end
-
-    local ibl,ibr = wibox.widget.imagebox(), wibox.widget.imagebox()
-    ibl:set_image( beautiful.titlebar_side_left  )
-    ibr:set_image( beautiful.titlebar_side_right )
-    right_layout:add(ibr)
-
-    local tb = awful.titlebar(c,{size=beautiful.titlebar_height or 16})
-
-    -- Setup titlebar widgets
-    tb:set_widgets {
-        { --Left
-            {
-                {
-                    ibl          ,
-                    resize_handle,
-                    tag_selector ,
-                },
-                layout = wibox.widget.background(nil,alt_color)
-            },
-            endArrow_alt,
-        },
-        title,
-        { --Right
-            endArrowR2,
-            {
-                right_layout,
-                layout = wibox.widget.background(nil,alt_color)
-            }
-        },
-        layout = wibox.layout.align.horizontal
+    local title_layout = {
+       {
+         {
+               {
+                  beautiful.titlebar_show_icon and wibox.widget.imagebox(c.icon) or nil,
+                  title,
+                  spacing = 4,
+                  layout = wibox.layout.fixed.horizontal,
+               },
+               left   = 13                 ,
+               right  = 13                 ,
+               layout = wibox.container.margin,
+         },
+         id                 = "title_bg"                                  ,
+         shape              = beautiful.titlebar_title_shape              ,
+         shape_border_width = beautiful.titlebar_title_border_width       ,
+         shape_border_color = beautiful.titlebar_title_border_color_active,
+         bg                 = beautiful.titlebar_title_bg                 ,
+         bgimage            = beautiful.titlebar_title_bgimage            ,
+         buttons            = (align ~= "center") and buttons             ,
+         layout             = wibox.container.background                  ,
+      },
+      align              = align,
+      expand             = (align == "center") and "fill" or nil,
+      spacing            = 10,
+      id                 = "infoshapes",
+      shape              = shape.hexagon,
+      shape_bg           = beautiful.titlebar_underlay_bg or beautiful.underlay_bg or "#0C2853",
+      shape_border_color = beautiful.titlebar_underlay_border_color,
+      shape_border_width = beautiful.titlebar_underlay_border_width,
+      fg                 = beautiful.titlebar_underlay_fg,
+      widget             = infobg,
     }
 
-    tb.title_wdg = title
-    title:buttons(buttons)
-    set_underlay(c,title)
+    tb:setup {
+        { -- Left
+            beautiful.titlebar_side_top_left and wibox.widget.imagebox(beautiful.titlebar_side_top_left),
+            {
+                {
+                    {
+                        resize_handle,
+                        tag_selector ,
+                        layout = wibox.layout.fixed.horizontal,
+                    },
+                    left   = 2                  ,
+                    right  = 10                 ,
+                    layout = wibox.container.margin,
+                },
+                id      = "left_button_bg"       ,
+                bg      = beautiful.titlebar_top_left_bg or alt_color              ,
+                bgimage = alt_image              ,
+                shape   = beautiful.titlebar_top_left_shape,
+                shape_args = beautiful.titlebar_top_left_shape_args,
+                shape_border_color   = beautiful.titlebar_top_left_shape_border_color,
+                shape_border_width   = beautiful.titlebar_top_left_shape_border_width,
+                layout  = wibox.container.background,
+            },
+            endArrow_alt,
+            (not align or align == "left") and title_layout or nil,
+            layout = wibox.layout.fixed.horizontal,
+        },
+        { -- Middle
+            nil,
+            (align  == "center") and title_layout or nil,
+            id      = "middle_section"               ,
+            expand  = align == "center" and "outside",
+            buttons = buttons                        ,
+            layout  = wibox.layout.align.horizontal  ,
+        },
+        { -- Right
+            endArrowR2,
+            {
+                {
+                    right_layout                ,
+                    left   = 10                 ,
+                    right  = 2                  ,
+                    layout = wibox.container.margin,
+                },
+                id      = "title_bg"             ,
+                bg      = beautiful.titlebar_top_right_bg or alt_color              ,
+                bgimage = alt_image              ,
+                shape   = beautiful.titlebar_top_right_shape,
+                shape_border_color   = beautiful.titlebar_top_right_shape_border_color,
+                shape_border_width   = beautiful.titlebar_top_right_shape_border_width,
+                shape_args           = beautiful.titlebar_right_left_shape_args,
+                layout  = wibox.container.background,
+            },
+            beautiful.titlebar_side_top_right and wibox.widget.imagebox(beautiful.titlebar_side_top_right),
+            layout = wibox.layout.fixed.horizontal,
+        },
+        expand = "inside"                     ,
+        id     = "main_layout"                ,
+        layout = wibox.layout.align.horizontal,
+    }
 
+    infoshapes = tb:get_children_by_id("infoshapes")[1]
 
-    -- Now, the bottom one (floating clients only)
-    if awful.client.floating.get(c) then
-        local left  = wibox.widget.base.make_widget()
-        left.draw = function(self, w, cr, width, height) cr:set_source(color(beautiful.bg_resize_handler or "#00000000")); cr:paint() end
-        left.fit = function(self,w,h)
-            return 20,h
-        end
-        left:buttons( awful.util.table.join(
-            awful.button({ }, 1, function(geometry)
-                collision._resize.mouse_resize(c,"bl")
-            end))
-        )
+    title:connect_signal("widget::redraw_needed", function()
+        infoshapes:emit_signal("widget::layout_changed") --HACK
+    end)
 
-        local middle  = wibox.widget.base.make_widget()
-        middle.draw = function(self, w, cr, width, height)
-            cr:set_source(color(beautiful.bg_resize_handler or "#00000000"))
-            cr:arc(3+width/2,3,2,0,2*math.pi)
-            cr:fill()
-            cr:arc(3+width/2+7,3,2,0,2*math.pi)
-            cr:fill()
-            cr:arc(3+width/2-7,3,2,0,2*math.pi)
-            cr:fill()
-        end
-        middle.fit = function(self,w,h)
-            return w,h
-        end
-        middle:buttons( awful.util.table.join(
-            awful.button({ }, 1, function(geometry)
-                collision._resize.mouse_resize(c,"bl")
-            end))
-        )
+    resize_handle:connect_signal("mouse::enter",function()
+        set_underlay(c,infoshapes,{{
+            text = "Resize",
+            bg    = beautiful.titlebar_underlay_bg or beautiful.underlay_bg or "#0C2853"
+        }})
+    end)
+    resize_handle:connect_signal("mouse::leave",function()
+        set_underlay(c,infoshapes)
+    end)
 
-        local right = wibox.widget.base.make_widget()
-        right.draw = function(self, w, cr, width, height) cr:set_source(color(beautiful.bg_resize_handler or "#00000000")); cr:paint() end
-        right.fit = function(self,w,h)
-            return 20,h
-        end
-        right:buttons( awful.util.table.join(
-            awful.button({ }, 1, function(geometry)
-                collision._resize.mouse_resize(c,"br")
-            end))
-        )
+    tag_selector:connect_signal("mouse::enter",function()
+        set_underlay(c,infoshapes,{{
+            text = "Tag",
+            bg    = beautiful.titlebar_underlay_bg or beautiful.underlay_bg or "#0C2853"
+        }})
+    end)
+    tag_selector:connect_signal("mouse::leave",function()
+        set_underlay(c,infoshapes)
+    end)
+    set_underlay(c,infoshapes)
 
-        local tb = awful.titlebar(c,{size=5,position="bottom"})
-        tb:set_widgets {
-            left,
-            middle,
-            right,
+    --------------------------------------------------
+    --               Bottom titlebar                --
+    --------------------------------------------------
+
+    if c.floating or beautiful.titlebar_bottom then
+
+        local tb2 = awful.titlebar(c,{size= beautiful.titlebar_bottom_height or 5,position="bottom"})
+
+        tb2:setup {
+            {
+                draw    = draw_bottom_left             ,
+                fit     = bottom_corner_fit            ,
+                widget  = wibox.widget.base.make_widget,
+                buttons = awful.util.table.join(
+                    awful.button({ }, 1, function(geometry)
+                        awful.mouse.client.resize(c)
+                end))
+            },
+            {
+                draw    = beautiful.titlebar_bottom_draw or draw_3_dots,
+                fit     = function(self,w,h)
+                    return w,h
+                end                                    ,
+                widget  = wibox.widget.base.make_widget,
+                buttons = awful.util.table.join(
+                    awful.button({ }, 1, function(geometry)
+                        c:raise()
+                        awful.mouse.client.resize(c)
+                end))
+            },
+            {
+                draw    = draw_bottom_right            ,
+                fit     = bottom_corner_fit            ,
+                widget  = wibox.widget.base.make_widget,
+                buttons = awful.util.table.join(
+                    awful.button({ }, 1, function(geometry)
+                        awful.mouse.client.resize(c)
+                end))
+            },
+            id     = "main_layout",
             layout = wibox.layout.align.horizontal,
         }
+
     end
+
+    --------------------------------------------------
+    --               Sides titlebars                --
+    --------------------------------------------------
+
+    -- The left border
+    if beautiful.titlebar_left then
+        local tb2 = awful.titlebar(c,{size= beautiful.titlebar_left_width or 5,position="left"})
+        tb2:setup {
+            wibox.widget.textbox(" "),
+            bg        = beautiful.titlebar_bg_left or beautiful.titlebar_bg_sides or beautiful.fg_normal,
+            bgimage   = beautiful.titlebar_bgimage_left,
+            widget    = wibox.container.background
+        }
+    end
+
+    -- The right border
+    if beautiful.titlebar_right then
+        local tb2 = awful.titlebar(c,{size= beautiful.titlebar_right_width or 5,position="right"})
+        tb2:setup {
+            wibox.widget.textbox(" "),
+            bg        = beautiful.titlebar_bg_left or beautiful.titlebar_bg_sides or beautiful.fg_normal,
+            bgimage   = beautiful.titlebar_bgimage_right,
+            widget    = wibox.container.background
+        }
+    end
+
+
+
+    -- Update the bar when focus change
+--     c:connect_signal("focus", function(c)
+--         title:emit_signal("widget::redraw_needed")
+--         print("HERE", beautiful.titlebar_fg_focus)
+--         tb:set_fg("#ff00ff")
+--     end)
+-- 
+--     c:connect_signal("unfocus", function(c)
+-- --         tb:set_fg("#ff0000")
+--     end)
 end
 
 return setmetatable({}, { __call = function(_, ...) return new(...) end })
+-- kate: space-indent on; indent-width 4; replace-tabs on;

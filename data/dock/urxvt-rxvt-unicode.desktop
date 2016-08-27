@@ -1,6 +1,6 @@
 TryExec=urxvt
 Class=urxvt
-Icon=/home/lepagee/.config/awesome/blind/arrow/Icon//term.png
+Icon=/home/elv13/.config/awesome/blind/arrow/Icon//term.png
 Categories=Tools;
 Type=Application
 Comment=rxvt clone with xft and unicode support

@@ -14,6 +14,9 @@ local themeutils   = require( "blind.common.drawing"     )
 local radical      = require( "radical"                  )
 local beautiful    = require( "beautiful"                )
 local json         = require( "drawer.JSON"              )
+local spawn        = require( "awful.spawn"              )
+local shape        = require( "gears.shape"              )
+local ct           = require( "radical.widgets.constrainedtext" )
 local capi = { screen = screen , mouse  = mouse  , timer  = timer  }
 
 local dateModule = {}
@@ -41,7 +44,6 @@ local function testFunc()
 end
 
 local function createDrawer()
-  print("CREATE DRAWER")
   local calInfo = wibox.widget.textbox()
   local timeInfo = wibox.widget.textbox()
 
@@ -119,30 +121,51 @@ local function createDrawer()
   mainMenu:add_widget(radical.widgets.header(mainMenu, "MAP"    ),{height = 20 , width = 200})
   mainMenu:add_widget(testImage3)
   --mainMenu:add_widget(radical.widgets.header(mainMenu, "FORCAST"      ),{height = 20 , width = 200})
-  return calInfo:fit(9999,9999)
+  return calInfo:get_preferred_size()
 end
 
 --Widget stuff
 local ib2 = nil
 function dateModule.update_date_widget()
-  ib2:set_image(themeutils.draw_underlay(month[tonumber(os.date('%m'))].." "..os.date('%d'),
-  {
-    bg=beautiful.fg_normal,
-    fg=beautiful.bg_alternate,
-    --       height=beautiful.default_height,
-    margins=beautiful.default_height*.2,
-    padding=2,
-    padding_right=3
-  }))
+  ib2:set_text(month[tonumber(os.date('%m'))].." "..os.date('%d'))
 end
 
 
+--Functions-------------------------------------------------
+--Private-------------
+local function getPosition()
+  local pipe=io.popen("curl -s http://whatismycountry.com/ | awk '/<h3>/;/Location/;/Coordinates/'")
+  local buffer=pipe:read("*a")
+  pipe:close()
+
+  _, _, city, country = string.find(buffer, "(%a+),(%a+)")
+  _, _, latitude,longitude = string.find(buffer, "Coordinates ([0-9.]+)%s+([0-9.]+)")
+  _, _, mapUrl = string.find(buffer, "src=\"(%S+)\"[^<>]+Location")
+
+  --print(city, country,latitude,longitude,mapUrl)
+
+  --Save map image
+  if mapUrl ~= nil then
+    spawn.with_shell("wget -q \""..mapUrl.."\" -O /tmp/dateInfo.map > /dev/null")
+  end
+
+  --Save Position
+  dateModule.latitude=latitude or dateModule.latitude
+  dateModule.longitude=longitude or dateModule.longitude
+  dateModule.city=city or dateModule.city
+  dateModule.country=country or dateModule.country
+
+end
+
+local camUrl,camTimeout = nil,nil
+local function init()
+  
+end
 
 local function new(screen, args)
   --Location variables
   dateModule.city,dateModule.country,dateModule.mapUrl = nil,nil,nil
   --Cam variables
-  local camUrl,camTimeout = nil,nil
 
   --Arg parsing
   if args ~= nil then
@@ -150,36 +173,24 @@ local function new(screen, args)
     camTimeout=args.camTimeout or 1800
   end
 
-  --Functions-------------------------------------------------
-  --Private-------------
-  local function getPosition()
-    local pipe=io.popen("curl -s http://whatismycountry.com/ | awk '/<h3>/;/Location/;/Coordinates/'")
-    local buffer=pipe:read("*a")
-    pipe:close()
-
-    _, _, city, country = string.find(buffer, "(%a+),(%a+)")
-    _, _, latitude,longitude = string.find(buffer, "Coordinates ([0-9.]+)%s+([0-9.]+)")
-    _, _, mapUrl = string.find(buffer, "src=\"(%S+)\"[^<>]+Location")
-
-    --print(city, country,latitude,longitude,mapUrl)
-
-    --Save map image
-    if mapUrl ~= nil then
-      util.spawn_with_shell("wget -q \""..mapUrl.."\" -O /tmp/dateInfo.map > /dev/null")
-    end
-
-    --Save Position
-    dateModule.latitude=latitude or dateModule.latitude
-    dateModule.longitude=longitude or dateModule.longitude
-    dateModule.city=city or dateModule.city
-    dateModule.country=country or dateModule.country
-
-  end
-
   --Public--------------
   --Toggles date menu and returns visibility
   function dateModule.toggle(geo)
     if not  mainMenu then
+      --Constructor---------------------------------------------
+      if camUrl then
+        --Download new image every camTimeout
+        local timerCam = capi.timer({ timeout = camTimeout })
+        timerCam:connect_signal("timeout", function() spawn.with_shell("wget -q "..camUrl.." -O /tmp/cam") end)
+        timerCam:start()
+      end
+
+      --Check for position every 60 minutes 
+      local timerPosition = capi.timer({ timeout = 3600 })
+      timerPosition:connect_signal("timeout", getPosition)
+      timerPosition:start()
+      getPosition()
+
       mainMenu = menu({arrow_type=radical.base.arrow_type.CENTERED})
       min_width = createDrawer()
       mainMenu.width = min_width + 2*mainMenu.border_width + 150
@@ -199,35 +210,46 @@ local function new(screen, args)
     end
   end
 
-  --Constructor---------------------------------------------
-  if camUrl then
-    --Download new image every camTimeout
-    local timerCam = capi.timer({ timeout = camTimeout })
-    timerCam:connect_signal("timeout", function() util.spawn_with_shell("wget -q "..camUrl.." -O /tmp/cam") end)
-    timerCam:start()
-  end
 
-  --Check for position every 60 minutes 
-  local timerPosition = capi.timer({ timeout = 3600 })
-  timerPosition:connect_signal("timeout", getPosition)
-  timerPosition:start()
-  getPosition()
-
-  local mytextclock = widget.textclock(" %H:%M ")
+  local mytextclock = wibox.widget.textclock(" %H:%M ")
 
   --Date widget
-  ib2 = wibox.widget.imagebox()
+
   local mytimer5 = capi.timer({ timeout = 1800 }) -- 30 mins
-  dateModule.update_date_widget()
   mytimer5:connect_signal("timeout", dateModule.update_date_widget)
   mytimer5:start()
 
-  local right_layout = wibox.layout.fixed.horizontal()
+  local right_layout = wibox.layout {
+    mytextclock,
+    {
+      {
+        {
+          {
+            text    = "Jan 01",
+            id      = "date",
+            padding = 1,
+            widget  = ct
+          },
+          top    = 0,
+          bottom = 0,
+          left   = 5,
+          right  = 5,
+          widget = wibox.container.margin
+        },
+        fg     = beautiful.bg_normal,
+        bg     = beautiful.fg_normal,
+        shape  = shape.rounded_bar,
+        widget = wibox.container.background
+      },
+      margins = 3,
+      widget  = wibox.container.margin
+    },
+    buttons = util.table.join(button({ }, 1, dateModule.toggle )),
+    layout  = wibox.layout.fixed.horizontal
+  }
 
-  right_layout:add(mytextclock)
-  right_layout:add(ib2)
-
-  right_layout:buttons (util.table.join(button({ }, 1, dateModule.toggle )))
+  ib2 = right_layout : get_children_by_id "date" [1]
+  dateModule.update_date_widget()
 
   return right_layout
 end

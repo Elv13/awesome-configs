@@ -13,6 +13,7 @@ local util = require("awful.util")
 local radical      = require( "radical"                  )
 local allinone = require("widgets.allinone")
 local capi = { screen = screen, mouse = mouse}
+local radialprog   = require("widgets.radialprogressbar")
 
 local moduleSound = {}
 
@@ -51,29 +52,29 @@ function addVolumeDevice(mainMenu,name,aVolume,isMute,commArgs)
     end
 
     --Add line and set scroll volume control
-    mainMenu:add_item({text=name,prefix_widget=icon,suffix_widget=volume,
-            button3=function(geo,parent)
-                --Toggle mute
-                isMute = not isMute
-                if isMute then icon:set_image(config.iconPath .. "volm.png")
-                else icon:set_image(config.iconPath .. "vol3.png") end
-                moduleSound.itemToggleMute(commArgs)
-                --AXTODO: toggle mute
-            end,
-            button4=function(geo,parent) 
-                aVolume=aVolume+0.02
-                if aVolume>1 then aVolume=1 end
-                volume:set_value(aVolume)
-                volume:emit_signal("widget::updated")
-                moduleSound.itemScrollUp(commArgs)
-            end,
-            button5=function(geo,parent)
-                aVolume=aVolume-0.02
-                if aVolume<0 then aVolume=0 end
-                volume:set_value(aVolume)
-                volume:emit_signal("widget::updated")
-                moduleSound.itemScrollDown(commArgs)
-            end})
+--     mainMenu:add_item({text=name,prefix_widget=icon,suffix_widget=volume,
+--             button3=function(geo,parent)
+--                 --Toggle mute
+--                 isMute = not isMute
+--                 if isMute then icon:set_image(config.iconPath .. "volm.png")
+--                 else icon:set_image(config.iconPath .. "vol3.png") end
+--                 moduleSound.itemToggleMute(commArgs)
+--                 --AXTODO: toggle mute
+--             end,
+--             button4=function(geo,parent) 
+--                 aVolume=aVolume+0.02
+--                 if aVolume>1 then aVolume=1 end
+--                 volume:set_value(aVolume)
+--                 volume:emit_signal("widget::updated")
+--                 moduleSound.itemScrollUp(commArgs)
+--             end,
+--             button5=function(geo,parent)
+--                 aVolume=aVolume-0.02
+--                 if aVolume<0 then aVolume=0 end
+--                 volume:set_value(aVolume)
+--                 volume:emit_signal("widget::updated")
+--                 moduleSound.itemScrollDown(commArgs)
+--             end})
 end
 
 
@@ -119,16 +120,16 @@ local function new(mywibox3,args)
             util.spawn_with_shell("amixer sset "..devId.." 2%- >/dev/null")
         end
         moduleSound.itemToggleMute=function(devId)
-            util.spawn_with_shell("amixer set "..devId.." 1+ toggle")
+            util.spawn_with_shell("amixer set "..devId.." 1+ toggle 2%+ >/dev/null")
             --print("pactl set-"..dev.type.."-mute "..dev.id.." toggle")
         end
         moduleSound.drawMenu=function()
             local mainMenu=  radical.context({width=200,arrow_type=radical.base.arrow_type.CENTERED})
             --Add menu header
-            mainMenu:add_widget(radical.widgets.header(mainMenu,"OUT")  , {height = 20  , width = 200})
+--             mainMenu:add_widget(radical.widgets.header(mainMenu,"OUT")  , {height = 20  , width = 200})
 
             --Parse Devices names
-            local pipe = io.popen("amixer | awk -f "..util.getdir("config").."/drawer/Scripts/parseAlsa.awk")
+            local pipe = io.popen("amixer 2%+ >/dev/null | awk -f "..util.getdir("config").."/drawer/Scripts/parseAlsa.awk")
             for line in pipe:lines() do
                 local data=string.split(line,";")
                 local aChannal = data[1]
@@ -163,7 +164,7 @@ local function new(mywibox3,args)
             local mainMenu,aVolume,data,isMute
             mainMenu=  radical.context({width=300,arrow_type=radical.base.arrow_type.CENTERED})
             --Add header
-            mainMenu:add_widget(radical.widgets.header(mainMenu,"OUT")  , {height = 20  , width = 200})
+--             mainMenu:add_widget(radical.widgets.header(mainMenu,"OUT")  , {height = 20  , width = 200})
             --Parse pactl stuff
             local pipe=io.popen("pactl list sinks| awk -f "..util.getdir("config").."/drawer/Scripts/parsePactl.awk")
             for line in pipe:lines() do
@@ -186,7 +187,7 @@ local function new(mywibox3,args)
 
     --Master Volume parser for widget
     function amixer_volume_int(format)
-        local f= io.popen("amixer sget Master | awk '/Front.*Playback/{print $5; exit}'| grep -o -e '[0-9]*'")
+        local f= io.popen("amixer sget Master 2> /dev/null | awk '/Front.*Playback/{print $5; exit}'| grep -o -e '[0-9]*'")
 
         if f then
             return tonumber(f:read("*a")) or 0
@@ -228,7 +229,7 @@ local function new(mywibox3,args)
                     toggle()
                 end),
             button({ }, 3, function()
-                    util.spawn_with_shell("amixer set Master 1+ toggle")
+                    util.spawn_with_shell("amixer set Master 1+ toggle 2%+ >/dev/null")
                 end),
             button({ }, 4, function()
                     volumeUp('Master')

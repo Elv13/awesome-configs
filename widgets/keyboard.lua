@@ -13,6 +13,10 @@ local beautiful    = require("beautiful"      )
 local surface      = require("gears.surface"  )
 local glib         = require("lgi").GLib
 local filetree     = require("customMenu.filetree")
+local keylayout    = require("awful.widget.keyboardlayout")
+local constrainedtext = require("radical.widgets.constrainedtext")
+
+local capi = {awesome = awesome}
 
 local module = {}
 local menu,ready,checked,sub_item = nil,false,nil,nil
@@ -22,9 +26,7 @@ local glob = nil
 local layouts = {}
 local cache_path = util.getdir("cache").."/keymaps"
 
-
 local quick_switch = nil
-
 
 -- Select the next layout
 local function select_next(menu)
@@ -39,7 +41,8 @@ local function set_keymap(m,i)
   glib.idle_add(glib.PRIORITY_DEFAULT_IDLE, function()
     util.spawn("setxkbmap".." "..i.text)
   end)
-  widget:set_image(i.icon)
+  widget.ib:set_image(i.icon)
+  widget.tb:set_text (i.text)
 end
 
 
@@ -55,35 +58,34 @@ end
 
 -- Get the current keyboard layout
 local function reload_widget(widget)
-  fd_async.exec.command('setxkbmap -query'):connect_signal("request::completed",function(ret)
-    local layout  = ""
-    local variant = nil
-    for k,v in string.gmatch(ret, "layout:([ ]*)([^\n]+)\n?") do
-      layout = v
-    end
-    for k,v in string.gmatch(ret, "variant:([ ]*)([^\n]+)\n?") do
-      variant = v
-    end
+  local string  = capi.awesome.xkb_get_group_names()
+  local layouts = keylayout.get_groups_from_group_names(string)
+  local layout  = layouts[1].file
+  local variant = layouts[1].section or ""
 
-    -- Set the icon
-    local flag = get_flag(layout)
-    widget:set_image(flag)
+  -- Set the icon
+  local flag = get_flag(layout)
+  widget.ib:set_image(flag)
 
-    -- Check if the current layout is listed
-    local full_layout_name = layout .. (variant and (" "..variant) or "")
-    local found = false
-    for k2,v2 in ipairs(layouts) do
-      if full_layout_name == v2.name then
-        found = true
-        break
-      end
-    end
-    if not found then
-      layouts[#layouts+1] = {name = full_layout_name, icon = flag}
-    end
+  -- Set the text
+  widget.tb:set_text(layout)
 
-    widget:emit_signal("widget::updated")
-  end)
+  -- Check if the current layout is listed
+  local full_layout_name = layout .. (variant and (" "..variant) or "")
+  local found = false
+  for k2,v2 in ipairs(layouts) do
+    if full_layout_name == v2.name then
+      found = true
+      break
+    end
+  end
+  if not found then
+    layouts[#layouts+1] = {name = full_layout_name, icon = flag}
+  end
+
+  widget.ib:set_tooltip("<b>"..layout.."</b> "..variant, {is_markup=true})
+
+  widget.ib:emit_signal("widget::updated")
 end
 
 -- While XKB does support multiple simultanious layouts, I don't
@@ -137,11 +139,6 @@ local function fill_menu(callback)
   end)
 end
 
--- How much space will the flag take
-local function fit(self,w,h)
-  return h,h
-end
-
 -- 
 local function add_layout(country,  full_name)
   local path = get_flag(country)
@@ -174,10 +171,13 @@ end
 -- Create a keyboard switched widget
 local function new()
   if not widget then
-    widget = wibox.widget.imagebox()
+    widget    = wibox.layout.fixed.horizontal()
+    widget:set_spacing(2)
+    widget.ib = wibox.widget.imagebox()
+    widget.tb = constrainedtext(nil, 2)
+    widget:add(widget.ib, widget.tb)
   end
---   widget.draw = draw
-  widget.fit = fit
+
   function show(geometry)
     if ready then
       if geometry then
@@ -237,6 +237,20 @@ function module.quickswitchmenu()
   select_next(quick_switch)
   quick_switch.visible = true
 end
+
+capi.awesome.connect_signal("xkb::map_changed", function(a,b,c)
+  local layouts = keylayout.get_groups_from_group_names(capi.awesome.xkb_get_group_names())
+  print("KEY CHANGED", a,b,c, capi.awesome.xkb_get_group_names ())
+                          for k,v in ipairs(layouts) do
+                            for k2, v2 in pairs(v) do
+                              -- Set the new flag and text
+                              if widget and k2 == "file" then
+                                widget.tb:set_text(v2)
+                                widget.ib:set_image(get_flag(v2))
+                              end
+                            end
+                          end
+end)
 
 return setmetatable(module, { __call = function(_, ...) return new(...) end })
 -- kate: space-indent on; indent-width 2; replace-tabs on;

@@ -28,19 +28,19 @@ function module.get_separator(args)
     w.right_color = right_color
     w.sep_color   = sep_color
 
-    w.draw        = margin and function(self, w, cr, width, height)
+    w.draw        = margin and function(self, context, cr, width, height)
         local real_width = width-margin
         cr:save()
         cr:reset_clip()
         cr:translate(margin,0)
         cr:rectangle(0,0,real_width,height)
         cr:clip()
-        fs.draw(self, w, cr, real_width, height)
+        fs.draw(self, context, cr, real_width, height)
         cr:restore()
     end or fs.draw
 
-    w.fit         = margin and function(self,width,height)
-        local w,h = fs.fit(self,width,height)
+    w.fit         = margin and function(self,context,width,height)
+        local w,h = fs.fit(self,context,width,height)
         return w+margin>0 and w+margin or 0,h
     end or fs.fit
     return w

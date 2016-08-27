@@ -7,5 +7,5 @@ GenericName=BitTorrent Client
 MimeType=application/x-bittorrent;x-scheme-handler/magnet;
 Name=Transmission Bittorrent Client
 Exec=transmission-qt %F
-Icon=/home/lepagee/.config/awesome/blind/arrow/Icon//transmission.png
+Icon=/home/elv13/.config/awesome/blind/arrow/Icon//transmission.png
 Keywords=torrent

@@ -1,7 +1,7 @@
 Type=Application
 Terminal=false
 Name=Mozilla Thunderbird
-Icon=/home/lepagee/.config/awesome/blind/arrow/Icon//thunderbird.png
+Icon=/home/elv13/.config/awesome/blind/arrow/Icon//thunderbird.png
 Categories=Network;
 Class=thunderbird
 Comment=Mail & News Reader

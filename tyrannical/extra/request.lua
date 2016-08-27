@@ -8,7 +8,6 @@ capi.client.connect_signal("request::activate",function(c,reason)
     if not tyrannical then
         tyrannical = require("tyrannical")
     end
-    print("SDFSDFSDFSDF",c.transient_for)
     -- Always grant those request as it probably mean that it is a modal dialog
     if c.transient_for and capi.client.focus == c.transient_for then
         capi.client.focus = c

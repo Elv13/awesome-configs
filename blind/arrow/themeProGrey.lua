@@ -144,7 +144,7 @@ theme.taglist_fg_highlight       = "#000000"
 theme.taglist_bg_empty           = theme.bar_bg_normal --d_mask(blind_pat.sur.flat_grad("#090B10","#181E39",default_height))
 -- theme.taglist_fg_empty           = "#000000"
 theme.taglist_fg_prefix          = theme.bg_normal
-theme.taglist_default_icon       = path .."Icon/tags/other.png"
+theme.taglist_default_icon       = path .."Icon/tags_invert/other.png"
 theme.tasklist_underlay_bg_urgent      = "#ff0000"
 theme.tasklist_underlay_bg_minimized   = "#4F269C"
 theme.tasklist_underlay_bg_focus       = "#0746B2"
@@ -154,7 +154,7 @@ theme.tasklist_fg_minimized            = "#985FEE"
 theme.tasklist_bg_urgent               = d_mask(blind_pat.sur.flat_grad("#5B0000","#300000",default_height))
 theme.tasklist_bg_hover                = d_mask(blind_pat.sur.thick_stripe("#19324E","#132946",14,default_height,true)) 
 theme.tasklist_bg_focus                = d_mask(blind_pat.sur.flat_grad("#00143B","#052F77",default_height))
-theme.tasklist_default_icon            = path .."Icon/tags/other.png"
+theme.tasklist_default_icon            = path .."Icon/tags_invert/other.png"
 theme.tasklist_bg                      = d_mask(blind_pat.sur.flat_grad("#22222A",nil,default_height))
 theme.monochrome_icons                 = true
 
@@ -169,9 +169,9 @@ theme.monochrome_icons                 = true
 -- Variables set for theming menu
 -- menu_[bg|fg]_[normal|focus]
 -- menu_[border_color|border_width]
-theme.menu_submenu_icon         = path .."Icon/tags/arrow.png"
--- theme.menu_scrollmenu_down_icon = path .."Icon/tags/arrow_down.png"
--- theme.menu_scrollmenu_up_icon   = path .."Icon/tags/arrow_up.png"
+theme.menu_submenu_icon         = path .."Icon/tags_invert/arrow.png"
+-- theme.menu_scrollmenu_down_icon = path .."Icon/tags_invert/arrow_down.png"
+-- theme.menu_scrollmenu_up_icon   = path .."Icon/tags_invert/arrow_up.png"
 theme.awesome_icon              = path .."Icon/awesome2.png"
 theme.menu_height               = 20
 theme.menu_width                = 170
@@ -189,8 +189,6 @@ theme.fg_dock_1                 = "#1889F2"
 theme.fg_dock_2                 = "#0A3E6E"
 
 theme.wallpaper = "/home/lepagee/bg/final/bin_ascii_ds.png"
-theme.draw_underlay = themeutils.draw_underlay
-
 
 -- Titlebar
 loadfile(theme.path .."bits/titlebar.lua")(theme,path)

@@ -22,8 +22,8 @@ local other_sections,other_text_sections = {},{}
 
 local function limit_fit(l,w)
     l._fit = l.fit
-    l.fit = function(self,w3,h3)
-        local w2,h2 = l._fit(self,w3,h3)
+    l.fit = function(self,context,w3,h3)
+        local w2,h2 = l._fit(self,context, w3,h3)
         return w+15,h2
     end
 end
@@ -41,6 +41,7 @@ local function draw_rounded(cr,x,y,w,h,radius)
 end
 
 local function create_wibox()
+    local border_width = beautiful.shorter_border_width or 3
     local geo = capi.screen[1].geometry
     local w = wibox {x=geo.x + 50,y=geo.y+50,width=geo.width-100,height=geo.height-100}
     local left = geo.width-150
@@ -61,7 +62,7 @@ local function create_wibox()
     local cr  = cairo.Context(bg)
     cr:set_source(color(beautiful.shorter_border_color or beautiful.border_color or beautiful.fg_normal))
     cr:paint_with_alpha(beautiful.shorter_border_opacity or opacity)
-    draw_rounded(cr,3,3,geo.width-100-6,geo.height-100-6,14)
+    draw_rounded(cr,border_width,border_width,geo.width-100-2*border_width,geo.height-100-2*border_width,14)
     cr:clip_preserve ()
     cr:set_operator(cairo.Operator.CLEAR)
     cr:fill_preserve()
@@ -108,8 +109,8 @@ local function gen_group_label(name)
     local tb3 = wibox.widget.textbox("<tt>"..name:upper().."</tt>")
     tb3:set_align("center")
     tb3:set_valign("bottom")
-    local hw,hh = tb3:fit(99999,99999)
-    tb3.fit = function(self,w,h) return wibox.widget.textbox.fit(self,w,h),hh+20 end
+    local hw,hh = tb3:get_preferred_size()
+    tb3.fit = function(self,context,w,h) return wibox.widget.textbox.fit(self,context,w,h),hh+20 end
     return tb3,hh
 end
 
@@ -124,8 +125,8 @@ local function gen_groups_widget(name,content)
     l2:add(tb1)
     l2:add(tb2)
 
-    local w1,h1 = tb1:fit(999999,999999)
-    local w2,h2 = tb2:fit(999999,999999)
+    local w1,h1 = tb1:get_preferred_size()
+    local w2,h2 = tb2:get_preferred_size()
     local width = w1+w2+15
 
     local l = wibox.layout.fixed.vertical()
@@ -155,7 +156,7 @@ local function gen_groups_widgets()
 end
 
 local function wrap_button(wdg)
-    local bg = wibox.widget.background()
+    local bg = wibox.container.background()
     bg:set_bg(color(beautiful.shorter_fg or beautiful.fg_normal))
     bg:set_fg(color(beautiful.shorter_bg or beautiful.bg_normal))
     bg:set_widget(wdg)
@@ -193,7 +194,7 @@ end
 local function show()
     local w,left,height = create_wibox()
 
-    local margins = wibox.layout.margin()
+    local margins = wibox.container.margin()
     margins:set_top   (5)
     margins:set_bottom(20)
     margins:set_left  (20)
@@ -214,9 +215,9 @@ local function show()
         local width = group.width
 
         if left > width then
-            table.insert(l.widgets, 1, group)
-            group:connect_signal("widget::updated", l._emit_updated)
-            l._emit_updated()
+            table.insert(l._private.widgets, 1, group)
+--             group:connect_signal("widget::updated", l._emit_updated)
+--             l._emit_updated()
             cols[#cols+1] = group
         else
             local best = get_best(cols,width,height,group)
@@ -250,7 +251,7 @@ local function show()
             col:add(lbl)
             local tb = wibox.widget.textbox(text)
             tb:set_font(font)
-            local w,h = tb:fit(col.width,99999)
+            local w,h = tb:get_preferred_size(nil, col.width)
             col.height = col.height + h + hh
             col:add(tb)
         end
@@ -305,7 +306,10 @@ return setmetatable(shorter,{__newindex=function(self,key,value)
             pretty[name] = sec
         end
         sec[#sec+1] = {key=key_name,desc=desc}
-        local awkey = awful.key(key[1],key[2],fct)
+        local awkey = awful.key(key[1],key[2],fct,{
+            description = desc,
+            group       = name,
+        })
 
         -- Do as util.join, but avoid the N^2 complexity
         local index = #real

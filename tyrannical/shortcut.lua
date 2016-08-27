@@ -2,6 +2,7 @@ local capi      = {root=root,client=client,tag=tag,mouse=mouse}
 local ipairs    = ipairs
 local unpack    = unpack
 local aw_util   = require( "awful.util"   )
+local aw_spawn  = require( "awful.spawn"  )
 local aw_tag    = require( "awful.tag"    )
 local aw_client = require( "awful.client" )
 local aw_layout = require( "awful.layout" )
@@ -30,7 +31,7 @@ end
 
 local function new_tag_with_focussed()
     local c = capi.client.focus
-    local t = aw_tag.add(c.class,{screen= get_current_screen(),layout=aw_layout.suit.tile })
+    local t = aw_tag.add(c.class,{screen= get_current_screen(),layout=aw_layout.suit.tile, volatile=true })
     if c then c:tags(aw_util.table.join(c:tags(), {t})) end
     aw_tag.viewonly(t)
 end
@@ -69,11 +70,11 @@ local function rename_tag()
 end
 
 local function term_in_current_tag()
-    aw_util.spawn(terminal,{intrusive=true,slave=true})
+    aw_spawn(terminal,{intrusive=true,slave=true})
 end
 
 local function new_tag_with_term()
-    aw_util.spawn(terminal,{new_tag={volatile = true}})
+    aw_spawn(terminal,{new_tag={volatile = true}})
 end
 
 local function fork_tag()
@@ -89,11 +90,12 @@ end
 local function aero_tag()
     local c = capi.client.focus
     if not c then return end
-    local c2 = aw_client.data.focus[2]
+    local c2 = aw_client.focus.history.list[2]
     if (not c2) or c2 == c then return end
     local t = aw_tag.add("Aero",{screen= c.screen ,layout=aw_layout.suit.tile,mwfact=0.5})
     t:clients({c,c2})
-    aw_tag.viewonly(t)
+
+    t:view_only()
 end
 
 local function register_keys()

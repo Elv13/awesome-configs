@@ -1,7 +1,7 @@
 local type = type
-local capi = {timer = timer}
 local beautiful = require("beautiful")
 local theme = require("radical.theme")
+local timer = require("gears.timer")
 local object = require("radical.object")
 
 local module = {
@@ -55,22 +55,15 @@ local function load_async(tab,key)
   elseif key == "layout" then
     module.layout = require("radical.item.layout")
     return module.layout
+    --TODO handle colors this way
+--   elseif key:sub(1,7 ) == "get_fg_" then
+--     
+--   elseif key:sub(1,7 ) == "get_bg_" then
+--     
+--   elseif key:sub(1,17) == "get_border_color_" then
+--     
   end
   return rawget(module,key)
-end
-
-function module.execute_sub_menu(data,item)
-  if (item._private_data.sub_menu_f  or item._private_data.sub_menu_m) then
-    local sub_menu = item._private_data.sub_menu_m or item._private_data.sub_menu_f(data,item)
-    if sub_menu and (item._private_data.sub_menu_f or sub_menu.rowcount > 0) then
-      sub_menu.arrow_type = module.arrow_type.NONE
-      sub_menu.parent_item = item
-      sub_menu.parent_geometry = data
-      sub_menu.visible = true
-      item._tmp_menu = sub_menu
-      data._tmp_menu = sub_menu
-    end
-  end
 end
 
 local function hide_sub_menu(item,data)
@@ -80,6 +73,15 @@ local function hide_sub_menu(item,data)
     data._tmp_menu = nil
     item:emit_signal("state::changed")
   end
+end
+
+local function set_infoshapes(item, shapes)
+    if item.widget and item.widget.get_children_by_id then
+        local infoshape_widget = item.widget:get_children_by_id("infoshapes")[1]
+        if infoshape_widget then
+            infoshape_widget:set_infoshapes(shapes)
+        end
+    end
 end
 
 -- local registered_items = {}
@@ -96,7 +98,7 @@ end
 -- end
 
 local function new_item(data,args)
-  local args = args or {}
+  args = args or {}
   local item,private_data = object({
     private_data  = {
       text        = args.text        or ""                                                                  ,
@@ -107,18 +109,19 @@ local function new_item(data,args)
       suffix      = args.suffix      or ""                                                                  ,
       bg          = args.bg          or nil                                                                 ,
       fg          = args.fg          or data.fg                                                             , --TODO don't do this
-      border_color= args.border_color or data.border_color                                                  ,
-      border_width= args.border_width or data.border_width                                                  ,
+      border_color= args.border_color or data.item_border_color                                             ,
+      border_width= args.border_width or data.item_border_width                                             ,
       bg_prefix   = args.bg_prefix   or data.bg_prefix                                                      ,
       sub_menu_m  = (args.sub_menu   and type(args.sub_menu) == "table" and args.sub_menu.is_menu) and args.sub_menu or nil,
       sub_menu_f  = (args.sub_menu   and type(args.sub_menu) == "function") and args.sub_menu or nil        ,
       checkable   = args.checkable   or (args.checked ~= nil) or false                                      ,
       checked     = args.checked     or false                                                               ,
-      underlay    = args.underlay    or nil                                                                 ,
       tooltip     = args.tooltip     or nil                                                                 ,
       style       = args.style       or data.item_style                                                     ,
       layout      = args.layout      or args.item_layout or nil                                             ,
-      overlay     = args.overlay     or data.overlay or nil                                                 ,
+      infoshapes  = args.infoshapes  or nil                                                                 ,
+      shape       = args.shape       or data.item_shape                                                     ,
+      overlay_draw= args.overlay_draw or data.overlay_draw                                                  ,
       item_border_color = args.item_border_color or data.item_border_color or nil                           ,
     },
     force_private = {
@@ -133,9 +136,7 @@ local function new_item(data,args)
   item._private_data = private_data
   item._internal     = args._internal or {}
   theme.setup_item_colors(data,item,args)
-  item.get_y = function()
-    return (args.y and args.y >= 0) and args.y or data.height - (data.margins.top or data.border_width) - data.item_height --Hack around missing :fit call for last item
-  end
+
   item.get_height = function()
     return args.height or data.item_height or beautiful.menu_height or 30
   end
@@ -146,31 +147,18 @@ local function new_item(data,args)
     return data.fg
   end
 
-  item.set_underlay = function(item,underlay)
-    if not item._internal.underlay_init then
-      data:add_colors_group("underlay")
-      item._internal.underlay_init = true
-    end
-
-    item._internal.underlay_content = underlay
-  end
-  item.get_underlay =  function(item)
-    return item._internal.underlay_content
-  end
   item.state         = theme.init_state(item)
-  item.underlay = args.underlay
 
   for i=1,10 do
     item["button"..i] = args["button"..i]
   end
 
-  if data.max_items ~= nil and data.rowcount >= data.max_items then-- and (data._start_at or 0)
-    item._hidden = true
+  -- Invalidate the filter when there is still room for new items
+  -- this is slow, but more reliable than it was before
+  if data._internal.visible_item_count
+   and data._internal.visible_item_count < (data.max_items or 9999999) then
+    data._internal.visible_item_count = nil
   end
-
-  -- Use _internal to avoid the radical.object trigger
-  data._internal.visible_item_count = (data._internal.visible_item_count or 0) + 1
-  item._internal.f_key = data._internal.visible_item_count
 
   -- Need to be done before painting
   data._internal.items[#data._internal.items+1] = {}
@@ -198,18 +186,60 @@ local function new_item(data,args)
       item.state[module.item_flags.SELECTED] = nil
       return
     end
-
-    -- Select the new one
-    if data.sub_menu_on == module.event.SELECTED and (current_item ~= item or not item._tmp_menu)then
-      module.execute_sub_menu(data,item)
-    end
     item.state[module.item_flags.SELECTED] = true
     data._current_item = item
+  end
+
+  function item:set_hover(value)
+    local item_style = item.item_style or data.item_style
+    item.state[module.item_flags.HOVERED] = value and true or nil
+    item_style(item)
+  end
+
+  function item:set_text(text)
+    local text_w = item._internal.text_w
+    if not text_w then return end
+
+    if data.disable_markup then
+      text_w:set_text(text)
+    else
+      text_w:set_markup(text)
+    end
+
+--TODO find new largest is item is smaller
+--     if data.auto_resize then
+--       local fit_w,fit_h = text_w:get_preferred_size()
+--       local is_largest = item == data._internal.largest_item_h
+--       if not data._internal.largest_item_h_v or data._internal.largest_item_h_v < fit_h then
+--         data._internal.largest_item_h =item
+--         data._internal.largest_item_h_v = fit_h
+--       end
+--     end
+
+    item._private_data.text = text
+  end
+
+  -- Overlay and underlay
+  item.set_infoshapes = set_infoshapes
+
+  item.set_icon = function (_,value)
+    local icon_w = item._internal.icon_w
+
+    if not icon_w then return end
+
+    icon_w:set_image(value)
   end
 
   -- Listen to signals
   item:connect_signal("state::changed",function()
     item:style()
+
+    -- Some item.style need full widget repaint
+    if item.style.need_full_repaint then
+      --TODO HACK HACK HACK for the repaint, this is really, really stupid
+      data._internal.layout:emit_signal("widget::redraw_needed")
+      --TODO END HACK
+    end
   end)
 
   -- Add support for long hover and press
@@ -220,8 +250,8 @@ local function new_item(data,args)
       main_timer.timeout = 1.5
       main_timer:connect_signal("timeout",function()
         item._internal._is_long_hover = true
-        item:emit_signal("long::hover",item,mod,geo)
-        data:emit_signal("long::hover",item,mod,geo)
+        item:emit_signal("long::hover",item,{},geo)
+        data:emit_signal("long::hover",item,{},geo) --TODO mouse::enter should have modifiers
         main_timer:stop()
       end)
     end
