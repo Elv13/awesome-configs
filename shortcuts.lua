@@ -133,18 +133,7 @@ shorter.Launch = {
 
     {desc = "Run a command",
     key={{  modkey },            "r"},
-        fct = function ()
-            awful.prompt.run({ prompt = "Run: ", hooks = hooks},
-            mypromptbox[mouse.screen].widget,
-            function (com)
-                    local result = awful.spawn(com)
-                    if type(result) == "string" then
-                        mypromptbox[mouse.screen].widget:set_text(result)
-                    end
-                    return true
-            end, awful.completion.shell,
-            awful.util.getdir("cache") .. "/history")
-        end
+        fct = collision.launch
     },
 
     {desc = "",
@@ -164,6 +153,7 @@ shorter.Session = {
     key={{ modkey, "Shift"   }, "q"     }, fct = awesome.quit},
 }
 
+--local ss = require("awful.screenshot")
 shorter.Tag = {
     {desc = "Set the tag state",
     key={{  modkey, "Control" }, "Tab"   }, fct = function () customButton.lockTag.show_menu()                  end},
@@ -194,6 +184,10 @@ shorter.Tag = {
 
     {desc = "Split",
     key={{  modkey            }, "s"     }, fct = collision.split},
+    {desc = "dsfdsfsdfdsf",
+    key={{  modkey            }, "'"     }, fct = function()
+        ss.full_capture("/tmp/bob.svg")
+    end},
 }
 
 shorter.Hardware = {
@@ -224,10 +218,6 @@ root.buttons(awful.util.table.join(
     awful.button({ }, 5, awful.tag.viewprev)
 ))
 -- }}}
-
-
-
-
 
 clientkeys = awful.util.table.join(
     awful.key({ modkey,           }, "f"     , function (c) c.fullscreen = not c.fullscreen     end),
@@ -273,7 +263,7 @@ for i = 1, 10 do
         fct = function ()
             local tag = client.focus.screen.tags[i]
             if client.focus and tag then
-                awful.client.movetotag(tag)
+                client.focus:move_to_tag(tag)
             end
         end
     }
@@ -293,7 +283,7 @@ local copts_sec,copts_usec = 0,0
 local radial = require("radical.radial")
 
 clientbuttons = awful.util.table.join(
-    awful.button({ }, 1, function (c) c:raise() end),
+    awful.button({ }, 1, function (c) client.focus = c; c:raise() end),
     awful.button({ modkey }, 1, awful.mouse.client.move),
     awful.button({ modkey }, 3, awful.mouse.client.resize)--[[,
     awful.button({  }, 5, collision.util.double_click(function() customMenu.client_opts() end))

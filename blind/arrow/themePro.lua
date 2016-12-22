@@ -8,8 +8,11 @@ local tag        = require( "awful.tag"      )
 local client     = require( "awful.client"   )
 local themeutils = require( "blind.common.drawing"    )
 local wibox_w    = require( "wibox.widget"   )
+local wibox      = require( "wibox"          )
 local radical    = require( "radical"        )
 local blind      = require( "blind"          )
+local shape      = require( "gears.shape"    )
+local pixmap     = require( "blind.common.pixmap")
 local debug      = debug
 
 local path = debug.getinfo(1,"S").source:gsub("theme.*",""):gsub("@","")
@@ -29,6 +32,22 @@ theme.font           = "Sans DemiBold 8"
 -- theme.font           = "Terminus 8 bold"
 theme.path           = path
 
+theme.wibar = blind {
+    bg = color.transparent,
+    height = 20,
+}
+
+theme.bar = blind {
+    bg_alternate  = color.transparent,
+    show_bottom   = false,
+    show_top      = true,
+    show_info     = false,
+}
+
+theme.separator_color = color.transparent
+
+theme.useless_gap = 30
+
 theme.bg_normal      = "#000000"
 theme.bg_focus       = "#496477"
 theme.bg_urgent      = "#5B0000"
@@ -47,15 +66,9 @@ theme.bg_systray     = theme.fg_normal
 
 theme.button_bg_normal            = color.create_png_pattern(path .."Icon/bg/menu_bg_scifi.png"       )
 
---theme.border_width  = "1"
---theme.border_normal = "#555555"
---theme.border_focus  = "#535d6c"
---theme.border_marked = "#91231c"
-
-theme.border_width   = "0"
-theme.border_width2  = "2"
-theme.border_normal  = "#1F1F1F"
-theme.border_focus   = "#535d6c"
+theme.border_width   = 0
+theme.border_normal  = "#30302B"
+theme.border_focus   = "#41413A"
 theme.border_marked  = "#91231c"
 theme.enable_glow    = flase
 theme.glow_color     = "#105A8B"
@@ -116,8 +129,8 @@ theme.icon_grad_invert = { type = "linear", from = { 0, 0 }, to = { 0, 20 }, sto
 -- Display the taglist squares
 -- theme.taglist_underline                = "#094CA5"
 
-theme.taglist_bg_unused          = "#ffffff"
-theme.taglist_bg_empty           = "#111111"
+-- theme.taglist_bg_unused          = "#ffffff"
+theme.taglist_bg_empty           = "#ffffff1A"
 theme.taglist_bg_hover           = color.create_png_pattern(path .."Icon/bg/menu_bg_focus_scifi.png" )
 theme.taglist_bg_selected        = color.create_png_pattern(path .."Icon/bg/menu_bg_selected_scifi.png")
 theme.taglist_fg_selected        = "#ffffff"
@@ -133,9 +146,9 @@ theme.taglist_bg_highlight       = "#bbbb00"
 theme.taglist_fg_highlight       = "#000000"
 theme.taglist_fg_prefix          = theme.bg_normal
 theme.taglist_default_icon       = path .."Icon/tags_invert/other.png"
-theme.taglist_spacing            = 4
+theme.taglist_spacing            = 7
 theme.taglist_icon_transformation = function(image,data,item)
-    return color.apply_mask(image,color("#8186C3"))
+    return color.apply_mask(image,color("#989DE5"))
 end
 
 theme.taglist_fg_prefix          = "#ffffff"
@@ -146,13 +159,17 @@ theme.taglist_default_item_margins = {
     BOTTOM = 2,
 }
 theme.taglist_default_margins = {
-    LEFT   = 2,
+    LEFT   = 10,
     RIGHT  = 20,
-    TOP    = 0,
+    TOP    = 4,
     BOTTOM = 1,
 }
-theme.taglist_item_style     = radical.item.style.rounded
+theme.taglist_item_style     = radical.item.style {
+    shape = shape.rounded_bar
+}
 
+theme.taglist_item_border_width = 1
+theme.taglist_item_border_color = color "#ffffff66"
 
 theme.tasklist_default_item_margins = {
     LEFT   = 8,
@@ -191,6 +208,38 @@ theme.tasklist_bg_image_minimize                = function(wdg,m,t,objects) retu
 theme.tasklist_disable_icon            = true
 theme.monochrome_icons                 = true
 
+theme.toolbox = blind {
+    icon_transformation =  function(image,data,item)
+        return pixmap(image) : colorize(theme.icon_grad) : to_img()
+    end,
+    default_item_margins = {
+        LEFT   = 5,
+        RIGHT  = 5,
+        TOP    = 3,
+        BOTTOM = 3,
+    },
+    default_margins = {
+        TOP    = 4,
+        BOTTOM = 1,
+        RIGHT  = 0,
+        LEFT   = 2,
+    },
+    item_border_width = 1,
+    border_color_used = theme.taglist_item_border_color,
+    spacing           = 3,
+    bg_used           = theme.systray_bg,
+    item_style = radical.item.style {
+        shape = shape.rounded_rect,
+        shape_args = {4},
+        shape_border_color = icon_grad,
+        margins = {
+            LEFT   = 5,
+            RIGHT  = 5,
+            TOP    = 1,
+            BOTTOM = 1,
+        }
+    },
+}
 
 ------------------------------------------------------------------------------------------------------
 --                                                                                                  --
@@ -209,9 +258,9 @@ theme.awesome_icon              = path .."Icon/awesome2.png"
 theme.menu_height               = 20
 theme.menu_width                = 170
 theme.menu_border_width         = 2
-theme.border_width              = 1
+-- theme.border_width              = 1
 theme.menu_opacity              = 0.9
-theme.border_color              = theme.fg_normal
+theme.border_color              = "#41413A"
 theme.menu_fg_normal            = "#ffffff"
 theme.menu_bg_focus             = color.create_png_pattern(path .."Icon/bg/menu_bg_focus_scifi.png" )
 theme.menu_bg_header            = color.create_png_pattern(path .."Icon/bg/menu_bg_header_scifi.png")
@@ -224,13 +273,110 @@ theme.fg_dock_2                 = "#0A3E6E"
 theme.wallpaper = "/home/lepagee/bg/final/bin_ascii_ds.png"
 
 -- Titlebar
-loadfile(theme.path .."bits/titlebar.lua")(theme,path)
+loadfile(theme.path .."bits/titlebar_round.lua")(theme,path)
+theme.titlebar = blind {
+    bg_normal = theme.border_normal,
+    bg_focus  = theme.border_focus,
+    fg_focus  = color.transparent,
+}
+
+-- Add round corner to floating clients
+loadfile(theme.path .."bits/client_shape.lua")(20,true,true)
 
 -- Layouts
 loadfile(theme.path .."bits/layout.lua")(theme,path)
 
 
 require( "chopped.arrow" )
+
+
+local test = awful.wibar { position = "bottom", height = 50, bg = "#ff0000", bg="#00000000" }
+
+test:setup {
+    {
+        {
+            {
+                {
+                    text = "CPU",
+                    valign = "center",
+                    align = "center",
+                    widget = wibox.widget.textbox,
+                },
+                max_value = 1,
+                value = 0.33,
+                rounded_edge = true,
+                bg = "#ffffff11",
+                widget = wibox.container.arcchart,
+                colors = {"#ffffffAA"},
+            },
+            {
+                {
+                    text = "MEM",
+                    valign = "center",
+                    align = "center",
+                    widget = wibox.widget.textbox,
+                },
+                max_value = 1,
+                value = 0.33,
+                rounded_edge = true,
+                bg = "#ffffff11",
+                widget = wibox.container.arcchart,
+                colors = {"#ffffffAA"},
+            },
+            {
+                {
+                    text = "UP",
+                    valign = "center",
+                    align = "center",
+                    widget = wibox.widget.textbox,
+                },
+                max_value = 1,
+                value = 0.33,
+                rounded_edge = true,
+                bg = "#ffffff11",
+                widget = wibox.container.arcchart,
+                colors = {"#ffffffAA"},
+            },
+            {
+                {
+                    text = "DOWN",
+                    valign = "center",
+                    align = "center",
+                    widget = wibox.widget.textbox,
+                },
+                max_value = 1,
+                value = 0.33,
+                rounded_edge = true,
+                bg = "#ffffff11",
+                widget = wibox.container.arcchart,
+                colors = {"#ffffffAA"},
+            },
+            {
+                {
+                    text = "BAT",
+                    valign = "center",
+                    align = "center",
+                    widget = wibox.widget.textbox,
+                },
+                max_value = 1,
+                value = 0.33,
+                rounded_edge = true,
+                bg = "#ffffff11",
+                widget = wibox.container.arcchart,
+                colors = {"#ffffffAA"},
+            },
+            spacing = 50,
+            layout = wibox.layout.fixed.horizontal,
+        },
+        fill_vertical = true,
+        content_fill_vertical = true,
+        align = "center",
+        layout = wibox.container.place
+    },
+    top = 0,
+    bottom = 4,
+    widget =  wibox.container.margin
+}
 
 return theme
 -- vim: filetype=lua:expandtab:shiftwidth=4:tabstop=8:softtabstop=4:encoding=utf-8:textwidth=80

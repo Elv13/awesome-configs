@@ -236,6 +236,7 @@ local function draw_item(data,item,cr,width,height)
 end
 
 local function default_icon_transformation(image,data,item)
+    if not image then return end
     local s = surface(image)
     local w,h = surface.get_size(s)
     local fg_col = beautiful.fg_dock

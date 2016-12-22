@@ -45,6 +45,7 @@ tags = {} --TODO remove
 
 tyrannical.settings.block_children_focus_stealing = true
 tyrannical.settings.group_children = true
+tyrannical.settings.force_odd_as_intrusive = true
 
 tyrannical.settings.tag.layout = awful.layout.suit.tile
 tyrannical.settings.tag.master_width_factor = 0.66
@@ -348,7 +349,7 @@ tyrannical.properties.intrusive = {
     "ksnapshot"     , "pinentry"       , "gtksu"     , "kcalc"        , "xcalc"           ,
     "feh"           , "Gradient editor", "About KDE" , "Paste Special", "Background color",
     "kcolorchooser" , "plasmoidviewer" , "plasmaengineexplorer" , "Xephyr" , "kruler"     ,
-    "yakuake"       ,
+    "yakuake"       , "wxmaxima",
     "sflphone-client-kde", "sflphone-client-gnome", "xev",
 }
 tyrannical.properties.floating = {
@@ -356,7 +357,7 @@ tyrannical.properties.floating = {
     "xine"         , "feh"             , "kmix"       , "kcalc"        , "xcalc"          ,
     "yakuake"      , "Select Color$"   , "kruler"     , "kcolorchooser", "Paste Special"  ,
     "New Form"     , "Insert Picture"  , "kcharselect", "mythfrontend" , "plasmoidviewer" ,
-    "sflphone-client-kde", "sflphone-client-gnome", "xev",
+    "sflphone-client-kde", "sflphone-client-gnome", "xev", "wxmaxima",
     amarok = false , "yakuake", "Conky"
 }
 
@@ -397,7 +398,7 @@ tyrannical.properties.intrusive_popup = {
     "transmission-qt"
 }
 
-tyrannical.properties.centered = { "kcalc" }
+tyrannical.properties.placement = { kcalc=awful.placement.centered }
 
 tyrannical.properties.skip_taskbar = {"yakuake"}
 tyrannical.properties.hidden = {"yakuake"}

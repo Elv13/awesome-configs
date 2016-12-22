@@ -67,6 +67,7 @@ local function generate_key_binding()
                     end
                 end
                 capi.client.focus = c
+                c:raise()
                 local geo = c:geometry()
                 if coords_cache[c] then
                     -- this will correctly restore the cursor when switching between 2 places

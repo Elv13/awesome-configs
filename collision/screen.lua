@@ -189,7 +189,7 @@ local function select_screen(scr_index,move,old_screen)
       c = nil
     end
 
-    if c and c:isvisible() then
+    if c and c.valid and c:isvisible() then
       local geom = c:geometry()
       if last_clients_coords[scr_index] and last_clients_coords[scr_index].client == c then
         capi.mouse.coords(last_clients_coords[scr_index])
@@ -210,7 +210,7 @@ local function select_screen(scr_index,move,old_screen)
       awful.tag.viewonly(t)
     end
   else
-    local c = awful.mouse.client_under_pointer()
+    local c = capi.mouse.current_client
     if c then
       capi.client.focus = c
     end
@@ -272,6 +272,7 @@ function module.display(_,dir,move)
 end
 
 local function highlight_screen(ss)
+  ss = capi.screen[ss]
   if pss ~= ss then
 
     local bg       = beautiful.collision_screen_bg or beautiful.bg_alternate or "#ff0000"
@@ -338,6 +339,13 @@ function module.select_screen(idx)
         return true
     end)
 end
+
+-- Make sure this keeps working when a new screen is added
+awful.screen.connect_for_each_screen(function(s)
+    if next(wiboxes) then
+        create_wibox(s)
+    end
+end)
 
 capi.client.connect_signal("focus",function(c)
     last_clients[c.screen] = c

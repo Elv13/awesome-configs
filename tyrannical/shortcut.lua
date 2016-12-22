@@ -12,9 +12,9 @@ local glib      = require( "lgi"          ).GLib
 
 local function get_current_screen()
     if capi.client.focus and capi.client.focus.screen == capi.mouse.screen then
-	return capi.mouse.screen
-    elseif (not aw_tag.selected(capi.mouse.screen)) or (#aw_tag.selected(capi.mouse.screen):clients() == 0) or (not capi.client.focus) then
-	return capi.mouse.screen
+        return capi.mouse.screen
+    elseif (capi.mouse.screen.selected_tag and #capi.mouse.screen.selected_tag:clients() == 0) or (not capi.client.focus) then
+        return capi.mouse.screen
     end
     return capi.client.focus.screen
 end
@@ -26,7 +26,7 @@ end
 
 -- Create a new tag at the end of the list
 local function new_tag()
-    aw_tag.viewonly(aw_tag.add("NewTag",{screen= get_current_screen() }))
+    aw_tag.add("NewTag",{screen= get_current_screen() }):view_only()
 end
 
 local function new_tag_with_focussed()
@@ -70,11 +70,11 @@ local function rename_tag()
 end
 
 local function term_in_current_tag()
-    aw_spawn(terminal,{intrusive=true,slave=true})
+    aw_spawn(terminal,{tag=get_current_screen().selected_tag,slave=true,screen=get_current_screen()})
 end
 
 local function new_tag_with_term()
-    aw_spawn(terminal,{new_tag={volatile = true}})
+    aw_spawn(terminal,{new_tag={volatile = true,screen=get_current_screen()}})
 end
 
 local function fork_tag()
@@ -84,7 +84,7 @@ local function fork_tag()
     local clients = t:clients()
     local t2 = aw_tag.add(t.name,aw_tag.getdata(t))
     t2:clients(clients)
-    aw_tag.viewonly(t2)
+    t2:view_only()
 end
 
 local function aero_tag()

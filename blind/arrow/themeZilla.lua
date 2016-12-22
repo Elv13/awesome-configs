@@ -354,7 +354,7 @@ theme.titlebar = blind {
 
 theme.separator_color = "#49535B"
 
-theme.useless_gap = 3
+theme.useless_gap = 7
 theme.titlebar_bottom = true
 
 loadfile(theme.path .."bits/titlebar_square.lua")(theme,path)

@@ -230,10 +230,10 @@ theme.menu = blind {
     border_width = 2,
     opacity      = 0.9,
     fg_normal    = "#ffffff",
-    bg_focus     = wipat("#00143B") : stripe("#052F77", nil, 1, 2) : to_pattern(),
-    bg_header    = wipat("#70A5D9") : stripe("#618FBC", nil, 7, 7) : to_pattern(),
-    bg_normal    = wipat("#00091A") : stripe("#04204F", nil, 1, 2) : to_pattern(),
-    bg_highlight = wipat("#0B1B45") : stripe("#0E245F", nil, 3, 1) : to_pattern(),
+    bg_focus     = pattern2("#00143B") : grow(20, 20) : stripe("#052F77", nil, 1, 2) : TDPat(),
+    bg_header    = pattern2("#70A5D9") : grow(20, 20) : stripe("#618FBC", nil, 7, 7) : TDPat(),
+    bg_normal    = pattern2("#00091A") : grow(20, 20) : stripe("#04204F", nil, 1, 2) : to_pattern(),
+    bg_highlight = pattern2("#0B1B45") : grow(20, 20) : stripe("#0E245F", nil, 3, 1) : TDPat(),
     border_color = theme.fg_normal,
 }
 
@@ -266,8 +266,36 @@ theme.collision = blind {
 -- }
 
 theme.infoshape = blind {
-   shape_bg = theme.bg_alternate,
+    shape_bg = pattern2("#459FFF") : noise("#777788", 0.4) : threeD() : opacity(0.3) : to_pattern(),
+    shape_border_width = 1,
+    shape_border_color = theme.icon_grad,
 }
+
+-- Tooltip
+theme.tooltip = blind {
+    shape        = shape.rounded_rect,
+    border_width = 1,
+    border_color = theme.fg_normal,
+    bg           = theme.bg_normal
+}
+
+-- Sliders
+theme.slider = blind {
+    bar = blind {
+        shape        = shape.rounded_rect,
+        height       = 3,
+        color        = theme.fg_normal,
+--         border_color = theme.fg_normal,
+--         border_width = 2,
+    },
+    handle = blind {
+        color = theme.bg_prefix,
+        shape = shape.circle,
+        border_color = theme.fg_normal,
+        border_width = 1,
+    },
+}
+
 
 -- Toolbox
 theme.toolbox_icon_transformation =  function(image,data,item)
@@ -299,6 +327,20 @@ theme.toolbox_item_style = radical.item.style {
         TOP    = 1,
         BOTTOM = 1,
     }
+}
+
+theme.tabbar = blind {
+    client = blind {
+        shape = shape.hexagon,
+        shape_border_color = theme.fg_normal,
+        shape_border_width = 1,
+        bg = blind {
+            normal = theme.tasklist_bg,
+            active = theme.tasklist_bg_focus,
+        },
+    },
+    spacing = 5,
+    bg = theme.bar_bg_normal,
 }
 
 -- Titlebar

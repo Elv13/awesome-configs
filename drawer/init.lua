@@ -1,6 +1,6 @@
 
 local vicious      = require("extern.vicious")
-local radialprog   = require("widgets.radialprogressbar")
+local radialprog   = require("wibox.container.radialprogressbar")
 local allinone     = require( "widgets.allinone"         )
 local textbox      = require( "wibox.widget.textbox"     )
 local f = unpack or table.unpack -- Lua 5.1 compat

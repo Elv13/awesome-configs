@@ -94,10 +94,6 @@ local slider = {mt={}}
 -- @property maximum
 -- @param[opt=100] number
 
---- The slider cursor.
--- @property cursor
--- @param[opt=fleur"] string
-
 --- The bar (background) border width.
 -- @beautiful beautiful.slider_bar_border_width
 -- @param number
@@ -177,9 +173,6 @@ local properties = {
     value                = 0,
     minimum              = 0,
     maximum              = 100,
-
-    -- Other
-    cursor               = "fleur",
 }
 
 -- Create the accessors
@@ -347,6 +340,7 @@ function slider:draw(_, cr, width, height)
     local handle_border_width = self._private.handle_border_width
         or beautiful.slider_handle_border_width
         or properties.handle_border_width
+        or 0
 
     handle_shape(cr, handle_width, handle_height)
 
@@ -376,17 +370,6 @@ function slider:fit(_, width, height)
 end
 
 local event = {}
-
-function event.mouse_enter(self)
-    self:emit_signal("widget::redraw_needed") --TODO
-    local cursor = self._private.cursor or "fleur"
-    capi.root.cursor(cursor)
-end
-
-function event.mouse_leave(self)
-    self:emit_signal("widget::redraw_needed") --TODO
---     capi.root.cursor("fleur")
-end
 
 local rect_order = {"x", "y", "width", "height"}
 
@@ -456,7 +439,7 @@ function event.mouse_press(self, x, y, button_id, _, geo)
         move_handle(self, rx, ry, geo)
 
         return true
-    end, self:get_cursor())
+    end, "fleur")
 end
 
 --- Create a slider widget.

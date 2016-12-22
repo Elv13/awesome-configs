@@ -4,6 +4,7 @@ local blind      = require( "blind"                )
 local radical    = require( "radical"              )
 local pixmap     = require( "blind.common.pixmap"  )
 local pattern    = require( "blind.common.pattern2")
+local shape      = require( "gears.shape"          )
 
 local path = debug.getinfo(1,"S").source:gsub("theme.*",""):gsub("@","")
 
@@ -84,6 +85,20 @@ theme.fg_dock_2            = "#8B6C1D"
 theme.bg_systray           = theme.fg_normal
 theme.bg_resize_handler    = "#aaaaff55"
 
+theme.systray = blind {
+    shape_border_color = icon_grad,
+    shape_border_width = 1,
+    bg = {
+         type  = "linear" ,
+         from  = { 0, 0  },
+         to    = { 0, 16 },
+         stops = {
+            { 0, "#141400" },
+            { 1, "#18170A" }
+         }
+    }
+}
+
 -- Border
 theme.border = blind {
     width  = 1         ,
@@ -112,22 +127,25 @@ end
 theme.taglist = blind {
     bg = blind {
         hover     = wipat("#19324E") : stripe("#132946", nil, 7, 7) : TDPat(),
-        selected  = wipat("#745C02") : stripe("#9F3903", nil, 4, 4) : TDPat(),
-        used      = bg_used,
+        selected  = wipat("#7A7A00") : TDPat(),
+        used      = wipat("#5F5F00") : checkerboard("#3A3B23", 2  ) : TDPat(),
         urgent    = wipat("#5B0000") : stripe("#300000", nil, 1, 2) : TDPat(),
-        changed   = wipat("#4D004D") : stripe("#210021", nil, 1, 2) : TDPat(),
+        changed   = wipat("#623100") : checkerboard("#4F4005", 2  ) : TDPat(),
         empty     = bg_normal,
         highlight = "#bbbb00"
     },
     fg = blind {
-        empty     = "#D6B600",
-        selected  = "#ffffff",
-        used      = "#656565",
+        empty     = wipat("#B79C00") : TDPat(),
+        selected  = wipat("#111111") : TDPat(),
+        used      = "#dddddd",
         urgent    = "#FF7777",
-        changed   = "#B78FEE",
+        changed   = wipat("#D0B100") : TDPat(),
         highlight = "#000000",
         prefix    = "#9C8531",
     },
+--     default_item_margins = {
+--         LEFT = 20,
+--     },
     custom_color         = function (col) return wipat(col) : TDPat() end,
     default_icon         = path .."Icon/tags_invert/other.png",
     icon_transformation  = taglist_transform,
@@ -145,12 +163,26 @@ theme.tasklist = blind {
     bg_minimized            = wipat("#0E0027") : stripe("#04000E", nil, 1, 2) : TDPat(),
     bg_urgent               = wipat("#5B0000") : stripe("#070016", nil, 1, 2) : TDPat(),
     bg_hover                = wipat("#19324E") : stripe("#132946", nil, 7, 7) : TDPat(),
+    bg_used                 = common_3d(pattern("#151515") : checkerboard("#0B0B0B", 2)),
     bg_focus                = bg_focus,
     fg_minimized            = "#985FEE",
     fg_focus                = "#EDAB3D",
     default_icon            = path .."Icon/tags_invert/other.png",
     bg                      = "#00000088",
-    icon_transformation     = loadfile(theme.path .."bits/icon_transformation/state.lua")(theme,path)
+    icon_transformation     = loadfile(theme.path .."bits/icon_transformation/state.lua")(theme,path),
+    item_style = radical.item.style {
+        shape = shape.octogon,
+        shape_args = {7},
+        margins = {
+            LEFT   = 5,
+            RIGHT  = 5,
+            TOP    = 0,
+            BOTTOM = 0,
+        }
+    },
+    item_border_width = 1,
+    item_border_color = wipat("#B79C00") : TDPat(),
+    spacing = 10,
 }
 
 
@@ -185,7 +217,9 @@ end
 theme.titlebar = blind {
     bg_normal = bg_normal,
     bg_focus  = bg_normal,
-    icon_fg   = theme.icon_mask
+    icon_fg   = {
+        type = "linear", from = { 0, 0 }, to = { 0, 16 }, stops = { { 0, "#FFD503" }, { 1, "#A18601" }}
+    }
 }
 loadfile(theme.path .."bits/titlebar_minde.lua")(theme,path)
 

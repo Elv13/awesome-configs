@@ -23,6 +23,8 @@ local EMPTY       = 412345
 
 local last_idx = EMPTY
 
+local wiboxes = setmetatable({}, { mode = "k"})
+
 theme.register_color(HIGHLIGHTED , "highlight" , "highlight" , true )
 theme.register_color(EMPTY , "empty" , "empty" , true )
 
@@ -50,6 +52,7 @@ module.buttons = { [1] = function(t) t:view_only() end,
 
 
 local function index_draw(self, context, cr, width, height)
+  wiboxes[self.data] = context.wibox
   cr:save()
   cr:set_source(color(self._color or beautiful.taglist_fg_prefix or beautiful.fg_normal))
   local d = wibox.widget.textbox._draw or wibox.widget.textbox.draw
@@ -77,9 +80,10 @@ local function create_item(t,s)
   local tw = nil
   if beautiful.taglist_disable_index ~= true then
     tw = wibox.widget.textbox()
+    rawset(tw, "data", menu)
     tw.draw = index_draw
     local index = tag.getproperty(t,"index") or tag.getidx(t)
-    tw:set_markup((menu.index_prefix or " <b>2#")..(index)..(menu.index_suffix or "</b>: "))
+    tw:set_markup((menu.index_prefix or " <b>#")..(index)..(menu.index_suffix or "</b>: "))
     w:add(tw)
   end
   local suf_w = wibox.layout.fixed.horizontal()
@@ -237,6 +241,7 @@ local function init()
 end
 
 local highlighted = {}
+
 function module.highlight(t)
   local tp = type(t)
   if highlighted and highlighted ~= t then
@@ -303,6 +308,50 @@ local function new(s)
   init()
 
   return instances[capi.screen[s]]
+end
+
+-- Extreme hack to allow drag&drop to be implemented...
+function module.get_positions(s)
+
+    local taglist = instances[s]
+    if not taglist then return end
+
+    local wb = wiboxes[taglist]
+    local geo = wb:geometry()
+    local add_x, add_y = geo.x, geo.y
+
+    local ret = {}
+
+    local function handle_hierarchy(h, force_rect)
+        local widget = h:get_widget()
+
+        -- All sub-areas of a stack are to be displayed in a "fair" grid.
+        if widget._item then
+            local matrix = h:get_matrix_to_device()
+            local x, y = matrix:transform_point(0, 0)
+            local width, height = h:get_size()
+
+            if widget._item.tag then
+                assert(widget._item.tag)
+                table.insert(ret, {
+                    x        = x + add_x,
+                    y        = y + add_y,
+                    width    = width,
+                    height   = height,
+                    tag      = widget._item.tag[1],
+                })
+            end
+        else
+            for _, child in ipairs(h:get_children()) do
+                handle_hierarchy(child, force_rect)
+            end
+        end
+
+    end
+
+    handle_hierarchy(wb._drawable._widget_hierarchy)
+
+    return ret
 end
 
 local delayed_reflow = {}

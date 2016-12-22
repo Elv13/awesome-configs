@@ -1,9 +1,8 @@
 local setmetatable   = setmetatable
 local print  , pairs = print  , pairs
 local ipairs , type  = ipairs , type
-local string , unpack= string , unpack
+local string , unpack= string , unpack or table.unpack
 local awful = require("awful")
-require("tyrannical.extra.legacy")
 
 local capi,sn_callback = {client = client, tag = tag, awesome = awesome,
     screen = screen, mouse = mouse},awful.spawn and awful.spawn.snid_buffer or {}
@@ -46,12 +45,12 @@ local function load_tags(tyrannical_tags)
                 for k2,v2 in pairs(screens) do
                     if (type(v2) == "number" and v2 or v2.index) <= capi.screen.count() then
                         v.screen = v2 --TODO remove
-                        awful.tag.add(v.name,v,{screen = v2})
+                        awful.tag.add(v.name,v,{screen = v2}).is_template = true
                     end
                 end
                 v.screen = screens --TODO remove
             elseif (v.screen and (type(v.screen) == "number" and v.screen or v.screen.index) or 1) <= capi.screen.count() then
-                awful.tag.add(v.name,v)
+                awful.tag.add(v.name,v).is_template = true
             end
         elseif v.volatile == nil then
             v.volatile = true
@@ -81,13 +80,25 @@ local function load_property(name,property)
     end
 end
 
---Check all focus policies then change focus (Awesome 3.5.3+)
+local function has_selected(tags, screen)
+    if #tags == 0 then return false end
+
+    for _, t in ipairs(screen.selected_tags) do
+        if awful.util.table.hasitem(tags, t) then return true end
+    end
+
+    return false
+end
+
 function module.focus_client(c,properties)
-    local properties = properties or (c_rules.instance[string.lower(c.instance or "N/A")] or {}).properties or (c_rules.class[string.lower(get_class(c))] or {}).properties or {}
-    if (((not c.transient_for) or (c.transient_for==capi.client.focus) or (not settings.block_children_focus_stealing)) and (not properties.no_autofocus)) then
-        if not awful.util.table.hasitem(c:tags(), (c.screen or capi.screen[1]).selected_tag) and (not prop(c:tags()[1],"no_focus_stealing_in")) then
+
+    if (((not c.transient_for) or (c.transient_for==capi.client.focus) or (not settings.block_children_focus_stealing)) and (not c.no_autofocus)) then
+        local tags = c:tags()
+
+        if #tags > 0 and not has_selected(tags, c.screen) and not tags[1].no_focus_stealing_in then
             c:tags()[1]:view_only()
         end
+
         capi.client.focus = c
         c:raise()
         return true
@@ -95,48 +106,87 @@ function module.focus_client(c,properties)
 end
 
 --Apply all properties
-local function apply_properties(c,override,normal)
-    if not override and not normal then return nil,{} end
-    local props,ret = awful.util.table.join(settings.client,normal or {},override,
-        override.callback and override.callback(c) or (normal and normal.callback and normal.callback(c)) or {}),nil
-    --Set all 'c.something' properties, --TODO maybe eventually move to awful.rules.execute
-    for k,_ in pairs(props) do
-        c[k] = props[k]
+local function apply_properties(c, props, callbacks)
+
+    local force_intrusive = settings.force_odd_as_intrusive
+        and c.type ~= "normal"
+
+    local is_intrusive = force_intrusive
+        or type(props.intrusive) == "function" and props.intrusive(c)
+        or props.intrusive
+
+    if props.tag or props.tags or props.new_tag then
+        is_intrusive = false
     end
-    --Center client
-    if props.centered == true then
-        awful.placement.centered(c, nil)
+
+    local has_tag = props.tag or props.new_tag or props.tags
+    --Check if the client should be added to an existing tag (or tags)
+    if (not has_tag) and is_intrusive then
+        local tag = capi.mouse.screen.selected_tag
+            or capi.mouse.screen.tags[1]
+
+        if tag and not tag.selected then
+            tag:view_only()
+        end
+
+        if tag then --Can be false if there is no tags
+            props.tag, props.tags, props.intrusive = tag, nil, false
+        end
     end
+
+    awful.rules.execute(c, props, callbacks)
+
     --Set slave or master
     if props.slave == true or props.master == true then
         awful.client["set"..(props.slave and "slave" or "master")](c, true)
     end
-    --Check if the client should be added to an existing tag (or tags)
-    if props.new_tag then
-        ret = c:tags({awful.tag.add(type(props.new_tag)=="table" and props.new_tag.name or c.class,type(props.new_tag)=="table" and props.new_tag or {screen=c.screen or 1})})
-    elseif props.tag then
-        ret = c:tags(type(props.tag) == "function" and props.tag(c) or (type(props.tag) == "table" and props.tag or { props.tag }))
-    elseif props.intrusive == true or (settings.force_odd_as_intrusive and c.type ~= "normal") then
-        local tag = c.screen.selected_tag or c.screen.tags[1]:view_only() or c.screen.selected_tag
-        if tag then --Can be false if there is no tags
-            ret = c:tags({tag})
+end
+
+local function select_screen(tag)
+    local s
+
+    -- If there is a table of screen, check if it contains the mouse one
+    if type(tag.screen) =="table" and tag.screen[1] then
+        for k, ss in ipairs(tag.screen) do
+            ss = type(ss) == "number" and ss <= capi.screen.count() and ss or nil
+            if ss and capi.screen[ss] == awful.screen.focused() then
+                s = ss
+            end
         end
+        s = s or capi.screen[tag.screen[1]]
+    else
+        s = scr_exists(tag.screen) and capi.screen[tag.screen] or nil
     end
-    return ret,props
+
+    -- If the tag.force_screen is set, then obey
+    if (tag.force_screen and s) or (s and settings.favor_focused == false) then
+        return s
+    end
+
+    -- By default, Tyrannical prefer to use the focused screen to place new tags
+    -- This override some other settings, but is more pleasant to use.
+    return awful.screen.focused()
 end
 
 --Match client
-local function match_client(c, startup)
-    if not c then return end
-    local startup = startup == nil and capi.awesome.startup or startup
+local function match_client(c, forced_tags, hints)
+    -- Don't prevent tags from being drag and dropped between screens
+    if hints and hints.reason == "screen" then
+        c:tags {c.screen.selected_tag}
+        return true
+    end
+
+    if (not c) or #c:tags() > 0 then return end
+
     local props = c.startup_id and sn_callback[tostring(c.startup_id)] or {}
 
     local low_i = string.lower(c.instance or "N/A")
     local low_c = string.lower(get_class(c))
     local tags  = props.tags or {props.tag}
+
     local rules = c_rules.instance[low_i] or c_rules.class[low_c]
-    local forced_tags,props = apply_properties(c,props,rules and rules.properties)
-    if #tags == 0 and c.transient_for and (settings.group_children or (rules and rules.properties.intrusive_popup)) then
+
+    if #tags == 0 and c.transient_for and (capi.mouse.screen or (rules and rules.properties.intrusive_popup)) then
         c.sticky = c.transient_for.sticky or false
         c:tags(awful.util.table.join(c.transient_for:tags(),(rules and rules.properties.intrusive_popup) and c.screen.selected_tags))
         return module.focus_client(c,props)
@@ -147,16 +197,17 @@ local function match_client(c, startup)
         local tags_src,fav_scr,c_src,mouse_s = {},false,c.screen,capi.mouse.screen
         for j=1,#(#tags == 0 and rules.tags or {}) do
             local tag,cache = rules.tags[j],rules.tags[j].screen
-            tag.instances,has_screen = tag.instances or setmetatable({}, { __mode = 'v' }),(type(tag.screen)=="table" and awful.util.table.hasitem(tag.screen,c_src)~=nil)
-            tag.screen = tag.screen and get_screen_idx(tag.screen) or nil
-            tag.screen = (tag.force_screen ~= true and c_src) or (has_screen and c_src or type(tag.screen)=="table" and tag.screen[1] or tag.screen)
-            tag.screen = tag.screen and get_screen_idx(tag.screen) or nil
-            tag.screen = scr_exists(tag.screen) and capi.screen[tag.screen] or mouse_s
+            tag.instances = tag.instances or setmetatable({}, { __mode = 'v' })
+
+            tag.screen = select_screen(tag)
+
             match = tag.instances[get_screen_idx(tag.screen)]
             tag.screen = tag.screen and get_screen_idx(tag.screen) or nil
             local max_clients = match and (type(prop(match,"max_clients")) == "function" and prop(match,"max_clients")(c,match) or prop(match,"max_clients")) or 999
             if (not match and not (fav_scr == true and mouse_s ~= tag.screen)) or (max_clients <= #match:clients()) then
-                awful.tag.add(tag.name,tag).volatile = match and (max_clients ~= nil) or tag.volatile
+                local t = awful.tag.add(tag.name,tag)
+                t.volatile = match and (max_clients ~= nil) or tag.volatile
+                t.is_template = true
             end
             tags_src[tag.screen],fav_scr = tags_src[tag.screen] or {},fav_scr or (tag.screen == mouse_s) --Reset if a better screen is found
             tags_src[tag.screen][#tags_src[get_screen_idx(tag.screen)]+1] = tag.instances[get_screen_idx(tag.screen)]
@@ -171,12 +222,14 @@ local function match_client(c, startup)
             return module.focus_client(c,props)
         end
     end
+
     --Add to the current tag if not exclusive
     local cur_tag = c.screen.selected_tag
-    if cur_tag and prop(cur_tag,"exclusive") ~= true and prop(cur_tag,"locked") ~= true then
+    if cur_tag and cur_tag.exclusive ~= true and cur_tag.locked ~= true then
         c:tags({cur_tag})
         return module.focus_client(c,props)
     end
+
     --Add to the fallback tags
     if #c:tags((function(arr) for k,v in ipairs(fallbacks) do
                                   arr[#arr+1]=v.screen == c.screen and v or nil
@@ -193,6 +246,7 @@ local function match_client(c, startup)
     return module.focus_client(c,props)
 end
 
+capi.client.disconnect_signal("request::tag", awful.ewmh.tag)
 capi.client.connect_signal("request::tag", match_client)
 
 capi.client.connect_signal("untagged", function (c, t)
@@ -206,23 +260,7 @@ capi.client.connect_signal("untagged", function (c, t)
     end
 end)
 
-awful.tag.withcurrent,awful.tag._add  = function(c, startup)
-    local tags,old_tags = {},c:tags()
-    --Safety to prevent
-    for k, t in ipairs(old_tags) do
-        tags[#tags+1] = (t.screen == c.screen) and t or nil
-    end
-    --Necessary when dragging clients
-    if startup == nil and old_tags[1] and old_tags[1].screen ~= c.screen then --nil != false
-        local sellist = c.screen.selected_tags
-        if #sellist > 0 then --Use already selected tag
-            tags = sellist
-        else --Select a tag
-            match_client(c, startup)
-        end
-    end
-    c:tags(tags)
-end,awful.tag.add
+awful.tag._add = awful.tag.add
 
 awful.tag.add = function(tag,props,override)
     props.screen,props.instances = props.screen or capi.mouse.screen,props.instances or setmetatable({}, { __mode = 'v' })
@@ -236,8 +274,143 @@ awful.tag.add = function(tag,props,override)
 end
 
 capi.tag.connect_signal("property::fallback",function(t)
-    fallbacks[awful.util.table.hasitem(fallbacks, t) or (#fallbacks+1)] = prop(t,"fallback") and t or nil
+    fallbacks[awful.util.table.hasitem(fallbacks, t) or (#fallbacks+1)] = t.fallback and t or nil
 end)
+
+local function contain_screen(tab, s)
+    for _, v in ipairs(tab) do
+        if type(v) ~= "number" or v <= capi.screen.count() then
+            v = capi.screen[v]
+            if v == s then
+                return true
+            end
+        end
+    end
+
+    return false
+end
+
+-- Add init tags to newly connected screens
+awful.screen.connect_for_each_screen(function(s)
+    for _, def in pairs(tags_hash) do
+        if def.init then
+            if def.screen and (type(def.screen) == "table" and contain_screen(def.screen, s))
+              or (type(def.screen) == "number" and def.screen <= capi.screen.count())
+              or (type(def.screen) == "screen") then
+                local real_s = def.screen
+                def.screen = s
+                awful.tag.add(def.name,def).is_template = true
+                def.screen = real_s
+            end
+        end
+    end
+
+    -- Restore old tags to their original screen
+    for ss in capi.screen do
+        for _, t in ipairs(ss.tags) do
+            if t.saved_from == s.index then
+                t.screen = s
+            end
+        end
+    end
+end)
+
+-- Handle events such as screen being removed
+capi.tag.connect_signal("request::screen", function(t)
+    -- Only salvage used tags
+    if #t:clients() > 0 then
+        -- If the same class of tag exist on another screen, use that
+        if t.is_template and t.instances then
+            local new_tag
+            for k, t in pairs(t.instances) do
+                if k ~= t.screen.index and k <= capi.screen.count() then
+                    new_tag = capi.screen[k]
+                    break
+                end
+            end
+
+            if new_tag then
+                for _, c in ipairs(t:clients()) do
+                    c:tags{new_tag}--TODO batch this to if a client is on 2 tags, it doesn't get removed from the other
+                end
+
+                -- The tag will be deleted by awful.tag
+                return
+            end
+        end
+
+        local new_screen = capi.screen.primary or awful.screen.focused() --TODO be smarter
+
+        -- In case the screen comes back, save the old index
+        t.saved_from = t.screen.index
+
+        -- Move the tag to an existing screen
+        t.selected = false
+        t.screen = new_screen
+    end
+end)
+
+capi.client.disconnect_signal("manage", awful.rules.apply)
+capi.client.disconnect_signal("spawn::completed_with_payload", awful.rules.completed_with_payload_callback)
+capi.client.disconnect_signal("manage",awful.spawn.on_snid_callback)
+
+--- Replace the default handler to take into account Tyrannical properties
+function awful.rules.apply(c)
+    local low_i = string.lower(c.instance or "N/A")
+    local low_c = string.lower(get_class(c))
+
+    local callbacks, props = {}, {}
+
+    local props_src = (c_rules.instance[low_i]
+        or c_rules.class[low_c] or {}).properties
+        or {}
+
+    -- Add Tyrannical properties
+    awful.util.table.crush(props,props_src)
+
+    -- Add the rules properties
+    for _, entry in ipairs(awful.rules.matching_rules(c, awful.rules.rules)) do
+        awful.util.table.crush(props,entry.properties or {})
+
+        if entry.callback then
+            table.insert(callbacks, entry.callback)
+        end
+    end
+
+    -- Add startup_id overridden properties
+    if c.startup_id and awful.spawn.snid_buffer[c.startup_id] then
+        local snprops, sncb = unpack(awful.spawn.snid_buffer[c.startup_id])
+
+        -- The SNID tag(s) always have precedence over the rules one(s)
+        if snprops.tag or snprops.tags or snprops.new_tag then
+            props.tag, props.tags, props.new_tag, props.intrusive = nil, nil, nil, false
+        end
+
+        awful.util.table.crush(props,snprops)
+        awful.util.table.merge(callbacks, sncb)
+    end
+
+    apply_properties(c,props, callbacks)
+end
+
+capi.client.connect_signal("manage", awful.rules.apply)
+
+capi.client.disconnect_signal("request::activate",awful.ewmh.activate)
+capi.client.connect_signal("request::activate",function(c,reason)
+    -- Always grant those request as it probably mean that it is a modal dialog
+    if c.transient_for and capi.client.focus == c.transient_for then
+        capi.client.focus = c
+        c:raise()
+    -- If it is not modal, then use the normal code path
+    elseif reason == "rule" or reason == "rules" or reason == "ewmh" then
+        module.focus_client(c)
+    -- Tyrannical doesn't have enough information, grant the request
+    else
+        capi.client.focus = c
+        c:raise()
+    end
+end)
+
 
 --------------------------OBJECT GEARS---------------------------
 local getter = {properties   = setmetatable({}, {__newindex = function(table,k,v) load_property(k,v) end}),

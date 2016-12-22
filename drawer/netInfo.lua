@@ -20,7 +20,6 @@ local color        = require( "gears.color"              )
 local cairo        = require( "lgi"                      ).cairo
 local allinone     = require( "widgets.allinone"         )
 local fd_async = require("utils.fd_async")
-local radialprog   = require("widgets.radialprogressbar")
 
 local capi = { widget = widget , client = client}
 
@@ -343,33 +342,41 @@ local function new(margin, args)
     local l = wibox.widget.base.make_widget_declarative {
         {
             {
-                icon       = config.iconPath .. "arrowUp.png",
-                suffix     = "MBps"                          ,
-                icon_align = "left"                          ,
-                hide_left  = true                            ,
-                id         = "up_tb"                         ,
-                widget     = allinone                        ,
-                vicious    = { vicious.widgets.net,vicious_net_sum,1                           },
+                {
+                    icon       = config.iconPath .. "arrowUp.png",
+                    suffix     = "MBps"                          ,
+                    icon_align = "left"                          ,
+                    hide_left  = true                            ,
+                    id         = "up_tb"                         ,
+                    widget     = allinone                        ,
+                    vicious    = { vicious.widgets.net,vicious_net_sum,1                           },
+                },
+                bg     = beautiful.systray_bg or beautiful.bg_alternate or beautiful.bg_normal,
+                widget = wibox.container.background
             },
-            outline_color = beautiful.bg_allinone or beautiful.bg_highlight                    ,
-            color         = beautiful.fg_allinone or beautiful.icon_grad or beautiful.fg_normal,
             id            = "up_pb"                                                            ,
-            widget        = radialprog
+            border_color  = beautiful.bg_allinone or beautiful.bg_highlight,
+            color         = beautiful.fg_allinone or beautiful.icon_grad or beautiful.fg_normal,
+            widget        = wibox.container.radialprogressbar,
         },
         {
             {
                 {
-                    icon       = config.iconPath .. "arrowDown.png",
-                    suffix     = "MBps"                            ,
-                    icon_align = "left"                            ,
-                    hide_left  = true                              ,
-                    id         = "down_tb"                         ,
-                    widget     = allinone                          ,
+                    {
+                        icon       = config.iconPath .. "arrowDown.png",
+                        suffix     = "MBps"                            ,
+                        icon_align = "left"                            ,
+                        hide_left  = true                              ,
+                        id         = "down_tb"                         ,
+                        widget     = allinone                          ,
+                    },
+                    bg     = beautiful.systray_bg or beautiful.bg_alternate or beautiful.bg_normal,
+                    widget = wibox.container.background
                 },
-                outline_color = beautiful.bg_allinone or beautiful.bg_highlight                    ,
-                color         = beautiful.fg_allinone or beautiful.icon_grad or beautiful.fg_normal,
                 id            = "down_pb"                                                          ,
-                widget        = radialprog                                                         ,
+                border_color  = beautiful.bg_allinone or beautiful.bg_highlight,
+                color         = beautiful.fg_allinone or beautiful.icon_grad or beautiful.fg_normal,
+                widget        = wibox.container.radialprogressbar,
             },
 --             reflection = {horizontal = true, vertical = false},
             widget     = wibox.container.mirror,

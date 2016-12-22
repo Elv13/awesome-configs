@@ -3,43 +3,56 @@ local blind      = require( "blind"          )
 local color      = require( "gears.color"    )
 local cairo      = require( "lgi"            ).cairo
 local shape      = require( "gears.shape" )
-
-local col = color(theme.fg_normal)
+local capi = {client=client}
 
 local bgs = {
     top = function(context, cr, w, h)
+        if not context.client.valid then return end
+
         cr:translate(1,1)
         shape.rounded_rect(cr, w-2, h*3, 12)
-        cr:set_source(col)
+        cr:set_source(color(context.client.border_color))
         cr:set_line_width(3)
         cr:stroke()
         cr:translate(-2,-2)
     end,
     bottom = function(context, cr, w, h)
+        if not context.client.valid then return end
+
         cr:translate(1,-3*h+ 17)
         shape.rounded_rect(cr, w-2, h*3, 12)
-        cr:set_source(col)
+        cr:set_source(color(context.client.border_color))
         cr:set_line_width(3)
         cr:stroke()
         cr:translate(-1,-2)
     end,
     left = function(context, cr, w, h)
-        cr:set_source_rgb(0,0,0)
+        if not context.client.valid then return end
+
+        local active = context.client == capi.client.focus
+        cr:set_source(color(active and theme.titlebar_bg_focus
+            or theme.titlebar_bg_normal
+        ))
         cr:paint()
-        cr:set_source(col)
+        cr:set_source(color(context.client.border_color))
         cr:rectangle(0,0,2,h)
         cr:fill()
     end,
     right = function(context, cr, w, h)
-        cr:set_source_rgb(0,0,0)
+        if not context.client.valid then return end
+
+        local active = context.client == capi.client.focus
+        cr:set_source(color(active and theme.titlebar_bg_focus
+            or theme.titlebar_bg_normal
+        ))
         cr:paint()
-        cr:set_source(col)
+        cr:set_source(color(context.client.border_color))
         cr:rectangle(w-2,0,2,h)
         cr:fill()
     end,
 }
 
-local function bg_retro(context, cr, w, h)
+local function bg_round(context, cr, w, h)
     bgs[context.position](context, cr, w, h)
 end
 
@@ -81,26 +94,26 @@ theme.titlebar = blind {
         focus  = rect_img(true , "focus" ),
     },
 
-    resize      = rect_img(false, "focus_inactive" ),
-    tag         = rect_img(false, "focus_inactive" ),
+    --resize      = rect_img(false, "focus_inactive" ),
+    --tag         = rect_img(false, "focus_inactive" ),
     title_align = "center",
     height      = height,
-    bg_alternate= "#00000000",
-    bgimage     = bg_retro,
+    bg_alternate= color.transparent,
+    bgimage     = bg_round,
 
     title = blind {
-        bg = "#00000000",
+        bg = color.transparent,
     },
 
     bottom = true,
     bottom_height = bottom_height,
     left = true,
     left_width = 6,
-    bg_sides = "#00000000",
+    bg_sides = color.transparent,
     right = true,
     right_width = 6,
     bottom_draw = nil,
     show_underlay = false,
-    fg_normal = "#00000000",
+    fg_normal = color.transparent,
     fg_focus = "#ffffff",
 }

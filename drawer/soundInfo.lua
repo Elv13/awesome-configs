@@ -13,7 +13,6 @@ local util = require("awful.util")
 local radical      = require( "radical"                  )
 local allinone = require("widgets.allinone")
 local capi = { screen = screen, mouse = mouse}
-local radialprog   = require("widgets.radialprogressbar")
 
 local moduleSound = {}
 
@@ -271,7 +270,16 @@ local function new(mywibox3,args)
 
     vicious.register(volumewidget2, amixer_volume_int,1)
     volumewidget2:buttons(btn)
-    return volumewidget2
+    return wibox.widget {
+        {
+            volumewidget2,
+            bg     = beautiful.systray_bg or beautiful.bg_alternate or beautiful.bg_normal,
+            widget = wibox.container.background
+        },
+        border_color  = beautiful.bg_allinone or beautiful.bg_highlight,
+        color         = beautiful.fg_allinone or beautiful.icon_grad or beautiful.fg_normal,
+        widget        = wibox.container.radialprogressbar,
+    }
 end
 
 return setmetatable(moduleSound, { __call = function(_, ...) return new(...) end })

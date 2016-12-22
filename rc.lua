@@ -3,6 +3,7 @@ if not timer then
   timer = require("gears.timer")
 end
 
+assert(mouse.coords() ~= nil)
 local utils  = require( "utils"       )
 
 --Uncomment both block to profile startup
@@ -104,17 +105,16 @@ config.scr           = {
 -- Load the theme
 config.load()
 config.themePath = awful.util.getdir("config") .. "/blind/" .. config.themeName .. "/"
--- config.iconPath  = config.themePath       .. "Icon/"
 -- beautiful.init(config.themePath                .. "/themeZilla.lua")
 -- beautiful.init(config.themePath                .. "/themeIndustry.lua")
 -- beautiful.init(config.themePath                .. "/themeHolo.lua")
 -- beautiful.init(config.themePath                .. "/themePro.lua") --Unmaintained
 -- beautiful.init(config.themePath                .. "/themeProGrey.lua") --Unmaintained
 -- beautiful.init(config.themePath                .. "/theme.lua")
- beautiful.init(config.themePath                .. "/themeSciFi.lua")
--- beautiful.init(config.themePath                .. "/themeSciFiGrad.lua")
+--  beautiful.init(config.themePath                .. "/themeSciFi.lua")
+beautiful.init(config.themePath                .. "/themeSciFiGrad.lua")
 -- beautiful.init(config.themePath                .. "/themeMidnight1982.lua")
---beautiful.init(config.themePath                .. "/themeWin9x.lua")
+-- beautiful.init(config.themePath                .. "/themeWin9x.lua")
 
 
 -- This is used later as the default terminal and editor to run.
@@ -407,15 +407,22 @@ local wibox_args = {
     border_color = beautiful.wibar_border_color,
 }
 
-for s = 1, screen.count() do
+awful.screen.connect_for_each_screen(function(s)
     -- Create a promptbox for each screen
-    mypromptbox[screen[s]] = awful.widget.prompt()
+    mypromptbox[s] = awful.widget.prompt()
 
     -- Create the wibox
-    wibox_top[screen[s]] = awful.wibar(setmetatable({ position = "top"    , screen = s},{__index=wibox_args}))
-    wibox_bot[screen[s]] = awful.wibar(setmetatable({ position = "bottom" , screen = s},{__index=wibox_args}))
-    wibox_top[screen[s]]:set_bgimage(beautiful.wibar_bgimage)
-    wibox_bot[screen[s]]:set_bgimage(beautiful.wibar_bgimage)
+
+    if beautiful.bar_show_top ~= false then
+        wibox_top[s] = awful.wibar(setmetatable({ position = "top"    , screen = s},{__index=wibox_args}))
+        wibox_top[s]:set_bgimage(beautiful.wibar_bgimage)
+    end
+
+    if beautiful.bar_show_bottom ~= false then
+        wibox_bot[s] = awful.wibar(setmetatable({ position = "bottom" , screen = s},{__index=wibox_args}))
+        wibox_bot[s]:set_bgimage(beautiful.wibar_bgimage)
+    end
+
 
     -- Create the tag control menu
     local tag_control,tag_control_w = radical.bar{
@@ -487,7 +494,7 @@ for s = 1, screen.count() do
     rad_tag.layout_item(tag_control,{screen=s,tooltip="Change layout"}).state[radical.base.item_flags.USED] = true
 
     -- Top Wibox
-    wibox_top[screen[s]]:setup {
+    wibox_top[s]:setup {
         { --Left
             rad_taglist(s)._internal.margin, --Taglist
             { -- Tag control buttons
@@ -505,10 +512,10 @@ for s = 1, screen.count() do
             layout = wibox.layout.fixed.horizontal
         },
         nil, --Center
-        (s == config.scr.pri or s == config.scr.sec) and { -- Right, first screen only
+        (s.index == config.scr.pri or s.index == config.scr.sec) and { -- Right, first screen only
             endArrowR,
             { -- The background
-                { -- The widgets
+                beautiful.bar_show_info ~= false and { -- The widgets
                     spacer5    ,
                     cpuinfo    ,
                     spacer_img ,
@@ -520,6 +527,9 @@ for s = 1, screen.count() do
                     spacer_img ,
                     clock      ,
                     layout = wibox.layout.fixed.horizontal
+                } or {
+                    clock      ,
+                    layout = wibox.layout.fixed.horizontal
                 },
                 layout = wibox.container.background(nil,beautiful.bar_bg_alternate or beautiful.bg_alternate)
             },
@@ -528,51 +538,53 @@ for s = 1, screen.count() do
         layout = wibox.layout.align.horizontal
     }
 
-    -- Bottom Wibox
-    wibox_bot[screen[s]]:setup {
-        { --Left
-            bar_menu_w     ,
---                 sep_end_menu   ,
-            {
-                mypromptbox[screen[s]] ,
-                fg     = beautiful.prompt_fg or beautiful.systray_icon_fg,
-                bg     = beautiful.bg_systray_alt or beautiful.bg_systray or beautiful.icon_grad,
-                layout = wibox.container.background
-            },
-            layout = wibox.layout.fixed.horizontal,
-        },
-        rad_task(screen[s or 1]).widget or nil, --Center
-        {
-            endArrow2                                ,
-            { -- Right
+    if beautiful.bar_show_bottom ~= false then
+        -- Bottom Wibox
+        wibox_bot[s]:setup {
+            { --Left
+                bar_menu_w     ,
+    --                 sep_end_menu   ,
                 {
-                    {
-                        spacer5                          ,
-                        keyboard                         ,
-                        spacer2                          ,
-                        notif                            ,
-                        spacer2                          ,
-                        bat                              ,
-                        spacer2                          ,
-                        s == 1 and wibox.widget.systray() or nil,
-                        layout = wibox.layout.fixed.horizontal
-                        --clock      , --TODO add a beautiful option for clock position
-                    },
-                 top    = beautiful.systray_margins_top    or 0,
-                 bottom = beautiful.systray_margins_bottom or 0,
-                 left   = beautiful.systray_margins_left   or 0,
-                 right  = beautiful.systray_margins_right  or 0,
-                 widget = wibox.container.margin
+                    mypromptbox[s] ,
+                    fg     = beautiful.prompt_fg or beautiful.systray_icon_fg,
+                    bg     = beautiful.bg_systray_alt or beautiful.bg_systray or beautiful.icon_grad,
+                    layout = wibox.container.background
                 },
-                bgimage = beautiful.bgimage_systray_alt,
-                bg      = beautiful.bg_systray_alt or beautiful.bg_systray or beautiful.icon_grad or beautiful.fg_normal,
-                widget  = wibox.container.background
+                layout = wibox.layout.fixed.horizontal,
             },
-            layout = wibox.layout.fixed.horizontal,
-        },
-        layout = wibox.layout.align.horizontal
-    }
-end
+            rad_task(s).widget or nil, --Center
+            {
+                endArrow2                                ,
+                { -- Right
+                    {
+                        {
+                            spacer5                          ,
+                            keyboard                         ,
+                            spacer2                          ,
+                            notif                            ,
+                            spacer2                          ,
+                            bat                              ,
+                            spacer2                          ,
+                            s.index == 1 and wibox.widget.systray() or nil,
+                            layout = wibox.layout.fixed.horizontal
+                            --clock      , --TODO add a beautiful option for clock position
+                        },
+                    top    = beautiful.systray_margins_top    or 0,
+                    bottom = beautiful.systray_margins_bottom or 0,
+                    left   = beautiful.systray_margins_left   or 0,
+                    right  = beautiful.systray_margins_right  or 0,
+                    widget = wibox.container.margin
+                    },
+                    bgimage = beautiful.bgimage_systray_alt,
+                    bg      = beautiful.bg_systray_alt or beautiful.bg_systray or beautiful.icon_grad or beautiful.fg_normal,
+                    widget  = wibox.container.background
+                },
+                layout = wibox.layout.fixed.horizontal,
+            },
+            layout = wibox.layout.align.horizontal
+        }
+    end
+end)
 
 -- Add keyboard shortcuts
 dofile(awful.util.getdir("config") .. "/shortcuts.lua")
@@ -645,7 +657,7 @@ end)
 awful.client._setslave = awful.client.setslave
 function awful.client.setslave(c)
     local t = c.screen.selected_tag
-    local nmaster = awful.tag.getnmaster(t) or 1
+    local nmaster = t.master_count or 1
     local cls = awful.client.tiled(c.screen) or client.get(c.screen)
     local index = awful.util.table.hasitem(cls,c)
     if index and index <= nmaster and #cls > nmaster then
@@ -697,114 +709,3 @@ shorter.register_section("TYRANNICAL",{
 
 shorter.register_section_text("REPETITIVE","gdfgdfgdfg dsfhg jsdghjsdf gdsfhj gdhj gjgj gjdf ghdjfh gjgdjgdjhg d dhjfg dhfjg dhfj gdhfgj sdhj fg")
 
--- Uncomment to profile startup
--- local t = timer {timeout=1}
--- t:connect_signal("timeout",function()
---     debug.sethook()
---     utils.profile.stop(_G)
---     t:stop()
--- end)
--- t:start()
-
--- require("wirefu.demo.notification")
-
--- awesome.xrdb_set_value("ds","23")
--- 
--- print("\n\nRESSOURCE",awesome.xrdb_get_value("","foreground"),"s")
--- print("\n\nRESSOURCE",awesome.xrdb_get_value("","bobcat"),"s")
--- print("\n\nRESSOURCE",awesome.xrdb_get_value("URxvt","foobar"),"s")
--- print("\n\nRESSOURCE",awesome.xrdb_get_value("URxvt","foreground"),"s")
--- print("\n\nRESSOURCE",awesome.xrdb_get_value("","foobar2"),"s")
--- kate: space-indent on; indent-width 4; replace-tabs on;
--- print(beautiful.get_font())
-
--- local w = wibox {
---     visible = true,
---     width = 150,
---     height = 90,
---     x= 100,
---     y=125,
---     ontop = true,
---     bg = color("#0000ff")
--- }
--- w:setup{
---     {
---         {
---             widget = wibox.widget.slider,
---         },
---         direction = "south",
---         widget =  wibox.container.rotate
---     },
---     reflection = {
---         vertical = false
---     },
---     widget = wibox.container.mirror
--- }
--- w:setup{
---     {
---         {
---             widget = wibox.widget.slider,
---         },
---         direction = "east",
---         widget =  wibox.container.rotate
---     },
---     reflection = {
---         horizontal = false,
---         vertical   = true
---     },
---     widget = wibox.container.mirror
--- }
-
--- w:setup{
---     {
---         value     = 75,
---         max_value = 100,
---         border_width = 2,
---         border_color = "#00ff00",
---         shape     = gears.shape.octogon,
---         bar_shape     = gears.shape.octogon,
---         bar_border_color     = "#ffff00",
---         bar_border_width     = 1,
---         widget    = wibox.widget.progressbar,
---         paddings = 2,
---         margins = 5,
---     },
---     {
---         value     = 75,
---         max_value = 100,
---         border_width = 2,
---         border_color = "#00ff00",
---         shape     = gears.shape.rounded_bar,
---         bar_shape     = gears.shape.rounded_bar,
---         bar_border_color     = "#ffff00",
---         bar_border_width     = 1,
---         widget    = wibox.widget.progressbar,
---     },
---     {
---         value     = 75,
---         max_value = 100,
---         border_width = 2,
---         border_color = "#00ff00",
---         shape     = gears.shape.rounded_bar,
---         bar_shape     = gears.shape.rounded_bar,
---         bar_border_color     = "#ffff00",
---         bar_border_width     = 1,
---         widget    = wibox.widget.progressbar,
---         paddings = 5,
---         margins = {
---             top = 10,
---             bottom = 10,
---         },
---         clip = false,
---     },
---     layout = wibox.layout.flex.vertical
--- --     layout = wibox.layout.fixed.vertical
--- }
-
-awful.spawn {
-    command = "urxvt",
-    icon = "/home/minde/.config/awesome//theme/flat/icons//launcher/terminal.png",
-    tag = 1,
-    key = "T",
-    name = "Terminal",
-}

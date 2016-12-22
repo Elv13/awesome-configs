@@ -19,7 +19,6 @@ local radical      = require( "radical"               )
 local color        = require( "gears.color"           )
 local allinone     = require( "widgets.allinone"      )
 local fd_async     = require("utils.fd_async"         )
-local radialprog   = require("widgets.radialprogressbar")
 
 local data     = {}
 
@@ -268,15 +267,19 @@ local function new(margin, args)
 
     local rpb = wibox.widget.base.make_widget_declarative {
         {
-            icon    = config.iconPath .. "brain.png",
-            vicious = {vicious.widgets.cpu,'$1',1},
-            widget  = allinone,
+            {
+                icon    = config.iconPath .. "brain.png",
+                vicious = {vicious.widgets.cpu,'$1',1},
+                widget  = allinone,
+            },
+            bg     = beautiful.systray_bg or beautiful.bg_alternate or beautiful.bg_normal,
+            widget = wibox.container.background
         },
         menu          = cpuInfoModule.toggle,
         vicious       = {vicious.widgets.cpu,'$1',1},
-        outline_color = beautiful.bg_allinone or beautiful.bg_highlight,
+        border_color  = beautiful.bg_allinone or beautiful.bg_highlight,
         color         = beautiful.fg_allinone or beautiful.icon_grad or beautiful.fg_normal,
-        widget        = radialprog
+        widget        = wibox.container.radialprogressbar,
     }
 
     return rpb

@@ -47,7 +47,9 @@ local function bottom_corner_fit(self, context, w,h)
 end
 
 local function set_underlay(c,infoshapes,underlays)
-    if not infoshapes then return end
+    if not infoshapes or beautiful.titlebar_show_underlay == false then
+        return
+    end
 
     local underlays = underlays or {}
     if #underlays == 0 then

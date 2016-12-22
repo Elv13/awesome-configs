@@ -179,7 +179,11 @@ end
 
 local function create_client_item(c,screen)
   local item = _cache[c]
+
+  if not instances[capi.screen[screen]] then return end
+
   local menu = instances[capi.screen[screen]].menu
+
   -- If it already exist, don't waste time creating a copy
   if item then
     menu:append(item)

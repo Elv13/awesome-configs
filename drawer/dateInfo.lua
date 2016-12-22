@@ -230,8 +230,8 @@ local function new(screen, args)
             padding = 1,
             widget  = ct
           },
-          top    = 0,
-          bottom = 0,
+          top    = 2,
+          bottom = 2,
           left   = 5,
           right  = 5,
           widget = wibox.container.margin
