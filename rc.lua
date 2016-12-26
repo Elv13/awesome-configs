@@ -111,8 +111,8 @@ config.themePath = awful.util.getdir("config") .. "/blind/" .. config.themeName 
 -- beautiful.init(config.themePath                .. "/themePro.lua") --Unmaintained
 -- beautiful.init(config.themePath                .. "/themeProGrey.lua") --Unmaintained
 -- beautiful.init(config.themePath                .. "/theme.lua")
---  beautiful.init(config.themePath                .. "/themeSciFi.lua")
-beautiful.init(config.themePath                .. "/themeSciFiGrad.lua")
+beautiful.init(config.themePath                .. "/themeSciFi.lua")
+-- beautiful.init(config.themePath                .. "/themeSciFiGrad.lua")
 -- beautiful.init(config.themePath                .. "/themeMidnight1982.lua")
 -- beautiful.init(config.themePath                .. "/themeWin9x.lua")
 

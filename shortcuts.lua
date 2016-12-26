@@ -285,7 +285,7 @@ local radial = require("radical.radial")
 clientbuttons = awful.util.table.join(
     awful.button({ }, 1, function (c) client.focus = c; c:raise() end),
     awful.button({ modkey }, 1, awful.mouse.client.move),
-    awful.button({ modkey }, 3, awful.mouse.client.resize)--[[,
+    awful.button({ modkey }, 3, function(c) print(c:get_visible(true)) end)--[[,
     awful.button({  }, 5, collision.util.double_click(function() customMenu.client_opts() end))
     awful.button({  }, 2, radial.radial_client_select)]]
 )

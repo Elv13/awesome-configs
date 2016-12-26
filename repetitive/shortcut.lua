@@ -60,6 +60,7 @@ local callbacks = {
   relativ_shortcute  = function (elem) return update_property(elem,"relative_shortcut" ) end,
   viewonly           = function (elem) return update_property(elem,"viewonly"          ) end,
   shortcut           = function (elem) return update_property(elem,"shortcut"          ) end,
+  move_to_current    = function (elem) return update_property(elem,"move_to_current"   ) end,
 }
 
 -- Register new properties
@@ -70,8 +71,8 @@ for _,sig in ipairs {
   "relativ_shortcute" ,
   "viewonly"          ,
 } do
-  local prop_name = "property::"..sig
-  capi.tag.connect_signal   (prop_name, callbacks[sig] )
-  capi.client.connect_signal(prop_name, callbacks[sig] )
+    local prop_name = "property::"..sig
+    capi.tag.connect_signal   (prop_name, callbacks[sig] )
+    capi.client.connect_signal(prop_name, callbacks[sig] )
 end
--- kate: space-indent on; indent-width 2; replace-tabs on;
+-- kate: space-indent on; indent-width 4; replace-tabs on;
