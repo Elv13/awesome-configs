@@ -16,6 +16,7 @@ local appmenu      = require( "customMenu.appmenu"         )
 local fd_async     = require( "utils.fd_async"             )
 local rad_client   = require( "radical.impl.common.client" )
 local capi = { screen = screen }
+local awful = require("awful")
 
 local module={}
 local menu,current_item = nil,nil
@@ -45,7 +46,7 @@ local function exec(ini,args)
         ret = ret.." "..previous
     end
 
-    util.spawn(ret,args)
+    awful.spawn(ret,args)
 end
 
 local function add_category(menu,main_category)
@@ -72,7 +73,10 @@ local function gen_menu(dock,name,ini,item)
     if menu then return menu end
 
     menu = menu4({parent_geo=geometry})
-    menu:add_item({text="Launch",button1=function() print("exec "..menu.current_item) end})
+    menu:add_item({text="Launch",button1=function()
+        exec(ini)
+        menu.hide()
+    end})
 --     menu:add_item({text="Screen 9",icon=beautiful.path.."Icon/layouts/tileleft.png"})
     if capi.screen.count() > 1 then
         menu:add_item({text="Launch on screen",sub_menu = function()
@@ -87,21 +91,18 @@ local function gen_menu(dock,name,ini,item)
     menu:add_item({text="Launch in new tag",button1=function()
         local item = dock._current_item
         if not item then return end
-        local exec = item._internal.ini
-        if not exec then return end
-        exec(exec,{new_tag=true,volatile=true})
-        menu.visible = false
+        exec(ini,{new_tag=true,volatile=true})
+        menu.hide()
     end})
     menu:add_item({text="Launch in current tag",button1=function()
         local item = dock._current_item
         if not item then return end
-        local exec = item._internal.ini
-        if not exec then return end
-        exec(exec,{intrusive=true})
-        menu.visible = false
+        exec(ini,{intrusive=true})
+        menu.hide()
     end})
     menu:add_item({text="Launch In tag", sub_menu = function() return listTags({button1= function(i,m)
         exec(ini,{tag=i._tag})
+        menu.hide()
     end}) end})
     menu:add_widget(radical.widgets.separator())
     menu:add_item({text="Dock position",sub_menu = function()
@@ -130,7 +131,10 @@ local function gen_menu(dock,name,ini,item)
     end}
     local ib = wibox.widget.imagebox()
     ib:set_image(beautiful.titlebar_close_button_normal)
-    menu:add_item({text="Remove from dock",suffix_widget = ib})
+    menu:add_item({text="Remove from dock",suffix_widget = ib,button1=function()
+      awful.spawn('rm '..dock._current_item._internal.path)
+      end
+      })
     local imb = wibox.widget.imagebox()
     menu:connect_signal("visible::changed",function(_,visible)
         if not menu.visible and not beautiful.dock_always_show then
