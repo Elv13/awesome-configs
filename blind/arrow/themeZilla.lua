@@ -49,6 +49,7 @@ theme.bar_bg = blind {
 }
 theme.bar_bg_alternate = theme.bar_bg_normal
 local normal_underlay = { type = "linear", from = { 0, 0 }, to = { 0, default_height }, stops = { { 0, "#3F474E" }, { 1, "#181B1E" }}}
+theme.bar_show_info = false
 
 -- Forground
 theme.fg = blind {
@@ -79,6 +80,9 @@ theme.systray_bg_alt       = "#00000000"
 theme.systray_icon_fg      = theme.bar_bg_normal
 theme.bg_resize_handler    = "#aaaaff55"
 theme.allinone_icon        = "#ADADAD99"
+
+theme.systray_margins_top = 4
+theme.systray_margins_bottom = 4
 
 -- Border
 theme.border = blind {
@@ -354,7 +358,7 @@ theme.titlebar = blind {
 
 theme.separator_color = "#49535B"
 
-theme.useless_gap = 7
+theme.useless_gap = 35
 theme.titlebar_bottom = true
 
 loadfile(theme.path .."bits/titlebar_square.lua")(theme,path)

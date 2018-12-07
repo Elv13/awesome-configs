@@ -50,9 +50,12 @@ function module.layouts(menu,layouts)
 
   layouts = layouts or awful.layout.layouts
 
+  local found_current = false
+
   for i, layout_real in ipairs(layouts) do
     local layout2 = awful.layout.getname(layout_real)
     local is_current = cur and ((layout_real == cur) or (layout_real.name == cur.name))
+    found_current = found_current or is_current
     if layout2 and beautiful["layout_" ..layout2] then
       screenSelect:add_item({icon=beautiful["layout_" ..layout2],button1 = function(_,mod)
         if mod then
@@ -62,6 +65,16 @@ function module.layouts(menu,layouts)
       end, selected = is_current, item_layout = radical.item.layout.icon})
     end
   end
+
+  if not found_current then
+      screenSelect:add_item({icon= nil,button1 = function(_,mod)
+        if mod then
+          screenSelect[mod[1] == "Shift" and "previous_item" or "next_item"].selected = true
+        end
+        awful.layout.set(cur, (capi.client.focus and capi.client.focus.screen.selected_tag))
+      end, selected = true, item_layout = radical.item.layout.icon})
+  end
+
   return screenSelect
 end
 

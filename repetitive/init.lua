@@ -1,4 +1,3 @@
-local unpack = unpack
 local aw_button = require( "awful.button"       )
 local aw_util   = require( "awful.util"         )
 local aw_key    = require( "awful.key"          )
@@ -7,6 +6,7 @@ local macro     = require( "repetitive.macro"   )
 local shortcut  = require( "repetitive.shortcut")
 local common    = require( "repetitive.common"  )
 local glib      = require( "lgi"                ).GLib
+local unpack = unpack or table.unpack -- luacheck: globals unpack (compatibility with Lua 5.1)
 
 local capi = {timer = timer,root=root,client=client,mouse=mouse}
 
@@ -66,6 +66,11 @@ local function generate_key_binding()
                         tag.viewonly(tags[1])
                     end
                 end
+
+                if c.minimized then
+                    c.minimized = false
+                end
+
                 capi.client.focus = c
                 c:raise()
                 local geo = c:geometry()
@@ -83,6 +88,12 @@ local function generate_key_binding()
             local t = tag.selected(capi.client.focus and capi.client.focus.screen or capi.mouse.screen)
             common.fav[fk] = function() --TODO manage "deleted" signal
                 tag.viewonly(t)
+                if mouse.screen ~= t.screen then
+                    capi.mouse.coords {
+                        x = mouse.screen.geometry.x+mouse.screen.geometry.width /2,
+                        y = mouse.screen.geometry.y+mouse.screen.geometry.height/2
+                    }
+                end
             end
         end)
 

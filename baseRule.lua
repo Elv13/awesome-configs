@@ -3,27 +3,39 @@ local utils = require("utils")
 local tyrannical = require("tyrannical")
 local config = require("forgotten")
 
-local function five_layout(c,tag)
-    if type(tag) == "client" then
-        c, tag = tag, c
-    end
-
-    local count = #match:clients() + 1
-    if count == 2 then
-        awful.layout.set(awful.layout.suit.tile,tag)
-        tag.master_count = 1
-        tag.master_width_factor  = 0.5
-    elseif count > 2 and count < 5 then
-        awful.layout.set(awful.layout.suit.tile,tag)
-        tag.master_count = 1
-        tag.master_width_factor = 0.6
-    elseif count == 5 then
-        tag.master_count = 2
-        tag.master_width_factor = 0.63 -- 100 columns at 1080p 11px fonts
-        --awful.client.setwfact(0.66, tag.screen.selected_tag.nmaster or 1)
-    end
-    return 6
-end
+local tile   = require('dynamite.layout.ratio')
+local cond   = require('dynamite.layout.conditional')
+local corner = require('dynamite.suit.corner')
+local fair   = require('dynamite.suit.fair')
+local margin = require('wibox.container.margin')
+local dynamite = require("dynamite")
+local mycustomtilelayout = dynamite {
+    {
+        {
+            command = "urxvtc",
+            widget = dynamite.widget.spawn,
+        },
+        {
+            command = "urxvtc",
+            widget = dynamite.widget.spawn,
+        },
+        {
+            command = "urxvtc",
+            widget = dynamite.widget.spawn,
+        },
+        {
+            command = "urxvtc",
+            widget = dynamite.widget.spawn,
+        },
+        {
+            command = "urxvtc",
+            widget = dynamite.widget.spawn,
+        },
+        layout = corner
+    },
+    reflow = true,
+    layout = cond
+}
 
 local function fair_split_or_tile(c,tag)
     if count == 2 then
@@ -58,13 +70,12 @@ tyrannical.tags = {
         exclusive   = true                                           ,
         icon        = utils.tools.invertedIconPath("term.png")       ,
         screen      = {config.scr.pri, config.scr.sec} ,
-        layout      = awful.layout.suit.tile                         ,
+        layout      = mycustomtilelayout,
         focus_new   = true                                           ,
         selected    = true,
 --         nmaster     = 2,
 --         mwfact      = 0.6,
         index       = 1,
---         max_clients = five_layout,
         class       = {
             "xterm" , "urxvt" , "aterm","URxvt","XTerm"
         },
@@ -330,7 +341,7 @@ tyrannical.tags = {
         screen      = {3, 4, 5}                                      ,
         layout      = awful.layout.suit.tile                         ,
         class       = {}
-    } ,
+    },
     {
         name        = "MediaCenter",
         init        = true                                           ,
@@ -342,7 +353,82 @@ tyrannical.tags = {
         init        = "mythfrontend"                                 ,
         layout      = awful.layout.suit.tile                         ,
         class       = {"mythfrontend"  , "xbmc" , "xbmc.bin"        ,}
-    } ,
+    },
+    {
+        name        = "Awesome",
+        init        = true                                           ,
+        position    = 10                                             ,
+        exclusive   = true                                           ,
+        master_width_factor = 0.66,
+        mwfact = 0.66,
+        layout      = dynamite {
+            {
+                {
+                    command = "kate -s 'Awesome'",
+                    widget = dynamite.widget.spawn,
+                },
+                max_elements = 1,
+                priority     = 3,
+                ratio        = 0.66,
+                layout       = dynamite.layout.ratio.vertical
+            },
+            {
+                {
+                    command = "urxvtc -cd /home/lepagee/dev/awesome/build",
+                    widget = dynamite.widget.spawn,
+                },
+                {
+                    command = "urxvtc -cd /home/elv13",
+                    widget = dynamite.widget.spawn,
+                },
+                reflow       = true,
+                priority     = 1,
+                ratio        = 0.33,
+                layout       = dynamite.layout.ratio.vertical
+            },
+            layout = dynamite.layout.ratio.horizontal
+        }
+    },
+    {
+        name        = "Ring-KDE",
+        init        = true      ,
+        position    = 10        ,
+        exclusive   = true      ,
+        locked      = true,
+        master_width_factor = 0.66,
+        mwfact = 0.66,
+        layout      = dynamite {
+            {
+                {
+                    command = "kate -s 'libringclient'",
+                    widget = dynamite.widget.spawn,
+                },
+                max_elements = 1,
+                ratio        = 0.66,
+                priority     = 3,
+                layout       = dynamite.layout.ratio.vertical
+            },
+            {
+                {
+                    command = "urxvtc -cd /home/lepagee/dev/sflphone_review",
+                    widget = dynamite.widget.spawn,
+                },
+                {
+                    command = "urxvtc -cd /home/lepagee/dev/libringqt/build",
+                    widget = dynamite.widget.spawn,
+                },
+                {
+                    command = "urxvtc -cd /home/lepagee/dev/ring-kde/build",
+                    widget = dynamite.widget.spawn,
+                },
+                reflow       = true,
+                priority     = 1,
+                ratio        = 0.33,
+                layout       = dynamite.layout.ratio.vertical
+            },
+            layout = dynamite.layout.ratio.horizontal
+        }
+    },
 }
 
 tyrannical.properties.intrusive = {

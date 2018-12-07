@@ -27,6 +27,7 @@ awful.rules      = require( "awful.rules" )
 local wibox      = require( "wibox"       )
 local tyrannical = require( "tyrannical"  )
 require("awful.autofocus")
+require("spawn_snid")
 
 -- Shortcuts
 require( "tyrannical.shortcut" )
@@ -111,10 +112,12 @@ config.themePath = awful.util.getdir("config") .. "/blind/" .. config.themeName 
 -- beautiful.init(config.themePath                .. "/themePro.lua") --Unmaintained
 -- beautiful.init(config.themePath                .. "/themeProGrey.lua") --Unmaintained
 -- beautiful.init(config.themePath                .. "/theme.lua")
-beautiful.init(config.themePath                .. "/themeSciFi.lua")
+ beautiful.init(config.themePath                .. "/themeSciFi.lua")
 -- beautiful.init(config.themePath                .. "/themeSciFiGrad.lua")
 -- beautiful.init(config.themePath                .. "/themeMidnight1982.lua")
+-- beautiful.init(config.themePath                .. "/themeCyberPunk.lua")
 -- beautiful.init(config.themePath                .. "/themeWin9x.lua")
+config.iconPath      = config.themePath .. "/Icon/"
 
 
 -- This is used later as the default terminal and editor to run.
@@ -126,7 +129,7 @@ editor_cmd              = terminal .. " -e " .. editor
 -- Default modkey.
 modkey = "Mod4"
 
-require("awful.layout.dynamic")
+local dynamite = require("dynamite")
 
 awful.layout.layouts = {
     awful.layout.suit.tile            ,
@@ -403,11 +406,11 @@ local wibox_args = {
     height       = beautiful.wibar_height or beautiful.default_height ,
     bg           = beautiful.wibar_bg or beautiful.bar_bg_normal or beautiful.bg_normal,
     fg           = beautiful.wibar_fg,
-    border_width = beautiful.wibar_border_width,
-    border_color = beautiful.wibar_border_color,
 }
 
 awful.screen.connect_for_each_screen(function(s)
+--         print("S", s.dpi)
+--         s.dpi = 110
     -- Create a promptbox for each screen
     mypromptbox[s] = awful.widget.prompt()
 
@@ -589,7 +592,6 @@ end)
 -- Add keyboard shortcuts
 dofile(awful.util.getdir("config") .. "/shortcuts.lua")
 
-
 -- {{{ Rules
 awful.rules.rules = {
     -- All clients will match this rule.
@@ -602,6 +604,8 @@ awful.rules.rules = {
     { rule = { class = "Conky" },
       properties = { border_width = 0,
                      border_color = beautiful.border_normal,} },
+    { rule = { name = "[OS][pa][ev][en] File" },
+      properties = { fullscreen = true} },
 }
 -- }}}
 
@@ -653,6 +657,50 @@ client.connect_signal("unfocus", function(c)
 --     end
 end)
 
+
+naughty.disconnect_signal("request::display", naughty.default_notification_handler)
+
+naughty.connect_signal("request::display", function(n)
+    local w = naughty.widget.box {
+        notification    = n,
+        shape           = gears.shape.rounded_bar,
+        border_width    = 2,
+        placement       = awful.placement.top,
+        offset          = 20,
+        widget_template = {
+            {
+                {
+                    naughty.widget.icon {notification = n},
+                    {
+                        naughty.widget.title   {notification = n},
+                        naughty.widget.message {notification = n},
+                        layout = wibox.layout.fixed.vertical
+                    },
+                    fill_space = true,
+                    layout     = wibox.layout.fixed.horizontal
+                },
+                naughty.widget.actionlist {notification = n},
+                spacing_widget = {
+                    forced_height = 10,
+                    span_ratio    = 0.9,
+                    color = "#ff0000",
+                    widget        = wibox.widget.separator
+                },
+                spacing = 10,
+                layout  = wibox.layout.fixed.vertical
+            },
+            left    = 20,
+            right   = 20,
+            top     = 5,
+            widget  = wibox.container.margin
+        },
+    }
+
+    w:buttons(gears.table.join(
+        awful.button({ }, 1, function () n:destroy() end)
+    ))
+end)
+
 -- When setting a client as "slave", use the first available slot instead of the last
 awful.client._setslave = awful.client.setslave
 function awful.client.setslave(c)
@@ -701,6 +749,41 @@ end
 --     end
 --     return w
 -- end)
+
+--     awful.popup {
+--         widget = {
+--             {
+--                 {
+--                     text   = "foobar",
+--                     widget = wibox.widget.textbox
+--                 },
+--                 {
+--                     {
+--                         text   = "foobar",
+--                         widget = wibox.widget.textbox
+--                     },
+--                     bg     = "#ff00ff",
+--                     clip   = true,
+--                     shape  = gears.shape.rounded_bar,
+--                     widget = wibox.container.background
+--                 },
+--                 {
+--                     value         = 0.5,
+--                     forced_height = 30,
+--                     forced_width  = 100,
+--                     widget        = wibox.widget.progressbar
+--                 },
+--                 layout = wibox.layout.fixed.vertical,
+--             },
+--             margins = 10,
+--             widget  = wibox.container.margin
+--         },
+--         border_color = "#00ff00",
+--         border_width = 5,
+--         placement    = awful.placement.top_left,
+--         shape        = gears.shape.octogon,
+--         visible      = true,
+--     }
 
 shorter.register_section("TYRANNICAL",{
     foo = "bar",

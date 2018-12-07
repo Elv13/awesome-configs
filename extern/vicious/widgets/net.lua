@@ -11,6 +11,7 @@ local io = { lines = io.lines }
 local setmetatable = setmetatable
 local string = { match = string.match }
 local helpers = require("extern.vicious.helpers")
+local unpack = unpack or table.unpack
 -- }}}
 
 
@@ -30,6 +31,8 @@ local unit = { ["b"] = 1, ["kb"] = 1024,
 local function worker(format)
     local args = {}
 
+    local devs = {}
+
     -- Get NET stats
     for line in io.lines("/proc/net/dev") do
         -- Match wmaster0 as well as rt0 (multiple leading spaces)
@@ -40,37 +43,42 @@ local function worker(format)
             -- Transmited bytes, 7 fields from end of the line
             local send = tonumber(string.match(line,
              "([%d]+)%s+%d+%s+%d+%s+%d+%s+%d+%s+%d+%s+%d+%s+%d$"))
-
-            helpers.uformat(args, name .. " rx", recv, unit)
-            helpers.uformat(args, name .. " tx", send, unit)
-
-            -- Operational state and carrier detection
-            local sysnet = helpers.pathtotable("/sys/class/net/" .. name)
-            args["{"..name.." carrier}"] = tonumber(sysnet.carrier) or 0
-
-            local now = os.time()
-            if nets[name] == nil then
-                -- Default values on the first run
-                nets[name] = {}
-                helpers.uformat(args, name .. " down", 0, unit)
-                helpers.uformat(args, name .. " up",   0, unit)
-            else -- Net stats are absolute, substract our last reading
-                local interval = now - nets[name].time
-                if interval <= 0 then interval = 1 end
-
-                local down = (recv - nets[name][1]) / interval
-                local up   = (send - nets[name][2]) / interval
-
-                helpers.uformat(args, name .. " down", down, unit)
-                helpers.uformat(args, name .. " up",   up,   unit)
-            end
-
-            nets[name].time = now
-
-            -- Store totals
-            nets[name][1] = recv
-            nets[name][2] = send
+            table.insert(devs, {name, recv, send})
         end
+    end
+
+    for _,v in ipairs(devs) do
+        local name, recv, send = unpack(v)
+
+        helpers.uformat(args, name .. " rx", recv, unit)
+        helpers.uformat(args, name .. " tx", send, unit)
+
+        -- Operational state and carrier detection
+        local sysnet = helpers.pathtotable("/sys/class/net/" .. name)
+        args["{"..name.." carrier}"] = tonumber(sysnet.carrier) or 0
+
+        local now = os.time()
+        if nets[name] == nil then
+            -- Default values on the first run
+            nets[name] = {}
+            helpers.uformat(args, name .. " down", 0, unit)
+            helpers.uformat(args, name .. " up",   0, unit)
+        else -- Net stats are absolute, substract our last reading
+            local interval = now - nets[name].time
+            if interval <= 0 then interval = 1 end
+
+            local down = (recv - nets[name][1]) / interval
+            local up   = (send - nets[name][2]) / interval
+
+            helpers.uformat(args, name .. " down", down, unit)
+            helpers.uformat(args, name .. " up",   up,   unit)
+        end
+
+        nets[name].time = now
+
+        -- Store totals
+        nets[name][1] = recv
+        nets[name][2] = send
     end
 
     return args

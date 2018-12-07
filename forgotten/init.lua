@@ -3,7 +3,6 @@
 -- Author Emmanuel Lepage Vallee <elv1313@gmail.com> (2011-2013)
 
 local setmetatable = setmetatable
-local loadstring   = loadstring
 local table        = table
 local io           = io
 local rawset,rawget= rawset,rawget
@@ -11,6 +10,7 @@ local type         = type
 local ipairs       = ipairs
 local string       = string
 local pairs        = pairs
+local loadstring   = loadstring or load
 local print        = print
 local next         = next
 local debug = debug

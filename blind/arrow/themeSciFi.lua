@@ -90,6 +90,8 @@ theme.enable_glow          = true
 theme.glow_color           = "#105A8B"
 theme.naughty_bg           = theme.bg_alternate
 theme.naughty_border_color = theme.fg_normal
+theme.notification_bg           = theme.bg_alternate
+theme.notification_border_color = theme.fg_normal
 theme.bg_dock              = pattern2() : grid("#6DA1D422", 10) : to_pattern()
 theme.fg_dock_1            = "#1889F2"
 theme.fg_dock_2            = "#1889F2"
@@ -101,7 +103,7 @@ theme.border = blind {
     focus  = "#000000"      ,
     marked = "#91231c"      ,
 }
-theme.useless_gap = 10
+theme.useless_gap = 5
 
 theme.alttab_icon_transformation = function(image,data,item)
     return surface.tint(surface(image),color(theme.fg_normal),theme.default_height,theme.default_height)
